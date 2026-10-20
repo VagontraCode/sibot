@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'beam.dart' show ulsLoad;
+import 'bearing.dart';
 import 'core.dart';
 import 'materials.dart';
 import 'rc_bending.dart';
@@ -25,7 +26,7 @@ class FootingInput {
   final double mg;
   final double mq;
 
-  /// Allowable (SLS) bearing pressure, kPa.
+  /// Allowable (SLS) bearing pressure, kPa (used when [soil] is null).
   final double qAllowable;
 
   /// Depth from ground level to the underside of the footing, m.
@@ -35,6 +36,10 @@ class FootingInput {
   final double fck;
   final double fyk;
   final double cover;
+
+  /// Soil parameters: when given, bearing is checked at ULS with
+  /// EN 1997-1 Annex D, design approach 2, instead of [qAllowable].
+  final Soil? soil;
 
   const FootingInput({
     required this.code,
@@ -50,6 +55,7 @@ class FootingInput {
     this.depth = 1.0,
     this.soilWeight = 18,
     this.cover = 50,
+    this.soil,
   });
 }
 
@@ -68,6 +74,10 @@ class FootingDesign {
   /// Service eccentricity and ground pressure used in the bearing check.
   final double eccentricity;
   final double pressure;
+
+  /// Pressure the footing may carry: qAllowable, or the EC7 design
+  /// resistance R/(A′·γR,v), kPa.
+  final double bearingLimit;
 
   /// ULS column load and moment.
   final double nUls;
@@ -93,6 +103,7 @@ class FootingDesign {
     required this.weight,
     required this.eccentricity,
     required this.pressure,
+    required this.bearingLimit,
     required this.nUls,
     required this.mUls,
     required this.asA,
@@ -123,7 +134,7 @@ FootingDesign designFooting(FootingInput i) {
   requirePositive(i.a, 'a');
   requirePositive(i.b, 'b');
   requirePositive(i.g + i.q, 'g');
-  requirePositive(i.qAllowable, 'qAllowable');
+  if (i.soil == null) requirePositive(i.qAllowable, 'qAllowable');
   requireRange(i.depth, 0.2, 10, 'depth');
   final concrete = Concrete(i.code, i.fck);
   final steel = RebarSteel(i.fyk);
@@ -138,7 +149,7 @@ FootingDesign designFooting(FootingInput i) {
   var hMm = 300.0;
   var bM = 0.6;
   var aM = bM * ratio;
-  late double weight, e, sigma;
+  late double weight, e, sigma, limit;
   for (var pass = 0; pass < 20; pass++) {
     bM = math.max(0.6, i.b / 1000 + 0.2);
     while (true) {
@@ -148,8 +159,32 @@ FootingDesign designFooting(FootingInput i) {
           aM * bM * math.max(i.depth - hMm / 1000, 0) * i.soilWeight;
       final n = nSer + weight;
       e = mSer / n;
-      sigma = e < aM / 6 ? _pressure(i.code, n, e, aM, bM) : double.infinity;
-      if (sigma <= i.qAllowable || bM >= 10) break;
+      final soil = i.soil;
+      if (soil == null) {
+        limit = i.qAllowable;
+        sigma = e < aM / 6 ? _pressure(i.code, n, e, aM, bM) : double.infinity;
+      } else {
+        // EN 1997-1 DA2: Vd = 1.35·(G + W) + 1.5·Q on the effective area
+        // A′ = (A − 2·ed)·B; Rd/A′ = qult/γR,v.
+        final vd = 1.35 * (i.g + weight) + 1.5 * i.q;
+        final ed = (1.35 * i.mg + 1.5 * i.mq) / vd;
+        final aEff = aM - 2 * ed;
+        if (e >= aM / 6 || aEff <= 0) {
+          sigma = double.infinity;
+          limit = 0;
+        } else {
+          sigma = vd / (aEff * bM);
+          limit =
+              ultimateBearingPressure(
+                soil,
+                bEff: math.min(aEff, bM),
+                lEff: math.max(aEff, bM),
+                depth: i.depth,
+              ) /
+              gammaRv;
+        }
+      }
+      if (sigma <= limit || bM >= 10) break;
       bM += 0.05;
     }
     if (bM >= 10) notes.add(FootingNote.sizeLimitReached);
@@ -296,8 +331,10 @@ FootingDesign designFooting(FootingInput i) {
     Check(
       kind: CheckKind.bearingPressure,
       demand: sigma,
-      capacity: i.qAllowable,
-      clause: i.code == DesignCode.bael ? 'DTU 13.12' : 'EN 1997-1 6.5.2',
+      capacity: limit,
+      clause: i.soil != null
+          ? 'EN 1997-1 Annex D, DA2'
+          : (i.code == DesignCode.bael ? 'DTU 13.12' : 'EN 1997-1 6.5.2'),
       unit: 'kPa',
     ),
     Check(
@@ -337,6 +374,7 @@ FootingDesign designFooting(FootingInput i) {
     weight: weight,
     eccentricity: e,
     pressure: sigma,
+    bearingLimit: limit,
     nUls: nU,
     mUls: mU,
     asA: asA,

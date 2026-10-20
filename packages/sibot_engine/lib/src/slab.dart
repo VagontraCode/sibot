@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'beam.dart' show ulsLoad;
 import 'core.dart';
 import 'materials.dart';
+import 'punching.dart';
 import 'rc_bending.dart';
 import 'rebar.dart';
 
@@ -37,6 +38,13 @@ class SlabInput {
   final double q;
 
   final SlabSupport support;
+
+  /// Optional punching check: ULS load (kN) on a c1 × c2 area (mm),
+  /// EC2 factor β (1.15 interior column, 1.0 centred load).
+  final double? punchLoad;
+  final double punchC1;
+  final double punchC2;
+  final double punchBeta;
   final double fck;
   final double fyk;
 
@@ -51,6 +59,10 @@ class SlabInput {
     this.ly,
     this.cover = 25,
     this.support = SlabSupport.simplySupported,
+    this.punchLoad,
+    this.punchC1 = 300,
+    this.punchC2 = 300,
+    this.punchBeta = 1.15,
   });
 
   bool get twoWay => ly != null;
@@ -104,6 +116,8 @@ class SlabDesign {
   final List<Check> checks;
   final List<SlabNote> notes;
 
+  final PunchingDesign? punching;
+
   const SlabDesign({
     required this.input,
     required this.selfWeight,
@@ -116,6 +130,7 @@ class SlabDesign {
     required this.vEd,
     required this.checks,
     required this.notes,
+    this.punching,
   });
 
   bool get ok => checks.every((c) => c.ok);
@@ -378,7 +393,31 @@ SlabDesign designSlab(SlabInput i) {
       );
   }
 
+  // Optional punching at a column or concentrated load. Over a support of
+  // a continuous slab the top bars resist; otherwise the bottom bars.
+  PunchingDesign? punching;
+  final pLoad = i.punchLoad;
+  if (pLoad != null && pLoad > 0) {
+    final topX = barsXs?.areaPerMetre;
+    final rhoX = (topX ?? barsX?.areaPerMetre ?? asX) / (1000 * dx);
+    final rhoY = (y.barsSpan?.areaPerMetre ?? asY) / (1000 * dy);
+    punching = designPunching(
+      code: i.code,
+      c1: i.punchC1,
+      c2: i.punchC2,
+      vEd: pLoad,
+      d: (dx + dy) / 2,
+      h: i.h,
+      rhoL: math.sqrt(rhoX * rhoY),
+      fck: i.fck,
+      fyk: i.fyk,
+      beta: i.punchBeta,
+    );
+    checks.addAll(punching.checks);
+  }
+
   return SlabDesign(
+    punching: punching,
     input: i,
     selfWeight: sw,
     wUls: w,

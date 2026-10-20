@@ -4,6 +4,7 @@ import 'core.dart';
 import 'materials.dart';
 import 'rc_bending.dart';
 import 'rc_shear.dart';
+import 'rc_sls.dart';
 import 'rebar.dart';
 
 enum BeamSupport {
@@ -46,6 +47,15 @@ class BeamInput {
   final double fck;
   final double fyk;
 
+  /// EC2: quasi-permanent factor ψ2 of the variable load (EN 1990
+  /// Table A1.1: 0.3 for dwellings and offices) and crack-width limit
+  /// wmax, mm (Table 7.1N: 0.3 for XC2–XS3).
+  final double psi2;
+  final double crackLimit;
+
+  /// BAEL cracking class (A.4.5.3).
+  final BaelCracking baelCracking;
+
   const BeamInput({
     required this.code,
     required this.span,
@@ -59,6 +69,35 @@ class BeamInput {
     this.cover = 30,
     this.linkDiameter = 8,
     this.includeSelfWeight = true,
+    this.psi2 = 0.3,
+    this.crackLimit = 0.3,
+    this.baelCracking = BaelCracking.slight,
+  });
+}
+
+/// Serviceability results.
+class BeamSls {
+  /// Characteristic (G + Q) and quasi-permanent (G + ψ2·Q) moments, kN·m.
+  final double mChar;
+  final double mQp;
+
+  /// Cracked section used for the stresses.
+  final CrackedSection section;
+
+  /// Concrete and steel stresses under the characteristic moment, MPa.
+  final double sigmaC;
+  final double sigmaS;
+
+  /// EC2 crack width under the quasi-permanent moment (null for BAEL).
+  final CrackWidth? crack;
+
+  const BeamSls({
+    required this.mChar,
+    required this.mQp,
+    required this.section,
+    required this.sigmaC,
+    required this.sigmaS,
+    required this.crack,
   });
 }
 
@@ -88,10 +127,14 @@ class BeamDesign {
   final double? spanDepthActual;
   final double? spanDepthLimit;
 
+  /// Stresses and cracking (null when no bars could be chosen).
+  final BeamSls? sls;
+
   final List<Check> checks;
   final List<BeamNote> notes;
 
   const BeamDesign({
+    required this.sls,
     required this.input,
     required this.selfWeight,
     required this.wUls,
@@ -253,6 +296,105 @@ BeamDesign designBeam(BeamInput i) {
     ),
   ];
 
+  // Serviceability: stresses and cracking on the cracked section.
+  BeamSls? sls;
+  if (bars != null) {
+    requireCrackLimit(i.crackLimit);
+    requireRange(i.psi2, 0, 1, 'psi2');
+    final factor = switch (i.support) {
+      BeamSupport.simplySupported => l * l / 8,
+      BeamSupport.cantilever => l * l / 2,
+    };
+    final mChar = (i.g + sw + i.q) * factor;
+    final mQp = (i.g + sw + i.psi2 * i.q) * factor;
+    final n = i.code == DesignCode.ec2
+        ? ec2ModularRatio(concrete)
+        : baelModularRatio;
+    final cs = crackedSection(
+      b: i.b,
+      d: d,
+      as: asProv,
+      n: n,
+      as2: compBars?.area ?? 0,
+      d2: i.cover + i.linkDiameter + 6,
+    );
+    final sigmaC = cs.concreteStress(mChar);
+    final sigmaS = cs.steelStress(mChar);
+    CrackWidth? crack;
+    switch (i.code) {
+      case DesignCode.ec2:
+        final spacing = bars.count > 1
+            ? (inner - bars.diameter) / (bars.count - 1)
+            : inner;
+        crack = ec2CrackWidth(
+          concrete: concrete,
+          sigmaS: cs.steelStress(mQp),
+          b: i.b,
+          h: i.h,
+          d: d,
+          x: cs.x,
+          as: asProv,
+          barDiameter: bars.diameter,
+          cover: i.cover + i.linkDiameter,
+          spacing: spacing,
+        );
+        checks.add(
+          Check(
+            kind: CheckKind.steelStress,
+            demand: sigmaS,
+            capacity: 0.8 * i.fyk,
+            clause: 'EN 1992-1-1 7.2(5)',
+            unit: 'MPa',
+          ),
+        );
+        checks.add(
+          Check(
+            kind: CheckKind.crackWidth,
+            demand: crack.wk,
+            capacity: i.crackLimit,
+            clause: 'EN 1992-1-1 7.3.4',
+            unit: 'mm',
+          ),
+        );
+      case DesignCode.bael:
+        checks.add(
+          Check(
+            kind: CheckKind.concreteStress,
+            demand: sigmaC,
+            capacity: 0.6 * i.fck,
+            clause: 'BAEL A.4.5.2',
+            unit: 'MPa',
+          ),
+        );
+        final limit = baelSteelStressLimit(
+          i.baelCracking,
+          i.fyk,
+          concrete.fctm,
+        );
+        if (limit != null) {
+          checks.add(
+            Check(
+              kind: CheckKind.steelStress,
+              demand: sigmaS,
+              capacity: limit,
+              clause: i.baelCracking == BaelCracking.harmful
+                  ? 'BAEL A.4.5.33'
+                  : 'BAEL A.4.5.34',
+              unit: 'MPa',
+            ),
+          );
+        }
+    }
+    sls = BeamSls(
+      mChar: mChar,
+      mQp: mQp,
+      section: cs,
+      sigmaC: sigmaC,
+      sigmaS: sigmaS,
+      crack: crack,
+    );
+  }
+
   // Serviceability: deflection by span/depth rules.
   double? ldActual;
   double? ldLimit;
@@ -319,6 +461,7 @@ BeamDesign designBeam(BeamInput i) {
   }
 
   return BeamDesign(
+    sls: sls,
     input: i,
     selfWeight: sw,
     wUls: w,
