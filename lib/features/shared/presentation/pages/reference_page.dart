@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:sibot/core/services/advance_analysis.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class ReferencePage extends StatelessWidget {
@@ -9,13 +10,14 @@ class ReferencePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = context.l10n;
     return AppPage(
-      title: 'Library',
-      subtitle: 'Design codes, material data and quick tools.',
+      title: l.navLibrary,
+      subtitle: l.librarySubtitle,
       children: [
-        const SectionHeader(title: 'Unit converter'),
+        SectionHeader(title: l.libraryConverter),
         const _UnitConverter(),
-        const SectionHeader(title: 'Materials'),
+        SectionHeader(title: l.libraryMaterials),
         const AdaptiveSplit(
           primaryFlex: 1,
           secondaryFlex: 1,
@@ -25,14 +27,11 @@ class ReferencePage extends StatelessWidget {
         ),
         const SizedBox(height: Gap.md),
         const _RebarTable(),
-        const SectionHeader(
-          title: 'Design codes',
-          subtitle: 'Codes the suite is being built to support',
-        ),
+        SectionHeader(title: l.libraryCodes, subtitle: l.libraryCodesSubtitle),
         ResponsiveGrid(
           minTileWidth: 240,
           children: [
-            for (final c in _codes)
+            for (final c in _codes(l))
               SurfaceCard(
                 child: Row(
                   children: [
@@ -57,17 +56,17 @@ class ReferencePage extends StatelessWidget {
   }
 }
 
-const _codes = [
-  ('EN 1990 · EC0', 'Basis of design, combinations', Icons.rule_rounded),
-  ('EN 1991 · EC1', 'Actions: loads, wind, snow', Icons.air_rounded),
-  ('EN 1992 · EC2', 'Concrete structures', Icons.view_in_ar_outlined),
-  ('EN 1993 · EC3', 'Steel structures', Icons.horizontal_split_outlined),
-  ('EN 1995 · EC5', 'Timber structures', Icons.forest_outlined),
-  ('EN 1996 · EC6', 'Masonry structures', Icons.grid_view_outlined),
-  ('EN 1997 · EC7', 'Geotechnical design', Icons.terrain_outlined),
-  ('EN 1998 · EC8', 'Earthquake resistance', Icons.waves_outlined),
-  ('BAEL 91 rév. 99', 'Reinforced concrete (FR)', Icons.view_in_ar_outlined),
-  ('PS 92', 'Seismic rules (FR)', Icons.waves_outlined),
+List<(String, String, IconData)> _codes(AppLocalizations l) => [
+  ('EN 1990 · EC0', l.codeEc0, Icons.rule_rounded),
+  ('EN 1991 · EC1', l.codeEc1, Icons.air_rounded),
+  ('EN 1992 · EC2', l.codeEc2, Icons.view_in_ar_outlined),
+  ('EN 1993 · EC3', l.codeEc3, Icons.horizontal_split_outlined),
+  ('EN 1995 · EC5', l.codeEc5, Icons.forest_outlined),
+  ('EN 1996 · EC6', l.codeEc6, Icons.grid_view_outlined),
+  ('EN 1997 · EC7', l.codeEc7, Icons.terrain_outlined),
+  ('EN 1998 · EC8', l.codeEc8, Icons.waves_outlined),
+  ('BAEL 91 rév. 99', l.codeBaelDesc, Icons.view_in_ar_outlined),
+  ('PS 92', l.codePs92Desc, Icons.waves_outlined),
 ];
 
 /// Simple table inside a card.
@@ -136,11 +135,12 @@ class _ConcreteTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // EN 1992-1-1 Table 3.1
-    return const _DataTableCard(
-      title: 'Concrete',
-      source: 'EN 1992-1-1, Table 3.1',
-      header: ['Class', 'fck MPa', 'fctm MPa', 'Ecm GPa'],
-      rows: [
+    final l = context.l10n;
+    return _DataTableCard(
+      title: l.libraryConcrete,
+      source: l.libraryTable('EN 1992-1-1', '3.1'),
+      header: [l.libraryColClass, 'fck MPa', 'fctm MPa', 'Ecm GPa'],
+      rows: const [
         ['C20/25', '20', '2.2', '30'],
         ['C25/30', '25', '2.6', '31'],
         ['C30/37', '30', '2.9', '33'],
@@ -157,11 +157,12 @@ class _SteelTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // EN 1993-1-1 Table 3.1, t ≤ 40 mm
-    return const _DataTableCard(
-      title: 'Structural steel',
-      source: 'EN 1993-1-1, Table 3.1 (t ≤ 40 mm)',
-      header: ['Grade', 'fy MPa', 'fu MPa'],
-      rows: [
+    final l = context.l10n;
+    return _DataTableCard(
+      title: l.librarySteel,
+      source: '${l.libraryTable('EN 1993-1-1', '3.1')} (t ≤ 40 mm)',
+      header: [l.libraryColGrade, 'fy MPa', 'fu MPa'],
+      rows: const [
         ['S235', '235', '360'],
         ['S275', '275', '430'],
         ['S355', '355', '490'],
@@ -177,10 +178,11 @@ class _RebarTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const diameters = [6, 8, 10, 12, 14, 16, 20, 25, 32];
+    final l = context.l10n;
     return _DataTableCard(
-      title: 'Reinforcing bars',
-      source: 'Area πd²/4, mass at 7850 kg/m³',
-      header: const ['Ø mm', 'Area mm²', 'Mass kg/m'],
+      title: l.libraryRebar,
+      source: l.libraryRebarSource,
+      header: ['Ø mm', l.libraryColArea, l.libraryColMass],
       rows: [
         for (final d in diameters)
           [
@@ -194,13 +196,18 @@ class _RebarTable extends StatelessWidget {
 }
 
 enum _Qty {
-  length('Length', ['mm', 'cm', 'm', 'km', 'in', 'ft']),
-  force('Force', ['N', 'kN', 'kgf', 'tonf', 'lbf']),
-  pressure('Pressure', ['kPa', 'MPa', 'bar', 'atm']);
+  length(['mm', 'cm', 'm', 'km', 'in', 'ft']),
+  force(['N', 'kN', 'kgf', 'tonf', 'lbf']),
+  pressure(['kPa', 'MPa', 'bar', 'atm']);
 
-  final String label;
+  String label(AppLocalizations l) => switch (this) {
+    _Qty.length => l.libraryLength,
+    _Qty.force => l.libraryForce,
+    _Qty.pressure => l.libraryPressure,
+  };
+
   final List<String> units;
-  const _Qty(this.label, this.units);
+  const _Qty(this.units);
 
   double convert(double v, String from, String to) => switch (this) {
     _Qty.length => UnitConverter.convertLength(v, from, to),
@@ -256,7 +263,7 @@ class _UnitConverterState extends State<_UnitConverter> {
             showSelectedIcon: false,
             segments: [
               for (final q in _Qty.values)
-                ButtonSegment(value: q, label: Text(q.label)),
+                ButtonSegment(value: q, label: Text(q.label(context.l10n))),
             ],
             selected: {_qty},
             onSelectionChanged: (s) => setState(() {
@@ -269,7 +276,7 @@ class _UnitConverterState extends State<_UnitConverter> {
           FieldRow(
             children: [
               NumberField(
-                label: 'Value',
+                label: context.l10n.libraryValue,
                 value: _value,
                 allowNegative: true,
                 onChanged: (v) => setState(() => _value = v),
@@ -312,7 +319,7 @@ class _UnitConverterState extends State<_UnitConverter> {
                 _to = t;
               }),
               icon: const Icon(Icons.swap_vert_rounded, size: 18),
-              label: const Text('Swap'),
+              label: Text(context.l10n.librarySwap),
             ),
           ),
         ],

@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
+String _home(AppLocalizations l) => l.navHome;
+String _projects(AppLocalizations l) => l.navProjects;
+String _field(AppLocalizations l) => l.navField;
+String _reports(AppLocalizations l) => l.navReports;
+String _library(AppLocalizations l) => l.navLibrary;
+
 class _Dest {
-  final String label;
+  final String Function(AppLocalizations) label;
   final IconData icon;
   final IconData selectedIcon;
   const _Dest(this.label, this.icon, this.selectedIcon);
 }
 
 const _destinations = [
-  _Dest('Home', Icons.space_dashboard_outlined, Icons.space_dashboard_rounded),
-  _Dest('Projects', Icons.folder_outlined, Icons.folder_rounded),
-  _Dest('Field', Icons.construction_outlined, Icons.construction_rounded),
-  _Dest('Reports', Icons.description_outlined, Icons.description_rounded),
-  _Dest('Library', Icons.menu_book_outlined, Icons.menu_book_rounded),
+  _Dest(_home, Icons.space_dashboard_outlined, Icons.space_dashboard_rounded),
+  _Dest(_projects, Icons.folder_outlined, Icons.folder_rounded),
+  _Dest(_field, Icons.construction_outlined, Icons.construction_rounded),
+  _Dest(_reports, Icons.description_outlined, Icons.description_rounded),
+  _Dest(_library, Icons.menu_book_outlined, Icons.menu_book_rounded),
 ];
 
 /// Bottom navigation on phones, a rail on tablets, an extended rail on large
@@ -53,7 +60,7 @@ class AppShell extends StatelessWidget {
                 NavigationDestination(
                   icon: Icon(d.icon),
                   selectedIcon: Icon(d.selectedIcon),
-                  label: d.label,
+                  label: d.label(context.l10n),
                 ),
             ],
           ),
@@ -82,13 +89,20 @@ class AppShell extends StatelessWidget {
                           const SizedBox(width: Gap.sm),
                           const BrandMark(size: 34),
                           const SizedBox(width: Gap.md),
-                          Text('Sibot', style: context.text.titleLarge),
-                          const SizedBox(width: Gap.xs),
                           Text(
-                            'Engineering',
-                            style: context.text.titleLarge?.copyWith(
-                              color: context.colors.onSurfaceVariant,
-                              fontWeight: FontWeight.w400,
+                            context.l10n.brandName,
+                            style: context.text.titleLarge,
+                          ),
+                          const SizedBox(width: Gap.xs),
+                          Flexible(
+                            child: Text(
+                              context.l10n.brandTagline,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: context.text.titleLarge?.copyWith(
+                                color: context.colors.onSurfaceVariant,
+                                fontWeight: FontWeight.w400,
+                              ),
                             ),
                           ),
                         ],
@@ -101,7 +115,7 @@ class AppShell extends StatelessWidget {
                 NavigationRailDestination(
                   icon: Icon(d.icon),
                   selectedIcon: Icon(d.selectedIcon),
-                  label: Text(d.label),
+                  label: Text(d.label(context.l10n)),
                   padding: const EdgeInsets.symmetric(vertical: 2),
                 ),
             ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'beams_provider.dart';
 
@@ -13,11 +14,12 @@ class BeamPage extends ConsumerWidget {
     final state = ref.watch(beamStateProvider(projectId));
     final n = ref.read(beamStateProvider(projectId).notifier);
     final calc = state.lastCalculation;
+    final l = context.l10n;
     final m = calc?.metadata;
 
     return CalculatorScaffold(
-      title: 'Beam Design',
-      subtitle: 'Simply supported beam under a uniform load.',
+      title: l.modBeam,
+      subtitle: l.beamSubtitle,
       module: moduleByRoute('beam'),
       isLoading: state.isLoading,
       error: state.error,
@@ -25,18 +27,18 @@ class BeamPage extends ConsumerWidget {
       resultKey: calc?.id,
       inputs: [
         FormSection(
-          title: 'Geometry & load',
+          title: l.beamGeometryLoad,
           icon: Icons.straighten,
           children: [
             NumberField(
-              label: 'Span',
+              label: l.calcSpan,
               unit: 'm',
               hint: '6',
               value: state.span,
               onChanged: (v) => n.updateSpan(v ?? 0),
             ),
             NumberField(
-              label: 'Total design load',
+              label: l.beamTotalLoad,
               unit: 'kN/m',
               hint: '25',
               value: state.load,
@@ -45,14 +47,14 @@ class BeamPage extends ConsumerWidget {
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Width b',
+                  label: l.beamWidth,
                   unit: 'mm',
                   hint: '250',
                   value: state.width,
                   onChanged: (v) => n.updateWidth(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Depth h',
+                  label: l.beamDepth,
                   unit: 'mm',
                   hint: '500',
                   value: state.depth,
@@ -63,20 +65,20 @@ class BeamPage extends ConsumerWidget {
           ],
         ),
         FormSection(
-          title: 'Materials',
+          title: l.calcMaterials,
           icon: Icons.science_outlined,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Concrete fck',
+                  label: l.calcConcreteFck,
                   unit: 'MPa',
                   hint: '25',
                   value: state.concreteStrength,
                   onChanged: (v) => n.updateConcreteStrength(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Steel fyk',
+                  label: l.calcSteelFyk,
                   unit: 'MPa',
                   hint: '500',
                   value: state.steelStrength,
@@ -93,34 +95,32 @@ class BeamPage extends ConsumerWidget {
           : [
               StatusBanner(
                 tone: calc.isValid ? Tone.success : Tone.danger,
-                title: calc.isValid ? 'Section adequate' : 'Section inadequate',
-                message: calc.isValid
-                    ? 'Bending reinforcement found for the design moment.'
-                    : 'Increase the section or the concrete class.',
+                title: calc.isValid ? l.beamAdequate : l.beamInadequate,
+                message: calc.isValid ? l.beamAdequateMsg : l.beamInadequateMsg,
               ),
               ResultCard(
-                title: 'Bending reinforcement',
+                title: l.beamBending,
                 icon: Icons.linear_scale_rounded,
                 rows: [
                   ResultRow(
-                    label: 'Steel area required',
+                    label: l.beamSteelRequired,
                     symbol: 'As',
                     value: _f(m['ast'], 0),
                     unit: 'mm²',
                     emphasize: true,
                   ),
                   ResultRow(
-                    label: 'Suggested bars',
+                    label: l.beamSuggestedBars,
                     value: '${m['barNumber']} × ${m['barSize']}',
                   ),
                   ResultRow(
-                    label: 'Lever arm',
+                    label: l.beamLeverArm,
                     symbol: 'z',
                     value: _f(m['z'], 1),
                     unit: 'mm',
                   ),
                   ResultRow(
-                    label: 'Moment ratio',
+                    label: l.beamMomentRatio,
                     symbol: 'K',
                     value: _f(m['k'], 3),
                   ),

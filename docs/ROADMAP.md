@@ -107,10 +107,10 @@ Each phase ends with a usable app, passing tests, and a git tag.
 - [x] Adaptive shell (bottom nav / rail / two panes) and allow text scaling
 - [x] New design system: Inter + JetBrains Mono, light/dark theme, shared page, form and result components
 - [x] Screen smoke test at phone and tablet sizes (`test/screens_smoke_test.dart`)
-- [ ] i18n with ARB files (EN/FR) and move existing strings into them
+- [x] i18n with ARB files (EN/FR) and move existing strings into them (provider validation messages and number formatting move with the Phase 1 rewrite)
 - [ ] Migrate Riverpod legacy APIs to `Notifier`/`AsyncNotifier`
 - [x] Route or hide the 8 unreachable pages, with one entry point per module (hidden as "Phase N": they showed made-up results)
-- [ ] Settings: design code (EC/BAEL), national annex parameters, units
+- [x] Settings: language, theme, default design code (national annex and units in Phase 1)
 
 ### Phase 1 — Correct RC design (EC2 and BAEL), with tests
 - [ ] Materials: concrete classes and steel grades, with partial factors per code

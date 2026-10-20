@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sibot/config/theme.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/tokens.dart';
 import 'package:sibot/ui/widgets/surfaces.dart';
 
@@ -177,24 +178,20 @@ class BetaNotice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const StatusBanner(
+    final l = context.l10n;
+    return StatusBanner(
       tone: Tone.warning,
       icon: Icons.science_outlined,
-      title: 'Beta: results not yet verified',
-      message:
-          'This module is being rewritten and checked against worked examples. '
-          'Do not use these results for construction.',
+      title: l.calcBetaTitle,
+      message: l.calcBetaMessage,
     );
   }
 }
 
 /// Placeholder in the results pane before the first calculation.
 class ResultsPlaceholder extends StatelessWidget {
-  final String message;
-  const ResultsPlaceholder({
-    super.key,
-    this.message = 'Fill in the parameters and tap Calculate.',
-  });
+  final String? message;
+  const ResultsPlaceholder({super.key, this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -216,10 +213,10 @@ class ResultsPlaceholder extends StatelessWidget {
             color: context.colors.onSurfaceVariant,
           ),
           const SizedBox(height: Gap.md),
-          Text('Results', style: context.text.titleMedium),
+          Text(context.l10n.calcResults, style: context.text.titleMedium),
           const SizedBox(height: Gap.xs),
           Text(
-            message,
+            message ?? context.l10n.calcResultsPlaceholder,
             style: context.text.bodySmall,
             textAlign: TextAlign.center,
           ),

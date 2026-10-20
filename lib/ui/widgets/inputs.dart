@@ -71,6 +71,27 @@ class _NumberFieldState extends State<NumberField> {
 
   @override
   Widget build(BuildContext context) {
+    // Label sits above the field (up to two lines) so long labels, e.g. in
+    // French, are never truncated in half-width fields.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          widget.label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: context.text.labelMedium?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 6),
+        _field(context),
+      ],
+    );
+  }
+
+  Widget _field(BuildContext context) {
     return TextField(
       controller: _ctrl,
       focusNode: _focus,
@@ -86,7 +107,6 @@ class _NumberFieldState extends State<NumberField> {
       ],
       style: AppTheme.mono(context, size: 15),
       decoration: InputDecoration(
-        labelText: widget.label,
         hintText: widget.hint,
         helperText: widget.helper,
         suffixText: widget.unit,
@@ -136,7 +156,8 @@ class FormSection extends StatelessWidget {
   }
 }
 
-/// Fields side by side.
+/// Fields side by side, bottom-aligned so inputs line up even when one
+/// label wraps onto two lines.
 class FieldRow extends StatelessWidget {
   final List<Widget> children;
   const FieldRow({super.key, required this.children});
@@ -144,7 +165,7 @@ class FieldRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         for (var i = 0; i < children.length; i++) ...[
           if (i > 0) const SizedBox(width: Gap.md),

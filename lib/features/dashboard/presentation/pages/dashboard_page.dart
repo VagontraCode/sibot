@@ -7,7 +7,7 @@ import 'package:sibot/features/modules/module_tile.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
 import 'package:sibot/features/shared/providers/calculation_summary_provider.dart';
-import 'package:sibot/features/shared/providers/settings_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class DashboardPage extends ConsumerWidget {
@@ -21,7 +21,7 @@ class DashboardPage extends ConsumerWidget {
     final id = await showProjectPicker(
       context,
       ref,
-      title: 'Open ${module.title} in…',
+      title: context.l10n.dashOpenModuleIn(module.title(context.l10n)),
     );
     if (id != null && context.mounted) {
       context.go('/projects/$id/${module.route}');
@@ -32,7 +32,7 @@ class DashboardPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final projects = ref.watch(projectsProvider).value ?? const [];
     final calcs = ref.watch(allCalculationsProvider).value ?? const [];
-    final themeMode = ref.watch(themeModeProvider);
+    final l = context.l10n;
 
     final recent = [...projects]
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
@@ -41,16 +41,12 @@ class DashboardPage extends ConsumerWidget {
       ..sort((a, b) => (a.phase ?? 9).compareTo(b.phase ?? 9));
 
     return AppPage(
-      title: 'Home',
+      title: l.navHome,
       actions: [
         IconButton(
-          tooltip: 'Theme: ${themeMode.name}',
-          onPressed: () => ref.read(themeModeProvider.notifier).cycle(),
-          icon: Icon(switch (themeMode) {
-            ThemeMode.light => Icons.light_mode_outlined,
-            ThemeMode.dark => Icons.dark_mode_outlined,
-            ThemeMode.system => Icons.brightness_auto_outlined,
-          }),
+          tooltip: l.settingsTitle,
+          onPressed: () => context.push('/dashboard/settings'),
+          icon: const Icon(Icons.settings_outlined),
         ),
       ],
       header: _Hero(
@@ -65,23 +61,23 @@ class DashboardPage extends ConsumerWidget {
           minTileWidth: 150,
           children: [
             StatTile(
-              label: 'Projects',
+              label: l.dashStatProjects,
               value: '${projects.length}',
               icon: Icons.folder_outlined,
               onTap: () => context.go('/projects'),
             ),
             StatTile(
-              label: 'Calculations',
+              label: l.dashStatCalculations,
               value: '${calcs.length}',
               icon: Icons.functions_rounded,
             ),
             StatTile(
-              label: 'Design modules',
+              label: l.dashStatModules,
               value: '${available.length}',
               icon: Icons.widgets_outlined,
             ),
             StatTile(
-              label: 'On the roadmap',
+              label: l.dashStatRoadmap,
               value: '${roadmap.length}',
               icon: Icons.route_outlined,
             ),
@@ -89,10 +85,10 @@ class DashboardPage extends ConsumerWidget {
         ),
         if (recent.isNotEmpty) ...[
           SectionHeader(
-            title: 'Recent projects',
+            title: l.dashRecentProjects,
             trailing: TextButton(
               onPressed: () => context.go('/projects'),
-              child: const Text('See all'),
+              child: Text(l.commonSeeAll),
             ),
           ),
           ResponsiveGrid(
@@ -106,9 +102,9 @@ class DashboardPage extends ConsumerWidget {
             ],
           ),
         ],
-        const SectionHeader(
-          title: 'Design modules',
-          subtitle: 'Reinforced concrete, Eurocode 2 and BAEL',
+        SectionHeader(
+          title: l.dashDesignModules,
+          subtitle: l.dashDesignModulesSubtitle,
         ),
         ResponsiveGrid(
           minTileWidth: 160,
@@ -117,10 +113,7 @@ class DashboardPage extends ConsumerWidget {
               ModuleTile(module: m, onOpen: () => _openModule(context, ref, m)),
           ],
         ),
-        const SectionHeader(
-          title: 'Roadmap',
-          subtitle: 'Analysis, steel, timber, masonry and more',
-        ),
+        SectionHeader(title: l.dashRoadmap, subtitle: l.dashRoadmapSubtitle),
         ResponsiveGrid(
           minTileWidth: 160,
           children: [for (final m in roadmap) ModuleTile(module: m)],
@@ -136,11 +129,11 @@ class _Hero extends StatelessWidget {
 
   const _Hero({required this.onNewProject, required this.onProjects});
 
-  String _greeting() {
+  String _greeting(AppLocalizations l) {
     final h = DateTime.now().hour;
-    if (h < 12) return 'Good morning';
-    if (h < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (h < 12) return l.dashGreetingMorning;
+    if (h < 18) return l.dashGreetingAfternoon;
+    return l.dashGreetingEvening;
   }
 
   @override
@@ -181,7 +174,10 @@ class _Hero extends StatelessWidget {
             const BrandMark(size: 30),
             const SizedBox(width: Gap.md),
             Text(
-              DateFormat('EEEE d MMMM').format(DateTime.now()),
+              DateFormat(
+                'EEEE d MMMM',
+                context.localeName,
+              ).format(DateTime.now()),
               style: context.text.labelMedium?.copyWith(
                 color: context.colors.onSurfaceVariant,
               ),
@@ -190,14 +186,14 @@ class _Hero extends StatelessWidget {
         ),
         SizedBox(height: wide ? Gap.xxl : Gap.xl),
         Text(
-          _greeting(),
+          _greeting(context.l10n),
           style: context.text.bodyLarge?.copyWith(
             color: context.colors.onSurfaceVariant,
           ),
         ),
         const SizedBox(height: Gap.xs),
         Text(
-          'Model, analyse and design,\nright from the site.',
+          context.l10n.dashHeroTitle,
           style: wide ? context.text.displaySmall : context.text.headlineMedium,
         ),
         SizedBox(height: wide ? Gap.xxl : Gap.xl),
@@ -208,12 +204,12 @@ class _Hero extends StatelessWidget {
             FilledButton.icon(
               onPressed: onNewProject,
               icon: const Icon(Icons.add_rounded),
-              label: const Text('New project'),
+              label: Text(context.l10n.dashNewProject),
             ),
             OutlinedButton.icon(
               onPressed: onProjects,
               icon: const Icon(Icons.folder_open_outlined),
-              label: const Text('Open projects'),
+              label: Text(context.l10n.dashOpenProjects),
             ),
           ],
         ),

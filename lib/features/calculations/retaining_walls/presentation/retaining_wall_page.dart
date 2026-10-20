@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'retaining_wall_provider.dart';
 
@@ -13,6 +14,7 @@ class RetainingWallPage extends ConsumerWidget {
     final state = ref.watch(retainingWallStateProvider(projectId));
     final n = ref.read(retainingWallStateProvider(projectId).notifier);
     final calc = state.lastCalculation;
+    final l = context.l10n;
     final m = calc?.metadata;
     final s = state.suggestions;
 
@@ -20,22 +22,20 @@ class RetainingWallPage extends ConsumerWidget {
       if (calc != null && m != null) ...[
         StatusBanner(
           tone: calc.isValid ? Tone.success : Tone.danger,
-          title: calc.isValid
-              ? 'Stable against overturning'
-              : 'Overturning risk',
+          title: calc.isValid ? l.wallStable : l.wallOverturningRisk,
         ),
         ResultCard(
-          title: 'Stability',
+          title: l.wallStability,
           icon: Icons.balance_rounded,
           rows: [
             ResultRow(
-              label: 'Factor of safety, overturning',
+              label: l.wallFosOverturning,
               symbol: 'FS',
               value: _f(m['fos'], 2),
               emphasize: true,
             ),
             ResultRow(
-              label: 'Active earth thrust',
+              label: l.wallActiveThrust,
               symbol: 'Pa',
               value: _f(m['earthPressure'], 1),
               unit: 'kN/m',
@@ -45,26 +45,26 @@ class RetainingWallPage extends ConsumerWidget {
       ],
       if (s != null) ...[
         ResultCard(
-          title: 'Pre-sizing (cantilever wall)',
+          title: l.wallPresizing,
           icon: Icons.architecture_rounded,
           rows: [
             ResultRow(
-              label: 'Base width',
+              label: l.wallBaseWidth,
               value: _f(s['cantilever']['baseWidth'], 2),
               unit: 'm',
             ),
             ResultRow(
-              label: 'Stem thickness',
+              label: l.wallStemThickness,
               value: _f(s['cantilever']['stemThickness'], 0),
               unit: 'mm',
             ),
             ResultRow(
-              label: 'Base thickness',
+              label: l.wallBaseThickness,
               value: _f(s['cantilever']['footingThickness'], 0),
               unit: 'mm',
             ),
             ResultRow(
-              label: 'Toe / heel',
+              label: l.wallToeHeel,
               value:
                   '${_f(s['cantilever']['toeWidth'], 2)} / ${_f(s['cantilever']['heelWidth'], 2)}',
               unit: 'm',
@@ -76,8 +76,8 @@ class RetainingWallPage extends ConsumerWidget {
     ];
 
     return CalculatorScaffold(
-      title: 'Retaining Wall',
-      subtitle: 'Cantilever wall: overturning check and pre-sizing.',
+      title: l.modRetainingWall,
+      subtitle: l.wallSubtitle,
       module: moduleByRoute('retaining-wall'),
       isLoading: state.isLoading,
       error: state.error,
@@ -85,11 +85,11 @@ class RetainingWallPage extends ConsumerWidget {
       resultKey: calc?.id,
       inputs: [
         FormSection(
-          title: 'Wall & soil',
+          title: l.wallWallSoil,
           icon: Icons.stairs_outlined,
           children: [
             NumberField(
-              label: 'Retained height',
+              label: l.wallRetainedHeight,
               unit: 'm',
               hint: '3',
               value: state.height,
@@ -98,14 +98,14 @@ class RetainingWallPage extends ConsumerWidget {
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Soil unit weight',
+                  label: l.wallSoilUnitWeight,
                   unit: 'kN/m³',
                   hint: '18',
                   value: state.soilDensity,
                   onChanged: (v) => n.updateSoilDensity(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Friction angle φ',
+                  label: l.wallFrictionAngle,
                   unit: '°',
                   hint: '30',
                   value: state.frictionAngle,
@@ -116,20 +116,20 @@ class RetainingWallPage extends ConsumerWidget {
           ],
         ),
         FormSection(
-          title: 'Materials',
+          title: l.calcMaterials,
           icon: Icons.science_outlined,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Concrete fck',
+                  label: l.calcConcreteFck,
                   unit: 'MPa',
                   hint: '25',
                   value: state.concreteStrength,
                   onChanged: (v) => n.updateConcreteStrength(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Steel fyk',
+                  label: l.calcSteelFyk,
                   unit: 'MPa',
                   hint: '500',
                   value: state.steelStrength,
@@ -150,6 +150,38 @@ class _Alternatives extends StatelessWidget {
   final List<dynamic> alternatives;
   const _Alternatives({required this.alternatives});
 
+  /// Localized [name, description, pros, cons] for an alternative returned
+  /// by SuggestionEngine (which keys them by English type name).
+  List<String> _text(BuildContext context, dynamic alt) {
+    final l = context.l10n;
+    final type = alt['type'] as String;
+    if (type.contains('Gabion')) {
+      return [
+        l.wallGabion,
+        l.wallGabionDesc,
+        l.wallGabionPros,
+        l.wallGabionCons,
+      ];
+    }
+    if (type.contains('Stone')) {
+      return [l.wallStone, l.wallStoneDesc, l.wallStonePros, l.wallStoneCons];
+    }
+    if (type.contains('Blocks')) {
+      return [
+        l.wallBlocks,
+        l.wallBlocksDesc,
+        l.wallBlocksPros,
+        l.wallBlocksCons,
+      ];
+    }
+    return [
+      type,
+      alt['description'] as String,
+      alt['pros'] as String,
+      alt['cons'] as String,
+    ];
+  }
+
   IconData _icon(String type) {
     if (type.contains('Gabion')) return Icons.grid_view_rounded;
     if (type.contains('Stone')) return Icons.landscape_outlined;
@@ -166,7 +198,7 @@ class _Alternatives extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
             child: Text(
-              'Alternative wall types',
+              context.l10n.wallAlternatives,
               style: context.text.titleMedium,
             ),
           ),
@@ -177,9 +209,9 @@ class _Alternatives extends StatelessWidget {
                 tone: Tone.neutral,
                 size: 36,
               ),
-              title: Text(alt['type'] as String),
+              title: Text(_text(context, alt)[0]),
               subtitle: Text(
-                'Base ≈ ${_f(alt['recommendedBase'], 2)} m',
+                context.l10n.wallBaseApprox(_f(alt['recommendedBase'], 2)),
                 style: context.text.bodySmall,
               ),
               childrenPadding: const EdgeInsets.fromLTRB(
@@ -190,21 +222,18 @@ class _Alternatives extends StatelessWidget {
               ),
               expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  alt['description'] as String,
-                  style: context.text.bodyMedium,
-                ),
+                Text(_text(context, alt)[1], style: context.text.bodyMedium),
                 const SizedBox(height: Gap.md),
                 _ProCon(
                   icon: Icons.add_circle_outline,
                   color: context.appColors.success,
-                  text: alt['pros'] as String,
+                  text: _text(context, alt)[2],
                 ),
                 const SizedBox(height: Gap.sm),
                 _ProCon(
                   icon: Icons.remove_circle_outline,
                   color: context.appColors.danger,
-                  text: alt['cons'] as String,
+                  text: _text(context, alt)[3],
                 ),
               ],
             ),

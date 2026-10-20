@@ -8,6 +8,7 @@ import 'package:sibot/features/modules/module_tile.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
 import 'package:sibot/features/shared/providers/calculation_summary_provider.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class ProjectDetailPage extends ConsumerWidget {
@@ -40,22 +41,19 @@ class ProjectDetailPage extends ConsumerWidget {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete project?'),
-        content: Text(
-          '"${project.name}" will be removed from this device. '
-          'Its saved calculations and field data stay in storage but will no longer be listed.',
-        ),
+        title: Text(context.l10n.projectDeleteTitle),
+        content: Text(context.l10n.projectDeleteMessage(project.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(context.l10n.commonCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: context.appColors.danger,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            child: Text(context.l10n.commonDelete),
           ),
         ],
       ),
@@ -73,24 +71,24 @@ class ProjectDetailPage extends ConsumerWidget {
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) => AppPage(
-        title: 'Project',
+        title: context.l10n.commonProject,
         children: [
           StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load project',
+            title: context.l10n.projectLoadError,
             message: '$e',
           ),
         ],
       ),
       data: (project) {
         if (project == null) {
-          return const AppPage(
-            title: 'Project',
+          return AppPage(
+            title: context.l10n.commonProject,
             children: [
               EmptyState(
                 icon: Icons.folder_off_outlined,
-                title: 'Project not found',
-                message: 'It may have been deleted.',
+                title: context.l10n.projectNotFound,
+                message: context.l10n.projectNotFoundMessage,
               ),
             ],
           );
@@ -133,11 +131,12 @@ class _ProjectView extends ConsumerWidget {
         0;
     final reports = ref.watch(dailyReportsProvider(id)).value?.length ?? 0;
     final available = modules.where((m) => m.isAvailable).toList();
+    final l = context.l10n;
 
     final designPane = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader(title: 'Design modules'),
+        SectionHeader(title: l.projectDesignModules),
         ResponsiveGrid(
           minTileWidth: 150,
           children: [
@@ -154,46 +153,46 @@ class _ProjectView extends ConsumerWidget {
     final sidePane = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SectionHeader(title: 'Field'),
+        SectionHeader(title: l.projectField),
         Card(
           child: Column(
             children: [
               _FieldRow(
                 icon: Icons.photo_camera_outlined,
-                title: 'Photo log',
-                detail: '$photos photo${photos == 1 ? '' : 's'}',
+                title: l.photoLog,
+                detail: l.countPhotos(photos),
                 onTap: () => context.push('/projects/$id/photo-log'),
               ),
               const Divider(),
               _FieldRow(
                 icon: Icons.assignment_outlined,
-                title: 'Daily reports',
-                detail: '$reports report${reports == 1 ? '' : 's'}',
+                title: l.reportDaily,
+                detail: l.countReports(reports),
                 onTap: () => context.push('/projects/$id/daily-report'),
               ),
               const Divider(),
               _FieldRow(
                 icon: Icons.checklist_rounded,
-                title: 'Punch list',
-                detail: '$openPunch open',
+                title: l.punchList,
+                detail: l.countOpen(openPunch),
                 onTap: () => context.push('/projects/$id/punch-list'),
               ),
             ],
           ),
         ),
-        const SectionHeader(title: 'Calculations'),
+        SectionHeader(title: l.projectCalculations),
         calcs.when(
           loading: () => const LinearProgressIndicator(),
           error: (e, _) => StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load calculations',
+            title: l.projectCalcLoadError,
             message: '$e',
           ),
           data: (list) => list.isEmpty
-              ? const EmptyState(
+              ? EmptyState(
                   icon: Icons.functions_rounded,
-                  title: 'No calculations yet',
-                  message: 'Results you calculate in a module are saved here.',
+                  title: l.projectCalcEmptyTitle,
+                  message: l.projectCalcEmptyMessage,
                 )
               : Card(
                   child: Column(
@@ -206,10 +205,15 @@ class _ProjectView extends ConsumerWidget {
                             tone: Tone.neutral,
                             size: 36,
                           ),
-                          title: Text(list[i].kind),
-                          subtitle: Text(relativeDate(list[i].createdAt)),
+                          title: Text(
+                            moduleById(list[i].moduleId)?.title(l) ??
+                                list[i].moduleId,
+                          ),
+                          subtitle: Text(
+                            relativeDate(context, list[i].createdAt),
+                          ),
                           trailing: StatusPill(
-                            list[i].isValid ? 'OK' : 'Review',
+                            list[i].isValid ? l.commonOk : l.commonReview,
                             tone: list[i].isValid ? Tone.success : Tone.warning,
                           ),
                         ),
@@ -225,26 +229,26 @@ class _ProjectView extends ConsumerWidget {
       title: project.name,
       actions: [
         IconButton(
-          tooltip: 'Export PDF',
+          tooltip: l.projectExportPdf,
           onPressed: onExport,
           icon: const Icon(Icons.ios_share_rounded),
         ),
         PopupMenuButton<String>(
-          tooltip: 'More',
+          tooltip: l.commonMore,
           onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
-          itemBuilder: (_) => const [
+          itemBuilder: (_) => [
             PopupMenuItem(
               value: 'edit',
               child: ListTile(
                 leading: Icon(Icons.edit_outlined),
-                title: Text('Edit project'),
+                title: Text(l.projectEdit),
               ),
             ),
             PopupMenuItem(
               value: 'delete',
               child: ListTile(
                 leading: Icon(Icons.delete_outline),
-                title: Text('Delete project'),
+                title: Text(l.projectDelete),
               ),
             ),
           ],
@@ -284,7 +288,7 @@ class _ProjectHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   StatusPill(
-                    project.status,
+                    context.l10n.projectStatus(project.status),
                     tone: projectStatusTone(project.status),
                   ),
                   const SizedBox(height: Gap.sm),
@@ -319,7 +323,9 @@ class _ProjectHeader extends StatelessWidget {
               _Meta(Icons.person_outline, project.engineer),
             _Meta(
               Icons.schedule_rounded,
-              'Updated ${relativeDate(project.updatedAt)}',
+              context.l10n.timeUpdated(
+                relativeDate(context, project.updatedAt),
+              ),
             ),
           ],
         ),

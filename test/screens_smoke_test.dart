@@ -153,58 +153,68 @@ void main() {
     'punch_list': '/field/punch-list/PRJ_1',
     'reports': '/reports',
     'library': '/reference',
+    'settings': '/dashboard/settings',
   };
 
   for (final size in sizes.entries) {
-    for (final dark in [false, true]) {
-      final theme = dark ? 'dark' : 'light';
-      testWidgets('${size.key} $theme renders all screens', (tester) async {
-        tester.view.physicalSize = size.value * 2;
-        tester.view.devicePixelRatio = 2;
-        tester.platformDispatcher.platformBrightnessTestValue = dark
-            ? Brightness.dark
-            : Brightness.light;
-        addTearDown(tester.view.reset);
-        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    for (final lang in ['en', 'fr']) {
+      for (final dark in [false, true]) {
+        final theme = dark ? 'dark' : 'light';
+        testWidgets('${size.key} $theme $lang renders all screens', (
+          tester,
+        ) async {
+          await tester.runAsync(() => SettingsService.setLanguage(lang));
+          tester.view.physicalSize = size.value * 2;
+          tester.view.devicePixelRatio = 2;
+          tester.platformDispatcher.platformBrightnessTestValue = dark
+              ? Brightness.dark
+              : Brightness.light;
+          addTearDown(tester.view.reset);
+          addTearDown(
+            tester.platformDispatcher.clearPlatformBrightnessTestValue,
+          );
 
-        await tester.pumpWidget(
-          RepaintBoundary(
-            key: _rootKey,
-            child: const ProviderScope(child: SibotApp()),
-          ),
-        );
+          await tester.pumpWidget(
+            RepaintBoundary(
+              key: _rootKey,
+              child: const ProviderScope(child: SibotApp()),
+            ),
+          );
 
-        for (final s in screens.entries) {
-          appRouter.go(s.value);
-          await tester.pumpAndSettle();
-
-          // Run a calculation so the results view is rendered too.
-          final calculate = _calculations[s.key];
-          if (calculate != null) {
-            final container = ProviderScope.containerOf(
-              tester.element(find.byType(Scaffold).last),
-            );
-            await tester.runAsync(() => calculate(container));
+          for (final s in screens.entries) {
+            appRouter.go(s.value);
             await tester.pumpAndSettle();
-          }
-          expect(tester.takeException(), isNull, reason: s.key);
 
-          if (_shotsDir != null) {
-            final boundary =
-                tester.renderObject(find.byKey(_rootKey))
-                    as RenderRepaintBoundary;
-            await tester.runAsync(() async {
-              final image = await boundary.toImage(pixelRatio: 2);
-              final bytes = await image.toByteData(
-                format: ui.ImageByteFormat.png,
+            // Run a calculation so the results view is rendered too.
+            final calculate = _calculations[s.key];
+            if (calculate != null) {
+              final container = ProviderScope.containerOf(
+                tester.element(find.byType(Scaffold).last),
               );
-              final out = File('$_shotsDir/${size.key}_${theme}_${s.key}.png');
-              out.parent.createSync(recursive: true);
-              out.writeAsBytesSync(bytes!.buffer.asUint8List());
-            });
+              await tester.runAsync(() => calculate(container));
+              await tester.pumpAndSettle();
+            }
+            expect(tester.takeException(), isNull, reason: s.key);
+
+            if (_shotsDir != null) {
+              final boundary =
+                  tester.renderObject(find.byKey(_rootKey))
+                      as RenderRepaintBoundary;
+              await tester.runAsync(() async {
+                final image = await boundary.toImage(pixelRatio: 2);
+                final bytes = await image.toByteData(
+                  format: ui.ImageByteFormat.png,
+                );
+                final out = File(
+                  '$_shotsDir/${size.key}_${theme}_${lang}_${s.key}.png',
+                );
+                out.parent.createSync(recursive: true);
+                out.writeAsBytesSync(bytes!.buffer.asUint8List());
+              });
+            }
           }
-        }
-      });
+        });
+      }
     }
   }
 }

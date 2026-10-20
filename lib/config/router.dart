@@ -12,6 +12,7 @@ import 'package:sibot/features/projects/presentation/pages/project_detail.dart';
 import 'package:sibot/features/projects/presentation/pages/project_page.dart';
 import 'package:sibot/features/report/presentation/pages/report_page.dart';
 import 'package:sibot/features/shared/presentation/pages/reference_page.dart';
+import 'package:sibot/features/settings/settings_page.dart';
 import 'package:sibot/features/shell/app_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -53,6 +54,13 @@ final GoRouter appRouter = GoRouter(
               path: '/dashboard',
               name: 'dashboard',
               builder: (context, state) => const DashboardPage(),
+              routes: [
+                GoRoute(
+                  path: 'settings',
+                  name: 'settings',
+                  builder: (context, state) => const SettingsPage(),
+                ),
+              ],
             ),
           ],
         ),

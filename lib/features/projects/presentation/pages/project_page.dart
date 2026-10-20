@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class ProjectsPage extends ConsumerStatefulWidget {
@@ -25,13 +26,14 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
   Widget build(BuildContext context) {
     final projectsAsync = ref.watch(projectsProvider);
 
+    final l = context.l10n;
     return AppPage(
-      title: 'Projects',
-      subtitle: 'Every calculation, photo and report, grouped by project.',
+      title: l.navProjects,
+      subtitle: l.projectsSubtitle,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _create,
         icon: const Icon(Icons.add_rounded),
-        label: const Text('New project'),
+        label: Text(l.dashNewProject),
       ),
       children: [
         projectsAsync.when(
@@ -41,20 +43,19 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
           ),
           error: (e, _) => StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load projects',
+            title: l.projectsLoadError,
             message: '$e',
           ),
           data: (projects) {
             if (projects.isEmpty) {
               return EmptyState(
                 icon: Icons.folder_open_outlined,
-                title: 'No projects yet',
-                message:
-                    'Create a project to keep its calculations and field data together.',
+                title: l.projectsEmptyTitle,
+                message: l.projectsEmptyMessage,
                 action: FilledButton.icon(
                   onPressed: _create,
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text('New project'),
+                  label: Text(l.dashNewProject),
                 ),
               );
             }
@@ -74,9 +75,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search by name, location or engineer',
-                    prefixIcon: Icon(Icons.search_rounded),
+                  decoration: InputDecoration(
+                    hintText: l.projectsSearchHint,
+                    prefixIcon: const Icon(Icons.search_rounded),
                   ),
                   onChanged: (v) => setState(() => _query = v),
                 ),
@@ -85,11 +86,11 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final s in const {
-                        'all': 'All',
-                        'active': 'Active',
-                        'completed': 'Completed',
-                        'archived': 'Archived',
+                      for (final s in {
+                        'all': l.statusAll,
+                        'active': l.statusActive,
+                        'completed': l.statusCompleted,
+                        'archived': l.statusArchived,
                       }.entries)
                         Padding(
                           padding: const EdgeInsets.only(right: Gap.sm),
@@ -105,9 +106,9 @@ class _ProjectsPageState extends ConsumerState<ProjectsPage> {
                 ),
                 const SizedBox(height: Gap.lg),
                 if (filtered.isEmpty)
-                  const EmptyState(
+                  EmptyState(
                     icon: Icons.search_off_rounded,
-                    title: 'No matching projects',
+                    title: l.projectsNoMatch,
                   )
                 else
                   ResponsiveGrid(

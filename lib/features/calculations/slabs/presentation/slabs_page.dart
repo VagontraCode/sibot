@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'slabs_provider.dart';
 
@@ -13,11 +14,12 @@ class SlabPage extends ConsumerWidget {
     final state = ref.watch(slabStateProvider(projectId));
     final n = ref.read(slabStateProvider(projectId).notifier);
     final calc = state.lastCalculation;
+    final l = context.l10n;
     final m = calc?.metadata;
 
     return CalculatorScaffold(
-      title: 'Slab Design',
-      subtitle: 'One-way slab, simply supported.',
+      title: l.modSlab,
+      subtitle: l.slabSubtitle,
       module: moduleByRoute('slab'),
       isLoading: state.isLoading,
       error: state.error,
@@ -25,18 +27,18 @@ class SlabPage extends ConsumerWidget {
       resultKey: calc?.id,
       inputs: [
         FormSection(
-          title: 'Span & load',
+          title: l.slabSpanLoad,
           icon: Icons.layers_outlined,
           children: [
             NumberField(
-              label: 'Span',
+              label: l.calcSpan,
               unit: 'm',
               hint: '4',
               value: state.span,
               onChanged: (v) => n.updateSpan(v ?? 0),
             ),
             NumberField(
-              label: 'Load',
+              label: l.calcLoad,
               unit: 'kN/m²',
               hint: '7.5',
               value: state.load,
@@ -45,20 +47,20 @@ class SlabPage extends ConsumerWidget {
           ],
         ),
         FormSection(
-          title: 'Materials',
+          title: l.calcMaterials,
           icon: Icons.science_outlined,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Concrete fck',
+                  label: l.calcConcreteFck,
                   unit: 'MPa',
                   hint: '25',
                   value: state.concreteStrength,
                   onChanged: (v) => n.updateConcreteStrength(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Steel fyk',
+                  label: l.calcSteelFyk,
                   unit: 'MPa',
                   hint: '500',
                   value: state.steelStrength,
@@ -74,24 +76,24 @@ class SlabPage extends ConsumerWidget {
           ? null
           : [
               ResultCard(
-                title: 'One-way slab',
+                title: l.slabOneWay,
                 icon: Icons.layers_outlined,
                 rows: [
                   ResultRow(
-                    label: 'Recommended thickness',
+                    label: l.slabThickness,
                     symbol: 'h',
                     value: _f(m['recommendedDepth'], 0),
                     unit: 'mm',
                     emphasize: true,
                   ),
                   ResultRow(
-                    label: 'Design moment',
+                    label: l.slabDesignMoment,
                     symbol: 'MEd',
                     value: _f(m['bendingMoment'], 1),
                     unit: 'kN·m/m',
                   ),
                   ResultRow(
-                    label: 'Steel required',
+                    label: l.slabSteelRequired,
                     symbol: 'As',
                     value: _f(m['ast_per_m'], 0),
                     unit: 'mm²/m',

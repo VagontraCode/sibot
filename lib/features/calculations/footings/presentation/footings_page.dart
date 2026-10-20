@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/services/calculation_engine.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class FootingPage extends ConsumerWidget {
@@ -15,6 +16,7 @@ class FootingPage extends ConsumerWidget {
     final state = ref.watch(footingStateProvider(projectId));
     final n = ref.read(footingStateProvider(projectId).notifier);
     final calc = state.lastCalculation;
+    final l = context.l10n;
     final dims = calc?.metadata['dimensions'] as Map?;
     final reinf = calc?.metadata['reinforcement'] as Map?;
 
@@ -28,8 +30,8 @@ class FootingPage extends ConsumerWidget {
         : null;
 
     return CalculatorScaffold(
-      title: 'Footing Design',
-      subtitle: 'Pad footing under a column.',
+      title: l.modFooting,
+      subtitle: l.footingSubtitle,
       module: moduleByRoute('footing'),
       isLoading: state.isLoading,
       error: state.error,
@@ -37,38 +39,41 @@ class FootingPage extends ConsumerWidget {
       resultKey: calc?.id,
       inputs: [
         FormSection(
-          title: 'Design basis',
+          title: l.footingDesignBasis,
           icon: Icons.rule_rounded,
           children: [
             ChoiceField<String>(
-              label: 'Design code',
+              label: l.footingCode,
               value: state.code,
-              options: const {'eurocode': 'Eurocode', 'bael99': 'BAEL 99'},
+              options: {'eurocode': l.codeEurocode, 'bael99': l.codeBael},
               onChanged: n.updateCode,
             ),
             ChoiceField<String>(
-              label: 'Footing type',
+              label: l.footingType,
               value: state.footingType,
-              options: const {'isolated': 'Isolated', 'combined': 'Combined'},
+              options: {
+                'isolated': l.footingIsolated,
+                'combined': l.footingCombined,
+              },
               onChanged: n.updateFootingType,
             ),
           ],
         ),
         FormSection(
-          title: 'Column actions',
+          title: l.footingColumnActions,
           icon: Icons.south_rounded,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Axial load',
+                  label: l.footingAxialLoad,
                   unit: 'kN',
                   hint: '500',
                   value: state.columnLoad,
                   onChanged: (v) => n.updateColumnLoad(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Moment',
+                  label: l.footingMoment,
                   unit: 'kN·m',
                   hint: '50',
                   value: state.columnMoment,
@@ -79,20 +84,20 @@ class FootingPage extends ConsumerWidget {
           ],
         ),
         FormSection(
-          title: 'Soil',
+          title: l.footingSoil,
           icon: Icons.terrain_outlined,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Bearing capacity',
+                  label: l.footingBearing,
                   unit: 'kPa',
                   hint: '250',
                   value: state.soilBearingCapacity,
                   onChanged: (v) => n.updateSoilBearingCapacity(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Unit weight',
+                  label: l.footingUnitWeight,
                   unit: 'kN/m³',
                   hint: '18',
                   value: state.soilDensity,
@@ -103,20 +108,20 @@ class FootingPage extends ConsumerWidget {
           ],
         ),
         FormSection(
-          title: 'Materials',
+          title: l.calcMaterials,
           icon: Icons.science_outlined,
           children: [
             FieldRow(
               children: [
                 NumberField(
-                  label: 'Concrete fck',
+                  label: l.calcConcreteFck,
                   unit: 'MPa',
                   hint: '25',
                   value: state.concreteStrength,
                   onChanged: (v) => n.updateConcreteStrength(v ?? 0),
                 ),
                 NumberField(
-                  label: 'Steel fyk',
+                  label: l.calcSteelFyk,
                   unit: 'MPa',
                   hint: '500',
                   value: state.steelStrength,
@@ -131,9 +136,10 @@ class FootingPage extends ConsumerWidget {
           StatusBanner(
             tone: Tone.primary,
             icon: Icons.lightbulb_outline_rounded,
-            title:
-                'Pre-sizing: about ${_f(hint['recommendedArea'], 2)} m² of footing',
-            message: hint['reasoning'] as String?,
+            title: l.footingPresizing(_f(hint['recommendedArea'], 2)),
+            message: l.footingPresizingReason(
+              state.code == 'eurocode' ? '3.0' : '2.5',
+            ),
           ),
       ],
       results: calc == null
@@ -141,14 +147,14 @@ class FootingPage extends ConsumerWidget {
           : [
               StatusBanner(
                 tone: calc.isValid ? Tone.success : Tone.danger,
-                title: calc.isValid ? 'Design adequate' : 'Design needs review',
+                title: calc.isValid ? l.footingAdequate : l.footingReview,
               ),
               ResultCard(
-                title: 'Dimensions',
+                title: l.footingDimensions,
                 icon: Icons.crop_free_rounded,
                 rows: [
                   ResultRow(
-                    label: 'Length × width',
+                    label: l.footingLxB,
                     symbol: 'L × B',
                     value:
                         '${_f(dims?['length'], 2)} × ${_f(dims?['width'], 2)}',
@@ -156,19 +162,19 @@ class FootingPage extends ConsumerWidget {
                     emphasize: true,
                   ),
                   ResultRow(
-                    label: 'Plan area',
+                    label: l.footingPlanArea,
                     symbol: 'A',
                     value: _f(dims?['area'], 2),
                     unit: 'm²',
                   ),
                   ResultRow(
-                    label: 'Required area',
+                    label: l.footingRequiredArea,
                     symbol: 'Areq',
                     value: _f(calc.requiredArea, 2),
                     unit: 'm²',
                   ),
                   ResultRow(
-                    label: 'Thickness',
+                    label: l.footingThickness,
                     symbol: 'h',
                     value: _f(calc.footingDepth, 0),
                     unit: 'mm',
@@ -176,22 +182,22 @@ class FootingPage extends ConsumerWidget {
                 ],
               ),
               ResultCard(
-                title: 'Reinforcement',
+                title: l.footingReinforcement,
                 icon: Icons.grid_on_rounded,
                 rows: [
                   ResultRow(
-                    label: 'Steel area',
+                    label: l.footingSteelArea,
                     symbol: 'As',
                     value: _f(reinf?['ast'], 0),
                     unit: 'mm²',
                     emphasize: true,
                   ),
                   ResultRow(
-                    label: 'Bar size',
+                    label: l.footingBarSize,
                     value: '${reinf?['barSize'] ?? '—'}',
                   ),
                   ResultRow(
-                    label: 'Spacing',
+                    label: l.footingSpacing,
                     symbol: 's',
                     value: _f(reinf?['spacing'], 0),
                     unit: 'mm',

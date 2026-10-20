@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 Future<T?> _sheet<T>(BuildContext context, Widget child) {
@@ -41,31 +42,31 @@ class PhotoLogPage extends ConsumerWidget {
     void add() => _sheet(context, _AddPhotoForm(projectId: projectId));
 
     return AppPage(
-      title: 'Photo log',
-      eyebrow: 'Field',
+      title: context.l10n.photoLog,
+      eyebrow: context.l10n.navField,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: add,
         icon: const Icon(Icons.add_a_photo_outlined),
-        label: const Text('Add photo'),
+        label: Text(context.l10n.photoAdd),
       ),
       children: [
         photosAsync.when(
           loading: () => const LinearProgressIndicator(),
           error: (e, _) => StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load photos',
+            title: context.l10n.photoLoadError,
             message: '$e',
           ),
           data: (photos) {
             if (photos.isEmpty) {
               return EmptyState(
                 icon: Icons.photo_library_outlined,
-                title: 'No photos yet',
-                message: 'Document progress, defects and rebar before pours.',
+                title: context.l10n.photoEmptyTitle,
+                message: context.l10n.photoEmptyMessage,
                 action: FilledButton.icon(
                   onPressed: add,
                   icon: const Icon(Icons.add_a_photo_outlined),
-                  label: const Text('Add photo'),
+                  label: Text(context.l10n.photoAdd),
                 ),
               );
             }
@@ -115,7 +116,9 @@ class _PhotoCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  photo.description.isEmpty ? 'Untitled' : photo.description,
+                  photo.description.isEmpty
+                      ? context.l10n.commonUntitled
+                      : photo.description,
                   style: context.text.titleMedium,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -124,7 +127,9 @@ class _PhotoCard extends StatelessWidget {
                 Text(
                   [
                     if (photo.location.isNotEmpty) photo.location,
-                    DateFormat.yMMMd().add_Hm().format(photo.timestamp),
+                    DateFormat.yMMMd(
+                      context.localeName,
+                    ).add_Hm().format(photo.timestamp),
                   ].join('  ·  '),
                   style: context.text.bodySmall,
                 ),
@@ -197,7 +202,7 @@ class _AddPhotoFormState extends ConsumerState<_AddPhotoForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Add photo', style: context.text.headlineSmall),
+        Text(context.l10n.photoAdd, style: context.text.headlineSmall),
         const SizedBox(height: Gap.xl),
         ClipRRect(
           borderRadius: BorderRadius.circular(Radii.lg),
@@ -221,12 +226,12 @@ class _AddPhotoFormState extends ConsumerState<_AddPhotoForm> {
             OutlinedButton.icon(
               onPressed: () => _pick(ImageSource.camera),
               icon: const Icon(Icons.photo_camera_outlined),
-              label: const Text('Camera'),
+              label: Text(context.l10n.photoCamera),
             ),
             OutlinedButton.icon(
               onPressed: () => _pick(ImageSource.gallery),
               icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('Gallery'),
+              label: Text(context.l10n.photoGallery),
             ),
           ],
         ),
@@ -234,20 +239,22 @@ class _AddPhotoFormState extends ConsumerState<_AddPhotoForm> {
         TextField(
           controller: _description,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(labelText: 'Description'),
+          decoration: InputDecoration(labelText: context.l10n.photoDescription),
         ),
         const SizedBox(height: Gap.md),
         TextField(
           controller: _location,
-          decoration: const InputDecoration(
-            labelText: 'Location on site',
-            hintText: 'e.g. Grid B-3, level 2',
+          decoration: InputDecoration(
+            labelText: context.l10n.photoLocation,
+            hintText: context.l10n.photoLocationHint,
           ),
         ),
         const SizedBox(height: Gap.xl),
         FilledButton(
           onPressed: _file == null || _saving ? null : _save,
-          child: Text(_saving ? 'Saving…' : 'Save photo'),
+          child: Text(
+            _saving ? context.l10n.commonSaving : context.l10n.photoSave,
+          ),
         ),
       ],
     );
@@ -266,32 +273,31 @@ class DailyReportPage extends ConsumerWidget {
     void add() => _sheet(context, _DailyReportForm(projectId: projectId));
 
     return AppPage(
-      title: 'Daily reports',
-      eyebrow: 'Field',
+      title: context.l10n.reportDaily,
+      eyebrow: context.l10n.navField,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: add,
         icon: const Icon(Icons.edit_note_rounded),
-        label: const Text('New report'),
+        label: Text(context.l10n.reportNew),
       ),
       children: [
         reportsAsync.when(
           loading: () => const LinearProgressIndicator(),
           error: (e, _) => StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load reports',
+            title: context.l10n.reportLoadError,
             message: '$e',
           ),
           data: (reports) {
             if (reports.isEmpty) {
               return EmptyState(
                 icon: Icons.assignment_outlined,
-                title: 'No reports yet',
-                message:
-                    'Log weather, workforce, progress and safety each day.',
+                title: context.l10n.reportEmptyTitle,
+                message: context.l10n.reportEmptyMessage,
                 action: FilledButton.icon(
                   onPressed: add,
                   icon: const Icon(Icons.edit_note_rounded),
-                  label: const Text('New report'),
+                  label: Text(context.l10n.reportNew),
                 ),
               );
             }
@@ -314,7 +320,7 @@ class DailyReportPage extends ConsumerWidget {
                             children: [
                               Text(
                                 r.progressSummary.isEmpty
-                                    ? 'No summary'
+                                    ? context.l10n.reportNoSummary
                                     : r.progressSummary,
                                 style: context.text.titleMedium,
                                 maxLines: 2,
@@ -324,7 +330,7 @@ class DailyReportPage extends ConsumerWidget {
                               Text(
                                 [
                                   if (r.weather.isNotEmpty) r.weather,
-                                  '${r.workersCount} workers',
+                                  context.l10n.reportWorkers(r.workersCount),
                                 ].join('  ·  '),
                                 style: context.text.bodySmall,
                               ),
@@ -359,7 +365,7 @@ class _DateBadge extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            DateFormat.MMM().format(date).toUpperCase(),
+            DateFormat.MMM(context.localeName).format(date).toUpperCase(),
             style: context.text.labelSmall?.copyWith(
               color: context.colors.onPrimaryContainer,
             ),
@@ -401,18 +407,18 @@ class _ReportDetail extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          DateFormat.yMMMMEEEEd().format(report.date),
+          DateFormat.yMMMMEEEEd(context.localeName).format(report.date),
           style: context.text.headlineSmall,
         ),
         const SizedBox(height: Gap.xl),
         FieldRow(
           children: [
-            block('Weather', report.weather),
-            block('Workers on site', '${report.workersCount}'),
+            block(context.l10n.reportWeather, report.weather),
+            block(context.l10n.reportWorkersOnSite, '${report.workersCount}'),
           ],
         ),
-        block('Progress', report.progressSummary),
-        block('Safety', report.safetyNotes),
+        block(context.l10n.reportProgress, report.progressSummary),
+        block(context.l10n.reportSafety, report.safetyNotes),
       ],
     );
   }
@@ -464,10 +470,10 @@ class _DailyReportFormState extends ConsumerState<_DailyReportForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('Daily report', style: context.text.headlineSmall),
+        Text(context.l10n.reportDailyTitle, style: context.text.headlineSmall),
         const SizedBox(height: Gap.xs),
         Text(
-          DateFormat.yMMMMEEEEd().format(DateTime.now()),
+          DateFormat.yMMMMEEEEd(context.localeName).format(DateTime.now()),
           style: context.text.bodySmall,
         ),
         const SizedBox(height: Gap.xl),
@@ -475,13 +481,13 @@ class _DailyReportFormState extends ConsumerState<_DailyReportForm> {
           children: [
             TextField(
               controller: _weather,
-              decoration: const InputDecoration(
-                labelText: 'Weather',
+              decoration: InputDecoration(
+                labelText: context.l10n.reportWeather,
                 prefixIcon: Icon(Icons.wb_cloudy_outlined, size: 20),
               ),
             ),
             NumberField(
-              label: 'Workers',
+              label: context.l10n.reportWorkersField,
               value: _workers.toDouble(),
               onChanged: (v) => _workers = v?.round() ?? 0,
             ),
@@ -493,8 +499,8 @@ class _DailyReportFormState extends ConsumerState<_DailyReportForm> {
           minLines: 3,
           maxLines: 6,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Progress',
+          decoration: InputDecoration(
+            labelText: context.l10n.reportProgress,
             alignLabelWithHint: true,
           ),
         ),
@@ -504,13 +510,13 @@ class _DailyReportFormState extends ConsumerState<_DailyReportForm> {
           minLines: 2,
           maxLines: 4,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Safety notes',
+          decoration: InputDecoration(
+            labelText: context.l10n.reportSafetyNotes,
             alignLabelWithHint: true,
           ),
         ),
         const SizedBox(height: Gap.xl),
-        FilledButton(onPressed: _save, child: const Text('Save report')),
+        FilledButton(onPressed: _save, child: Text(context.l10n.reportSave)),
       ],
     );
   }
@@ -541,31 +547,31 @@ class _PunchListPageState extends ConsumerState<PunchListPage> {
     void add() => _sheet(context, _PunchItemForm(projectId: widget.projectId));
 
     return AppPage(
-      title: 'Punch list',
-      eyebrow: 'Field',
+      title: context.l10n.punchList,
+      eyebrow: context.l10n.navField,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: add,
         icon: const Icon(Icons.add_task_rounded),
-        label: const Text('Add item'),
+        label: Text(context.l10n.punchAdd),
       ),
       children: [
         itemsAsync.when(
           loading: () => const LinearProgressIndicator(),
           error: (e, _) => StatusBanner(
             tone: Tone.danger,
-            title: 'Could not load the punch list',
+            title: context.l10n.punchLoadError,
             message: '$e',
           ),
           data: (items) {
             if (items.isEmpty) {
               return EmptyState(
                 icon: Icons.checklist_rounded,
-                title: 'Nothing to fix yet',
-                message: 'Track defects and snags until they are closed out.',
+                title: context.l10n.punchEmptyTitle,
+                message: context.l10n.punchEmptyMessage,
                 action: FilledButton.icon(
                   onPressed: add,
                   icon: const Icon(Icons.add_task_rounded),
-                  label: const Text('Add item'),
+                  label: Text(context.l10n.punchAdd),
                 ),
               );
             }
@@ -584,14 +590,14 @@ class _PunchListPageState extends ConsumerState<PunchListPage> {
                 Row(
                   children: [
                     ChoiceChip(
-                      label: Text('Open · ${open.length}'),
+                      label: Text(context.l10n.punchOpenTab(open.length)),
                       selected: !_showClosed,
                       showCheckmark: false,
                       onSelected: (_) => setState(() => _showClosed = false),
                     ),
                     const SizedBox(width: Gap.sm),
                     ChoiceChip(
-                      label: Text('Closed · ${closed.length}'),
+                      label: Text(context.l10n.punchClosedTab(closed.length)),
                       selected: _showClosed,
                       showCheckmark: false,
                       onSelected: (_) => setState(() => _showClosed = true),
@@ -602,7 +608,9 @@ class _PunchListPageState extends ConsumerState<PunchListPage> {
                 if (shown.isEmpty)
                   EmptyState(
                     icon: Icons.task_alt_rounded,
-                    title: _showClosed ? 'Nothing closed yet' : 'All clear',
+                    title: _showClosed
+                        ? context.l10n.punchNothingClosed
+                        : context.l10n.punchAllClear,
                   )
                 else
                   Card(
@@ -620,7 +628,7 @@ class _PunchListPageState extends ConsumerState<PunchListPage> {
                   ),
                 const SizedBox(height: Gap.md),
                 Text(
-                  'Swipe right to close an item, left to delete it.',
+                  context.l10n.punchSwipeHint,
                   style: context.text.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -692,9 +700,9 @@ class _PunchRow extends ConsumerWidget {
         ),
         subtitle: item.assignedTo.isEmpty
             ? null
-            : Text('Assigned to ${item.assignedTo}'),
+            : Text(context.l10n.punchAssignedTo(item.assignedTo)),
         trailing: StatusPill(
-          item.priority,
+          context.l10n.priority(item.priority),
           tone: _priorityTone[item.priority] ?? Tone.neutral,
         ),
       ),
@@ -746,7 +754,7 @@ class _PunchItemFormState extends ConsumerState<_PunchItemForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text('New punch item', style: context.text.headlineSmall),
+        Text(context.l10n.punchNew, style: context.text.headlineSmall),
         const SizedBox(height: Gap.xl),
         TextField(
           controller: _description,
@@ -754,26 +762,30 @@ class _PunchItemFormState extends ConsumerState<_PunchItemForm> {
           minLines: 1,
           maxLines: 3,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(labelText: 'What needs fixing?'),
+          decoration: InputDecoration(labelText: context.l10n.punchWhat),
         ),
         const SizedBox(height: Gap.md),
         TextField(
           controller: _assigned,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: 'Assigned to',
+          decoration: InputDecoration(
+            labelText: context.l10n.punchAssignedLabel,
             prefixIcon: Icon(Icons.person_outline, size: 20),
           ),
         ),
         const SizedBox(height: Gap.lg),
         ChoiceField<String>(
-          label: 'Priority',
+          label: context.l10n.punchPriority,
           value: _priority,
-          options: const {'high': 'High', 'medium': 'Medium', 'low': 'Low'},
+          options: {
+            'high': context.l10n.priorityHigh,
+            'medium': context.l10n.priorityMedium,
+            'low': context.l10n.priorityLow,
+          },
           onChanged: (v) => setState(() => _priority = v),
         ),
         const SizedBox(height: Gap.xl),
-        FilledButton(onPressed: _save, child: const Text('Add item')),
+        FilledButton(onPressed: _save, child: Text(context.l10n.punchAdd)),
       ],
     );
   }

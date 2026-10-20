@@ -73,7 +73,7 @@ class FootingCalculationStateNotifier
   final String projectId;
 
   FootingCalculationStateNotifier(this.projectId)
-    : super(const FootingCalculationState());
+    : super(FootingCalculationState(code: SettingsService.getDefaultCode()));
 
   void updateColumnLoad(double value) {
     state = state.copyWith(columnLoad: value);

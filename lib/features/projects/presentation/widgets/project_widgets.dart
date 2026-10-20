@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 Tone projectStatusTone(String status) => switch (status) {
@@ -12,13 +13,11 @@ Tone projectStatusTone(String status) => switch (status) {
   _ => Tone.neutral,
 };
 
-String relativeDate(DateTime d) {
-  final diff = DateTime.now().difference(d);
-  if (diff.inMinutes < 1) return 'just now';
-  if (diff.inHours < 1) return '${diff.inMinutes} min ago';
-  if (diff.inDays < 1) return '${diff.inHours} h ago';
-  if (diff.inDays < 7) return '${diff.inDays} d ago';
-  return DateFormat.yMMMd().format(d);
+String relativeDate(BuildContext context, DateTime d) {
+  return context.l10n.relativeDate(
+    d,
+    (d) => DateFormat.yMMMd(context.localeName).format(d),
+  );
 }
 
 class ProjectCard extends StatelessWidget {
@@ -45,7 +44,9 @@ class ProjectCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  project.name.isEmpty ? 'Untitled project' : project.name,
+                  project.name.isEmpty
+                      ? context.l10n.projectUntitled
+                      : project.name,
                   style: context.text.titleMedium,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -53,7 +54,9 @@ class ProjectCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   meta.isEmpty
-                      ? 'Updated ${relativeDate(project.updatedAt)}'
+                      ? context.l10n.timeUpdated(
+                          relativeDate(context, project.updatedAt),
+                        )
                       : meta,
                   style: context.text.bodySmall,
                   maxLines: 1,
@@ -63,7 +66,10 @@ class ProjectCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: Gap.sm),
-          StatusPill(project.status, tone: projectStatusTone(project.status)),
+          StatusPill(
+            context.l10n.projectStatus(project.status),
+            tone: projectStatusTone(project.status),
+          ),
         ],
       ),
     );
@@ -168,7 +174,9 @@ class _ProjectFormState extends State<_ProjectForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              editing ? 'Edit project' : 'New project',
+              editing
+                  ? context.l10n.projectFormEdit
+                  : context.l10n.projectFormNew,
               style: context.text.headlineSmall,
             ),
             const SizedBox(height: Gap.xl),
@@ -178,8 +186,10 @@ class _ProjectFormState extends State<_ProjectForm> {
               textCapitalization: TextCapitalization.sentences,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
-                labelText: 'Project name',
-                errorText: _nameError ? 'Give the project a name' : null,
+                labelText: context.l10n.projectFormName,
+                errorText: _nameError
+                    ? context.l10n.projectFormNameError
+                    : null,
               ),
               onChanged: (_) {
                 if (_nameError) setState(() => _nameError = false);
@@ -192,8 +202,8 @@ class _ProjectFormState extends State<_ProjectForm> {
                   controller: _location,
                   textCapitalization: TextCapitalization.words,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.projectFormLocation,
                     prefixIcon: Icon(Icons.place_outlined, size: 20),
                   ),
                 ),
@@ -201,8 +211,8 @@ class _ProjectFormState extends State<_ProjectForm> {
                   controller: _engineer,
                   textCapitalization: TextCapitalization.words,
                   textInputAction: TextInputAction.next,
-                  decoration: const InputDecoration(
-                    labelText: 'Engineer',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.projectFormEngineer,
                     prefixIcon: Icon(Icons.person_outline, size: 20),
                   ),
                 ),
@@ -214,17 +224,19 @@ class _ProjectFormState extends State<_ProjectForm> {
               minLines: 2,
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(
+                labelText: context.l10n.projectFormDescription,
+              ),
             ),
             if (editing) ...[
               const SizedBox(height: Gap.lg),
               ChoiceField<String>(
-                label: 'Status',
+                label: context.l10n.projectFormStatus,
                 value: _status,
-                options: const {
-                  'active': 'Active',
-                  'completed': 'Completed',
-                  'archived': 'Archived',
+                options: {
+                  'active': context.l10n.statusActive,
+                  'completed': context.l10n.statusCompleted,
+                  'archived': context.l10n.statusArchived,
                 },
                 onChanged: (v) => setState(() => _status = v),
               ),
@@ -232,7 +244,11 @@ class _ProjectFormState extends State<_ProjectForm> {
             const SizedBox(height: Gap.xl),
             FilledButton(
               onPressed: _save,
-              child: Text(editing ? 'Save changes' : 'Create project'),
+              child: Text(
+                editing
+                    ? context.l10n.projectFormSave
+                    : context.l10n.projectFormCreate,
+              ),
             ),
           ],
         ),
@@ -272,7 +288,10 @@ class ProjectSwitcher extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('PROJECT', style: context.text.labelSmall),
+                Text(
+                  context.l10n.commonProjectEyebrow.toUpperCase(),
+                  style: context.text.labelSmall,
+                ),
                 Text(
                   project.name,
                   style: context.text.titleMedium,
@@ -290,7 +309,7 @@ class ProjectSwitcher extends ConsumerWidget {
               }
             },
             icon: const Icon(Icons.swap_horiz_rounded, size: 18),
-            label: const Text('Switch'),
+            label: Text(context.l10n.commonSwitch),
           ),
         ],
       ),
@@ -302,7 +321,7 @@ class ProjectSwitcher extends ConsumerWidget {
 Future<String?> showProjectPicker(
   BuildContext context,
   WidgetRef ref, {
-  String title = 'Choose a project',
+  String? title,
 }) {
   return showModalBottomSheet<String>(
     context: context,
@@ -324,7 +343,10 @@ Future<String?> showProjectPicker(
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(Gap.xl, 0, Gap.xl, Gap.md),
-                child: Text(title, style: context.text.headlineSmall),
+                child: Text(
+                  title ?? context.l10n.projectPickerTitle,
+                  style: context.text.headlineSmall,
+                ),
               ),
               Flexible(
                 child: ListView(
@@ -337,14 +359,16 @@ Future<String?> showProjectPicker(
                         title: Text(p.name),
                         subtitle: Text(
                           p.location.isEmpty
-                              ? 'Updated ${relativeDate(p.updatedAt)}'
+                              ? context.l10n.timeUpdated(
+                                  relativeDate(context, p.updatedAt),
+                                )
                               : p.location,
                         ),
                         onTap: () => Navigator.pop(sheetContext, p.id),
                       ),
                     ListTile(
                       leading: const IconBadge(Icons.add, size: 38),
-                      title: const Text('New project'),
+                      title: Text(context.l10n.projectFormNew),
                       onTap: () async {
                         final created = await showProjectForm(context, ref);
                         if (created != null && sheetContext.mounted) {

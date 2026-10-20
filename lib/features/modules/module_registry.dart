@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sibot/l10n/l10n.dart';
 
 enum ModuleStatus {
   /// Usable, but calculations are not yet verified (Phase 1 rewrite pending).
@@ -9,25 +10,33 @@ enum ModuleStatus {
 }
 
 enum ModuleCategory {
-  analysis('Structural analysis', Icons.hub_outlined),
-  concrete('Reinforced concrete', Icons.view_in_ar_outlined),
-  steel('Steel', Icons.horizontal_split_outlined),
-  timber('Timber', Icons.forest_outlined),
-  masonry('Masonry', Icons.grid_view_outlined),
-  geotech('Geotechnics', Icons.terrain_outlined),
-  loads('Loads', Icons.air_outlined),
-  tools('Tools', Icons.handyman_outlined);
+  analysis(Icons.hub_outlined),
+  concrete(Icons.view_in_ar_outlined),
+  steel(Icons.horizontal_split_outlined),
+  timber(Icons.forest_outlined),
+  masonry(Icons.grid_view_outlined),
+  geotech(Icons.terrain_outlined),
+  loads(Icons.air_outlined),
+  tools(Icons.handyman_outlined);
 
-  final String label;
   final IconData icon;
-  const ModuleCategory(this.label, this.icon);
+  const ModuleCategory(this.icon);
+
+  String label(AppLocalizations l) => switch (this) {
+    analysis => l.catAnalysis,
+    concrete => l.catConcrete,
+    steel => l.catSteel,
+    timber => l.catTimber,
+    masonry => l.catMasonry,
+    geotech => l.catGeotech,
+    loads => l.catLoads,
+    tools => l.catTools,
+  };
 }
 
 @immutable
 class EngModule {
   final String id;
-  final String title;
-  final String subtitle;
   final IconData icon;
   final ModuleCategory category;
 
@@ -40,8 +49,6 @@ class EngModule {
 
   const EngModule({
     required this.id,
-    required this.title,
-    required this.subtitle,
     required this.icon,
     required this.category,
     required this.status,
@@ -50,13 +57,55 @@ class EngModule {
   });
 
   bool get isAvailable => status != ModuleStatus.comingSoon && route != null;
+
+  String title(AppLocalizations l) => switch (id) {
+    'frame2d' => l.modFrame2d,
+    'frame3d' => l.modFrame3d,
+    'beam' => l.modBeam,
+    'column' => l.modColumn,
+    'slab' => l.modSlab,
+    'footing' => l.modFooting,
+    'retaining-wall' => l.modRetainingWall,
+    'steel-member' => l.modSteelMember,
+    'timber-member' => l.modTimberMember,
+    'masonry-wall' => l.modMasonryWall,
+    'bearing' => l.modBearing,
+    'slope' => l.modSlope,
+    'wind-snow' => l.modWindSnow,
+    'seismic' => l.modSeismic,
+    'sections' => l.modSections,
+    'quantities' => l.modQuantities,
+    'pile-cap' => l.modPileCap,
+    'septic' => l.modSeptic,
+    _ => id,
+  };
+
+  String subtitle(AppLocalizations l) => switch (id) {
+    'frame2d' => l.modFrame2dSub,
+    'frame3d' => l.modFrame3dSub,
+    'beam' => l.modBeamSub,
+    'column' => l.modColumnSub,
+    'slab' => l.modSlabSub,
+    'footing' => l.modFootingSub,
+    'retaining-wall' => l.modRetainingWallSub,
+    'steel-member' => l.modSteelMemberSub,
+    'timber-member' => l.modTimberMemberSub,
+    'masonry-wall' => l.modMasonryWallSub,
+    'bearing' => l.modBearingSub,
+    'slope' => l.modSlopeSub,
+    'wind-snow' => l.modWindSnowSub,
+    'seismic' => l.modSeismicSub,
+    'sections' => l.modSectionsSub,
+    'quantities' => l.modQuantitiesSub,
+    'pile-cap' => l.modPileCapSub,
+    'septic' => l.modSepticSub,
+    _ => '',
+  };
 }
 
 const modules = <EngModule>[
   EngModule(
     id: 'frame2d',
-    title: '2D Frame Analysis',
-    subtitle: 'Frames, trusses, continuous beams',
     icon: Icons.hub_outlined,
     category: ModuleCategory.analysis,
     status: ModuleStatus.comingSoon,
@@ -64,8 +113,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'frame3d',
-    title: '3D Frame Analysis',
-    subtitle: 'Space frames, modal analysis',
     icon: Icons.view_in_ar_outlined,
     category: ModuleCategory.analysis,
     status: ModuleStatus.comingSoon,
@@ -73,8 +120,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'beam',
-    title: 'Beam',
-    subtitle: 'Bending, shear',
     icon: Icons.straighten,
     category: ModuleCategory.concrete,
     route: 'beam',
@@ -82,8 +127,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'column',
-    title: 'Column',
-    subtitle: 'Axial, slenderness',
     icon: Icons.view_column_outlined,
     category: ModuleCategory.concrete,
     route: 'column',
@@ -91,8 +134,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'slab',
-    title: 'Slab',
-    subtitle: 'One-way slab',
     icon: Icons.layers_outlined,
     category: ModuleCategory.concrete,
     route: 'slab',
@@ -100,8 +141,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'footing',
-    title: 'Footing',
-    subtitle: 'Isolated, combined',
     icon: Icons.foundation,
     category: ModuleCategory.concrete,
     route: 'footing',
@@ -109,8 +148,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'retaining-wall',
-    title: 'Retaining Wall',
-    subtitle: 'Stability, pre-sizing',
     icon: Icons.stairs_outlined,
     category: ModuleCategory.concrete,
     route: 'retaining-wall',
@@ -118,8 +155,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'steel-member',
-    title: 'Steel Member',
-    subtitle: 'EC3 checks, buckling',
     icon: Icons.horizontal_split_outlined,
     category: ModuleCategory.steel,
     status: ModuleStatus.comingSoon,
@@ -127,8 +162,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'timber-member',
-    title: 'Timber Member',
-    subtitle: 'EC5 checks',
     icon: Icons.forest_outlined,
     category: ModuleCategory.timber,
     status: ModuleStatus.comingSoon,
@@ -136,8 +169,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'masonry-wall',
-    title: 'Masonry Wall',
-    subtitle: 'EC6 vertical capacity',
     icon: Icons.grid_view_outlined,
     category: ModuleCategory.masonry,
     status: ModuleStatus.comingSoon,
@@ -145,8 +176,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'bearing',
-    title: 'Bearing & Settlement',
-    subtitle: 'EC7 soil checks',
     icon: Icons.terrain_outlined,
     category: ModuleCategory.geotech,
     status: ModuleStatus.comingSoon,
@@ -154,8 +183,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'slope',
-    title: 'Slope Stability',
-    subtitle: 'Factor of safety',
     icon: Icons.landscape_outlined,
     category: ModuleCategory.geotech,
     status: ModuleStatus.comingSoon,
@@ -163,8 +190,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'wind-snow',
-    title: 'Wind & Snow',
-    subtitle: 'EC1 actions',
     icon: Icons.air_outlined,
     category: ModuleCategory.loads,
     status: ModuleStatus.comingSoon,
@@ -172,8 +197,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'seismic',
-    title: 'Seismic',
-    subtitle: 'EC8 / PS92 spectra',
     icon: Icons.waves_outlined,
     category: ModuleCategory.loads,
     status: ModuleStatus.comingSoon,
@@ -181,8 +204,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'sections',
-    title: 'Section Properties',
-    subtitle: 'A, I, W, i',
     icon: Icons.crop_square,
     category: ModuleCategory.tools,
     status: ModuleStatus.comingSoon,
@@ -190,8 +211,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'quantities',
-    title: 'Quantities',
-    subtitle: 'Concrete, rebar take-off',
     icon: Icons.calculate_outlined,
     category: ModuleCategory.tools,
     status: ModuleStatus.comingSoon,
@@ -199,8 +218,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'pile-cap',
-    title: 'Pile Cap',
-    subtitle: 'Pile group, cap design',
     icon: Icons.view_week_outlined,
     category: ModuleCategory.tools,
     status: ModuleStatus.comingSoon,
@@ -208,8 +225,6 @@ const modules = <EngModule>[
   ),
   EngModule(
     id: 'septic',
-    title: 'Septic Tank',
-    subtitle: 'Volume sizing',
     icon: Icons.water_drop_outlined,
     category: ModuleCategory.tools,
     status: ModuleStatus.comingSoon,
@@ -220,6 +235,13 @@ const modules = <EngModule>[
 EngModule? moduleByRoute(String route) {
   for (final m in modules) {
     if (m.route == route) return m;
+  }
+  return null;
+}
+
+EngModule? moduleById(String id) {
+  for (final m in modules) {
+    if (m.id == id) return m;
   }
   return null;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sibot/config/theme.dart';
 import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/tokens.dart';
 import 'package:sibot/ui/widgets/app_page.dart';
 import 'package:sibot/ui/widgets/results.dart';
@@ -66,7 +67,8 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final category = widget.module?.category.label;
+    final l = context.l10n;
+    final category = widget.module?.category.label(l);
 
     final inputs = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -87,7 +89,7 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
                   ),
                 )
               : const Icon(Icons.play_arrow_rounded),
-          label: Text(widget.isLoading ? 'Calculating…' : 'Calculate'),
+          label: Text(widget.isLoading ? l.calcCalculating : l.calcCalculate),
         ),
       ],
     );
@@ -99,7 +101,7 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
         if (widget.error != null) ...[
           StatusBanner(
             tone: Tone.danger,
-            title: 'Check the inputs',
+            title: l.calcCheckInputs,
             message: widget.error,
           ),
           const SizedBox(height: Gap.md),

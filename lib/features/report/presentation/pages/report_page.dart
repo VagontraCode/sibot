@@ -4,6 +4,7 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/report_service.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class ReportsPage extends ConsumerWidget {
@@ -29,42 +30,41 @@ class ReportsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final project = activeProject(ref);
+    final l = context.l10n;
 
     return AppPage(
-      title: 'Reports',
-      subtitle: 'PDF calculation notes and site records.',
+      title: l.navReports,
+      subtitle: l.reportsSubtitle,
       children: [
         if (project == null)
-          const EmptyState(
+          EmptyState(
             icon: Icons.description_outlined,
-            title: 'No projects yet',
-            message: 'Reports are generated per project.',
+            title: l.projectsEmptyTitle,
+            message: l.reportsEmptyMessage,
           )
         else ...[
           ProjectSwitcher(project: project),
-          const SectionHeader(title: 'Generate'),
+          SectionHeader(title: l.reportsGenerate),
           ResponsiveGrid(
             minTileWidth: 280,
             children: [
               _ReportTile(
                 icon: Icons.summarize_outlined,
-                title: 'Project summary',
-                description:
-                    'Footing and beam calculations, and the punch list, in one PDF.',
+                title: l.reportsSummary,
+                description: l.reportsSummaryDesc,
                 onTap: () => _projectSummary(ref, project),
               ),
-              const _ReportTile(
+              _ReportTile(
                 icon: Icons.functions_rounded,
-                title: 'Calculation notes',
-                description:
-                    'Formulas, code clauses and diagrams for each module.',
-                badge: 'Phase 5',
+                title: l.reportsCalcNotes,
+                description: l.reportsCalcNotesDesc,
+                badge: l.commonPhase(5),
               ),
-              const _ReportTile(
+              _ReportTile(
                 icon: Icons.fact_check_outlined,
-                title: 'Field audit',
-                description: 'Daily reports, photos and punch list.',
-                badge: 'Planned',
+                title: l.reportsFieldAudit,
+                description: l.reportsFieldAuditDesc,
+                badge: l.commonPlanned,
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 
 class FieldHubPage extends ConsumerWidget {
@@ -11,16 +12,17 @@ class FieldHubPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final project = activeProject(ref);
+    final l = context.l10n;
 
     if (project == null) {
       return AppPage(
-        title: 'Field',
-        subtitle: 'Photos, daily reports and punch lists from the site.',
+        title: l.navField,
+        subtitle: l.fieldSubtitle,
         children: [
           EmptyState(
             icon: Icons.construction_outlined,
-            title: 'No projects yet',
-            message: 'Field data is filed under a project. Create one first.',
+            title: l.projectsEmptyTitle,
+            message: l.fieldEmptyMessage,
             action: FilledButton.icon(
               onPressed: () async {
                 final p = await showProjectForm(context, ref);
@@ -29,7 +31,7 @@ class FieldHubPage extends ConsumerWidget {
                 }
               },
               icon: const Icon(Icons.add_rounded),
-              label: const Text('New project'),
+              label: Text(l.dashNewProject),
             ),
           ),
         ],
@@ -48,33 +50,33 @@ class FieldHubPage extends ConsumerWidget {
         0;
 
     return AppPage(
-      title: 'Field',
-      subtitle: 'Photos, daily reports and punch lists from the site.',
+      title: l.navField,
+      subtitle: l.fieldSubtitle,
       children: [
         ProjectSwitcher(project: project),
-        const SectionHeader(title: 'Tools'),
+        SectionHeader(title: l.fieldTools),
         ResponsiveGrid(
           minTileWidth: 220,
           children: [
             _ToolTile(
               icon: Icons.photo_camera_outlined,
-              title: 'Photo log',
+              title: l.photoLog,
               value: '$photos',
-              caption: 'photos',
+              caption: l.fieldPhotosCaption,
               onTap: () => context.push('/field/photo-log/$id'),
             ),
             _ToolTile(
               icon: Icons.assignment_outlined,
-              title: 'Daily reports',
+              title: l.reportDaily,
               value: '$reports',
-              caption: 'reports',
+              caption: l.fieldReportsCaption,
               onTap: () => context.push('/field/daily-report/$id'),
             ),
             _ToolTile(
               icon: Icons.checklist_rounded,
-              title: 'Punch list',
+              title: l.punchList,
               value: '$openPunch',
-              caption: 'open items',
+              caption: l.fieldOpenItemsCaption,
               onTap: () => context.push('/field/punch-list/$id'),
             ),
           ],

@@ -295,17 +295,3 @@ class PunchListNotifier extends StateNotifier<AsyncValue<List<PunchListItem>>> {
     }
   }
 }
-
-// ============ SETTINGS PROVIDERS ============
-
-final defaultCodeProvider = StateProvider<String>((ref) {
-  return SettingsService.getDefaultCode();
-});
-
-final languageProvider = StateProvider<String>((ref) {
-  return SettingsService.getLanguage();
-});
-
-final unitSystemProvider = StateProvider<String>((ref) {
-  return SettingsService.getUnitSystem();
-});

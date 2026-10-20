@@ -9,7 +9,9 @@ class CalcSummary {
   final String id;
   final String projectId;
   final String name;
-  final String kind;
+
+  /// Id in the module registry.
+  final String moduleId;
   final IconData icon;
   final bool isValid;
   final DateTime createdAt;
@@ -18,7 +20,7 @@ class CalcSummary {
     required this.id,
     required this.projectId,
     required this.name,
-    required this.kind,
+    required this.moduleId,
     required this.icon,
     required this.isValid,
     required this.createdAt,
@@ -29,7 +31,7 @@ class CalcSummary {
       id: c.id,
       projectId: c.projectId,
       name: c.name,
-      kind: 'Footing',
+      moduleId: 'footing',
       icon: Icons.foundation,
       isValid: c.isValid,
       createdAt: c.createdAt,
@@ -38,7 +40,7 @@ class CalcSummary {
       id: c.id,
       projectId: c.projectId,
       name: c.name,
-      kind: 'Beam',
+      moduleId: 'beam',
       icon: Icons.straighten,
       isValid: c.isValid,
       createdAt: c.createdAt,
@@ -47,7 +49,7 @@ class CalcSummary {
       id: c.id,
       projectId: c.projectId,
       name: c.name,
-      kind: 'Column',
+      moduleId: 'column',
       icon: Icons.view_column_outlined,
       isValid: c.isValid,
       createdAt: c.createdAt,
@@ -56,7 +58,7 @@ class CalcSummary {
       id: c.id,
       projectId: c.projectId,
       name: c.name,
-      kind: 'Slab',
+      moduleId: 'slab',
       icon: Icons.layers_outlined,
       isValid: c.isValid,
       createdAt: c.createdAt,
@@ -65,7 +67,7 @@ class CalcSummary {
       id: c.id,
       projectId: c.projectId,
       name: c.name,
-      kind: 'Retaining wall',
+      moduleId: 'retaining-wall',
       icon: Icons.stairs_outlined,
       isValid: c.isValid,
       createdAt: c.createdAt,

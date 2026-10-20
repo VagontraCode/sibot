@@ -167,7 +167,7 @@ class SettingsService {
 
   static String getLanguage() {
     final box = HiveService.getBox(HiveService.settingsBox);
-    return box.get(_languageKey, defaultValue: 'en');
+    return box.get(_languageKey, defaultValue: 'system');
   }
 
   static Future<void> setTheme(String theme) async {
