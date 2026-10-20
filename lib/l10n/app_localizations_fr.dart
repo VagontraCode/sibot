@@ -376,19 +376,19 @@ class AppLocalizationsFr extends AppLocalizations {
   String get modColumn => 'Poteau';
 
   @override
-  String get modColumnSub => 'Compression, élancement';
+  String get modColumnSub => 'N–M, élancement';
 
   @override
   String get modSlab => 'Dalle';
 
   @override
-  String get modSlabSub => 'Dalle portant dans un sens';
+  String get modSlabSub => 'Un sens, deux sens';
 
   @override
   String get modFooting => 'Semelle';
 
   @override
-  String get modFootingSub => 'Isolée, filante';
+  String get modFootingSub => 'Semelle isolée, poinçonnement';
 
   @override
   String get modRetainingWall => 'Mur de soutènement';
@@ -477,11 +477,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get calcCheckInputs => 'Vérifiez les données';
 
   @override
-  String get calcBetaTitle => 'Bêta : résultats non vérifiés';
+  String get calcBetaTitle => 'Bêta : vérification indépendante en cours';
 
   @override
   String get calcBetaMessage =>
-      'Ce module est en cours de réécriture et de vérification sur des exemples de référence. N\'utilisez pas ces résultats pour l\'exécution.';
+      'Les calculs suivent les articles cités et passent des tests de calcul manuel, mais n\'ont pas encore été comparés à des exemples publiés ou à RSA. Vérifiez les résultats avant de les utiliser pour l\'exécution.';
 
   @override
   String get calcResults => 'Résultats';
@@ -503,19 +503,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get calcSpan => 'Portée';
 
   @override
-  String get calcLoad => 'Charge';
-
-  @override
-  String get calcHeight => 'Hauteur';
-
-  @override
-  String get beamSubtitle => 'Poutre sur appuis simples sous charge répartie.';
+  String get beamSubtitle =>
+      'Section rectangulaire : flexion, effort tranchant et flèche.';
 
   @override
   String get beamGeometryLoad => 'Géométrie et charge';
-
-  @override
-  String get beamTotalLoad => 'Charge de calcul totale';
 
   @override
   String get beamWidth => 'Largeur b';
@@ -524,35 +516,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get beamDepth => 'Hauteur h';
 
   @override
-  String get beamAdequate => 'Section suffisante';
-
-  @override
-  String get beamAdequateMsg =>
-      'Ferraillage de flexion trouvé pour le moment de calcul.';
-
-  @override
-  String get beamInadequate => 'Section insuffisante';
-
-  @override
-  String get beamInadequateMsg => 'Augmentez la section ou la classe de béton.';
-
-  @override
   String get beamBending => 'Ferraillage de flexion';
 
   @override
   String get beamSteelRequired => 'Section d\'acier requise';
 
   @override
-  String get beamSuggestedBars => 'Barres proposées';
-
-  @override
-  String get beamLeverArm => 'Bras de levier';
-
-  @override
   String get beamMomentRatio => 'Moment réduit';
 
   @override
-  String get columnSubtitle => 'Poteau circulaire en compression centrée.';
+  String get columnSubtitle =>
+      'Poteau rectangulaire : effort normal, flexion et élancement.';
 
   @override
   String get columnLoadGeometry => 'Charge et géométrie';
@@ -561,51 +535,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get columnAxialLoad => 'Effort normal';
 
   @override
-  String get columnSlender => 'Poteau élancé';
-
-  @override
-  String get columnSlenderMsg =>
-      'Les effets du second ordre doivent être vérifiés.';
-
-  @override
-  String get columnShort => 'Poteau court';
-
-  @override
-  String get columnShortMsg =>
-      'Les effets du second ordre peuvent être négligés.';
-
-  @override
-  String get columnSection => 'Section';
-
-  @override
-  String get columnDiameter => 'Diamètre recommandé';
-
-  @override
-  String get columnRequiredArea => 'Section requise';
-
-  @override
-  String get columnHeightRatio => 'Hauteur / diamètre';
-
-  @override
-  String get slabSubtitle => 'Dalle portant dans un sens, sur appuis simples.';
+  String get slabSubtitle =>
+      'Dalle portant dans un ou deux sens, isostatique ou continue.';
 
   @override
   String get slabSpanLoad => 'Portée et charge';
 
   @override
-  String get slabOneWay => 'Dalle portant dans un sens';
-
-  @override
-  String get slabThickness => 'Épaisseur recommandée';
-
-  @override
-  String get slabDesignMoment => 'Moment de calcul';
-
-  @override
-  String get slabSteelRequired => 'Acier requis';
-
-  @override
-  String get footingSubtitle => 'Semelle isolée sous poteau.';
+  String get footingSubtitle =>
+      'Semelle isolée sous poteau : dimensions, armatures et poinçonnement.';
 
   @override
   String get footingDesignBasis => 'Bases de calcul';
@@ -620,47 +558,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get codeBael => 'BAEL 99';
 
   @override
-  String get footingType => 'Type de semelle';
-
-  @override
-  String get footingIsolated => 'Isolée';
-
-  @override
-  String get footingCombined => 'Combinée';
-
-  @override
   String get footingColumnActions => 'Efforts du poteau';
-
-  @override
-  String get footingAxialLoad => 'Effort normal';
-
-  @override
-  String get footingMoment => 'Moment';
 
   @override
   String get footingSoil => 'Sol';
 
   @override
-  String get footingBearing => 'Capacité portante';
-
-  @override
   String get footingUnitWeight => 'Poids volumique';
-
-  @override
-  String footingPresizing(String area) {
-    return 'Prédimensionnement : environ $area m² de semelle';
-  }
-
-  @override
-  String footingPresizingReason(String sf) {
-    return 'D\'après la capacité portante du sol avec un coefficient de sécurité de $sf.';
-  }
-
-  @override
-  String get footingAdequate => 'Dimensionnement satisfaisant';
-
-  @override
-  String get footingReview => 'Dimensionnement à revoir';
 
   @override
   String get footingDimensions => 'Dimensions';
@@ -669,29 +573,14 @@ class AppLocalizationsFr extends AppLocalizations {
   String get footingLxB => 'Longueur × largeur';
 
   @override
-  String get footingPlanArea => 'Surface en plan';
-
-  @override
-  String get footingRequiredArea => 'Surface requise';
-
-  @override
   String get footingThickness => 'Épaisseur';
 
   @override
   String get footingReinforcement => 'Ferraillage';
 
   @override
-  String get footingSteelArea => 'Section d\'acier';
-
-  @override
-  String get footingBarSize => 'Diamètre des barres';
-
-  @override
-  String get footingSpacing => 'Espacement';
-
-  @override
   String get wallSubtitle =>
-      'Mur cantilever : renversement et prédimensionnement.';
+      'Mur cantilever : stabilité et ferraillage du voile.';
 
   @override
   String get wallWallSoil => 'Mur et sol';
@@ -706,12 +595,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wallFrictionAngle => 'Angle de frottement φ';
 
   @override
-  String get wallStable => 'Stable au renversement';
-
-  @override
-  String get wallOverturningRisk => 'Risque de renversement';
-
-  @override
   String get wallStability => 'Stabilité';
 
   @override
@@ -721,70 +604,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get wallActiveThrust => 'Poussée active des terres';
 
   @override
-  String get wallPresizing => 'Prédimensionnement (mur cantilever)';
-
-  @override
-  String get wallBaseWidth => 'Largeur de semelle';
-
-  @override
-  String get wallStemThickness => 'Épaisseur du voile';
-
-  @override
   String get wallBaseThickness => 'Épaisseur de semelle';
-
-  @override
-  String get wallToeHeel => 'Patin / talon';
-
-  @override
-  String get wallAlternatives => 'Autres types de murs';
-
-  @override
-  String wallBaseApprox(String width) {
-    return 'Base ≈ $width m';
-  }
-
-  @override
-  String get wallGabion => 'Mur en gabions';
-
-  @override
-  String get wallGabionDesc =>
-      'Cages grillagées remplies de pierres. Souple et drainant.';
-
-  @override
-  String get wallGabionPros =>
-      'Excellent drainage, mise en œuvre simple, tolère les tassements.';
-
-  @override
-  String get wallGabionCons =>
-      'Demande une grande emprise ; le grillage peut se corroder avec le temps.';
-
-  @override
-  String get wallStone => 'Maçonnerie de pierres';
-
-  @override
-  String get wallStoneDesc => 'Mur poids traditionnel en pierre naturelle.';
-
-  @override
-  String get wallStonePros => 'Très durable, esthétique, matériaux locaux.';
-
-  @override
-  String get wallStoneCons =>
-      'Main-d\'œuvre importante, maçons qualifiés nécessaires.';
-
-  @override
-  String get wallBlocks => 'Blocs creux armés';
-
-  @override
-  String get wallBlocksDesc =>
-      'Blocs de ciment avec armatures verticales et remplissage en béton.';
-
-  @override
-  String get wallBlocksPros =>
-      'Plus rapide que la maçonnerie traditionnelle, qualité régulière.';
-
-  @override
-  String get wallBlocksCons =>
-      'Hauteur limitée (en général moins de 3 m), pose des armatures précise.';
 
   @override
   String get fieldSubtitle => 'Photos, journaux et réserves du chantier.';
@@ -1074,4 +894,371 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get codePs92Desc => 'Règles parasismiques (FR)';
+
+  @override
+  String get calcCover => 'Enrobage';
+
+  @override
+  String get loadPermanent => 'Charge permanente g';
+
+  @override
+  String get loadVariable => 'Charge d\'exploitation q';
+
+  @override
+  String get loadPermanentArea => 'Charge permanente g';
+
+  @override
+  String get loadVariableArea => 'Charge d\'exploitation q';
+
+  @override
+  String get loadPermanentPoint => 'Charge permanente G';
+
+  @override
+  String get loadVariablePoint => 'Charge d\'exploitation Q';
+
+  @override
+  String get loadSelfWeightNote =>
+      'Charges caractéristiques. Le poids propre est ajouté automatiquement ; combinaison ELU 1,35G + 1,5Q.';
+
+  @override
+  String get beamSupport => 'Appuis';
+
+  @override
+  String get beamSimplySupported => 'Isostatique';
+
+  @override
+  String get beamCantilever => 'Console';
+
+  @override
+  String get resultDesignForces => 'Sollicitations de calcul';
+
+  @override
+  String get resultUlsLoad => 'Charge ELU';
+
+  @override
+  String get resultMoment => 'Moment de calcul';
+
+  @override
+  String get resultShear => 'Effort tranchant de calcul';
+
+  @override
+  String get resultEffectiveDepth => 'Hauteur utile';
+
+  @override
+  String get resultBottomBars => 'Armatures inférieures';
+
+  @override
+  String get resultTopBars => 'Armatures supérieures';
+
+  @override
+  String get resultLinks => 'Cadres';
+
+  @override
+  String get checksTitle => 'Vérifications';
+
+  @override
+  String get checkBendingSteel => 'Armatures de flexion';
+
+  @override
+  String get checkMinSteel => 'Armatures minimales';
+
+  @override
+  String get checkMaxSteel => 'Armatures maximales';
+
+  @override
+  String get checkBarSpacing => 'Espacement libre des barres';
+
+  @override
+  String get checkShearConcrete => 'Effort tranchant (béton)';
+
+  @override
+  String get checkShearLinks => 'Armatures d\'effort tranchant';
+
+  @override
+  String get checkLinkSpacing => 'Espacement des cadres';
+
+  @override
+  String get checkDeflection => 'Flèche';
+
+  @override
+  String get checkSlenderness => 'Élancement';
+
+  @override
+  String get checkAxialBending => 'Flexion composée';
+
+  @override
+  String get checkBearing => 'Contrainte sur le sol';
+
+  @override
+  String get checkPunching => 'Poinçonnement';
+
+  @override
+  String get checkOverturning => 'Renversement';
+
+  @override
+  String get checkSliding => 'Glissement';
+
+  @override
+  String get checkEccentricity => 'Excentricité';
+
+  @override
+  String get verdictOk => 'Toutes les vérifications sont satisfaites';
+
+  @override
+  String verdictFail(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n vérifications non satisfaites',
+      one: '1 vérification non satisfaite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String verdictUtilisation(String pct) {
+    return 'Taux de travail maximal $pct %';
+  }
+
+  @override
+  String problemMissing(String field) {
+    return 'Renseignez $field.';
+  }
+
+  @override
+  String problemNotPositive(String field) {
+    return '$field doit être supérieur à 0.';
+  }
+
+  @override
+  String problemOutOfRange(String field) {
+    return '$field est hors du domaine couvert par la méthode.';
+  }
+
+  @override
+  String problemGeometry(String field) {
+    return '$field n\'est pas cohérent avec les autres dimensions.';
+  }
+
+  @override
+  String get noteCompressionSteel =>
+      'Le moment dépasse la limite d\'une section simplement armée : des aciers comprimés sont nécessaires.';
+
+  @override
+  String get noteBarsDoNotFit =>
+      'Aucune disposition de barres standard ne tient sur un lit. Augmentez la section.';
+
+  @override
+  String get noteLinksNotFound =>
+      'Des cadres jusqu\'à Ø12 ne suffisent pas. Augmentez la section.';
+
+  @override
+  String get noteDeflectionNotCovered =>
+      'La dispense de vérification de flèche du BAEL ne couvre pas les consoles : calculez la flèche.';
+
+  @override
+  String get columnWidthB => 'Largeur b';
+
+  @override
+  String get columnDepthH => 'Hauteur h (sens de flexion)';
+
+  @override
+  String get columnBucklingLength => 'Longueur de flambement lf';
+
+  @override
+  String get columnMoment => 'Moment du premier ordre';
+
+  @override
+  String get columnCreep => 'Coefficient de fluage effectif φef';
+
+  @override
+  String get columnUlsNote =>
+      'Valeurs de calcul ELU. La flexion agit autour de l\'axe parallèle à b.';
+
+  @override
+  String get columnSlendernessTitle => 'Élancement et moments';
+
+  @override
+  String get columnImperfection => 'Excentricité d\'imperfection';
+
+  @override
+  String get columnSecondOrder => 'Excentricité du second ordre';
+
+  @override
+  String get columnLongitudinalBars => 'Armatures longitudinales';
+
+  @override
+  String get columnAxialResistance => 'Effort normal résistant';
+
+  @override
+  String get columnMomentResistance => 'Moment résistant sous NEd';
+
+  @override
+  String get columnInteraction => 'Diagramme d\'interaction N–M';
+
+  @override
+  String get noteSecondOrder =>
+      'λ > λlim : moment du second ordre ajouté par la méthode de la courbure nominale (EN 1992-1-1 5.8.8).';
+
+  @override
+  String get noteBaelCentred =>
+      'Compression centrée : méthode α du BAEL B.8.4.';
+
+  @override
+  String get noteSlendernessOutOfScope =>
+      'Élancement hors du domaine de la méthode : un calcul de flambement est nécessaire.';
+
+  @override
+  String get noteSectionTooSmall =>
+      'Le pourcentage d\'acier maximal ne suffit pas. Augmentez la section.';
+
+  @override
+  String get slabType => 'Type de dalle';
+
+  @override
+  String get slabOneWayShort => 'Un sens';
+
+  @override
+  String get slabTwoWayShort => 'Deux sens';
+
+  @override
+  String get slabContinuous => 'Continue';
+
+  @override
+  String get slabShortSpan => 'Petite portée lx';
+
+  @override
+  String get slabLongSpan => 'Grande portée ly';
+
+  @override
+  String get slabThicknessInput => 'Épaisseur h';
+
+  @override
+  String get slabCoefficients => 'Coefficients du panneau';
+
+  @override
+  String get slabMomentXSpan => 'Moment en travée, x';
+
+  @override
+  String get slabMomentSupport => 'Moment sur appui';
+
+  @override
+  String get slabMomentYSpan => 'Moment en travée, y';
+
+  @override
+  String get slabBarsXSpan => 'Nappe inférieure, sens x';
+
+  @override
+  String get slabBarsSupport => 'Chapeaux sur appuis';
+
+  @override
+  String get slabBarsYSpan => 'Nappe inférieure, sens y';
+
+  @override
+  String get slabDistribution => 'Armatures de répartition';
+
+  @override
+  String get noteTreatedAsOneWay =>
+      'lx/ly < 0,4 : le panneau est calculé comme portant dans un sens.';
+
+  @override
+  String get noteBaelPanel =>
+      'Moments des dalles sur quatre appuis par les coefficients de l\'Annexe E3 du BAEL 91 (ν = 0 à l\'ELU).';
+
+  @override
+  String get noteContinuityCoefficients =>
+      'Continuité par coefficients simplifiés : 0,75 M0 en travée, 0,5 M0 sur appuis (BAEL A.8.2.32).';
+
+  @override
+  String get footingColumnA => 'Poteau a (sens du moment)';
+
+  @override
+  String get footingColumnB => 'Poteau b';
+
+  @override
+  String get footingMomentG => 'Moment dû à G';
+
+  @override
+  String get footingMomentQ => 'Moment dû à Q';
+
+  @override
+  String get footingAllowable => 'Contrainte admissible du sol';
+
+  @override
+  String get footingDepthInput => 'Profondeur d\'assise';
+
+  @override
+  String get footingCharacteristicNote =>
+      'Charges caractéristiques (service) du poteau. Dimensions à l\'ELS, armatures à l\'ELU.';
+
+  @override
+  String get footingSelfWeight => 'Poids de la semelle et des terres';
+
+  @override
+  String get footingPressure => 'Contrainte sur le sol';
+
+  @override
+  String get footingBarsAlongA => 'Barres parallèles à A';
+
+  @override
+  String get footingBarsAlongB => 'Barres parallèles à B';
+
+  @override
+  String get noteSizeLimit =>
+      'La semelle dépasserait 10 m : vérifiez le sol ou les charges.';
+
+  @override
+  String get noteFootingBael =>
+      'Semelle rigide calculée par la méthode des bielles ; contrainte au 3/4 de la largeur.';
+
+  @override
+  String get noteFootingEc2 =>
+      'Flexion à 0,15a à l\'intérieur du nu du poteau (EN 1992-1-1 9.8.2.2) ; contrainte sur la surface effective (EN 1997-1 Annexe D).';
+
+  @override
+  String get wallGeometry => 'Géométrie';
+
+  @override
+  String get wallPresizeButton => 'Prédimensionner d\'après la hauteur';
+
+  @override
+  String get wallToeLength => 'Longueur du patin';
+
+  @override
+  String get wallHeelLength => 'Longueur du talon';
+
+  @override
+  String get wallStemTop => 'Épaisseur du voile, en tête';
+
+  @override
+  String get wallStemBottom => 'Épaisseur du voile, en pied';
+
+  @override
+  String get wallSurcharge => 'Surcharge q';
+
+  @override
+  String get wallToe => 'patin';
+
+  @override
+  String get wallHeel => 'talon';
+
+  @override
+  String get wallKa => 'Coefficient de poussée';
+
+  @override
+  String get wallFosSliding => 'Coefficient de sécurité au glissement';
+
+  @override
+  String get wallStem => 'Voile';
+
+  @override
+  String get wallStemBars => 'Armatures verticales, côté terres';
+
+  @override
+  String get noteWallMethod =>
+      'Stabilité avec la poussée de Rankine et des coefficients de sécurité globaux de 1,5. Le calcul aux coefficients partiels de l\'EC7 viendra avec le module de géotechnique.';
+
+  @override
+  String get noteWallShearKey =>
+      'Le glissement n\'est pas vérifié : ajoutez une bêche ou allongez le talon.';
 }

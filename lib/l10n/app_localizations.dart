@@ -743,7 +743,7 @@ abstract class AppLocalizations {
   /// No description provided for @modColumnSub.
   ///
   /// In en, this message translates to:
-  /// **'Axial, slenderness'**
+  /// **'N–M, slenderness'**
   String get modColumnSub;
 
   /// No description provided for @modSlab.
@@ -755,7 +755,7 @@ abstract class AppLocalizations {
   /// No description provided for @modSlabSub.
   ///
   /// In en, this message translates to:
-  /// **'One-way slab'**
+  /// **'One-way, two-way'**
   String get modSlabSub;
 
   /// No description provided for @modFooting.
@@ -767,7 +767,7 @@ abstract class AppLocalizations {
   /// No description provided for @modFootingSub.
   ///
   /// In en, this message translates to:
-  /// **'Isolated, combined'**
+  /// **'Pad footing, punching'**
   String get modFootingSub;
 
   /// No description provided for @modRetainingWall.
@@ -941,13 +941,13 @@ abstract class AppLocalizations {
   /// No description provided for @calcBetaTitle.
   ///
   /// In en, this message translates to:
-  /// **'Beta: results not yet verified'**
+  /// **'Beta: independent verification pending'**
   String get calcBetaTitle;
 
   /// No description provided for @calcBetaMessage.
   ///
   /// In en, this message translates to:
-  /// **'This module is being rewritten and checked against worked examples. Do not use these results for construction.'**
+  /// **'Calculations follow the cited clauses and pass hand-calculation tests, but have not yet been checked against published worked examples or RSA. Verify results before using them for construction.'**
   String get calcBetaMessage;
 
   /// No description provided for @calcResults.
@@ -986,22 +986,10 @@ abstract class AppLocalizations {
   /// **'Span'**
   String get calcSpan;
 
-  /// No description provided for @calcLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Load'**
-  String get calcLoad;
-
-  /// No description provided for @calcHeight.
-  ///
-  /// In en, this message translates to:
-  /// **'Height'**
-  String get calcHeight;
-
   /// No description provided for @beamSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Simply supported beam under a uniform load.'**
+  /// **'Rectangular section: bending, shear and deflection.'**
   String get beamSubtitle;
 
   /// No description provided for @beamGeometryLoad.
@@ -1009,12 +997,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Geometry & load'**
   String get beamGeometryLoad;
-
-  /// No description provided for @beamTotalLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Total design load'**
-  String get beamTotalLoad;
 
   /// No description provided for @beamWidth.
   ///
@@ -1028,30 +1010,6 @@ abstract class AppLocalizations {
   /// **'Depth h'**
   String get beamDepth;
 
-  /// No description provided for @beamAdequate.
-  ///
-  /// In en, this message translates to:
-  /// **'Section adequate'**
-  String get beamAdequate;
-
-  /// No description provided for @beamAdequateMsg.
-  ///
-  /// In en, this message translates to:
-  /// **'Bending reinforcement found for the design moment.'**
-  String get beamAdequateMsg;
-
-  /// No description provided for @beamInadequate.
-  ///
-  /// In en, this message translates to:
-  /// **'Section inadequate'**
-  String get beamInadequate;
-
-  /// No description provided for @beamInadequateMsg.
-  ///
-  /// In en, this message translates to:
-  /// **'Increase the section or the concrete class.'**
-  String get beamInadequateMsg;
-
   /// No description provided for @beamBending.
   ///
   /// In en, this message translates to:
@@ -1064,18 +1022,6 @@ abstract class AppLocalizations {
   /// **'Steel area required'**
   String get beamSteelRequired;
 
-  /// No description provided for @beamSuggestedBars.
-  ///
-  /// In en, this message translates to:
-  /// **'Suggested bars'**
-  String get beamSuggestedBars;
-
-  /// No description provided for @beamLeverArm.
-  ///
-  /// In en, this message translates to:
-  /// **'Lever arm'**
-  String get beamLeverArm;
-
   /// No description provided for @beamMomentRatio.
   ///
   /// In en, this message translates to:
@@ -1085,7 +1031,7 @@ abstract class AppLocalizations {
   /// No description provided for @columnSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Circular column under axial load.'**
+  /// **'Rectangular column: axial force, bending and slenderness.'**
   String get columnSubtitle;
 
   /// No description provided for @columnLoadGeometry.
@@ -1100,58 +1046,10 @@ abstract class AppLocalizations {
   /// **'Axial load'**
   String get columnAxialLoad;
 
-  /// No description provided for @columnSlender.
-  ///
-  /// In en, this message translates to:
-  /// **'Slender column'**
-  String get columnSlender;
-
-  /// No description provided for @columnSlenderMsg.
-  ///
-  /// In en, this message translates to:
-  /// **'Second-order effects must be checked.'**
-  String get columnSlenderMsg;
-
-  /// No description provided for @columnShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Short column'**
-  String get columnShort;
-
-  /// No description provided for @columnShortMsg.
-  ///
-  /// In en, this message translates to:
-  /// **'Second-order effects can be neglected.'**
-  String get columnShortMsg;
-
-  /// No description provided for @columnSection.
-  ///
-  /// In en, this message translates to:
-  /// **'Section'**
-  String get columnSection;
-
-  /// No description provided for @columnDiameter.
-  ///
-  /// In en, this message translates to:
-  /// **'Recommended diameter'**
-  String get columnDiameter;
-
-  /// No description provided for @columnRequiredArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Required area'**
-  String get columnRequiredArea;
-
-  /// No description provided for @columnHeightRatio.
-  ///
-  /// In en, this message translates to:
-  /// **'Height / diameter'**
-  String get columnHeightRatio;
-
   /// No description provided for @slabSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'One-way slab, simply supported.'**
+  /// **'One-way or two-way slab, simple or continuous.'**
   String get slabSubtitle;
 
   /// No description provided for @slabSpanLoad.
@@ -1160,34 +1058,10 @@ abstract class AppLocalizations {
   /// **'Span & load'**
   String get slabSpanLoad;
 
-  /// No description provided for @slabOneWay.
-  ///
-  /// In en, this message translates to:
-  /// **'One-way slab'**
-  String get slabOneWay;
-
-  /// No description provided for @slabThickness.
-  ///
-  /// In en, this message translates to:
-  /// **'Recommended thickness'**
-  String get slabThickness;
-
-  /// No description provided for @slabDesignMoment.
-  ///
-  /// In en, this message translates to:
-  /// **'Design moment'**
-  String get slabDesignMoment;
-
-  /// No description provided for @slabSteelRequired.
-  ///
-  /// In en, this message translates to:
-  /// **'Steel required'**
-  String get slabSteelRequired;
-
   /// No description provided for @footingSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Pad footing under a column.'**
+  /// **'Pad footing under a column: sizing, steel and punching.'**
   String get footingSubtitle;
 
   /// No description provided for @footingDesignBasis.
@@ -1214,41 +1088,11 @@ abstract class AppLocalizations {
   /// **'BAEL 99'**
   String get codeBael;
 
-  /// No description provided for @footingType.
-  ///
-  /// In en, this message translates to:
-  /// **'Footing type'**
-  String get footingType;
-
-  /// No description provided for @footingIsolated.
-  ///
-  /// In en, this message translates to:
-  /// **'Isolated'**
-  String get footingIsolated;
-
-  /// No description provided for @footingCombined.
-  ///
-  /// In en, this message translates to:
-  /// **'Combined'**
-  String get footingCombined;
-
   /// No description provided for @footingColumnActions.
   ///
   /// In en, this message translates to:
   /// **'Column actions'**
   String get footingColumnActions;
-
-  /// No description provided for @footingAxialLoad.
-  ///
-  /// In en, this message translates to:
-  /// **'Axial load'**
-  String get footingAxialLoad;
-
-  /// No description provided for @footingMoment.
-  ///
-  /// In en, this message translates to:
-  /// **'Moment'**
-  String get footingMoment;
 
   /// No description provided for @footingSoil.
   ///
@@ -1256,41 +1100,11 @@ abstract class AppLocalizations {
   /// **'Soil'**
   String get footingSoil;
 
-  /// No description provided for @footingBearing.
-  ///
-  /// In en, this message translates to:
-  /// **'Bearing capacity'**
-  String get footingBearing;
-
   /// No description provided for @footingUnitWeight.
   ///
   /// In en, this message translates to:
   /// **'Unit weight'**
   String get footingUnitWeight;
-
-  /// No description provided for @footingPresizing.
-  ///
-  /// In en, this message translates to:
-  /// **'Pre-sizing: about {area} m² of footing'**
-  String footingPresizing(String area);
-
-  /// No description provided for @footingPresizingReason.
-  ///
-  /// In en, this message translates to:
-  /// **'Based on the soil bearing capacity with a safety factor of {sf}.'**
-  String footingPresizingReason(String sf);
-
-  /// No description provided for @footingAdequate.
-  ///
-  /// In en, this message translates to:
-  /// **'Design adequate'**
-  String get footingAdequate;
-
-  /// No description provided for @footingReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Design needs review'**
-  String get footingReview;
 
   /// No description provided for @footingDimensions.
   ///
@@ -1304,18 +1118,6 @@ abstract class AppLocalizations {
   /// **'Length × width'**
   String get footingLxB;
 
-  /// No description provided for @footingPlanArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan area'**
-  String get footingPlanArea;
-
-  /// No description provided for @footingRequiredArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Required area'**
-  String get footingRequiredArea;
-
   /// No description provided for @footingThickness.
   ///
   /// In en, this message translates to:
@@ -1328,28 +1130,10 @@ abstract class AppLocalizations {
   /// **'Reinforcement'**
   String get footingReinforcement;
 
-  /// No description provided for @footingSteelArea.
-  ///
-  /// In en, this message translates to:
-  /// **'Steel area'**
-  String get footingSteelArea;
-
-  /// No description provided for @footingBarSize.
-  ///
-  /// In en, this message translates to:
-  /// **'Bar size'**
-  String get footingBarSize;
-
-  /// No description provided for @footingSpacing.
-  ///
-  /// In en, this message translates to:
-  /// **'Spacing'**
-  String get footingSpacing;
-
   /// No description provided for @wallSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Cantilever wall: overturning check and pre-sizing.'**
+  /// **'Cantilever wall: stability and stem reinforcement.'**
   String get wallSubtitle;
 
   /// No description provided for @wallWallSoil.
@@ -1376,18 +1160,6 @@ abstract class AppLocalizations {
   /// **'Friction angle φ'**
   String get wallFrictionAngle;
 
-  /// No description provided for @wallStable.
-  ///
-  /// In en, this message translates to:
-  /// **'Stable against overturning'**
-  String get wallStable;
-
-  /// No description provided for @wallOverturningRisk.
-  ///
-  /// In en, this message translates to:
-  /// **'Overturning risk'**
-  String get wallOverturningRisk;
-
   /// No description provided for @wallStability.
   ///
   /// In en, this message translates to:
@@ -1406,119 +1178,11 @@ abstract class AppLocalizations {
   /// **'Active earth thrust'**
   String get wallActiveThrust;
 
-  /// No description provided for @wallPresizing.
-  ///
-  /// In en, this message translates to:
-  /// **'Pre-sizing (cantilever wall)'**
-  String get wallPresizing;
-
-  /// No description provided for @wallBaseWidth.
-  ///
-  /// In en, this message translates to:
-  /// **'Base width'**
-  String get wallBaseWidth;
-
-  /// No description provided for @wallStemThickness.
-  ///
-  /// In en, this message translates to:
-  /// **'Stem thickness'**
-  String get wallStemThickness;
-
   /// No description provided for @wallBaseThickness.
   ///
   /// In en, this message translates to:
   /// **'Base thickness'**
   String get wallBaseThickness;
-
-  /// No description provided for @wallToeHeel.
-  ///
-  /// In en, this message translates to:
-  /// **'Toe / heel'**
-  String get wallToeHeel;
-
-  /// No description provided for @wallAlternatives.
-  ///
-  /// In en, this message translates to:
-  /// **'Alternative wall types'**
-  String get wallAlternatives;
-
-  /// No description provided for @wallBaseApprox.
-  ///
-  /// In en, this message translates to:
-  /// **'Base ≈ {width} m'**
-  String wallBaseApprox(String width);
-
-  /// No description provided for @wallGabion.
-  ///
-  /// In en, this message translates to:
-  /// **'Gabion wall'**
-  String get wallGabion;
-
-  /// No description provided for @wallGabionDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Stone-filled wire baskets. Flexible and permeable.'**
-  String get wallGabionDesc;
-
-  /// No description provided for @wallGabionPros.
-  ///
-  /// In en, this message translates to:
-  /// **'Excellent drainage, easy to build, tolerates settlement.'**
-  String get wallGabionPros;
-
-  /// No description provided for @wallGabionCons.
-  ///
-  /// In en, this message translates to:
-  /// **'Requires a large excavation; the wire mesh can corrode over time.'**
-  String get wallGabionCons;
-
-  /// No description provided for @wallStone.
-  ///
-  /// In en, this message translates to:
-  /// **'Stone masonry'**
-  String get wallStone;
-
-  /// No description provided for @wallStoneDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Traditional gravity wall using natural stone.'**
-  String get wallStoneDesc;
-
-  /// No description provided for @wallStonePros.
-  ///
-  /// In en, this message translates to:
-  /// **'Highly durable, attractive, uses local materials.'**
-  String get wallStonePros;
-
-  /// No description provided for @wallStoneCons.
-  ///
-  /// In en, this message translates to:
-  /// **'Labour-intensive, requires skilled masons.'**
-  String get wallStoneCons;
-
-  /// No description provided for @wallBlocks.
-  ///
-  /// In en, this message translates to:
-  /// **'Reinforced hollow blocks'**
-  String get wallBlocks;
-
-  /// No description provided for @wallBlocksDesc.
-  ///
-  /// In en, this message translates to:
-  /// **'Cement blocks with vertical rebar and concrete infill.'**
-  String get wallBlocksDesc;
-
-  /// No description provided for @wallBlocksPros.
-  ///
-  /// In en, this message translates to:
-  /// **'Faster than traditional masonry, consistent quality.'**
-  String get wallBlocksPros;
-
-  /// No description provided for @wallBlocksCons.
-  ///
-  /// In en, this message translates to:
-  /// **'Height limited (usually under 3 m), requires precise rebar placement.'**
-  String get wallBlocksCons;
 
   /// No description provided for @fieldSubtitle.
   ///
@@ -2047,6 +1711,666 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Seismic rules (FR)'**
   String get codePs92Desc;
+
+  /// No description provided for @calcCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get calcCover;
+
+  /// No description provided for @loadPermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent load g'**
+  String get loadPermanent;
+
+  /// No description provided for @loadVariable.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable load q'**
+  String get loadVariable;
+
+  /// No description provided for @loadPermanentArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent load g'**
+  String get loadPermanentArea;
+
+  /// No description provided for @loadVariableArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable load q'**
+  String get loadVariableArea;
+
+  /// No description provided for @loadPermanentPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent load G'**
+  String get loadPermanentPoint;
+
+  /// No description provided for @loadVariablePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable load Q'**
+  String get loadVariablePoint;
+
+  /// No description provided for @loadSelfWeightNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic loads. Self-weight is added automatically; ULS combination 1.35G + 1.5Q.'**
+  String get loadSelfWeightNote;
+
+  /// No description provided for @beamSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports'**
+  String get beamSupport;
+
+  /// No description provided for @beamSimplySupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple span'**
+  String get beamSimplySupported;
+
+  /// No description provided for @beamCantilever.
+  ///
+  /// In en, this message translates to:
+  /// **'Cantilever'**
+  String get beamCantilever;
+
+  /// No description provided for @resultDesignForces.
+  ///
+  /// In en, this message translates to:
+  /// **'Design forces'**
+  String get resultDesignForces;
+
+  /// No description provided for @resultUlsLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS load'**
+  String get resultUlsLoad;
+
+  /// No description provided for @resultMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Design moment'**
+  String get resultMoment;
+
+  /// No description provided for @resultShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Design shear'**
+  String get resultShear;
+
+  /// No description provided for @resultEffectiveDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective depth'**
+  String get resultEffectiveDepth;
+
+  /// No description provided for @resultBottomBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom bars'**
+  String get resultBottomBars;
+
+  /// No description provided for @resultTopBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Top bars'**
+  String get resultTopBars;
+
+  /// No description provided for @resultLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get resultLinks;
+
+  /// No description provided for @checksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Checks'**
+  String get checksTitle;
+
+  /// No description provided for @checkBendingSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending reinforcement'**
+  String get checkBendingSteel;
+
+  /// No description provided for @checkMinSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum reinforcement'**
+  String get checkMinSteel;
+
+  /// No description provided for @checkMaxSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum reinforcement'**
+  String get checkMaxSteel;
+
+  /// No description provided for @checkBarSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear bar spacing'**
+  String get checkBarSpacing;
+
+  /// No description provided for @checkShearConcrete.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear (concrete)'**
+  String get checkShearConcrete;
+
+  /// No description provided for @checkShearLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear reinforcement'**
+  String get checkShearLinks;
+
+  /// No description provided for @checkLinkSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Link spacing'**
+  String get checkLinkSpacing;
+
+  /// No description provided for @checkDeflection.
+  ///
+  /// In en, this message translates to:
+  /// **'Deflection'**
+  String get checkDeflection;
+
+  /// No description provided for @checkSlenderness.
+  ///
+  /// In en, this message translates to:
+  /// **'Slenderness'**
+  String get checkSlenderness;
+
+  /// No description provided for @checkAxialBending.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial force and bending'**
+  String get checkAxialBending;
+
+  /// No description provided for @checkBearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing pressure'**
+  String get checkBearing;
+
+  /// No description provided for @checkPunching.
+  ///
+  /// In en, this message translates to:
+  /// **'Punching shear'**
+  String get checkPunching;
+
+  /// No description provided for @checkOverturning.
+  ///
+  /// In en, this message translates to:
+  /// **'Overturning'**
+  String get checkOverturning;
+
+  /// No description provided for @checkSliding.
+  ///
+  /// In en, this message translates to:
+  /// **'Sliding'**
+  String get checkSliding;
+
+  /// No description provided for @checkEccentricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Eccentricity'**
+  String get checkEccentricity;
+
+  /// No description provided for @verdictOk.
+  ///
+  /// In en, this message translates to:
+  /// **'All checks satisfied'**
+  String get verdictOk;
+
+  /// No description provided for @verdictFail.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 check not satisfied} other{{n} checks not satisfied}}'**
+  String verdictFail(int n);
+
+  /// No description provided for @verdictUtilisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest utilisation {pct} %'**
+  String verdictUtilisation(String pct);
+
+  /// No description provided for @problemMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {field}.'**
+  String problemMissing(String field);
+
+  /// No description provided for @problemNotPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} must be greater than 0.'**
+  String problemNotPositive(String field);
+
+  /// No description provided for @problemOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is outside the range this method covers.'**
+  String problemOutOfRange(String field);
+
+  /// No description provided for @problemGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'{field} is not consistent with the other dimensions.'**
+  String problemGeometry(String field);
+
+  /// No description provided for @noteCompressionSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'The moment exceeds the limit for a singly reinforced section: compression steel is required.'**
+  String get noteCompressionSteel;
+
+  /// No description provided for @noteBarsDoNotFit.
+  ///
+  /// In en, this message translates to:
+  /// **'No standard bar arrangement fits in one layer. Increase the section.'**
+  String get noteBarsDoNotFit;
+
+  /// No description provided for @noteLinksNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Links up to Ø12 cannot carry the shear. Increase the section.'**
+  String get noteLinksNotFound;
+
+  /// No description provided for @noteDeflectionNotCovered.
+  ///
+  /// In en, this message translates to:
+  /// **'The BAEL deflection exemption does not cover cantilevers: calculate the deflection.'**
+  String get noteDeflectionNotCovered;
+
+  /// No description provided for @columnWidthB.
+  ///
+  /// In en, this message translates to:
+  /// **'Width b'**
+  String get columnWidthB;
+
+  /// No description provided for @columnDepthH.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth h (bending direction)'**
+  String get columnDepthH;
+
+  /// No description provided for @columnBucklingLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling length l0'**
+  String get columnBucklingLength;
+
+  /// No description provided for @columnMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'First-order moment'**
+  String get columnMoment;
+
+  /// No description provided for @columnCreep.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective creep ratio φef'**
+  String get columnCreep;
+
+  /// No description provided for @columnUlsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS design values. Bending acts about the axis parallel to b.'**
+  String get columnUlsNote;
+
+  /// No description provided for @columnSlendernessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Slenderness and moments'**
+  String get columnSlendernessTitle;
+
+  /// No description provided for @columnImperfection.
+  ///
+  /// In en, this message translates to:
+  /// **'Imperfection eccentricity'**
+  String get columnImperfection;
+
+  /// No description provided for @columnSecondOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Second-order eccentricity'**
+  String get columnSecondOrder;
+
+  /// No description provided for @columnLongitudinalBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitudinal bars'**
+  String get columnLongitudinalBars;
+
+  /// No description provided for @columnAxialResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial resistance'**
+  String get columnAxialResistance;
+
+  /// No description provided for @columnMomentResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment resistance at NEd'**
+  String get columnMomentResistance;
+
+  /// No description provided for @columnInteraction.
+  ///
+  /// In en, this message translates to:
+  /// **'N–M interaction diagram'**
+  String get columnInteraction;
+
+  /// No description provided for @noteSecondOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'λ > λlim: second-order moment added by the nominal curvature method (EN 1992-1-1 5.8.8).'**
+  String get noteSecondOrder;
+
+  /// No description provided for @noteBaelCentred.
+  ///
+  /// In en, this message translates to:
+  /// **'Centred compression: BAEL B.8.4 α method.'**
+  String get noteBaelCentred;
+
+  /// No description provided for @noteSlendernessOutOfScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Slenderness beyond the method\'s range: a buckling analysis is required.'**
+  String get noteSlendernessOutOfScope;
+
+  /// No description provided for @noteSectionTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'The maximum steel ratio is not enough. Increase the section.'**
+  String get noteSectionTooSmall;
+
+  /// No description provided for @slabType.
+  ///
+  /// In en, this message translates to:
+  /// **'Slab type'**
+  String get slabType;
+
+  /// No description provided for @slabOneWayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'One-way'**
+  String get slabOneWayShort;
+
+  /// No description provided for @slabTwoWayShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-way'**
+  String get slabTwoWayShort;
+
+  /// No description provided for @slabContinuous.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous'**
+  String get slabContinuous;
+
+  /// No description provided for @slabShortSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Short span lx'**
+  String get slabShortSpan;
+
+  /// No description provided for @slabLongSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Long span ly'**
+  String get slabLongSpan;
+
+  /// No description provided for @slabThicknessInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness h'**
+  String get slabThicknessInput;
+
+  /// No description provided for @slabCoefficients.
+  ///
+  /// In en, this message translates to:
+  /// **'Panel coefficients'**
+  String get slabCoefficients;
+
+  /// No description provided for @slabMomentXSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Span moment, x'**
+  String get slabMomentXSpan;
+
+  /// No description provided for @slabMomentSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support moment'**
+  String get slabMomentSupport;
+
+  /// No description provided for @slabMomentYSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Span moment, y'**
+  String get slabMomentYSpan;
+
+  /// No description provided for @slabBarsXSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom, x direction'**
+  String get slabBarsXSpan;
+
+  /// No description provided for @slabBarsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Top, over supports'**
+  String get slabBarsSupport;
+
+  /// No description provided for @slabBarsYSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom, y direction'**
+  String get slabBarsYSpan;
+
+  /// No description provided for @slabDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Distribution bars'**
+  String get slabDistribution;
+
+  /// No description provided for @noteTreatedAsOneWay.
+  ///
+  /// In en, this message translates to:
+  /// **'lx/ly < 0.4: the panel is designed as one-way.'**
+  String get noteTreatedAsOneWay;
+
+  /// No description provided for @noteBaelPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-way moments from BAEL 91 Annexe E3 coefficients (ν = 0 at ULS).'**
+  String get noteBaelPanel;
+
+  /// No description provided for @noteContinuityCoefficients.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuity by simplified coefficients: 0.75 M0 in span, 0.5 M0 over supports (BAEL A.8.2.32).'**
+  String get noteContinuityCoefficients;
+
+  /// No description provided for @footingColumnA.
+  ///
+  /// In en, this message translates to:
+  /// **'Column a (moment direction)'**
+  String get footingColumnA;
+
+  /// No description provided for @footingColumnB.
+  ///
+  /// In en, this message translates to:
+  /// **'Column b'**
+  String get footingColumnB;
+
+  /// No description provided for @footingMomentG.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment from G'**
+  String get footingMomentG;
+
+  /// No description provided for @footingMomentQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment from Q'**
+  String get footingMomentQ;
+
+  /// No description provided for @footingAllowable.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowable bearing pressure'**
+  String get footingAllowable;
+
+  /// No description provided for @footingDepthInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Founding depth'**
+  String get footingDepthInput;
+
+  /// No description provided for @footingCharacteristicNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic (service) column loads. Sizing at SLS, steel at ULS.'**
+  String get footingCharacteristicNote;
+
+  /// No description provided for @footingSelfWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Footing and backfill weight'**
+  String get footingSelfWeight;
+
+  /// No description provided for @footingPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground pressure'**
+  String get footingPressure;
+
+  /// No description provided for @footingBarsAlongA.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars parallel to A'**
+  String get footingBarsAlongA;
+
+  /// No description provided for @footingBarsAlongB.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars parallel to B'**
+  String get footingBarsAlongB;
+
+  /// No description provided for @noteSizeLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'The footing would exceed 10 m: check the soil or the loads.'**
+  String get noteSizeLimit;
+
+  /// No description provided for @noteFootingBael.
+  ///
+  /// In en, this message translates to:
+  /// **'Rigid footing designed by the strut-and-tie method (méthode des bielles); pressure at 3/4 width.'**
+  String get noteFootingBael;
+
+  /// No description provided for @noteFootingEc2.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending at 0.15a inside the column face (EN 1992-1-1 9.8.2.2); pressure on the effective area (EN 1997-1 Annex D).'**
+  String get noteFootingEc2;
+
+  /// No description provided for @wallGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry'**
+  String get wallGeometry;
+
+  /// No description provided for @wallPresizeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-size from height'**
+  String get wallPresizeButton;
+
+  /// No description provided for @wallToeLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Toe length'**
+  String get wallToeLength;
+
+  /// No description provided for @wallHeelLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Heel length'**
+  String get wallHeelLength;
+
+  /// No description provided for @wallStemTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stem thickness, top'**
+  String get wallStemTop;
+
+  /// No description provided for @wallStemBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Stem thickness, base'**
+  String get wallStemBottom;
+
+  /// No description provided for @wallSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Surcharge q'**
+  String get wallSurcharge;
+
+  /// No description provided for @wallToe.
+  ///
+  /// In en, this message translates to:
+  /// **'toe'**
+  String get wallToe;
+
+  /// No description provided for @wallHeel.
+  ///
+  /// In en, this message translates to:
+  /// **'heel'**
+  String get wallHeel;
+
+  /// No description provided for @wallKa.
+  ///
+  /// In en, this message translates to:
+  /// **'Active pressure coefficient'**
+  String get wallKa;
+
+  /// No description provided for @wallFosSliding.
+  ///
+  /// In en, this message translates to:
+  /// **'Factor of safety, sliding'**
+  String get wallFosSliding;
+
+  /// No description provided for @wallStem.
+  ///
+  /// In en, this message translates to:
+  /// **'Stem'**
+  String get wallStem;
+
+  /// No description provided for @wallStemBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical bars, soil face'**
+  String get wallStemBars;
+
+  /// No description provided for @noteWallMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Stability with Rankine active pressure and global factors of safety of 1.5. EC7 partial-factor design comes with the geotechnics module.'**
+  String get noteWallMethod;
+
+  /// No description provided for @noteWallShearKey.
+  ///
+  /// In en, this message translates to:
+  /// **'Sliding is not satisfied: add a shear key or lengthen the heel.'**
+  String get noteWallShearKey;
 }
 
 class _AppLocalizationsDelegate

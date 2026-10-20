@@ -16,7 +16,11 @@ import 'package:sibot/config/router.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
+import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
+import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
+import 'package:sibot/features/calculations/shared/design_ui.dart';
+import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
 import 'package:sibot/main.dart';
 
 final _shotsDir = Platform.environment['SIBOT_SHOTS'];
@@ -109,24 +113,26 @@ Future<void> _seed() async {
 }
 
 final _calculations = <String, Future<void> Function(ProviderContainer)>{
-  'beam': (c) {
-    final n = c.read(beamStateProvider('PRJ_1').notifier)
-      ..updateSpan(6)
-      ..updateLoad(25)
-      ..updateWidth(250)
-      ..updateDepth(500)
-      ..updateConcreteStrength(25)
-      ..updateSteelStrength(500);
-    return n.calculate();
-  },
-  'footing': (c) {
-    final n = c.read(footingStateProvider('PRJ_1').notifier)
-      ..updateColumnLoad(500)
-      ..updateColumnMoment(40)
-      ..updateSoilBearingCapacity(250)
-      ..updateSoilDensity(18)
-      ..updateConcreteStrength(25)
-      ..updateSteelStrength(500);
+  'beam': (c) => (c.read(
+    beamStateProvider('PRJ_1').notifier,
+  )..setAll({'span': 6, 'b': 300, 'h': 600, 'g': 20, 'q': 15})).calculate(),
+  'column': (c) =>
+      (c.read(columnStateProvider('PRJ_1').notifier)
+            ..setAll({'b': 300, 'h': 300, 'l0': 3, 'nEd': 1200, 'm0Ed': 30}))
+          .calculate(),
+  'slab': (c) =>
+      (c.read(slabStateProvider('PRJ_1').notifier)
+            ..setOption('type', 'twoWay')
+            ..setOption('support', 'continuous')
+            ..setAll({'lx': 4, 'ly': 5, 'h': 160, 'g': 1.5, 'q': 2.5}))
+          .calculate(),
+  'footing': (c) => (c.read(
+    footingStateProvider('PRJ_1').notifier,
+  )..setAll({'a': 300, 'b': 300, 'g': 400, 'q': 150, 'qAdm': 200})).calculate(),
+  'retaining_wall': (c) {
+    final n = c.read(retainingWallStateProvider('PRJ_1').notifier)
+      ..setAll({'stemHeight': 3, 'qAdm': 200})
+      ..presize();
     return n.calculate();
   },
 };
@@ -147,6 +153,8 @@ void main() {
     'projects': '/projects',
     'project': '/projects/PRJ_1',
     'beam': '/projects/PRJ_1/beam',
+    'column': '/projects/PRJ_1/column',
+    'slab': '/projects/PRJ_1/slab',
     'footing': '/projects/PRJ_1/footing',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
@@ -164,7 +172,10 @@ void main() {
           tester,
         ) async {
           await tester.runAsync(() => SettingsService.setLanguage(lang));
-          tester.view.physicalSize = size.value * 2;
+          // SIBOT_TALL=1 renders very tall pages to review full results.
+          final tall = Platform.environment['SIBOT_TALL'] == '1';
+          tester.view.physicalSize =
+              Size(size.value.width, size.value.height * (tall ? 4 : 1)) * 2;
           tester.view.devicePixelRatio = 2;
           tester.platformDispatcher.platformBrightnessTestValue = dark
               ? Brightness.dark
@@ -193,6 +204,7 @@ void main() {
               );
               await tester.runAsync(() => calculate(container));
               await tester.pumpAndSettle();
+              expect(find.byType(VerdictBanner), findsOneWidget, reason: s.key);
             }
             expect(tester.takeException(), isNull, reason: s.key);
 

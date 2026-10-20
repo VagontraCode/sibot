@@ -62,9 +62,29 @@ void main() {
     expect(r.stemMoment, closeTo(58.95, 1e-9));
   });
 
-  test('pre-sizing gives a consistent geometry', () {
+  test('pre-design lengthens the heel until the wall is stable', () {
     final p = presizeWall(_wall);
-    expect(p.baseWidth, greaterThan(0.5 * p.totalHeight));
     expect(p.stemBottom, greaterThanOrEqualTo(p.stemTop));
+    expect(p.baseWidth, lessThanOrEqualTo(1.2 * p.totalHeight + 1e-9));
+    final d = designWall(p);
+    expect(d.fsOverturning, greaterThanOrEqualTo(1.5));
+    expect(d.fsSliding, greaterThanOrEqualTo(1.5));
+    expect(d.eccentricity.abs(), lessThanOrEqualTo(p.baseWidth / 6));
+    // The heel is the shortest (50 mm steps) that satisfies sliding.
+    final shorter = WallInput(
+      code: p.code,
+      stemHeight: p.stemHeight,
+      baseThickness: p.baseThickness,
+      toe: p.toe,
+      heel: p.heel - 0.05,
+      stemTop: p.stemTop,
+      stemBottom: p.stemBottom,
+      phi: p.phi,
+      surcharge: p.surcharge,
+      qAllowable: p.qAllowable,
+      fck: p.fck,
+      fyk: p.fyk,
+    );
+    expect(designWall(shorter).ok, isFalse);
   });
 }

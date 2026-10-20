@@ -58,22 +58,64 @@ class WallInput {
   double get totalHeight => stemHeight + baseThickness;
 }
 
-/// Typical first sizes for a cantilever wall of stem height [h] (m).
+/// Pre-design of a cantilever wall for the stem height of [i].
+///
+/// Starts from typical proportions (base thickness and stem ≈ H/12, toe
+/// ≈ B/4) and lengthens the heel in 50 mm steps until overturning,
+/// sliding, eccentricity and bearing are satisfied, up to a base width of
+/// 1.2 × the total height. Beyond that the last geometry is returned and
+/// sliding usually needs a shear key.
 WallInput presizeWall(WallInput i) {
+  double up(double v) => (v * 20).ceil() / 20; // round up to 50 mm
   final h = i.stemHeight;
-  final total = h + math.max(0.3, (h / 12 * 20).ceil() / 20);
-  final b = (0.6 * total * 20).ceil() / 20;
-  final t = math.max(0.3, (total / 12 * 20).ceil() / 20);
-  final stemBottom = math.max(0.25, (h / 12 * 20).ceil() / 20);
-  final toe = (b / 3 * 20).round() / 20;
-  return WallInput(
+  final t = math.max(0.3, up(h / 12));
+  final total = h + t;
+  final stemBottom = math.max(0.25, up(h / 12));
+  final toe = math.max(0.3, up(0.5 * total / 4));
+
+  WallInput withHeel(double heel) => WallInput(
     code: i.code,
     stemHeight: h,
     baseThickness: t,
     toe: toe,
-    heel: math.max(b - toe - stemBottom, 0.3),
+    heel: heel,
     stemTop: 0.2,
     stemBottom: stemBottom,
+    phi: i.phi,
+    // Bearing is only checked when an allowable pressure was given.
+    qAllowable: i.qAllowable > 0 ? i.qAllowable : 1e9,
+    fck: i.fck,
+    fyk: i.fyk,
+    soilWeight: i.soilWeight,
+    surcharge: i.surcharge,
+    baseFriction: i.baseFriction,
+    cover: i.cover,
+  );
+
+  const stability = {
+    CheckKind.overturning,
+    CheckKind.sliding,
+    CheckKind.baseEccentricity,
+    CheckKind.bearingPressure,
+  };
+  var heel = math.max(0.3, up(0.5 * total - toe - stemBottom));
+  while (true) {
+    final trial = withHeel(heel);
+    final stable = designWall(
+      trial,
+    ).checks.where((c) => stability.contains(c.kind)).every((c) => c.ok);
+    if (stable || trial.baseWidth >= 1.2 * total) break;
+    heel = ((heel + 0.05) * 20).round() / 20;
+  }
+  final result = withHeel(heel);
+  return WallInput(
+    code: result.code,
+    stemHeight: result.stemHeight,
+    baseThickness: result.baseThickness,
+    toe: result.toe,
+    heel: result.heel,
+    stemTop: result.stemTop,
+    stemBottom: result.stemBottom,
     phi: i.phi,
     qAllowable: i.qAllowable,
     fck: i.fck,

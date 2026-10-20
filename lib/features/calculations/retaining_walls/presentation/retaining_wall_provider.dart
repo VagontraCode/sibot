@@ -1,154 +1,112 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/models/entities.dart';
-import 'package:sibot/core/services/calculation_engine.dart';
 import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/calculations/shared/design_form.dart';
+import 'package:sibot_engine/sibot_engine.dart';
 
 final retainingWallStateProvider =
-    StateNotifierProvider.family<
-      RetainingWallCalculationStateNotifier,
-      RetainingWallCalculationState,
-      String
-    >((ref, projectId) {
-      return RetainingWallCalculationStateNotifier(projectId);
-    });
-
-class RetainingWallCalculationState {
-  final double? height;
-  final double? soilDensity;
-  final double? frictionAngle;
-  final double? concreteStrength;
-  final double? steelStrength;
-  final RetainingWallCalculation? lastCalculation;
-  final Map<String, dynamic>? suggestions;
-  final bool isLoading;
-  final String? error;
-
-  const RetainingWallCalculationState({
-    this.height,
-    this.soilDensity,
-    this.frictionAngle,
-    this.concreteStrength,
-    this.steelStrength,
-    this.lastCalculation,
-    this.suggestions,
-    this.isLoading = false,
-    this.error,
-  });
-
-  RetainingWallCalculationState copyWith({
-    double? height,
-    double? soilDensity,
-    double? frictionAngle,
-    double? concreteStrength,
-    double? steelStrength,
-    RetainingWallCalculation? lastCalculation,
-    Map<String, dynamic>? suggestions,
-    bool? isLoading,
-    String? error,
-  }) {
-    return RetainingWallCalculationState(
-      height: height ?? this.height,
-      soilDensity: soilDensity ?? this.soilDensity,
-      frictionAngle: frictionAngle ?? this.frictionAngle,
-      concreteStrength: concreteStrength ?? this.concreteStrength,
-      steelStrength: steelStrength ?? this.steelStrength,
-      lastCalculation: lastCalculation ?? this.lastCalculation,
-      suggestions: suggestions ?? this.suggestions,
-      isLoading: isLoading ?? this.isLoading,
-      error: error, // cleared by any update unless set
+    NotifierProvider.family<WallNotifier, DesignFormState<WallDesign>, String>(
+      WallNotifier.new,
     );
+
+class WallNotifier extends DesignFormNotifier<WallDesign> {
+  WallNotifier(super.projectId);
+
+  @override
+  Map<String, double?> get initialValues => {
+    'stemHeight': null,
+    'baseThickness': null,
+    'toe': null,
+    'heel': null,
+    'stemTop': 0.2,
+    'stemBottom': null,
+    'gammaSoil': 18,
+    'phi': 30,
+    'surcharge': 10,
+    'qAdm': null,
+    'cover': 40,
+    'fck': 25,
+    'fyk': 500,
+  };
+
+  @override
+  List<String> get requiredKeys => const [
+    'stemHeight',
+    'baseThickness',
+    'toe',
+    'heel',
+    'stemTop',
+    'stemBottom',
+    'gammaSoil',
+    'phi',
+    'surcharge',
+    'qAdm',
+    'cover',
+    'fck',
+    'fyk',
+  ];
+
+  WallInput _input(DesignFormState<WallDesign> s) => WallInput(
+    code: s.code,
+    stemHeight: s['stemHeight'] ?? 0,
+    baseThickness: s['baseThickness'] ?? 0,
+    toe: s['toe'] ?? 0,
+    heel: s['heel'] ?? 0,
+    stemTop: s['stemTop'] ?? 0.2,
+    stemBottom: s['stemBottom'] ?? 0,
+    soilWeight: s['gammaSoil'] ?? 18,
+    phi: s['phi'] ?? 30,
+    surcharge: s['surcharge'] ?? 0,
+    qAllowable: s['qAdm'] ?? 0,
+    cover: s['cover'] ?? 40,
+    fck: s['fck'] ?? 25,
+    fyk: s['fyk'] ?? 500,
+  );
+
+  /// Fills the geometry with typical proportions for the stem height.
+  void presize() {
+    final h = state['stemHeight'];
+    if (h == null || h <= 0) {
+      state = state.copyWith(problem: const FormProblem('stemHeight'));
+      return;
+    }
+    final p = presizeWall(_input(state));
+    setAll({
+      'baseThickness': p.baseThickness,
+      'toe': p.toe,
+      'heel': p.heel,
+      'stemTop': p.stemTop,
+      'stemBottom': p.stemBottom,
+    });
   }
-}
 
-class RetainingWallCalculationStateNotifier
-    extends StateNotifier<RetainingWallCalculationState> {
-  final String projectId;
+  @override
+  WallDesign compute(DesignFormState<WallDesign> s) => designWall(_input(s));
 
-  RetainingWallCalculationStateNotifier(this.projectId)
-    : super(const RetainingWallCalculationState());
-
-  void updateHeight(double value) {
-    final suggestions = SuggestionEngine.suggestRetainingWall(value);
-    state = state.copyWith(height: value, suggestions: suggestions);
-  }
-
-  void updateSoilDensity(double value) =>
-      state = state.copyWith(soilDensity: value);
-  void updateFrictionAngle(double value) =>
-      state = state.copyWith(frictionAngle: value);
-  void updateConcreteStrength(double value) =>
-      state = state.copyWith(concreteStrength: value);
-  void updateSteelStrength(double value) =>
-      state = state.copyWith(steelStrength: value);
-
-  Future<void> calculate() async {
-    if (!_validateInputs()) return;
-
-    state = state.copyWith(isLoading: true, error: null);
-
-    try {
-      final ka = CalculationEngine.calculateEarthPressureCoefficient(
-        state.frictionAngle!,
-      );
-      final earthPressure =
-          0.5 * ka * state.soilDensity! * state.height! * state.height!;
-
-      // Simplified check for overturning (assuming width = 0.6 * height)
-      final width = 0.6 * state.height!;
-      final weight = width * state.height! * 24; // Concrete density ~24 kN/m3
-
-      final overturningMoment = earthPressure * (state.height! / 3);
-      final resistingMoment = weight * (width / 2);
-
-      final stability = CalculationEngine.checkOverturnStability(
-        resistingMoment: resistingMoment,
-        overturningMoment: overturningMoment,
-      );
-
-      final result = {
-        'ka': ka,
-        'earthPressure': earthPressure,
-        'overturningMoment': overturningMoment,
-        'resistingMoment': resistingMoment,
-        'fos': stability['fos'],
-        'isSafe': stability['isSafe'],
-      };
-
-      final calculation = RetainingWallCalculation(
-        id: IdService.generateCalculationId(),
+  @override
+  Future<String> persist(DesignFormState<WallDesign> s, WallDesign r) async {
+    final id = IdService.generateCalculationId();
+    await save(
+      id,
+      RetainingWallCalculation(
+        id: id,
         projectId: projectId,
-        name: 'Retaining Wall - ${DateTime.now().toString().split(' ')[0]}',
-        height: state.height!,
-        soilDensity: state.soilDensity!,
-        frictionAngle: state.frictionAngle!,
-        concrete: state.concreteStrength!,
-        steel: state.steelStrength!,
+        name: 'Wall H=${s['stemHeight']}',
+        height: s['stemHeight']!,
+        soilDensity: s['gammaSoil']!,
+        frictionAngle: s['phi']!,
+        concrete: s['fck']!,
+        steel: s['fyk']!,
         createdAt: DateTime.now(),
-        isValid: stability['isSafe'] as bool,
-        metadata: result,
-      );
-
-      state = state.copyWith(lastCalculation: calculation, isLoading: false);
-      await _saveCalculation(calculation);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Calculation error: $e');
-    }
-  }
-
-  Future<void> _saveCalculation(RetainingWallCalculation calculation) async {
-    final box = HiveService.getBox(HiveService.calculationsBox);
-    await box.put(calculation.id, calculation);
-  }
-
-  bool _validateInputs() {
-    if (state.height == null || state.height! <= 0) {
-      state = state.copyWith(error: 'Height must be greater than 0');
-      return false;
-    }
-    if (state.soilDensity == null || state.soilDensity! <= 0) {
-      state = state.copyWith(error: 'Soil density must be greater than 0');
-      return false;
-    }
-    return true;
+        isValid: r.ok,
+        metadata: flatMetadata(s, {
+          'fsOverturning': r.fsOverturning,
+          'fsSliding': r.fsSliding,
+          'pressure': r.pressure,
+          'stemBars': r.stemBars?.toString(),
+        }),
+      ),
+    );
+    return id;
   }
 }

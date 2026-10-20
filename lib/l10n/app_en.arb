@@ -1,16 +1,13 @@
 {
   "@@locale": "en",
-
   "appTitle": "Sibot Engineering",
   "brandName": "Sibot",
   "brandTagline": "Engineering",
-
   "navHome": "Home",
   "navProjects": "Projects",
   "navField": "Field",
   "navReports": "Reports",
   "navLibrary": "Library",
-
   "commonCancel": "Cancel",
   "commonDelete": "Delete",
   "commonSeeAll": "See all",
@@ -22,26 +19,53 @@
   "commonUntitled": "Untitled",
   "commonPlanned": "Planned",
   "commonPhase": "Phase {n}",
-  "@commonPhase": {"placeholders": {"n": {"type": "int"}}},
+  "@commonPhase": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "commonBeta": "Beta",
   "commonOk": "OK",
   "commonReview": "Review",
-
   "timeJustNow": "just now",
   "timeMinutesAgo": "{n} min ago",
-  "@timeMinutesAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeHoursAgo": "{n} h ago",
-  "@timeHoursAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@timeHoursAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeDaysAgo": "{n} d ago",
-  "@timeDaysAgo": {"placeholders": {"n": {"type": "int"}}},
+  "@timeDaysAgo": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "timeUpdated": "Updated {when}",
-  "@timeUpdated": {"placeholders": {"when": {"type": "String"}}},
-
+  "@timeUpdated": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
   "statusActive": "Active",
   "statusCompleted": "Completed",
   "statusArchived": "Archived",
   "statusAll": "All",
-
   "dashGreetingMorning": "Good morning",
   "dashGreetingAfternoon": "Good afternoon",
   "dashGreetingEvening": "Good evening",
@@ -58,8 +82,13 @@
   "dashRoadmap": "Roadmap",
   "dashRoadmapSubtitle": "Analysis, steel, timber, masonry and more",
   "dashOpenModuleIn": "Open {module} in…",
-  "@dashOpenModuleIn": {"placeholders": {"module": {"type": "String"}}},
-
+  "@dashOpenModuleIn": {
+    "placeholders": {
+      "module": {
+        "type": "String"
+      }
+    }
+  },
   "settingsTitle": "Settings",
   "settingsSubtitle": "Language, appearance and design defaults.",
   "settingsLanguage": "Language",
@@ -70,7 +99,6 @@
   "settingsThemeDark": "Dark",
   "settingsDefaultCode": "Default design code",
   "settingsDefaultCodeHelp": "Used when you open a design module.",
-
   "projectsSubtitle": "Every calculation, photo and report, grouped by project.",
   "projectsLoadError": "Could not load projects",
   "projectsEmptyTitle": "No projects yet",
@@ -89,7 +117,6 @@
   "projectFormSave": "Save changes",
   "projectFormCreate": "Create project",
   "projectPickerTitle": "Choose a project",
-
   "projectLoadError": "Could not load project",
   "projectNotFound": "Project not found",
   "projectNotFoundMessage": "It may have been deleted.",
@@ -98,7 +125,13 @@
   "projectDelete": "Delete project",
   "projectDeleteTitle": "Delete project?",
   "projectDeleteMessage": "\"{name}\" will be removed from this device. Its saved calculations and field data stay in storage but will no longer be listed.",
-  "@projectDeleteMessage": {"placeholders": {"name": {"type": "String"}}},
+  "@projectDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "projectDesignModules": "Design modules",
   "projectField": "Field",
   "projectCalculations": "Calculations",
@@ -106,12 +139,29 @@
   "projectCalcEmptyTitle": "No calculations yet",
   "projectCalcEmptyMessage": "Results you calculate in a module are saved here.",
   "countPhotos": "{n, plural, =0{no photos} =1{1 photo} other{{n} photos}}",
-  "@countPhotos": {"placeholders": {"n": {"type": "int"}}},
+  "@countPhotos": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "countReports": "{n, plural, =0{no reports} =1{1 report} other{{n} reports}}",
-  "@countReports": {"placeholders": {"n": {"type": "int"}}},
+  "@countReports": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "countOpen": "{n} open",
-  "@countOpen": {"placeholders": {"n": {"type": "int"}}},
-
+  "@countOpen": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "catAnalysis": "Structural analysis",
   "catConcrete": "Reinforced concrete",
   "catSteel": "Steel",
@@ -120,7 +170,6 @@
   "catGeotech": "Geotechnics",
   "catLoads": "Loads",
   "catTools": "Tools",
-
   "modFrame2d": "2D Frame Analysis",
   "modFrame2dSub": "Frames, trusses, continuous beams",
   "modFrame3d": "3D Frame Analysis",
@@ -128,11 +177,11 @@
   "modBeam": "Beam",
   "modBeamSub": "Bending, shear",
   "modColumn": "Column",
-  "modColumnSub": "Axial, slenderness",
+  "modColumnSub": "N–M, slenderness",
   "modSlab": "Slab",
-  "modSlabSub": "One-way slab",
+  "modSlabSub": "One-way, two-way",
   "modFooting": "Footing",
-  "modFootingSub": "Isolated, combined",
+  "modFootingSub": "Pad footing, punching",
   "modRetainingWall": "Retaining Wall",
   "modRetainingWallSub": "Stability, pre-sizing",
   "modSteelMember": "Steel Member",
@@ -158,124 +207,66 @@
   "modSeptic": "Septic Tank",
   "modSepticSub": "Volume sizing",
   "modPlannedFor": "{module} is planned for Phase {phase} of the roadmap.",
-  "@modPlannedFor": {"placeholders": {"module": {"type": "String"}, "phase": {"type": "int"}}},
-
+  "@modPlannedFor": {
+    "placeholders": {
+      "module": {
+        "type": "String"
+      },
+      "phase": {
+        "type": "int"
+      }
+    }
+  },
   "calcCalculate": "Calculate",
   "calcCalculating": "Calculating…",
   "calcCheckInputs": "Check the inputs",
-  "calcBetaTitle": "Beta: results not yet verified",
-  "calcBetaMessage": "This module is being rewritten and checked against worked examples. Do not use these results for construction.",
+  "calcBetaTitle": "Beta: independent verification pending",
+  "calcBetaMessage": "Calculations follow the cited clauses and pass hand-calculation tests, but have not yet been checked against published worked examples or RSA. Verify results before using them for construction.",
   "calcResults": "Results",
   "calcResultsPlaceholder": "Fill in the parameters and tap Calculate.",
   "calcMaterials": "Materials",
   "calcConcreteFck": "Concrete fck",
   "calcSteelFyk": "Steel fyk",
   "calcSpan": "Span",
-  "calcLoad": "Load",
-  "calcHeight": "Height",
-
-  "beamSubtitle": "Simply supported beam under a uniform load.",
+  "beamSubtitle": "Rectangular section: bending, shear and deflection.",
   "beamGeometryLoad": "Geometry & load",
-  "beamTotalLoad": "Total design load",
   "beamWidth": "Width b",
   "beamDepth": "Depth h",
-  "beamAdequate": "Section adequate",
-  "beamAdequateMsg": "Bending reinforcement found for the design moment.",
-  "beamInadequate": "Section inadequate",
-  "beamInadequateMsg": "Increase the section or the concrete class.",
   "beamBending": "Bending reinforcement",
   "beamSteelRequired": "Steel area required",
-  "beamSuggestedBars": "Suggested bars",
-  "beamLeverArm": "Lever arm",
   "beamMomentRatio": "Moment ratio",
-
-  "columnSubtitle": "Circular column under axial load.",
+  "columnSubtitle": "Rectangular column: axial force, bending and slenderness.",
   "columnLoadGeometry": "Load & geometry",
   "columnAxialLoad": "Axial load",
-  "columnSlender": "Slender column",
-  "columnSlenderMsg": "Second-order effects must be checked.",
-  "columnShort": "Short column",
-  "columnShortMsg": "Second-order effects can be neglected.",
-  "columnSection": "Section",
-  "columnDiameter": "Recommended diameter",
-  "columnRequiredArea": "Required area",
-  "columnHeightRatio": "Height / diameter",
-
-  "slabSubtitle": "One-way slab, simply supported.",
+  "slabSubtitle": "One-way or two-way slab, simple or continuous.",
   "slabSpanLoad": "Span & load",
-  "slabOneWay": "One-way slab",
-  "slabThickness": "Recommended thickness",
-  "slabDesignMoment": "Design moment",
-  "slabSteelRequired": "Steel required",
-
-  "footingSubtitle": "Pad footing under a column.",
+  "footingSubtitle": "Pad footing under a column: sizing, steel and punching.",
   "footingDesignBasis": "Design basis",
   "footingCode": "Design code",
   "codeEurocode": "Eurocode",
   "codeBael": "BAEL 99",
-  "footingType": "Footing type",
-  "footingIsolated": "Isolated",
-  "footingCombined": "Combined",
   "footingColumnActions": "Column actions",
-  "footingAxialLoad": "Axial load",
-  "footingMoment": "Moment",
   "footingSoil": "Soil",
-  "footingBearing": "Bearing capacity",
   "footingUnitWeight": "Unit weight",
-  "footingPresizing": "Pre-sizing: about {area} m² of footing",
-  "@footingPresizing": {"placeholders": {"area": {"type": "String"}}},
-  "footingPresizingReason": "Based on the soil bearing capacity with a safety factor of {sf}.",
-  "@footingPresizingReason": {"placeholders": {"sf": {"type": "String"}}},
-  "footingAdequate": "Design adequate",
-  "footingReview": "Design needs review",
   "footingDimensions": "Dimensions",
   "footingLxB": "Length × width",
-  "footingPlanArea": "Plan area",
-  "footingRequiredArea": "Required area",
   "footingThickness": "Thickness",
   "footingReinforcement": "Reinforcement",
-  "footingSteelArea": "Steel area",
-  "footingBarSize": "Bar size",
-  "footingSpacing": "Spacing",
-
-  "wallSubtitle": "Cantilever wall: overturning check and pre-sizing.",
+  "wallSubtitle": "Cantilever wall: stability and stem reinforcement.",
   "wallWallSoil": "Wall & soil",
   "wallRetainedHeight": "Retained height",
   "wallSoilUnitWeight": "Soil unit weight",
   "wallFrictionAngle": "Friction angle φ",
-  "wallStable": "Stable against overturning",
-  "wallOverturningRisk": "Overturning risk",
   "wallStability": "Stability",
   "wallFosOverturning": "Factor of safety, overturning",
   "wallActiveThrust": "Active earth thrust",
-  "wallPresizing": "Pre-sizing (cantilever wall)",
-  "wallBaseWidth": "Base width",
-  "wallStemThickness": "Stem thickness",
   "wallBaseThickness": "Base thickness",
-  "wallToeHeel": "Toe / heel",
-  "wallAlternatives": "Alternative wall types",
-  "wallBaseApprox": "Base ≈ {width} m",
-  "@wallBaseApprox": {"placeholders": {"width": {"type": "String"}}},
-  "wallGabion": "Gabion wall",
-  "wallGabionDesc": "Stone-filled wire baskets. Flexible and permeable.",
-  "wallGabionPros": "Excellent drainage, easy to build, tolerates settlement.",
-  "wallGabionCons": "Requires a large excavation; the wire mesh can corrode over time.",
-  "wallStone": "Stone masonry",
-  "wallStoneDesc": "Traditional gravity wall using natural stone.",
-  "wallStonePros": "Highly durable, attractive, uses local materials.",
-  "wallStoneCons": "Labour-intensive, requires skilled masons.",
-  "wallBlocks": "Reinforced hollow blocks",
-  "wallBlocksDesc": "Cement blocks with vertical rebar and concrete infill.",
-  "wallBlocksPros": "Faster than traditional masonry, consistent quality.",
-  "wallBlocksCons": "Height limited (usually under 3 m), requires precise rebar placement.",
-
   "fieldSubtitle": "Photos, daily reports and punch lists from the site.",
   "fieldEmptyMessage": "Field data is filed under a project. Create one first.",
   "fieldTools": "Tools",
   "fieldPhotosCaption": "photos",
   "fieldReportsCaption": "reports",
   "fieldOpenItemsCaption": "open items",
-
   "photoLog": "Photo log",
   "photoAdd": "Add photo",
   "photoLoadError": "Could not load photos",
@@ -287,7 +278,6 @@
   "photoLocation": "Location on site",
   "photoLocationHint": "e.g. Grid B-3, level 2",
   "photoSave": "Save photo",
-
   "reportDaily": "Daily reports",
   "reportNew": "New report",
   "reportLoadError": "Could not load reports",
@@ -295,7 +285,13 @@
   "reportEmptyMessage": "Log weather, workforce, progress and safety each day.",
   "reportNoSummary": "No summary",
   "reportWorkers": "{n, plural, =1{1 worker} other{{n} workers}}",
-  "@reportWorkers": {"placeholders": {"n": {"type": "int"}}},
+  "@reportWorkers": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "reportWeather": "Weather",
   "reportWorkersOnSite": "Workers on site",
   "reportWorkersField": "Workers",
@@ -304,21 +300,38 @@
   "reportSafetyNotes": "Safety notes",
   "reportDailyTitle": "Daily report",
   "reportSave": "Save report",
-
   "punchList": "Punch list",
   "punchAdd": "Add item",
   "punchLoadError": "Could not load the punch list",
   "punchEmptyTitle": "Nothing to fix yet",
   "punchEmptyMessage": "Track defects and snags until they are closed out.",
   "punchOpenTab": "Open · {n}",
-  "@punchOpenTab": {"placeholders": {"n": {"type": "int"}}},
+  "@punchOpenTab": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "punchClosedTab": "Closed · {n}",
-  "@punchClosedTab": {"placeholders": {"n": {"type": "int"}}},
+  "@punchClosedTab": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
   "punchNothingClosed": "Nothing closed yet",
   "punchAllClear": "All clear",
   "punchSwipeHint": "Swipe right to close an item, left to delete it.",
   "punchAssignedTo": "Assigned to {name}",
-  "@punchAssignedTo": {"placeholders": {"name": {"type": "String"}}},
+  "@punchAssignedTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "punchNew": "New punch item",
   "punchWhat": "What needs fixing?",
   "punchAssignedLabel": "Assigned to",
@@ -326,7 +339,6 @@
   "priorityHigh": "High",
   "priorityMedium": "Medium",
   "priorityLow": "Low",
-
   "reportsSubtitle": "PDF calculation notes and site records.",
   "reportsEmptyMessage": "Reports are generated per project.",
   "reportsGenerate": "Generate",
@@ -336,7 +348,6 @@
   "reportsCalcNotesDesc": "Formulas, code clauses and diagrams for each module.",
   "reportsFieldAudit": "Field audit",
   "reportsFieldAuditDesc": "Daily reports, photos and punch list.",
-
   "librarySubtitle": "Design codes, material data and quick tools.",
   "libraryConverter": "Unit converter",
   "libraryLength": "Length",
@@ -349,7 +360,16 @@
   "librarySteel": "Structural steel",
   "libraryRebar": "Reinforcing bars",
   "libraryTable": "{code}, Table {table}",
-  "@libraryTable": {"placeholders": {"code": {"type": "String"}, "table": {"type": "String"}}},
+  "@libraryTable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "table": {
+        "type": "String"
+      }
+    }
+  },
   "libraryRebarSource": "Area πd²/4, mass at 7850 kg/m³",
   "libraryColClass": "Class",
   "libraryColGrade": "Grade",
@@ -366,5 +386,157 @@
   "codeEc7": "Geotechnical design",
   "codeEc8": "Earthquake resistance",
   "codeBaelDesc": "Reinforced concrete (FR)",
-  "codePs92Desc": "Seismic rules (FR)"
+  "codePs92Desc": "Seismic rules (FR)",
+  "calcCover": "Cover",
+  "loadPermanent": "Permanent load g",
+  "loadVariable": "Variable load q",
+  "loadPermanentArea": "Permanent load g",
+  "loadVariableArea": "Variable load q",
+  "loadPermanentPoint": "Permanent load G",
+  "loadVariablePoint": "Variable load Q",
+  "loadSelfWeightNote": "Characteristic loads. Self-weight is added automatically; ULS combination 1.35G + 1.5Q.",
+  "beamSupport": "Supports",
+  "beamSimplySupported": "Simple span",
+  "beamCantilever": "Cantilever",
+  "resultDesignForces": "Design forces",
+  "resultUlsLoad": "ULS load",
+  "resultMoment": "Design moment",
+  "resultShear": "Design shear",
+  "resultEffectiveDepth": "Effective depth",
+  "resultBottomBars": "Bottom bars",
+  "resultTopBars": "Top bars",
+  "resultLinks": "Links",
+  "checksTitle": "Checks",
+  "checkBendingSteel": "Bending reinforcement",
+  "checkMinSteel": "Minimum reinforcement",
+  "checkMaxSteel": "Maximum reinforcement",
+  "checkBarSpacing": "Clear bar spacing",
+  "checkShearConcrete": "Shear (concrete)",
+  "checkShearLinks": "Shear reinforcement",
+  "checkLinkSpacing": "Link spacing",
+  "checkDeflection": "Deflection",
+  "checkSlenderness": "Slenderness",
+  "checkAxialBending": "Axial force and bending",
+  "checkBearing": "Bearing pressure",
+  "checkPunching": "Punching shear",
+  "checkOverturning": "Overturning",
+  "checkSliding": "Sliding",
+  "checkEccentricity": "Eccentricity",
+  "verdictOk": "All checks satisfied",
+  "verdictFail": "{n, plural, =1{1 check not satisfied} other{{n} checks not satisfied}}",
+  "@verdictFail": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "verdictUtilisation": "Highest utilisation {pct} %",
+  "@verdictUtilisation": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "problemMissing": "Enter {field}.",
+  "@problemMissing": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "problemNotPositive": "{field} must be greater than 0.",
+  "@problemNotPositive": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "problemOutOfRange": "{field} is outside the range this method covers.",
+  "@problemOutOfRange": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "problemGeometry": "{field} is not consistent with the other dimensions.",
+  "@problemGeometry": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "noteCompressionSteel": "The moment exceeds the limit for a singly reinforced section: compression steel is required.",
+  "noteBarsDoNotFit": "No standard bar arrangement fits in one layer. Increase the section.",
+  "noteLinksNotFound": "Links up to Ø12 cannot carry the shear. Increase the section.",
+  "noteDeflectionNotCovered": "The BAEL deflection exemption does not cover cantilevers: calculate the deflection.",
+  "columnWidthB": "Width b",
+  "columnDepthH": "Depth h (bending direction)",
+  "columnBucklingLength": "Buckling length l0",
+  "columnMoment": "First-order moment",
+  "columnCreep": "Effective creep ratio φef",
+  "columnUlsNote": "ULS design values. Bending acts about the axis parallel to b.",
+  "columnSlendernessTitle": "Slenderness and moments",
+  "columnImperfection": "Imperfection eccentricity",
+  "columnSecondOrder": "Second-order eccentricity",
+  "columnLongitudinalBars": "Longitudinal bars",
+  "columnAxialResistance": "Axial resistance",
+  "columnMomentResistance": "Moment resistance at NEd",
+  "columnInteraction": "N–M interaction diagram",
+  "noteSecondOrder": "λ > λlim: second-order moment added by the nominal curvature method (EN 1992-1-1 5.8.8).",
+  "noteBaelCentred": "Centred compression: BAEL B.8.4 α method.",
+  "noteSlendernessOutOfScope": "Slenderness beyond the method's range: a buckling analysis is required.",
+  "noteSectionTooSmall": "The maximum steel ratio is not enough. Increase the section.",
+  "slabType": "Slab type",
+  "slabOneWayShort": "One-way",
+  "slabTwoWayShort": "Two-way",
+  "slabContinuous": "Continuous",
+  "slabShortSpan": "Short span lx",
+  "slabLongSpan": "Long span ly",
+  "slabThicknessInput": "Thickness h",
+  "slabCoefficients": "Panel coefficients",
+  "slabMomentXSpan": "Span moment, x",
+  "slabMomentSupport": "Support moment",
+  "slabMomentYSpan": "Span moment, y",
+  "slabBarsXSpan": "Bottom, x direction",
+  "slabBarsSupport": "Top, over supports",
+  "slabBarsYSpan": "Bottom, y direction",
+  "slabDistribution": "Distribution bars",
+  "noteTreatedAsOneWay": "lx/ly < 0.4: the panel is designed as one-way.",
+  "noteBaelPanel": "Two-way moments from BAEL 91 Annexe E3 coefficients (ν = 0 at ULS).",
+  "noteContinuityCoefficients": "Continuity by simplified coefficients: 0.75 M0 in span, 0.5 M0 over supports (BAEL A.8.2.32).",
+  "footingColumnA": "Column a (moment direction)",
+  "footingColumnB": "Column b",
+  "footingMomentG": "Moment from G",
+  "footingMomentQ": "Moment from Q",
+  "footingAllowable": "Allowable bearing pressure",
+  "footingDepthInput": "Founding depth",
+  "footingCharacteristicNote": "Characteristic (service) column loads. Sizing at SLS, steel at ULS.",
+  "footingSelfWeight": "Footing and backfill weight",
+  "footingPressure": "Ground pressure",
+  "footingBarsAlongA": "Bars parallel to A",
+  "footingBarsAlongB": "Bars parallel to B",
+  "noteSizeLimit": "The footing would exceed 10 m: check the soil or the loads.",
+  "noteFootingBael": "Rigid footing designed by the strut-and-tie method (méthode des bielles); pressure at 3/4 width.",
+  "noteFootingEc2": "Bending at 0.15a inside the column face (EN 1992-1-1 9.8.2.2); pressure on the effective area (EN 1997-1 Annex D).",
+  "wallGeometry": "Geometry",
+  "wallPresizeButton": "Pre-size from height",
+  "wallToeLength": "Toe length",
+  "wallHeelLength": "Heel length",
+  "wallStemTop": "Stem thickness, top",
+  "wallStemBottom": "Stem thickness, base",
+  "wallSurcharge": "Surcharge q",
+  "wallToe": "toe",
+  "wallHeel": "heel",
+  "wallKa": "Active pressure coefficient",
+  "wallFosSliding": "Factor of safety, sliding",
+  "wallStem": "Stem",
+  "wallStemBars": "Vertical bars, soil face",
+  "noteWallMethod": "Stability with Rankine active pressure and global factors of safety of 1.5. EC7 partial-factor design comes with the geotechnics module.",
+  "noteWallShearKey": "Sliding is not satisfied: add a shear key or lengthen the heel."
 }

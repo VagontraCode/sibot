@@ -1,138 +1,89 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/models/entities.dart';
-import 'package:sibot/core/services/calculation_engine.dart';
 import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/calculations/shared/design_form.dart';
+import 'package:sibot_engine/sibot_engine.dart';
 
 final beamStateProvider =
-    StateNotifierProvider.family<
-      BeamCalculationStateNotifier,
-      BeamCalculationState,
-      String
-    >((ref, projectId) {
-      return BeamCalculationStateNotifier(projectId);
-    });
-
-class BeamCalculationState {
-  final double? span;
-  final double? load;
-  final double? width;
-  final double? depth;
-  final double? concreteStrength;
-  final double? steelStrength;
-  final BeamCalculation? lastCalculation;
-  final bool isLoading;
-  final String? error;
-
-  const BeamCalculationState({
-    this.span,
-    this.load,
-    this.width,
-    this.depth,
-    this.concreteStrength,
-    this.steelStrength,
-    this.lastCalculation,
-    this.isLoading = false,
-    this.error,
-  });
-
-  BeamCalculationState copyWith({
-    double? span,
-    double? load,
-    double? width,
-    double? depth,
-    double? concreteStrength,
-    double? steelStrength,
-    BeamCalculation? lastCalculation,
-    bool? isLoading,
-    String? error,
-  }) {
-    return BeamCalculationState(
-      span: span ?? this.span,
-      load: load ?? this.load,
-      width: width ?? this.width,
-      depth: depth ?? this.depth,
-      concreteStrength: concreteStrength ?? this.concreteStrength,
-      steelStrength: steelStrength ?? this.steelStrength,
-      lastCalculation: lastCalculation ?? this.lastCalculation,
-      isLoading: isLoading ?? this.isLoading,
-      error: error, // cleared by any update unless set
+    NotifierProvider.family<BeamNotifier, DesignFormState<BeamDesign>, String>(
+      BeamNotifier.new,
     );
-  }
-}
 
-class BeamCalculationStateNotifier extends StateNotifier<BeamCalculationState> {
-  final String projectId;
+class BeamNotifier extends DesignFormNotifier<BeamDesign> {
+  BeamNotifier(super.projectId);
 
-  BeamCalculationStateNotifier(this.projectId)
-    : super(const BeamCalculationState());
+  @override
+  Map<String, double?> get initialValues => {
+    'span': null,
+    'b': null,
+    'h': null,
+    'g': null,
+    'q': null,
+    'cover': 30,
+    'fck': 25,
+    'fyk': 500,
+  };
 
-  void updateSpan(double value) => state = state.copyWith(span: value);
-  void updateLoad(double value) => state = state.copyWith(load: value);
-  void updateWidth(double value) => state = state.copyWith(width: value);
-  void updateDepth(double value) => state = state.copyWith(depth: value);
-  void updateConcreteStrength(double value) =>
-      state = state.copyWith(concreteStrength: value);
-  void updateSteelStrength(double value) =>
-      state = state.copyWith(steelStrength: value);
+  @override
+  Map<String, String> get initialOptions => {'support': 'simple'};
 
-  Future<void> calculate() async {
-    if (!_validateInputs()) return;
+  @override
+  List<String> get requiredKeys => const [
+    'span',
+    'b',
+    'h',
+    'g',
+    'q',
+    'cover',
+    'fck',
+    'fyk',
+  ];
 
-    state = state.copyWith(isLoading: true, error: null);
+  @override
+  BeamDesign compute(DesignFormState<BeamDesign> s) => designBeam(
+    BeamInput(
+      code: s.code,
+      support: s.options['support'] == 'cantilever'
+          ? BeamSupport.cantilever
+          : BeamSupport.simplySupported,
+      span: s['span']!,
+      b: s['b']!,
+      h: s['h']!,
+      g: s['g']!,
+      q: s['q']!,
+      cover: s['cover']!,
+      fck: s['fck']!,
+      fyk: s['fyk']!,
+    ),
+  );
 
-    try {
-      final moment =
-          (state.load! * state.span! * state.span!) / 8; // Simple span moment
-
-      final result = CalculationEngine.designBeamFlexure(
-        bendingMoment: moment,
-        concreteStrength: state.concreteStrength!,
-        steelStrength: state.steelStrength!,
-        effectiveDepth: state.depth! - 50, // assume 50mm cover
-        width: state.width!,
-      );
-
-      if (result.containsKey('error')) {
-        state = state.copyWith(isLoading: false, error: result['error']);
-        return;
-      }
-
-      final calculation = BeamCalculation(
-        id: IdService.generateCalculationId(),
+  @override
+  Future<String> persist(DesignFormState<BeamDesign> s, BeamDesign r) async {
+    final id = IdService.generateCalculationId();
+    await save(
+      id,
+      BeamCalculation(
+        id: id,
         projectId: projectId,
-        name: 'Beam Design - ${DateTime.now().toString().split(' ')[0]}',
-        span: state.span!,
-        load: state.load!,
-        width: state.width!,
-        depth: state.depth!,
-        concrete: state.concreteStrength!,
-        steel: state.steelStrength!,
+        name: 'Beam ${s['b']!.round()}×${s['h']!.round()}',
+        span: s['span']!,
+        load: r.wUls,
+        width: s['b']!,
+        depth: s['h']!,
+        concrete: s['fck']!,
+        steel: s['fyk']!,
         createdAt: DateTime.now(),
-        isValid: result['isValid'] as bool,
-        metadata: result,
-      );
-
-      state = state.copyWith(lastCalculation: calculation, isLoading: false);
-      await _saveCalculation(calculation);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Calculation error: $e');
-    }
-  }
-
-  Future<void> _saveCalculation(BeamCalculation calculation) async {
-    final box = HiveService.getBox(HiveService.calculationsBox);
-    await box.put(calculation.id, calculation);
-  }
-
-  bool _validateInputs() {
-    if (state.span == null || state.span! <= 0) {
-      state = state.copyWith(error: 'Span must be greater than 0');
-      return false;
-    }
-    if (state.load == null || state.load! <= 0) {
-      state = state.copyWith(error: 'Load must be greater than 0');
-      return false;
-    }
-    return true;
+        isValid: r.ok,
+        metadata: flatMetadata(s, {
+          'mEd': r.mEd,
+          'vEd': r.vEd,
+          'asReq': r.bending.asTension,
+          'bars': r.tensionBars?.toString(),
+          'links': r.shear.links?.toString(),
+          'maxRatio': r.maxRatio,
+        }),
+      ),
+    );
+    return id;
   }
 }

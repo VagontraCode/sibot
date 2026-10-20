@@ -1,113 +1,88 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/models/entities.dart';
-import 'package:sibot/core/services/calculation_engine.dart';
 import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/calculations/shared/design_form.dart';
+import 'package:sibot_engine/sibot_engine.dart';
 
 final slabStateProvider =
-    StateNotifierProvider.family<
-      SlabCalculationStateNotifier,
-      SlabCalculationState,
-      String
-    >((ref, projectId) {
-      return SlabCalculationStateNotifier(projectId);
-    });
-
-class SlabCalculationState {
-  final double? span;
-  final double? load;
-  final double? concreteStrength;
-  final double? steelStrength;
-  final SlabCalculation? lastCalculation;
-  final bool isLoading;
-  final String? error;
-
-  const SlabCalculationState({
-    this.span,
-    this.load,
-    this.concreteStrength,
-    this.steelStrength,
-    this.lastCalculation,
-    this.isLoading = false,
-    this.error,
-  });
-
-  SlabCalculationState copyWith({
-    double? span,
-    double? load,
-    double? concreteStrength,
-    double? steelStrength,
-    SlabCalculation? lastCalculation,
-    bool? isLoading,
-    String? error,
-  }) {
-    return SlabCalculationState(
-      span: span ?? this.span,
-      load: load ?? this.load,
-      concreteStrength: concreteStrength ?? this.concreteStrength,
-      steelStrength: steelStrength ?? this.steelStrength,
-      lastCalculation: lastCalculation ?? this.lastCalculation,
-      isLoading: isLoading ?? this.isLoading,
-      error: error, // cleared by any update unless set
+    NotifierProvider.family<SlabNotifier, DesignFormState<SlabDesign>, String>(
+      SlabNotifier.new,
     );
-  }
-}
 
-class SlabCalculationStateNotifier extends StateNotifier<SlabCalculationState> {
-  final String projectId;
+class SlabNotifier extends DesignFormNotifier<SlabDesign> {
+  SlabNotifier(super.projectId);
 
-  SlabCalculationStateNotifier(this.projectId)
-    : super(const SlabCalculationState());
+  @override
+  Map<String, double?> get initialValues => {
+    'lx': null,
+    'ly': null,
+    'h': null,
+    'g': null,
+    'q': null,
+    'cover': 25,
+    'fck': 25,
+    'fyk': 500,
+  };
 
-  void updateSpan(double value) => state = state.copyWith(span: value);
-  void updateLoad(double value) => state = state.copyWith(load: value);
-  void updateConcreteStrength(double value) =>
-      state = state.copyWith(concreteStrength: value);
-  void updateSteelStrength(double value) =>
-      state = state.copyWith(steelStrength: value);
+  @override
+  Map<String, String> get initialOptions => {
+    'type': 'oneWay',
+    'support': 'simple',
+  };
 
-  Future<void> calculate() async {
-    if (!_validateInputs()) return;
+  @override
+  List<String> get requiredKeys => [
+    'lx',
+    if (state.options['type'] == 'twoWay') 'ly',
+    'h',
+    'g',
+    'q',
+    'cover',
+    'fck',
+    'fyk',
+  ];
 
-    state = state.copyWith(isLoading: true, error: null);
+  @override
+  SlabDesign compute(DesignFormState<SlabDesign> s) => designSlab(
+    SlabInput(
+      code: s.code,
+      lx: s['lx']!,
+      ly: s.options['type'] == 'twoWay' ? s['ly'] : null,
+      h: s['h']!,
+      g: s['g']!,
+      q: s['q']!,
+      cover: s['cover']!,
+      support: s.options['support'] == 'continuous'
+          ? SlabSupport.continuous
+          : SlabSupport.simplySupported,
+      fck: s['fck']!,
+      fyk: s['fyk']!,
+    ),
+  );
 
-    try {
-      final result = CalculationEngine.designOneWaySlab(
-        span: state.span!,
-        loadPerM2: state.load!,
-        concreteStrength: state.concreteStrength!,
-        steelStrength: state.steelStrength!,
-      );
-
-      final calculation = SlabCalculation(
-        id: IdService.generateCalculationId(),
+  @override
+  Future<String> persist(DesignFormState<SlabDesign> s, SlabDesign r) async {
+    final id = IdService.generateCalculationId();
+    await save(
+      id,
+      SlabCalculation(
+        id: id,
         projectId: projectId,
-        name: 'Slab Design - ${DateTime.now().toString().split(' ')[0]}',
-        span: state.span!,
-        load: state.load!,
-        concrete: state.concreteStrength!,
-        steel: state.steelStrength!,
+        name: 'Slab h=${s['h']!.round()}',
+        span: s['lx']!,
+        load: r.wUls,
+        concrete: s['fck']!,
+        steel: s['fyk']!,
         createdAt: DateTime.now(),
-        isValid: true,
-        metadata: result,
-      );
-
-      state = state.copyWith(lastCalculation: calculation, isLoading: false);
-      await _saveCalculation(calculation);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: 'Calculation error: $e');
-    }
-  }
-
-  Future<void> _saveCalculation(SlabCalculation calculation) async {
-    final box = HiveService.getBox(HiveService.calculationsBox);
-    await box.put(calculation.id, calculation);
-  }
-
-  bool _validateInputs() {
-    if (state.span == null || state.span! <= 0) {
-      state = state.copyWith(error: 'Span must be greater than 0');
-      return false;
-    }
-    return true;
+        isValid: r.ok,
+        metadata: flatMetadata(s, {
+          'mx': r.x.mSpan,
+          'my': r.y.mSpan,
+          'barsX': r.x.barsSpan?.toString(),
+          'barsY': r.y.barsSpan?.toString(),
+        }),
+      ),
+    );
+    return id;
   }
 }

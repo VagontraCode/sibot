@@ -113,13 +113,19 @@ Each phase ends with a usable app, passing tests, and a git tag.
 - [x] Settings: language, theme, default design code (national annex and units in Phase 1)
 
 ### Phase 1 — Correct RC design (EC2 and BAEL), with tests
-- [ ] Materials: concrete classes and steel grades, with partial factors per code
-- [ ] Beam: ULS bending (singly and doubly reinforced), shear (V_Rd,c, V_Rd,s and θ in EC2; BAEL τ_u), SLS deflection and crack control, detailing
-- [ ] Column: second-order effects (nominal curvature / BAEL λ), biaxial bending, N–M interaction diagram
-- [ ] Slabs: one-way, two-way (EC2 coefficients / BAEL Marcus–Pigeaud method), punching
-- [ ] Footings: isolated, eccentric, strip, combined (EC7 bearing and EC2 bending/punching)
-- [ ] Retaining wall: overturning, sliding and bearing (EC7 DA1/DA2), stem and heel design
-- [ ] Each module tested against at least 2 worked examples per code
+Engine: `packages/sibot_engine` (pure Dart), 53 tests against hand calculations.
+- [x] Materials: concrete and steel design values per code (EC2 αcc = 1.0, γc = 1.5; BAEL fbu, ft28)
+- [x] Beam: ULS bending (singly and doubly reinforced), shear (EC2 variable strut; BAEL τu), deflection by span/depth (EC2 7.4.2, BAEL B.6.5.1), bar and link selection
+- [ ] Beam: crack-width control, continuous beams (comes with Phase 2 analysis)
+- [x] Column: N–M interaction (strain compatibility), EC2 nominal curvature, BAEL α method and A.4.4 second order
+- [ ] Column: biaxial bending, circular sections
+- [x] Slabs: one-way and two-way (BAEL Annexe E3), simple or continuous (A.8.2.32), shear without links, deflection
+- [ ] Slabs: punching under point loads
+- [x] Footings: isolated pad, eccentric load, BAEL struts and ties, EC2 bending and punching (6.4 with β)
+- [ ] Footings: strip and combined footings; EC7 bearing resistance from soil parameters
+- [x] Retaining wall: overturning, sliding, eccentricity, bearing (global FS 1.5), stem design, iterative pre-design
+- [ ] Retaining wall: EC7 DA1/DA2 partial factors, heel and toe design
+- [ ] Each module checked against at least 2 published worked examples per code (and the user's RSA models) → then remove the Beta banner
 
 ### Phase 2 — 2D FEM analysis (core RSA feature)
 - [ ] Engine: 2D truss and frame elements, releases, supports and springs, member loads, sparse solver in an isolate

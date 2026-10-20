@@ -369,19 +369,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modColumn => 'Column';
 
   @override
-  String get modColumnSub => 'Axial, slenderness';
+  String get modColumnSub => 'N–M, slenderness';
 
   @override
   String get modSlab => 'Slab';
 
   @override
-  String get modSlabSub => 'One-way slab';
+  String get modSlabSub => 'One-way, two-way';
 
   @override
   String get modFooting => 'Footing';
 
   @override
-  String get modFootingSub => 'Isolated, combined';
+  String get modFootingSub => 'Pad footing, punching';
 
   @override
   String get modRetainingWall => 'Retaining Wall';
@@ -470,11 +470,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calcCheckInputs => 'Check the inputs';
 
   @override
-  String get calcBetaTitle => 'Beta: results not yet verified';
+  String get calcBetaTitle => 'Beta: independent verification pending';
 
   @override
   String get calcBetaMessage =>
-      'This module is being rewritten and checked against worked examples. Do not use these results for construction.';
+      'Calculations follow the cited clauses and pass hand-calculation tests, but have not yet been checked against published worked examples or RSA. Verify results before using them for construction.';
 
   @override
   String get calcResults => 'Results';
@@ -496,19 +496,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calcSpan => 'Span';
 
   @override
-  String get calcLoad => 'Load';
-
-  @override
-  String get calcHeight => 'Height';
-
-  @override
-  String get beamSubtitle => 'Simply supported beam under a uniform load.';
+  String get beamSubtitle =>
+      'Rectangular section: bending, shear and deflection.';
 
   @override
   String get beamGeometryLoad => 'Geometry & load';
-
-  @override
-  String get beamTotalLoad => 'Total design load';
 
   @override
   String get beamWidth => 'Width b';
@@ -517,35 +509,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get beamDepth => 'Depth h';
 
   @override
-  String get beamAdequate => 'Section adequate';
-
-  @override
-  String get beamAdequateMsg =>
-      'Bending reinforcement found for the design moment.';
-
-  @override
-  String get beamInadequate => 'Section inadequate';
-
-  @override
-  String get beamInadequateMsg => 'Increase the section or the concrete class.';
-
-  @override
   String get beamBending => 'Bending reinforcement';
 
   @override
   String get beamSteelRequired => 'Steel area required';
 
   @override
-  String get beamSuggestedBars => 'Suggested bars';
-
-  @override
-  String get beamLeverArm => 'Lever arm';
-
-  @override
   String get beamMomentRatio => 'Moment ratio';
 
   @override
-  String get columnSubtitle => 'Circular column under axial load.';
+  String get columnSubtitle =>
+      'Rectangular column: axial force, bending and slenderness.';
 
   @override
   String get columnLoadGeometry => 'Load & geometry';
@@ -554,49 +528,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get columnAxialLoad => 'Axial load';
 
   @override
-  String get columnSlender => 'Slender column';
-
-  @override
-  String get columnSlenderMsg => 'Second-order effects must be checked.';
-
-  @override
-  String get columnShort => 'Short column';
-
-  @override
-  String get columnShortMsg => 'Second-order effects can be neglected.';
-
-  @override
-  String get columnSection => 'Section';
-
-  @override
-  String get columnDiameter => 'Recommended diameter';
-
-  @override
-  String get columnRequiredArea => 'Required area';
-
-  @override
-  String get columnHeightRatio => 'Height / diameter';
-
-  @override
-  String get slabSubtitle => 'One-way slab, simply supported.';
+  String get slabSubtitle => 'One-way or two-way slab, simple or continuous.';
 
   @override
   String get slabSpanLoad => 'Span & load';
 
   @override
-  String get slabOneWay => 'One-way slab';
-
-  @override
-  String get slabThickness => 'Recommended thickness';
-
-  @override
-  String get slabDesignMoment => 'Design moment';
-
-  @override
-  String get slabSteelRequired => 'Steel required';
-
-  @override
-  String get footingSubtitle => 'Pad footing under a column.';
+  String get footingSubtitle =>
+      'Pad footing under a column: sizing, steel and punching.';
 
   @override
   String get footingDesignBasis => 'Design basis';
@@ -611,47 +550,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get codeBael => 'BAEL 99';
 
   @override
-  String get footingType => 'Footing type';
-
-  @override
-  String get footingIsolated => 'Isolated';
-
-  @override
-  String get footingCombined => 'Combined';
-
-  @override
   String get footingColumnActions => 'Column actions';
-
-  @override
-  String get footingAxialLoad => 'Axial load';
-
-  @override
-  String get footingMoment => 'Moment';
 
   @override
   String get footingSoil => 'Soil';
 
   @override
-  String get footingBearing => 'Bearing capacity';
-
-  @override
   String get footingUnitWeight => 'Unit weight';
-
-  @override
-  String footingPresizing(String area) {
-    return 'Pre-sizing: about $area m² of footing';
-  }
-
-  @override
-  String footingPresizingReason(String sf) {
-    return 'Based on the soil bearing capacity with a safety factor of $sf.';
-  }
-
-  @override
-  String get footingAdequate => 'Design adequate';
-
-  @override
-  String get footingReview => 'Design needs review';
 
   @override
   String get footingDimensions => 'Dimensions';
@@ -660,29 +565,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get footingLxB => 'Length × width';
 
   @override
-  String get footingPlanArea => 'Plan area';
-
-  @override
-  String get footingRequiredArea => 'Required area';
-
-  @override
   String get footingThickness => 'Thickness';
 
   @override
   String get footingReinforcement => 'Reinforcement';
 
   @override
-  String get footingSteelArea => 'Steel area';
-
-  @override
-  String get footingBarSize => 'Bar size';
-
-  @override
-  String get footingSpacing => 'Spacing';
-
-  @override
   String get wallSubtitle =>
-      'Cantilever wall: overturning check and pre-sizing.';
+      'Cantilever wall: stability and stem reinforcement.';
 
   @override
   String get wallWallSoil => 'Wall & soil';
@@ -697,12 +587,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wallFrictionAngle => 'Friction angle φ';
 
   @override
-  String get wallStable => 'Stable against overturning';
-
-  @override
-  String get wallOverturningRisk => 'Overturning risk';
-
-  @override
   String get wallStability => 'Stability';
 
   @override
@@ -712,70 +596,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wallActiveThrust => 'Active earth thrust';
 
   @override
-  String get wallPresizing => 'Pre-sizing (cantilever wall)';
-
-  @override
-  String get wallBaseWidth => 'Base width';
-
-  @override
-  String get wallStemThickness => 'Stem thickness';
-
-  @override
   String get wallBaseThickness => 'Base thickness';
-
-  @override
-  String get wallToeHeel => 'Toe / heel';
-
-  @override
-  String get wallAlternatives => 'Alternative wall types';
-
-  @override
-  String wallBaseApprox(String width) {
-    return 'Base ≈ $width m';
-  }
-
-  @override
-  String get wallGabion => 'Gabion wall';
-
-  @override
-  String get wallGabionDesc =>
-      'Stone-filled wire baskets. Flexible and permeable.';
-
-  @override
-  String get wallGabionPros =>
-      'Excellent drainage, easy to build, tolerates settlement.';
-
-  @override
-  String get wallGabionCons =>
-      'Requires a large excavation; the wire mesh can corrode over time.';
-
-  @override
-  String get wallStone => 'Stone masonry';
-
-  @override
-  String get wallStoneDesc => 'Traditional gravity wall using natural stone.';
-
-  @override
-  String get wallStonePros =>
-      'Highly durable, attractive, uses local materials.';
-
-  @override
-  String get wallStoneCons => 'Labour-intensive, requires skilled masons.';
-
-  @override
-  String get wallBlocks => 'Reinforced hollow blocks';
-
-  @override
-  String get wallBlocksDesc =>
-      'Cement blocks with vertical rebar and concrete infill.';
-
-  @override
-  String get wallBlocksPros =>
-      'Faster than traditional masonry, consistent quality.';
-
-  @override
-  String get wallBlocksCons =>
-      'Height limited (usually under 3 m), requires precise rebar placement.';
 
   @override
   String get fieldSubtitle =>
@@ -1065,4 +886,370 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get codePs92Desc => 'Seismic rules (FR)';
+
+  @override
+  String get calcCover => 'Cover';
+
+  @override
+  String get loadPermanent => 'Permanent load g';
+
+  @override
+  String get loadVariable => 'Variable load q';
+
+  @override
+  String get loadPermanentArea => 'Permanent load g';
+
+  @override
+  String get loadVariableArea => 'Variable load q';
+
+  @override
+  String get loadPermanentPoint => 'Permanent load G';
+
+  @override
+  String get loadVariablePoint => 'Variable load Q';
+
+  @override
+  String get loadSelfWeightNote =>
+      'Characteristic loads. Self-weight is added automatically; ULS combination 1.35G + 1.5Q.';
+
+  @override
+  String get beamSupport => 'Supports';
+
+  @override
+  String get beamSimplySupported => 'Simple span';
+
+  @override
+  String get beamCantilever => 'Cantilever';
+
+  @override
+  String get resultDesignForces => 'Design forces';
+
+  @override
+  String get resultUlsLoad => 'ULS load';
+
+  @override
+  String get resultMoment => 'Design moment';
+
+  @override
+  String get resultShear => 'Design shear';
+
+  @override
+  String get resultEffectiveDepth => 'Effective depth';
+
+  @override
+  String get resultBottomBars => 'Bottom bars';
+
+  @override
+  String get resultTopBars => 'Top bars';
+
+  @override
+  String get resultLinks => 'Links';
+
+  @override
+  String get checksTitle => 'Checks';
+
+  @override
+  String get checkBendingSteel => 'Bending reinforcement';
+
+  @override
+  String get checkMinSteel => 'Minimum reinforcement';
+
+  @override
+  String get checkMaxSteel => 'Maximum reinforcement';
+
+  @override
+  String get checkBarSpacing => 'Clear bar spacing';
+
+  @override
+  String get checkShearConcrete => 'Shear (concrete)';
+
+  @override
+  String get checkShearLinks => 'Shear reinforcement';
+
+  @override
+  String get checkLinkSpacing => 'Link spacing';
+
+  @override
+  String get checkDeflection => 'Deflection';
+
+  @override
+  String get checkSlenderness => 'Slenderness';
+
+  @override
+  String get checkAxialBending => 'Axial force and bending';
+
+  @override
+  String get checkBearing => 'Bearing pressure';
+
+  @override
+  String get checkPunching => 'Punching shear';
+
+  @override
+  String get checkOverturning => 'Overturning';
+
+  @override
+  String get checkSliding => 'Sliding';
+
+  @override
+  String get checkEccentricity => 'Eccentricity';
+
+  @override
+  String get verdictOk => 'All checks satisfied';
+
+  @override
+  String verdictFail(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n checks not satisfied',
+      one: '1 check not satisfied',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String verdictUtilisation(String pct) {
+    return 'Highest utilisation $pct %';
+  }
+
+  @override
+  String problemMissing(String field) {
+    return 'Enter $field.';
+  }
+
+  @override
+  String problemNotPositive(String field) {
+    return '$field must be greater than 0.';
+  }
+
+  @override
+  String problemOutOfRange(String field) {
+    return '$field is outside the range this method covers.';
+  }
+
+  @override
+  String problemGeometry(String field) {
+    return '$field is not consistent with the other dimensions.';
+  }
+
+  @override
+  String get noteCompressionSteel =>
+      'The moment exceeds the limit for a singly reinforced section: compression steel is required.';
+
+  @override
+  String get noteBarsDoNotFit =>
+      'No standard bar arrangement fits in one layer. Increase the section.';
+
+  @override
+  String get noteLinksNotFound =>
+      'Links up to Ø12 cannot carry the shear. Increase the section.';
+
+  @override
+  String get noteDeflectionNotCovered =>
+      'The BAEL deflection exemption does not cover cantilevers: calculate the deflection.';
+
+  @override
+  String get columnWidthB => 'Width b';
+
+  @override
+  String get columnDepthH => 'Depth h (bending direction)';
+
+  @override
+  String get columnBucklingLength => 'Buckling length l0';
+
+  @override
+  String get columnMoment => 'First-order moment';
+
+  @override
+  String get columnCreep => 'Effective creep ratio φef';
+
+  @override
+  String get columnUlsNote =>
+      'ULS design values. Bending acts about the axis parallel to b.';
+
+  @override
+  String get columnSlendernessTitle => 'Slenderness and moments';
+
+  @override
+  String get columnImperfection => 'Imperfection eccentricity';
+
+  @override
+  String get columnSecondOrder => 'Second-order eccentricity';
+
+  @override
+  String get columnLongitudinalBars => 'Longitudinal bars';
+
+  @override
+  String get columnAxialResistance => 'Axial resistance';
+
+  @override
+  String get columnMomentResistance => 'Moment resistance at NEd';
+
+  @override
+  String get columnInteraction => 'N–M interaction diagram';
+
+  @override
+  String get noteSecondOrder =>
+      'λ > λlim: second-order moment added by the nominal curvature method (EN 1992-1-1 5.8.8).';
+
+  @override
+  String get noteBaelCentred => 'Centred compression: BAEL B.8.4 α method.';
+
+  @override
+  String get noteSlendernessOutOfScope =>
+      'Slenderness beyond the method\'s range: a buckling analysis is required.';
+
+  @override
+  String get noteSectionTooSmall =>
+      'The maximum steel ratio is not enough. Increase the section.';
+
+  @override
+  String get slabType => 'Slab type';
+
+  @override
+  String get slabOneWayShort => 'One-way';
+
+  @override
+  String get slabTwoWayShort => 'Two-way';
+
+  @override
+  String get slabContinuous => 'Continuous';
+
+  @override
+  String get slabShortSpan => 'Short span lx';
+
+  @override
+  String get slabLongSpan => 'Long span ly';
+
+  @override
+  String get slabThicknessInput => 'Thickness h';
+
+  @override
+  String get slabCoefficients => 'Panel coefficients';
+
+  @override
+  String get slabMomentXSpan => 'Span moment, x';
+
+  @override
+  String get slabMomentSupport => 'Support moment';
+
+  @override
+  String get slabMomentYSpan => 'Span moment, y';
+
+  @override
+  String get slabBarsXSpan => 'Bottom, x direction';
+
+  @override
+  String get slabBarsSupport => 'Top, over supports';
+
+  @override
+  String get slabBarsYSpan => 'Bottom, y direction';
+
+  @override
+  String get slabDistribution => 'Distribution bars';
+
+  @override
+  String get noteTreatedAsOneWay =>
+      'lx/ly < 0.4: the panel is designed as one-way.';
+
+  @override
+  String get noteBaelPanel =>
+      'Two-way moments from BAEL 91 Annexe E3 coefficients (ν = 0 at ULS).';
+
+  @override
+  String get noteContinuityCoefficients =>
+      'Continuity by simplified coefficients: 0.75 M0 in span, 0.5 M0 over supports (BAEL A.8.2.32).';
+
+  @override
+  String get footingColumnA => 'Column a (moment direction)';
+
+  @override
+  String get footingColumnB => 'Column b';
+
+  @override
+  String get footingMomentG => 'Moment from G';
+
+  @override
+  String get footingMomentQ => 'Moment from Q';
+
+  @override
+  String get footingAllowable => 'Allowable bearing pressure';
+
+  @override
+  String get footingDepthInput => 'Founding depth';
+
+  @override
+  String get footingCharacteristicNote =>
+      'Characteristic (service) column loads. Sizing at SLS, steel at ULS.';
+
+  @override
+  String get footingSelfWeight => 'Footing and backfill weight';
+
+  @override
+  String get footingPressure => 'Ground pressure';
+
+  @override
+  String get footingBarsAlongA => 'Bars parallel to A';
+
+  @override
+  String get footingBarsAlongB => 'Bars parallel to B';
+
+  @override
+  String get noteSizeLimit =>
+      'The footing would exceed 10 m: check the soil or the loads.';
+
+  @override
+  String get noteFootingBael =>
+      'Rigid footing designed by the strut-and-tie method (méthode des bielles); pressure at 3/4 width.';
+
+  @override
+  String get noteFootingEc2 =>
+      'Bending at 0.15a inside the column face (EN 1992-1-1 9.8.2.2); pressure on the effective area (EN 1997-1 Annex D).';
+
+  @override
+  String get wallGeometry => 'Geometry';
+
+  @override
+  String get wallPresizeButton => 'Pre-size from height';
+
+  @override
+  String get wallToeLength => 'Toe length';
+
+  @override
+  String get wallHeelLength => 'Heel length';
+
+  @override
+  String get wallStemTop => 'Stem thickness, top';
+
+  @override
+  String get wallStemBottom => 'Stem thickness, base';
+
+  @override
+  String get wallSurcharge => 'Surcharge q';
+
+  @override
+  String get wallToe => 'toe';
+
+  @override
+  String get wallHeel => 'heel';
+
+  @override
+  String get wallKa => 'Active pressure coefficient';
+
+  @override
+  String get wallFosSliding => 'Factor of safety, sliding';
+
+  @override
+  String get wallStem => 'Stem';
+
+  @override
+  String get wallStemBars => 'Vertical bars, soil face';
+
+  @override
+  String get noteWallMethod =>
+      'Stability with Rankine active pressure and global factors of safety of 1.5. EC7 partial-factor design comes with the geotechnics module.';
+
+  @override
+  String get noteWallShearKey =>
+      'Sliding is not satisfied: add a shear key or lengthen the heel.';
 }

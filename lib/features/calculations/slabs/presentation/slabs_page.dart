@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/modules/module_registry.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
+import 'package:sibot_engine/sibot_engine.dart';
 import 'slabs_provider.dart';
 
 class SlabPage extends ConsumerWidget {
@@ -11,99 +13,173 @@ class SlabPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(slabStateProvider(projectId));
+    final s = ref.watch(slabStateProvider(projectId));
     final n = ref.read(slabStateProvider(projectId).notifier);
-    final calc = state.lastCalculation;
     final l = context.l10n;
-    final m = calc?.metadata;
+    final r = s.result;
+    final twoWay = s.options['type'] == 'twoWay';
+
+    final labels = {
+      'lx': twoWay ? l.slabShortSpan : l.calcSpan,
+      'ly': l.slabLongSpan,
+      'h': l.slabThicknessInput,
+      'g': l.loadPermanentArea,
+      'q': l.loadVariableArea,
+      'cover': l.calcCover,
+      'fck': l.calcConcreteFck,
+      'fyk': l.calcSteelFyk,
+    };
+    Widget field(String key, String unit, [String? hint]) => FormNumber(
+      state: s,
+      notifier: n,
+      field: key,
+      label: labels[key]!,
+      unit: unit,
+      hint: hint,
+    );
 
     return CalculatorScaffold(
       title: l.modSlab,
       subtitle: l.slabSubtitle,
       module: moduleByRoute('slab'),
-      isLoading: state.isLoading,
-      error: state.error,
       onCalculate: n.calculate,
-      resultKey: calc?.id,
+      error: s.problem == null ? null : problemMessage(l, s.problem!, labels),
+      resultKey: s.runId,
       inputs: [
+        FormSection(
+          title: l.footingDesignBasis,
+          icon: Icons.rule_rounded,
+          children: [
+            CodeChoice(value: s.code, onChanged: n.setCode),
+            ChoiceField<String>(
+              label: l.slabType,
+              value: s.options['type']!,
+              options: {
+                'oneWay': l.slabOneWayShort,
+                'twoWay': l.slabTwoWayShort,
+              },
+              onChanged: (v) => n.setOption('type', v),
+            ),
+            ChoiceField<String>(
+              label: l.beamSupport,
+              value: s.options['support']!,
+              options: {
+                'simple': l.beamSimplySupported,
+                'continuous': l.slabContinuous,
+              },
+              onChanged: (v) => n.setOption('support', v),
+            ),
+          ],
+        ),
         FormSection(
           title: l.slabSpanLoad,
           icon: Icons.layers_outlined,
           children: [
-            NumberField(
-              label: l.calcSpan,
-              unit: 'm',
-              hint: '4',
-              value: state.span,
-              onChanged: (v) => n.updateSpan(v ?? 0),
+            if (twoWay)
+              FieldRow(children: [field('lx', 'm', '4'), field('ly', 'm', '5')])
+            else
+              field('lx', 'm', '4'),
+            field('h', 'mm', '180'),
+            FieldRow(
+              children: [field('g', 'kN/m²', '2'), field('q', 'kN/m²', '2.5')],
             ),
-            NumberField(
-              label: l.calcLoad,
-              unit: 'kN/m²',
-              hint: '7.5',
-              value: state.load,
-              onChanged: (v) => n.updateLoad(v ?? 0),
-            ),
+            Text(l.loadSelfWeightNote, style: context.text.bodySmall),
           ],
         ),
         FormSection(
           title: l.calcMaterials,
           icon: Icons.science_outlined,
           children: [
-            FieldRow(
-              children: [
-                NumberField(
-                  label: l.calcConcreteFck,
-                  unit: 'MPa',
-                  hint: '25',
-                  value: state.concreteStrength,
-                  onChanged: (v) => n.updateConcreteStrength(v ?? 0),
-                ),
-                NumberField(
-                  label: l.calcSteelFyk,
-                  unit: 'MPa',
-                  hint: '500',
-                  value: state.steelStrength,
-                  textInputAction: TextInputAction.done,
-                  onChanged: (v) => n.updateSteelStrength(v ?? 0),
-                ),
-              ],
-            ),
+            FieldRow(children: [field('fck', 'MPa'), field('fyk', 'MPa')]),
+            field('cover', 'mm'),
           ],
         ),
       ],
-      results: calc == null || m == null
-          ? null
-          : [
-              ResultCard(
-                title: l.slabOneWay,
-                icon: Icons.layers_outlined,
-                rows: [
-                  ResultRow(
-                    label: l.slabThickness,
-                    symbol: 'h',
-                    value: _f(m['recommendedDepth'], 0),
-                    unit: 'mm',
-                    emphasize: true,
-                  ),
-                  ResultRow(
-                    label: l.slabDesignMoment,
-                    symbol: 'MEd',
-                    value: _f(m['bendingMoment'], 1),
-                    unit: 'kN·m/m',
-                  ),
-                  ResultRow(
-                    label: l.slabSteelRequired,
-                    symbol: 'As',
-                    value: _f(m['ast_per_m'], 0),
-                    unit: 'mm²/m',
-                    emphasize: true,
-                  ),
-                ],
-              ),
-            ],
+      results: r == null ? null : _results(context, r),
     );
   }
-}
 
-String _f(Object? v, int digits) => v is num ? v.toStringAsFixed(digits) : '—';
+  List<Widget> _results(BuildContext context, SlabDesign r) {
+    final l = context.l10n;
+    final notes = [
+      for (final note in r.notes)
+        switch (note) {
+          SlabNote.treatedAsOneWay => l.noteTreatedAsOneWay,
+          SlabNote.barsNotFound => l.noteBarsDoNotFit,
+        },
+      if (r.muX != null) l.noteBaelPanel,
+      if (r.input.support == SlabSupport.continuous)
+        l.noteContinuityCoefficients,
+    ];
+    String bars(BarSpacing? b) => b?.toString() ?? '—';
+    return [
+      VerdictBanner(checks: r.checks),
+      ResultCard(
+        title: l.resultDesignForces,
+        icon: Icons.south_rounded,
+        rows: [
+          ResultRow(
+            label: l.resultUlsLoad,
+            symbol: 'wEd',
+            value: fmt(context, r.wUls),
+            unit: 'kN/m²',
+          ),
+          if (r.muX != null)
+            ResultRow(
+              label: l.slabCoefficients,
+              symbol: 'μx / μy',
+              value: '${fmt(context, r.muX!, 4)} / ${fmt(context, r.muY!, 3)}',
+            ),
+          ResultRow(
+            label: l.slabMomentXSpan,
+            symbol: 'Mx',
+            value: fmt(context, r.x.mSpan),
+            unit: 'kN·m/m',
+            emphasize: true,
+          ),
+          if (r.x.mSupport != null)
+            ResultRow(
+              label: l.slabMomentSupport,
+              symbol: 'Ma',
+              value: fmt(context, r.x.mSupport!),
+              unit: 'kN·m/m',
+            ),
+          if (r.y.mSpan > 0)
+            ResultRow(
+              label: l.slabMomentYSpan,
+              symbol: 'My',
+              value: fmt(context, r.y.mSpan),
+              unit: 'kN·m/m',
+            ),
+        ],
+      ),
+      ResultCard(
+        title: l.footingReinforcement,
+        icon: Icons.grid_on_rounded,
+        rows: [
+          ResultRow(
+            label: l.slabBarsXSpan,
+            symbol: '${fmt(context, r.x.asSpan, 0)} mm²/m',
+            value: bars(r.x.barsSpan),
+            emphasize: true,
+          ),
+          if (r.x.asSupport != null)
+            ResultRow(
+              label: l.slabBarsSupport,
+              symbol: '${fmt(context, r.x.asSupport!, 0)} mm²/m',
+              value: bars(r.x.barsSupport),
+              emphasize: true,
+            ),
+          ResultRow(
+            label: r.muX != null ? l.slabBarsYSpan : l.slabDistribution,
+            symbol: '${fmt(context, r.y.asSpan, 0)} mm²/m',
+            value: bars(r.y.barsSpan),
+            emphasize: true,
+          ),
+        ],
+      ),
+      ChecksCard(checks: r.checks),
+      NotesCard(notes: notes),
+    ];
+  }
+}
