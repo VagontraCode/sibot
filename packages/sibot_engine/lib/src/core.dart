@@ -53,9 +53,7 @@ class Check {
     this.unit = '',
   });
 
-  double get ratio => capacity <= 0
-      ? double.infinity
-      : demand / capacity;
+  double get ratio => capacity <= 0 ? double.infinity : demand / capacity;
 
   bool get ok => demand <= capacity * (1 + 1e-9);
 

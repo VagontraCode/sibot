@@ -238,9 +238,7 @@ BeamDesign designBeam(BeamInput i) {
         kind: CheckKind.barSpacing,
         demand: minClearSpacing(bars.diameter),
         capacity: (inner - bars.count * bars.diameter) / (bars.count - 1),
-        clause: i.code == DesignCode.ec2
-            ? 'EN 1992-1-1 8.2'
-            : 'BAEL A.7.2.8',
+        clause: i.code == DesignCode.ec2 ? 'EN 1992-1-1 8.2' : 'BAEL A.7.2.8',
         unit: 'mm',
       ),
     shear.crushing,

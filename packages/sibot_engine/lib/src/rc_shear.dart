@@ -144,11 +144,7 @@ ShearDesign designShear({
 
 /// Smallest two-leg link diameter whose spacing (multiple of 25 mm,
 /// ≥ 75 mm) satisfies [aswPerS] and [maxSpacing].
-Links? chooseLinks(
-  double aswPerS,
-  double maxSpacing, {
-  int maxDiameter = 12,
-}) {
+Links? chooseLinks(double aswPerS, double maxSpacing, {int maxDiameter = 12}) {
   for (final d in const [6, 8, 10, 12]) {
     if (d > maxDiameter) break;
     final raw = 2 * barArea(d) / aswPerS;
