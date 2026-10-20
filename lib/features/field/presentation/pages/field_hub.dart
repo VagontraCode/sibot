@@ -1,148 +1,141 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../features/shared/providers/app_providers.dart';
+import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/ui/ui.dart';
 
 class FieldHubPage extends ConsumerWidget {
   const FieldHubPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedProjectId = ref.watch(selectedProjectIdProvider);
-    final projectsAsync = ref.watch(projectsProvider);
+    final project = activeProject(ref);
 
-    if (selectedProjectId == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Field Tools'),
-        ),
-        body: projectsAsync.when(
-          data: (projects) {
-            if (projects.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.construction, size: 64, color: Colors.grey.shade400),
-                    const SizedBox(height: 16),
-                    const Text('No projects found'),
-                    const SizedBox(height: 8),
-                    const Text('Create a project first to use field tools'),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => context.goNamed('projects'),
-                      child: const Text('Go to Projects'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'Select a project to manage field data',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: projects.length,
-                    itemBuilder: (context, index) {
-                      final project = projects[index];
-                      return ListTile(
-                        leading: const Icon(Icons.folder),
-                        title: Text(project.name),
-                        subtitle: Text(project.location),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () {
-                          ref.read(selectedProjectIdProvider.notifier).state = project.id;
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Center(child: Text('Error: $e')),
-        ),
+    if (project == null) {
+      return AppPage(
+        title: 'Field',
+        subtitle: 'Photos, daily reports and punch lists from the site.',
+        children: [
+          EmptyState(
+            icon: Icons.construction_outlined,
+            title: 'No projects yet',
+            message: 'Field data is filed under a project. Create one first.',
+            action: FilledButton.icon(
+              onPressed: () async {
+                final p = await showProjectForm(context, ref);
+                if (p != null) {
+                  ref.read(selectedProjectIdProvider.notifier).state = p.id;
+                }
+              },
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('New project'),
+            ),
+          ),
+        ],
       );
     }
 
-    // If project is selected, show the hub
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Field Hub'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            tooltip: 'Switch Project',
-            onPressed: () {
-              ref.read(selectedProjectIdProvider.notifier).state = null;
-            },
-          ),
-        ],
-      ),
-      body: GridView.count(
-        padding: const EdgeInsets.all(16),
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        children: [
-          _buildHubCard(
-            context,
-            'Photo Log',
-            Icons.photo_library,
-            Colors.orange,
-            () => context.pushNamed('photo-log', pathParameters: {'projectId': selectedProjectId}),
-          ),
-          _buildHubCard(
-            context,
-            'Daily Report',
-            Icons.assignment,
-            Colors.blue,
-            () => context.pushNamed('daily-report', pathParameters: {'projectId': selectedProjectId}),
-          ),
-          _buildHubCard(
-            context,
-            'Punch List',
-            Icons.checklist,
-            Colors.red,
-            () => context.pushNamed('punch-list', pathParameters: {'projectId': selectedProjectId}),
-          ),
-        ],
-      ),
-    );
-  }
+    final id = project.id;
+    final photos = ref.watch(photoLogsProvider(id)).value?.length ?? 0;
+    final reports = ref.watch(dailyReportsProvider(id)).value?.length ?? 0;
+    final openPunch =
+        ref
+            .watch(punchListProvider(id))
+            .value
+            ?.where((i) => i.status != 'closed')
+            .length ??
+        0;
 
-  Widget _buildHubCard(
-    BuildContext context,
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onTap,
-  ) {
-    return Card(
-      elevation: 2,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return AppPage(
+      title: 'Field',
+      subtitle: 'Photos, daily reports and punch lists from the site.',
+      children: [
+        ProjectSwitcher(project: project),
+        const SectionHeader(title: 'Tools'),
+        ResponsiveGrid(
+          minTileWidth: 220,
           children: [
-            Icon(icon, size: 48, color: color),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            _ToolTile(
+              icon: Icons.photo_camera_outlined,
+              title: 'Photo log',
+              value: '$photos',
+              caption: 'photos',
+              onTap: () => context.push('/field/photo-log/$id'),
+            ),
+            _ToolTile(
+              icon: Icons.assignment_outlined,
+              title: 'Daily reports',
+              value: '$reports',
+              caption: 'reports',
+              onTap: () => context.push('/field/daily-report/$id'),
+            ),
+            _ToolTile(
+              icon: Icons.checklist_rounded,
+              title: 'Punch list',
+              value: '$openPunch',
+              caption: 'open items',
+              onTap: () => context.push('/field/punch-list/$id'),
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class _ToolTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String caption;
+  final VoidCallback onTap;
+
+  const _ToolTile({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.caption,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(Gap.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconBadge(icon, size: 44),
+              const Spacer(),
+              Icon(
+                Icons.arrow_forward_rounded,
+                color: context.colors.onSurfaceVariant,
+              ),
+            ],
+          ),
+          const SizedBox(height: Gap.xl),
+          Text(title, style: context.text.titleLarge),
+          const SizedBox(height: Gap.xs),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text(
+                value,
+                style: AppTheme.mono(
+                  context,
+                  size: 18,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(width: 6),
+              Text(caption, style: context.text.bodySmall),
+            ],
+          ),
+        ],
       ),
     );
   }

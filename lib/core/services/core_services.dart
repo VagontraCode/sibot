@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/entities.dart';
 
@@ -43,17 +48,16 @@ class HiveService {
         Hive.registerAdapter(RetainingWallCalculationAdapter());
       }
 
-      // Delete potentially corrupted boxes (do this once to fix the error)
-      // Comment these out after first successful run
-      await Hive.deleteBoxFromDisk(calculationsBox);
-
-      // Open boxes
-      await Hive.openBox(projectsBox);
-      await Hive.openBox(calculationsBox);
-      await Hive.openBox(photoLogsBox);
-      await Hive.openBox(dailyReportsBox);
-      await Hive.openBox(punchListBox);
-      await Hive.openBox(settingsBox);
+      for (final name in [
+        projectsBox,
+        calculationsBox,
+        photoLogsBox,
+        dailyReportsBox,
+        punchListBox,
+        settingsBox,
+      ]) {
+        await _openBox(name);
+      }
 
       LoggerService.instance.i('Hive initialized successfully');
     } catch (e, stackTrace) {
@@ -63,6 +67,33 @@ class HiveService {
         stackTrace: stackTrace,
       );
       rethrow;
+    }
+  }
+
+  /// Opens a box. Data is never deleted on a normal start: only if the file
+  /// cannot be read is it copied aside, and the box restarted empty, so the
+  /// app can still launch.
+  static Future<void> _openBox(String name) async {
+    try {
+      await Hive.openBox(name);
+    } catch (e, st) {
+      LoggerService.instance.e(
+        'Box "$name" could not be opened',
+        error: e,
+        stackTrace: st,
+      );
+      if (!kIsWeb) {
+        // Hive.initFlutter() stores boxes in the app documents directory.
+        final dir = await getApplicationDocumentsDirectory();
+        final file = File(p.join(dir.path, '$name.hive'));
+        if (await file.exists()) {
+          final stamp = DateTime.now().millisecondsSinceEpoch;
+          final backup = await file.copy('${file.path}.unreadable-$stamp');
+          LoggerService.instance.w('Unreadable "$name" kept at ${backup.path}');
+        }
+      }
+      await Hive.deleteBoxFromDisk(name);
+      await Hive.openBox(name);
     }
   }
 

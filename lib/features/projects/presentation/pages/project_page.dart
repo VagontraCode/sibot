@@ -1,230 +1,130 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../features/shared/providers/app_providers.dart';
-import '../../../../core/models/entities.dart';
-import '../../../../core/services/core_services.dart';
+import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/ui/ui.dart';
 
-class ProjectsPage extends ConsumerWidget {
+class ProjectsPage extends ConsumerStatefulWidget {
   const ProjectsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProjectsPage> createState() => _ProjectsPageState();
+}
+
+class _ProjectsPageState extends ConsumerState<ProjectsPage> {
+  String _query = '';
+  String _status = 'all';
+
+  Future<void> _create() async {
+    final p = await showProjectForm(context, ref);
+    if (p != null && mounted) context.push('/projects/${p.id}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final projectsAsync = ref.watch(projectsProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Projects'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showNewProjectDialog(context, ref),
-          ),
-        ],
+    return AppPage(
+      title: 'Projects',
+      subtitle: 'Every calculation, photo and report, grouped by project.',
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _create,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New project'),
       ),
-      body: projectsAsync.when(
-        data: (projects) {
-          if (projects.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.folder_off, size: 64, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No projects yet',
-                    style: Theme.of(context).textTheme.titleLarge,
+      children: [
+        projectsAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.all(Gap.xxl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (e, _) => StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load projects',
+            message: '$e',
+          ),
+          data: (projects) {
+            if (projects.isEmpty) {
+              return EmptyState(
+                icon: Icons.folder_open_outlined,
+                title: 'No projects yet',
+                message:
+                    'Create a project to keep its calculations and field data together.',
+                action: FilledButton.icon(
+                  onPressed: _create,
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text('New project'),
+                ),
+              );
+            }
+
+            final q = _query.toLowerCase();
+            final filtered = projects.where((p) {
+              final matchQ =
+                  q.isEmpty ||
+                  p.name.toLowerCase().contains(q) ||
+                  p.location.toLowerCase().contains(q) ||
+                  p.engineer.toLowerCase().contains(q);
+              final matchS = _status == 'all' || p.status == _status;
+              return matchQ && matchS;
+            }).toList()..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Search by name, location or engineer',
+                    prefixIcon: Icon(Icons.search_rounded),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create a new project to get started',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  onChanged: (v) => setState(() => _query = v),
+                ),
+                const SizedBox(height: Gap.md),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      for (final s in const {
+                        'all': 'All',
+                        'active': 'Active',
+                        'completed': 'Completed',
+                        'archived': 'Archived',
+                      }.entries)
+                        Padding(
+                          padding: const EdgeInsets.only(right: Gap.sm),
+                          child: ChoiceChip(
+                            label: Text(s.value),
+                            selected: _status == s.key,
+                            showCheckmark: false,
+                            onSelected: (_) => setState(() => _status = s.key),
+                          ),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _showNewProjectDialog(context, ref),
-                    icon: const Icon(Icons.add),
-                    label: const Text('New Project'),
+                ),
+                const SizedBox(height: Gap.lg),
+                if (filtered.isEmpty)
+                  const EmptyState(
+                    icon: Icons.search_off_rounded,
+                    title: 'No matching projects',
+                  )
+                else
+                  ResponsiveGrid(
+                    minTileWidth: 320,
+                    children: [
+                      for (final p in filtered)
+                        ProjectCard(
+                          project: p,
+                          onTap: () => context.push('/projects/${p.id}'),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+              ],
             );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: projects.length,
-            itemBuilder: (context, index) {
-              final project = projects[index];
-              return _buildProjectCard(context, project);
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, st) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.error_outline, size: 64, color: Colors.red.shade400),
-              const SizedBox(height: 16),
-              Text('Error loading projects: $error'),
-            ],
-          ),
+          },
         ),
-      ),
-    );
-  }
-
-  Widget _buildProjectCard(BuildContext context, Project project) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(child: Icon(Icons.folder, color: Colors.blue.shade600)),
-        ),
-        title: Text(project.name),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              project.location,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            Text(
-              'Engineer: ${project.engineer}',
-              style: Theme.of(
-                context,
-              ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-            ),
-          ],
-        ),
-        trailing: Chip(
-          label: Text(project.status),
-          backgroundColor: _getStatusColor(
-            project.status,
-          ).withValues(alpha: 0.2),
-          labelStyle: TextStyle(
-            color: _getStatusColor(project.status),
-            fontWeight: FontWeight.bold,
-            fontSize: 12,
-          ),
-        ),
-        onTap: () => context.push('/projects/${project.id}'),
-      ),
-    );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'active':
-        return Colors.green;
-      case 'completed':
-        return Colors.blue;
-      case 'archived':
-        return Colors.grey;
-      default:
-        return Colors.blue;
-    }
-  }
-
-  void _showNewProjectDialog(BuildContext context, WidgetRef ref) {
-    final nameController = TextEditingController();
-    final locationController = TextEditingController();
-    final engineerController = TextEditingController();
-    final descriptionController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('New Project'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Project Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: locationController,
-                decoration: InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: engineerController,
-                decoration: InputDecoration(
-                  labelText: 'Engineer',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                maxLines: 3,
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final project = Project(
-                id: IdService.generateProjectId(),
-                name: nameController.text,
-                description: descriptionController.text,
-                location: locationController.text,
-                engineer: engineerController.text,
-                status: 'active',
-                createdAt: DateTime.now(),
-                updatedAt: DateTime.now(),
-                metadata: {},
-              );
-
-              ref.read(projectsProvider.notifier).addProject(project);
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Project created successfully')),
-              );
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

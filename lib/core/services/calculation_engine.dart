@@ -10,7 +10,8 @@ class CalculationEngine {
     required double soilBearingCapacity, // kPa
     required double safetyFactor, // typically 3.0
   }) {
-    return (totalLoad * safetyFactor) / (soilBearingCapacity / 100);
+    // kN / kPa = m². (Previously divided by q/100, giving areas 100× too large.)
+    return (totalLoad * safetyFactor) / soilBearingCapacity;
   }
 
   /// Calculate footing dimensions for isolated rectangular footing
@@ -380,10 +381,12 @@ class SuggestionEngine {
         },
         {
           'type': 'Reinforced Hollow Blocks',
-          'description': 'Cement blocks with vertical rebar and concrete infill.',
+          'description':
+              'Cement blocks with vertical rebar and concrete infill.',
           'recommendedBase': height * 0.45,
           'pros': 'Faster than traditional masonry, consistent quality.',
-          'cons': 'Height limited (usually < 3m), requires precise rebar placement.',
+          'cons':
+              'Height limited (usually < 3m), requires precise rebar placement.',
         },
       ],
     };

@@ -55,7 +55,7 @@ class BeamCalculationState {
       steelStrength: steelStrength ?? this.steelStrength,
       lastCalculation: lastCalculation ?? this.lastCalculation,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: error, // cleared by any update unless set
     );
   }
 }

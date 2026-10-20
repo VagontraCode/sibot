@@ -1,349 +1,372 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../features/shared/providers/app_providers.dart';
-import '../../../../core/models/entities.dart';
-import '../../../../core/services/report_service.dart';
+import 'package:sibot/core/models/entities.dart';
+import 'package:sibot/core/services/report_service.dart';
+import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/features/modules/module_tile.dart';
+import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/features/shared/providers/calculation_summary_provider.dart';
+import 'package:sibot/ui/ui.dart';
 
 class ProjectDetailPage extends ConsumerWidget {
   final String projectId;
 
   const ProjectDetailPage({super.key, required this.projectId});
 
+  Future<void> _export(WidgetRef ref, Project project) async {
+    final footings = await ref.read(
+      projectCalculationsProvider(projectId).future,
+    );
+    final beams = await ref.read(
+      projectBeamCalculationsProvider(projectId).future,
+    );
+    final punchItems =
+        ref.read(punchListProvider(projectId)).value ?? <PunchListItem>[];
+    await ReportService.generateProjectSummary(
+      project,
+      footings: footings,
+      beams: beams,
+      punchList: punchItems,
+    );
+  }
+
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Project project,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete project?'),
+        content: Text(
+          '"${project.name}" will be removed from this device. '
+          'Its saved calculations and field data stay in storage but will no longer be listed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: context.appColors.danger,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await ref.read(projectsProvider.notifier).deleteProject(project.id);
+    if (context.mounted) context.go('/projects');
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final projectAsync = ref.watch(projectByIdProvider(projectId));
-    final calculationsAsync = ref.watch(projectCalculationsProvider(projectId));
-    final photosAsync = ref.watch(photoLogsProvider(projectId));
-    final punchListAsync = ref.watch(punchListProvider(projectId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Project Hub'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
+    return projectAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => AppPage(
+        title: 'Project',
+        children: [
+          StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load project',
+            message: '$e',
+          ),
+        ],
       ),
-      body: projectAsync.when(
-        data: (project) {
-          if (project == null) {
-            return const Center(child: Text('Project not found'));
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Project Header
-                _buildProjectHeader(context, project),
-                const SizedBox(height: 24),
-
-                // Design Modules
-                _buildDesignModulesSection(context),
-                const SizedBox(height: 24),
-
-                // Field Tools
-                _buildFieldToolsSection(context, photosAsync, punchListAsync),
-                const SizedBox(height: 24),
-
-                // Calculations
-                _buildCalculationsSection(context, calculationsAsync),
-                const SizedBox(height: 24),
-
-                // Quick Actions
-                _buildActionsSection(context, ref, project),
-              ],
-            ),
+      data: (project) {
+        if (project == null) {
+          return const AppPage(
+            title: 'Project',
+            children: [
+              EmptyState(
+                icon: Icons.folder_off_outlined,
+                title: 'Project not found',
+                message: 'It may have been deleted.',
+              ),
+            ],
           );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, st) => Center(child: Text('Error: $error')),
-      ),
+        }
+        return _ProjectView(
+          project: project,
+          onEdit: () => showProjectForm(context, ref, existing: project),
+          onExport: () => _export(ref, project),
+          onDelete: () => _delete(context, ref, project),
+        );
+      },
     );
   }
+}
 
-  Widget _buildProjectHeader(BuildContext context, dynamic project) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+class _ProjectView extends ConsumerWidget {
+  final Project project;
+  final VoidCallback onEdit;
+  final VoidCallback onExport;
+  final VoidCallback onDelete;
+
+  const _ProjectView({
+    required this.project,
+    required this.onEdit,
+    required this.onExport,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final id = project.id;
+    final calcs = ref.watch(projectCalcSummariesProvider(id));
+    final photos = ref.watch(photoLogsProvider(id)).value?.length ?? 0;
+    final openPunch =
+        ref
+            .watch(punchListProvider(id))
+            .value
+            ?.where((i) => i.status != 'closed')
+            .length ??
+        0;
+    final reports = ref.watch(dailyReportsProvider(id)).value?.length ?? 0;
+    final available = modules.where((m) => m.isAvailable).toList();
+
+    final designPane = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionHeader(title: 'Design modules'),
+        ResponsiveGrid(
+          minTileWidth: 150,
           children: [
-            Text(
-              project.name,
-              style: Theme.of(
-                context,
-              ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              project.description ?? 'No description',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Chip(
-                  avatar: const Icon(Icons.location_on, size: 16),
-                  label: Text(project.location),
+            for (final m in available)
+              ModuleTile(
+                module: m,
+                onOpen: () => context.push('/projects/$id/${m.route}'),
+              ),
+          ],
+        ),
+      ],
+    );
+
+    final sidePane = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SectionHeader(title: 'Field'),
+        Card(
+          child: Column(
+            children: [
+              _FieldRow(
+                icon: Icons.photo_camera_outlined,
+                title: 'Photo log',
+                detail: '$photos photo${photos == 1 ? '' : 's'}',
+                onTap: () => context.push('/projects/$id/photo-log'),
+              ),
+              const Divider(),
+              _FieldRow(
+                icon: Icons.assignment_outlined,
+                title: 'Daily reports',
+                detail: '$reports report${reports == 1 ? '' : 's'}',
+                onTap: () => context.push('/projects/$id/daily-report'),
+              ),
+              const Divider(),
+              _FieldRow(
+                icon: Icons.checklist_rounded,
+                title: 'Punch list',
+                detail: '$openPunch open',
+                onTap: () => context.push('/projects/$id/punch-list'),
+              ),
+            ],
+          ),
+        ),
+        const SectionHeader(title: 'Calculations'),
+        calcs.when(
+          loading: () => const LinearProgressIndicator(),
+          error: (e, _) => StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load calculations',
+            message: '$e',
+          ),
+          data: (list) => list.isEmpty
+              ? const EmptyState(
+                  icon: Icons.functions_rounded,
+                  title: 'No calculations yet',
+                  message: 'Results you calculate in a module are saved here.',
+                )
+              : Card(
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < list.length; i++) ...[
+                        if (i > 0) const Divider(),
+                        ListTile(
+                          leading: IconBadge(
+                            list[i].icon,
+                            tone: Tone.neutral,
+                            size: 36,
+                          ),
+                          title: Text(list[i].kind),
+                          subtitle: Text(relativeDate(list[i].createdAt)),
+                          trailing: StatusPill(
+                            list[i].isValid ? 'OK' : 'Review',
+                            tone: list[i].isValid ? Tone.success : Tone.warning,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                Chip(
-                  avatar: const Icon(Icons.person, size: 16),
-                  label: Text(project.engineer),
-                ),
-              ],
+        ),
+      ],
+    );
+
+    return AppPage(
+      title: project.name,
+      actions: [
+        IconButton(
+          tooltip: 'Export PDF',
+          onPressed: onExport,
+          icon: const Icon(Icons.ios_share_rounded),
+        ),
+        PopupMenuButton<String>(
+          tooltip: 'More',
+          onSelected: (v) => v == 'edit' ? onEdit() : onDelete(),
+          itemBuilder: (_) => const [
+            PopupMenuItem(
+              value: 'edit',
+              child: ListTile(
+                leading: Icon(Icons.edit_outlined),
+                title: Text('Edit project'),
+              ),
+            ),
+            PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete_outline),
+                title: Text('Delete project'),
+              ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDesignModulesSection(BuildContext context) {
-    final modules = [
-      {'title': 'Footing', 'icon': Icons.foundation, 'route': 'footing'},
-      {'title': 'Beam', 'icon': Icons.straighten, 'route': 'beam'},
-      {'title': 'Column', 'icon': Icons.architecture, 'route': 'column'},
-      {'title': 'Slab', 'icon': Icons.square, 'route': 'slab'},
-      {
-        'title': 'Ret. Wall',
-        'icon': Icons.wallpaper,
-        'route': 'retaining-wall',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      ],
+      header: _ProjectHeader(project: project, onEdit: onEdit),
       children: [
-        Text('Design Modules', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
-          ),
-          itemCount: modules.length,
-          itemBuilder: (context, index) {
-            final module = modules[index];
-            return Card(
-              child: InkWell(
-                onTap: () =>
-                    context.push('/projects/$projectId/${module['route']}'),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      module['icon'] as IconData,
-                      size: 32,
-                      color: Colors.blue.shade600,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      module['title'] as String,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+        AdaptiveSplit(
+          primaryFlex: 7,
+          secondaryFlex: 5,
+          primary: designPane,
+          secondary: sidePane,
         ),
       ],
     );
   }
+}
 
-  Widget _buildCalculationsSection(
-    BuildContext context,
-    AsyncValue<List<dynamic>> calculationsAsync,
-  ) {
+class _ProjectHeader extends StatelessWidget {
+  final Project project;
+  final VoidCallback onEdit;
+
+  const _ProjectHeader({required this.project, required this.onEdit});
+
+  @override
+  Widget build(BuildContext context) {
+    final big = !context.isCompact;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Calculations', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        calculationsAsync.when(
-          data: (calculations) {
-            if (calculations.isEmpty) {
-              return Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Center(
-                    child: Text(
-                      'No calculations yet',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-              );
-            }
-
-            return Column(
-              children: calculations
-                  .map(
-                    (calc) => Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: ListTile(
-                        leading: const Icon(Icons.calculate),
-                        title: Text(calc.name),
-                        subtitle: Text(calc.footing),
-                        trailing: Chip(
-                          label: Text(calc.isValid ? 'Valid' : 'Review'),
-                          backgroundColor: calc.isValid
-                              ? Colors.green.shade100
-                              : Colors.orange.shade100,
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, st) => Center(child: Text('Error: $error')),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFieldToolsSection(
-    BuildContext context,
-    AsyncValue<List<dynamic>> photosAsync,
-    AsyncValue<List<dynamic>> punchListAsync,
-  ) {
-    final photoCount = photosAsync.maybeWhen(
-      data: (d) => d.length,
-      orElse: () => 0,
-    );
-    final openPunchCount = punchListAsync.maybeWhen(
-      data: (items) => items.where((i) => i.status == 'open').length,
-      orElse: () => 0,
-    );
-
-    final tools = [
-      {
-        'title': 'Photo Log',
-        'icon': Icons.photo_library,
-        'route': 'photo-log',
-        'subtitle': '$photoCount photos',
-        'color': Colors.blue,
-      },
-      {
-        'title': 'Daily Report',
-        'icon': Icons.assignment,
-        'route': 'daily-report',
-        'subtitle': 'Manage daily',
-        'color': Colors.orange,
-      },
-      {
-        'title': 'Punch List',
-        'icon': Icons.checklist,
-        'route': 'punch-list',
-        'subtitle': '$openPunchCount pending',
-        'color': Colors.red,
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Field Management', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
         Row(
-          children: tools
-              .map(
-                (tool) => Expanded(
-                  child: Card(
-                    child: InkWell(
-                      onTap: () {
-                        ProviderScope.containerOf(context)
-                            .read(selectedProjectIdProvider.notifier)
-                            .state = projectId;
-                        context.pushNamed(
-                          tool['route'] as String,
-                          pathParameters: {'projectId': projectId},
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 4,
-                        ),
-                        child: Column(
-                          children: [
-                            Icon(
-                              tool['icon'] as IconData,
-                              color: tool['color'] as Color,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              tool['title'] as String,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              tool['subtitle'] as String,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(fontSize: 10),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+          children: [
+            ProjectAvatar(project.name, size: big ? 64 : 52),
+            const SizedBox(width: Gap.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StatusPill(
+                    project.status,
+                    tone: projectStatusTone(project.status),
                   ),
-                ),
-              )
-              .toList(),
+                  const SizedBox(height: Gap.sm),
+                  Text(
+                    project.name,
+                    style: big
+                        ? context.text.displaySmall
+                        : context.text.headlineMedium,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (project.description.isNotEmpty) ...[
+          const SizedBox(height: Gap.lg),
+          Text(
+            project.description,
+            style: context.text.bodyMedium?.copyWith(
+              color: context.colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+        const SizedBox(height: Gap.lg),
+        Wrap(
+          spacing: Gap.lg,
+          runSpacing: Gap.sm,
+          children: [
+            if (project.location.isNotEmpty)
+              _Meta(Icons.place_outlined, project.location),
+            if (project.engineer.isNotEmpty)
+              _Meta(Icons.person_outline, project.engineer),
+            _Meta(
+              Icons.schedule_rounded,
+              'Updated ${relativeDate(project.updatedAt)}',
+            ),
+          ],
         ),
       ],
     );
   }
+}
 
-  Widget _buildActionsSection(BuildContext context, WidgetRef ref, Project project) {
+class _Meta extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _Meta(this.icon, this.label);
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.edit),
-          label: const Text('Edit'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () async {
-            final footings = await ref.read(projectCalculationsProvider(projectId).future);
-            final beams = await ref.read(projectBeamCalculationsProvider(projectId).future);
-            final punchItems = ref.read(punchListProvider(projectId)).maybeWhen(
-              data: (items) => items,
-              orElse: () => <PunchListItem>[],
-            );
-            
-            await ReportService.generateProjectSummary(
-              project,
-              footings: footings,
-              beams: beams,
-              punchList: punchItems,
-            );
-          },
-          icon: const Icon(Icons.file_download),
-          label: const Text('Export'),
-        ),
-        ElevatedButton.icon(
-          onPressed: () {},
-          icon: const Icon(Icons.delete),
-          label: const Text('Delete'),
-        ),
+        Icon(icon, size: 16, color: context.colors.onSurfaceVariant),
+        const SizedBox(width: 6),
+        Text(label, style: context.text.bodySmall),
       ],
+    );
+  }
+}
+
+class _FieldRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String detail;
+  final VoidCallback onTap;
+
+  const _FieldRow({
+    required this.icon,
+    required this.title,
+    required this.detail,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: onTap,
+      leading: IconBadge(icon, size: 36),
+      title: Text(title),
+      subtitle: Text(detail),
+      trailing: const Icon(Icons.chevron_right_rounded),
     );
   }
 }

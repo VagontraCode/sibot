@@ -1,282 +1,223 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../shared/providers/app_providers.dart';
+import 'package:intl/intl.dart';
+import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/features/modules/module_tile.dart';
+import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/features/shared/providers/calculation_summary_provider.dart';
+import 'package:sibot/features/shared/providers/settings_providers.dart';
+import 'package:sibot/ui/ui.dart';
 
 class DashboardPage extends ConsumerWidget {
   const DashboardPage({super.key});
 
+  Future<void> _openModule(
+    BuildContext context,
+    WidgetRef ref,
+    EngModule module,
+  ) async {
+    final id = await showProjectPicker(
+      context,
+      ref,
+      title: 'Open ${module.title} in…',
+    );
+    if (id != null && context.mounted) {
+      context.go('/projects/$id/${module.route}');
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final projectsAsync = ref.watch(projectsProvider);
-    final calculationsAsync = ref.watch(footingCalculationsProvider);
+    final projects = ref.watch(projectsProvider).value ?? const [];
+    final calcs = ref.watch(allCalculationsProvider).value ?? const [];
+    final themeMode = ref.watch(themeModeProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sibot Engineering'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Quick Stats
-            _buildStatsSection(context, projectsAsync, calculationsAsync),
-            const SizedBox(height: 24),
+    final recent = [...projects]
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final available = modules.where((m) => m.isAvailable).toList();
+    final roadmap = modules.where((m) => !m.isAvailable).toList()
+      ..sort((a, b) => (a.phase ?? 9).compareTo(b.phase ?? 9));
 
-            // Design Modules
-            _buildModulesSection(context),
-            const SizedBox(height: 24),
-
-            // Quick Actions
-            _buildQuickActionsSection(context),
-            const SizedBox(height: 24),
-
-            // Recent Projects
-            _buildRecentProjectsSection(context, projectsAsync),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatsSection(
-    BuildContext context,
-    AsyncValue<List<dynamic>> projectsAsync,
-    AsyncValue<List<dynamic>> calculationsAsync,
-  ) {
-    final projectCount = projectsAsync.maybeWhen(
-      data: (projects) => projects.length.toString(),
-      orElse: () => '...',
-    );
-
-    final calculationCount = calculationsAsync.maybeWhen(
-      data: (calcs) => calcs.length.toString(),
-      orElse: () => '...',
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Overview', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                context,
-                title: 'Projects',
-                value: projectCount,
-                icon: Icons.folder,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                context,
-                title: 'Calculations',
-                value: calculationCount,
-                icon: Icons.calculate,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                context,
-                title: 'Reports',
-                value: '0',
-                icon: Icons.description,
-              ),
-            ),
-          ],
+    return AppPage(
+      title: 'Home',
+      actions: [
+        IconButton(
+          tooltip: 'Theme: ${themeMode.name}',
+          onPressed: () => ref.read(themeModeProvider.notifier).cycle(),
+          icon: Icon(switch (themeMode) {
+            ThemeMode.light => Icons.light_mode_outlined,
+            ThemeMode.dark => Icons.dark_mode_outlined,
+            ThemeMode.system => Icons.brightness_auto_outlined,
+          }),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatCard(
-    BuildContext context, {
-    required String title,
-    required String value,
-    required IconData icon,
-  }) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      header: _Hero(
+        onNewProject: () async {
+          final p = await showProjectForm(context, ref);
+          if (p != null && context.mounted) context.go('/projects/${p.id}');
+        },
+        onProjects: () => context.go('/projects'),
+      ),
+      children: [
+        ResponsiveGrid(
+          minTileWidth: 150,
           children: [
-            Icon(icon, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(
-                context,
-              ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold),
+            StatTile(
+              label: 'Projects',
+              value: '${projects.length}',
+              icon: Icons.folder_outlined,
+              onTap: () => context.go('/projects'),
             ),
-            Text(title, style: Theme.of(context).textTheme.bodySmall),
+            StatTile(
+              label: 'Calculations',
+              value: '${calcs.length}',
+              icon: Icons.functions_rounded,
+            ),
+            StatTile(
+              label: 'Design modules',
+              value: '${available.length}',
+              icon: Icons.widgets_outlined,
+            ),
+            StatTile(
+              label: 'On the roadmap',
+              value: '${roadmap.length}',
+              icon: Icons.route_outlined,
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildModulesSection(BuildContext context) {
-    final modules = [
-      {
-        'title': 'Footing Design',
-        'icon': Icons.foundation,
-        'route': '/projects',
-      },
-      {'title': 'Beam Design', 'icon': Icons.straighten, 'route': '/projects'},
-      {
-        'title': 'Column Design',
-        'icon': Icons.architecture,
-        'route': '/projects',
-      },
-      {'title': 'Slab Design', 'icon': Icons.square, 'route': '/projects'},
-      {
-        'title': 'Retaining Wall',
-        'icon': Icons.wallpaper,
-        'route': '/projects',
-      },
-      {
-        'title': 'Analysis Tools',
-        'icon': Icons.analytics,
-        'route': '/projects',
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Design Modules',
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
-        const SizedBox(height: 12),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1,
+        if (recent.isNotEmpty) ...[
+          SectionHeader(
+            title: 'Recent projects',
+            trailing: TextButton(
+              onPressed: () => context.go('/projects'),
+              child: const Text('See all'),
+            ),
           ),
-          itemCount: modules.length,
-          itemBuilder: (context, index) {
-            final module = modules[index];
-            return Card(
-              child: InkWell(
-                onTap: () => context.go(module['route'] as String),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      module['icon'] as IconData,
-                      size: 32,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      module['title'] as String,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.labelMedium,
-                    ),
-                  ],
+          ResponsiveGrid(
+            minTileWidth: 300,
+            children: [
+              for (final p in recent.take(context.isCompact ? 3 : 4))
+                ProjectCard(
+                  project: p,
+                  onTap: () => context.go('/projects/${p.id}'),
                 ),
-              ),
-            );
-          },
+            ],
+          ),
+        ],
+        const SectionHeader(
+          title: 'Design modules',
+          subtitle: 'Reinforced concrete, Eurocode 2 and BAEL',
         ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActionsSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Quick Actions', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        Row(
+        ResponsiveGrid(
+          minTileWidth: 160,
           children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => context.go('/projects'),
-                icon: const Icon(Icons.add),
-                label: const Text('New Project'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => context.go('/field'),
-                icon: const Icon(Icons.construction),
-                label: const Text('Field Tools'),
-              ),
-            ),
+            for (final m in available)
+              ModuleTile(module: m, onOpen: () => _openModule(context, ref, m)),
           ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildRecentProjectsSection(
-    BuildContext context,
-    AsyncValue<List<dynamic>> projectsAsync,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Recent Projects',
-          style: Theme.of(context).textTheme.headlineSmall,
+        const SectionHeader(
+          title: 'Roadmap',
+          subtitle: 'Analysis, steel, timber, masonry and more',
         ),
-        const SizedBox(height: 12),
-        projectsAsync.when(
-          data: (projects) {
-            if (projects.isEmpty) {
-              return const Card(
-                child: ListTile(
-                  title: Text('No projects yet'),
-                  subtitle: Text('Create your first project to get started'),
-                ),
-              );
-            }
-
-            final sortedProjects =
-                List.from(projects)..sort(
-                  (a, b) => b.updatedAt.compareTo(a.updatedAt),
-                );
-            final recentProjects = sortedProjects.take(3).toList();
-
-            return Column(
-              children:
-                  recentProjects
-                      .map(
-                        (project) => Card(
-                          child: ListTile(
-                            leading: const Icon(Icons.folder),
-                            title: Text(project.name),
-                            subtitle: Text(project.location),
-                            trailing: const Icon(Icons.arrow_forward),
-                            onTap: () => context.push('/projects/${project.id}'),
-                          ),
-                        ),
-                      )
-                      .toList(),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Card(child: ListTile(title: Text('Error: $e'))),
+        ResponsiveGrid(
+          minTileWidth: 160,
+          children: [for (final m in roadmap) ModuleTile(module: m)],
         ),
       ],
     );
   }
 }
 
+class _Hero extends StatelessWidget {
+  final VoidCallback onNewProject;
+  final VoidCallback onProjects;
+
+  const _Hero({required this.onNewProject, required this.onProjects});
+
+  String _greeting() {
+    final h = DateTime.now().hour;
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final wide = !context.isCompact;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(Radii.xl),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: context.colors.surface,
+          border: Border.all(color: context.colors.outlineVariant),
+          borderRadius: BorderRadius.circular(Radii.xl),
+        ),
+        child: BlueprintGrid(
+          child: Padding(
+            padding: EdgeInsets.all(wide ? Gap.xxl : Gap.xl),
+            child: Row(
+              children: [
+                Expanded(child: _heroText(context, wide)),
+                if (MediaQuery.sizeOf(context).width >= Breakpoints.expanded)
+                  const Expanded(
+                    child: SizedBox(height: 260, child: FrameSketch()),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _heroText(BuildContext context, bool wide) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const BrandMark(size: 30),
+            const SizedBox(width: Gap.md),
+            Text(
+              DateFormat('EEEE d MMMM').format(DateTime.now()),
+              style: context.text.labelMedium?.copyWith(
+                color: context.colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: wide ? Gap.xxl : Gap.xl),
+        Text(
+          _greeting(),
+          style: context.text.bodyLarge?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: Gap.xs),
+        Text(
+          'Model, analyse and design,\nright from the site.',
+          style: wide ? context.text.displaySmall : context.text.headlineMedium,
+        ),
+        SizedBox(height: wide ? Gap.xxl : Gap.xl),
+        Wrap(
+          spacing: Gap.md,
+          runSpacing: Gap.md,
+          children: [
+            FilledButton.icon(
+              onPressed: onNewProject,
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('New project'),
+            ),
+            OutlinedButton.icon(
+              onPressed: onProjects,
+              icon: const Icon(Icons.folder_open_outlined),
+              label: const Text('Open projects'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}

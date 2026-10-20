@@ -101,13 +101,15 @@ Principles:
 Each phase ends with a usable app, passing tests, and a git tag.
 
 ### Phase 0 — Fix and foundation
-- [ ] `git init`, first commit of the current state
-- [ ] Remove the start-up deletion of all calculations (problem #1)
+- [x] `git init`, first commit of the current state
+- [x] Remove the start-up deletion of all calculations (problem #1)
 - [ ] Create `packages/sibot_engine` with the unit system and a test setup
-- [ ] Adaptive shell (bottom nav / rail / two panes) and allow text scaling
+- [x] Adaptive shell (bottom nav / rail / two panes) and allow text scaling
+- [x] New design system: Inter + JetBrains Mono, light/dark theme, shared page, form and result components
+- [x] Screen smoke test at phone and tablet sizes (`test/screens_smoke_test.dart`)
 - [ ] i18n with ARB files (EN/FR) and move existing strings into them
 - [ ] Migrate Riverpod legacy APIs to `Notifier`/`AsyncNotifier`
-- [ ] Route or hide the 8 unreachable pages, with one entry point per module
+- [x] Route or hide the 8 unreachable pages, with one entry point per module (hidden as "Phase N": they showed made-up results)
 - [ ] Settings: design code (EC/BAEL), national annex parameters, units
 
 ### Phase 1 — Correct RC design (EC2 and BAEL), with tests

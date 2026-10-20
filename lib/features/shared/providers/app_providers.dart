@@ -167,11 +167,10 @@ class PhotoLogNotifier extends StateNotifier<AsyncValue<List<PhotoLog>>> {
   Future<void> _loadPhotoLogs() async {
     try {
       final box = HiveService.getBox(HiveService.photoLogsBox);
-      final logs =
-          box.values
-              .whereType<PhotoLog>()
-              .where((log) => log.projectId == projectId)
-              .toList();
+      final logs = box.values
+          .whereType<PhotoLog>()
+          .where((log) => log.projectId == projectId)
+          .toList();
       state = AsyncValue.data(logs);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -217,11 +216,10 @@ class DailyReportNotifier extends StateNotifier<AsyncValue<List<DailyReport>>> {
   Future<void> _loadReports() async {
     try {
       final box = HiveService.getBox(HiveService.dailyReportsBox);
-      final reports =
-          box.values
-              .whereType<DailyReport>()
-              .where((report) => report.projectId == projectId)
-              .toList();
+      final reports = box.values
+          .whereType<DailyReport>()
+          .where((report) => report.projectId == projectId)
+          .toList();
       state = AsyncValue.data(reports);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -257,11 +255,10 @@ class PunchListNotifier extends StateNotifier<AsyncValue<List<PunchListItem>>> {
   Future<void> _loadPunchList() async {
     try {
       final box = HiveService.getBox(HiveService.punchListBox);
-      final items =
-          box.values
-              .whereType<PunchListItem>()
-              .where((item) => item.projectId == projectId)
-              .toList();
+      final items = box.values
+          .whereType<PunchListItem>()
+          .where((item) => item.projectId == projectId)
+          .toList();
       state = AsyncValue.data(items);
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -298,7 +295,6 @@ class PunchListNotifier extends StateNotifier<AsyncValue<List<PunchListItem>>> {
     }
   }
 }
-
 
 // ============ SETTINGS PROVIDERS ============
 

@@ -1,181 +1,125 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sibot/core/models/entities.dart';
+import 'package:sibot/core/services/report_service.dart';
+import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/shared/providers/app_providers.dart';
-import '../../../../core/services/report_service.dart';
-import '../../../../core/models/entities.dart';
-
-// ============ REPORTS PAGE ============
+import 'package:sibot/ui/ui.dart';
 
 class ReportsPage extends ConsumerWidget {
   const ReportsPage({super.key});
 
+  Future<void> _projectSummary(WidgetRef ref, Project project) async {
+    final footings = await ref.read(
+      projectCalculationsProvider(project.id).future,
+    );
+    final beams = await ref.read(
+      projectBeamCalculationsProvider(project.id).future,
+    );
+    final punchItems =
+        ref.read(punchListProvider(project.id)).value ?? <PunchListItem>[];
+    await ReportService.generateProjectSummary(
+      project,
+      footings: footings,
+      beams: beams,
+      punchList: punchItems,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedProjectId = ref.watch(selectedProjectIdProvider);
-    final projectsAsync = ref.watch(projectsProvider);
+    final project = activeProject(ref);
 
-    if (selectedProjectId == null) {
-      return Scaffold(
-        appBar: AppBar(title: const Text('Reports')),
-        body: projectsAsync.when(
-          data: (projects) => projects.isEmpty
-              ? const Center(
-                  child: Text('No projects found. Create one first.'),
-                )
-              : ListView.builder(
-                  itemCount: projects.length,
-                  itemBuilder: (context, index) {
-                    final project = projects[index];
-                    return ListTile(
-                      leading: const Icon(Icons.folder),
-                      title: Text(project.name),
-                      onTap: () =>
-                          ref.read(selectedProjectIdProvider.notifier).state =
-                              project.id,
-                    );
-                  },
-                ),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, st) => Center(child: Text('Error: $e')),
-        ),
-      );
-    }
-
-    final projectAsync = ref.watch(projectByIdProvider(selectedProjectId));
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Project Reports'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.swap_horiz),
-            onPressed: () =>
-                ref.read(selectedProjectIdProvider.notifier).state = null,
-          ),
-        ],
-      ),
-      body: projectAsync.when(
-        data: (project) => project == null
-            ? const Center(child: Text('Project not found'))
-            : _buildReportList(context, ref, project),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, st) => Center(child: Text('Error: $e')),
-      ),
-    );
-  }
-
-  Widget _buildReportList(
-    BuildContext context,
-    WidgetRef ref,
-    Project project,
-  ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(project.name, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 16),
-          _buildReportCard(
-            context,
-            title: 'Full Project Summary',
-            description: 'Comprehensive PDF with all design and field data',
-            icon: Icons.description,
-            onTap: () async {
-              final footings = await ref.read(
-                projectCalculationsProvider(project.id).future,
-              );
-              final beams = await ref.read(
-                projectBeamCalculationsProvider(project.id).future,
-              );
-              final punchItems = ref
-                  .read(punchListProvider(project.id))
-                  .maybeWhen(
-                    data: (items) => items,
-                    orElse: () => <PunchListItem>[],
-                  );
-
-              await ReportService.generateProjectSummary(
-                project,
-                footings: footings,
-                beams: beams,
-                punchList: punchItems,
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-          _buildReportCard(
-            context,
-            title: 'Calculation Log',
-            description: 'Export design results only',
-            icon: Icons.calculate,
-            onTap: () => _generateReport(context, 'calculations'),
-          ),
-          const SizedBox(height: 12),
-          _buildReportCard(
-            context,
-            title: 'Field Audit',
-            description: 'Export punch list and daily reports',
-            icon: Icons.assignment_turned_in,
-            onTap: () => _generateReport(context, 'field'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReportCard(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+    return AppPage(
+      title: 'Reports',
+      subtitle: 'PDF calculation notes and site records.',
+      children: [
+        if (project == null)
+          const EmptyState(
+            icon: Icons.description_outlined,
+            title: 'No projects yet',
+            message: 'Reports are generated per project.',
+          )
+        else ...[
+          ProjectSwitcher(project: project),
+          const SectionHeader(title: 'Generate'),
+          ResponsiveGrid(
+            minTileWidth: 280,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: Colors.blue.shade600),
+              _ReportTile(
+                icon: Icons.summarize_outlined,
+                title: 'Project summary',
+                description:
+                    'Footing and beam calculations, and the punch list, in one PDF.',
+                onTap: () => _projectSummary(ref, project),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      description,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+              const _ReportTile(
+                icon: Icons.functions_rounded,
+                title: 'Calculation notes',
+                description:
+                    'Formulas, code clauses and diagrams for each module.',
+                badge: 'Phase 5',
               ),
-              const Icon(Icons.arrow_forward),
+              const _ReportTile(
+                icon: Icons.fact_check_outlined,
+                title: 'Field audit',
+                description: 'Daily reports, photos and punch list.',
+                badge: 'Planned',
+              ),
             ],
           ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ReportTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final VoidCallback? onTap;
+  final String? badge;
+
+  const _ReportTile({
+    required this.icon,
+    required this.title,
+    required this.description,
+    this.onTap,
+    this.badge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = onTap != null;
+    return Opacity(
+      opacity: enabled ? 1 : 0.62,
+      child: SurfaceCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(Gap.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                IconBadge(icon, tone: enabled ? Tone.primary : Tone.neutral),
+                const Spacer(),
+                if (badge != null)
+                  StatusPill(badge!)
+                else
+                  Icon(
+                    Icons.picture_as_pdf_outlined,
+                    color: context.colors.onSurfaceVariant,
+                  ),
+              ],
+            ),
+            const SizedBox(height: Gap.lg),
+            Text(title, style: context.text.titleMedium),
+            const SizedBox(height: Gap.xs),
+            Text(description, style: context.text.bodySmall),
+          ],
         ),
       ),
     );
-  }
-
-  void _generateReport(BuildContext context, String type) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Generating $type report...')));
   }
 }

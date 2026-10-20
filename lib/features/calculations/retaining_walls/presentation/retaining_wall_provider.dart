@@ -55,7 +55,7 @@ class RetainingWallCalculationState {
       lastCalculation: lastCalculation ?? this.lastCalculation,
       suggestions: suggestions ?? this.suggestions,
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      error: error, // cleared by any update unless set
     );
   }
 }
@@ -71,6 +71,7 @@ class RetainingWallCalculationStateNotifier
     final suggestions = SuggestionEngine.suggestRetainingWall(value);
     state = state.copyWith(height: value, suggestions: suggestions);
   }
+
   void updateSoilDensity(double value) =>
       state = state.copyWith(soilDensity: value);
   void updateFrictionAngle(double value) =>

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sibot/features/modules/module_registry.dart';
+import 'package:sibot/ui/ui.dart';
 import 'retaining_wall_provider.dart';
 
 class RetainingWallPage extends ConsumerWidget {
@@ -9,170 +11,226 @@ class RetainingWallPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(retainingWallStateProvider(projectId));
+    final n = ref.read(retainingWallStateProvider(projectId).notifier);
+    final calc = state.lastCalculation;
+    final m = calc?.metadata;
+    final s = state.suggestions;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Retaining Wall Design'), backgroundColor: Colors.transparent),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            _buildInputForm(context, ref, state),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: state.isLoading ? null : () => ref.read(retainingWallStateProvider(projectId).notifier).calculate(),
-              icon: const Icon(Icons.calculate),
-              label: Text(state.isLoading ? 'Calculating...' : 'Calculate'),
+    final results = <Widget>[
+      if (calc != null && m != null) ...[
+        StatusBanner(
+          tone: calc.isValid ? Tone.success : Tone.danger,
+          title: calc.isValid
+              ? 'Stable against overturning'
+              : 'Overturning risk',
+        ),
+        ResultCard(
+          title: 'Stability',
+          icon: Icons.balance_rounded,
+          rows: [
+            ResultRow(
+              label: 'Factor of safety, overturning',
+              symbol: 'FS',
+              value: _f(m['fos'], 2),
+              emphasize: true,
             ),
-            if (state.error != null) Text(state.error!, style: const TextStyle(color: Colors.red)),
-            const SizedBox(height: 24),
-            if (state.suggestions != null) _buildSuggestions(context, state.suggestions!),
-            if (state.lastCalculation != null) _buildResults(context, state.lastCalculation!),
+            ResultRow(
+              label: 'Active earth thrust',
+              symbol: 'Pa',
+              value: _f(m['earthPressure'], 1),
+              unit: 'kN/m',
+            ),
           ],
         ),
-      ),
-    );
-  }
+      ],
+      if (s != null) ...[
+        ResultCard(
+          title: 'Pre-sizing (cantilever wall)',
+          icon: Icons.architecture_rounded,
+          rows: [
+            ResultRow(
+              label: 'Base width',
+              value: _f(s['cantilever']['baseWidth'], 2),
+              unit: 'm',
+            ),
+            ResultRow(
+              label: 'Stem thickness',
+              value: _f(s['cantilever']['stemThickness'], 0),
+              unit: 'mm',
+            ),
+            ResultRow(
+              label: 'Base thickness',
+              value: _f(s['cantilever']['footingThickness'], 0),
+              unit: 'mm',
+            ),
+            ResultRow(
+              label: 'Toe / heel',
+              value:
+                  '${_f(s['cantilever']['toeWidth'], 2)} / ${_f(s['cantilever']['heelWidth'], 2)}',
+              unit: 'm',
+            ),
+          ],
+        ),
+        _Alternatives(alternatives: s['alternatives'] as List<dynamic>),
+      ],
+    ];
 
-  Widget _buildSuggestions(BuildContext context, Map<String, dynamic> suggestions) {
-    final cantilever = suggestions['cantilever'];
-    final alternatives = suggestions['alternatives'] as List<dynamic>;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Pre-dimensioning (Cantilever)', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        Card(
-          color: Colors.blue.shade50,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
+    return CalculatorScaffold(
+      title: 'Retaining Wall',
+      subtitle: 'Cantilever wall: overturning check and pre-sizing.',
+      module: moduleByRoute('retaining-wall'),
+      isLoading: state.isLoading,
+      error: state.error,
+      onCalculate: n.calculate,
+      resultKey: calc?.id,
+      inputs: [
+        FormSection(
+          title: 'Wall & soil',
+          icon: Icons.stairs_outlined,
+          children: [
+            NumberField(
+              label: 'Retained height',
+              unit: 'm',
+              hint: '3',
+              value: state.height,
+              onChanged: (v) => n.updateHeight(v ?? 0),
+            ),
+            FieldRow(
               children: [
-                _resultRow('Rec. Base Width', '${(cantilever['baseWidth'] as double).toStringAsFixed(2)} m'),
-                _resultRow('Stem Thickness', '${(cantilever['stemThickness'] as double).toStringAsFixed(0)} mm'),
-                _resultRow('Footing Thickness', '${(cantilever['footingThickness'] as double).toStringAsFixed(0)} mm'),
-                _resultRow('Toe / Heel', '${(cantilever['toeWidth'] as double).toStringAsFixed(2)} / ${(cantilever['heelWidth'] as double).toStringAsFixed(2)} m'),
+                NumberField(
+                  label: 'Soil unit weight',
+                  unit: 'kN/m³',
+                  hint: '18',
+                  value: state.soilDensity,
+                  onChanged: (v) => n.updateSoilDensity(v ?? 0),
+                ),
+                NumberField(
+                  label: 'Friction angle φ',
+                  unit: '°',
+                  hint: '30',
+                  value: state.frictionAngle,
+                  onChanged: (v) => n.updateFrictionAngle(v ?? 0),
+                ),
               ],
             ),
-          ),
+          ],
         ),
-        const SizedBox(height: 24),
-        Text('Alternative Solutions', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 12),
-        ...alternatives.map((alt) => Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ExpansionTile(
-            leading: Icon(_getAltIcon(alt['type']), color: Colors.orange.shade700),
-            title: Text(alt['type'], style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Text('Rec. Base: ${(alt['recommendedBase'] as double).toStringAsFixed(2)} m'),
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(alt['description'], style: const TextStyle(fontStyle: FontStyle.italic)),
-                    const SizedBox(height: 8),
-                    Text('Pros: ${alt['pros']}', style: const TextStyle(color: Colors.green, fontSize: 12)),
-                    const SizedBox(height: 4),
-                    Text('Cons: ${alt['cons']}', style: const TextStyle(color: Colors.red, fontSize: 12)),
-                  ],
+        FormSection(
+          title: 'Materials',
+          icon: Icons.science_outlined,
+          children: [
+            FieldRow(
+              children: [
+                NumberField(
+                  label: 'Concrete fck',
+                  unit: 'MPa',
+                  hint: '25',
+                  value: state.concreteStrength,
+                  onChanged: (v) => n.updateConcreteStrength(v ?? 0),
                 ),
-              )
-            ],
-          ),
-        )),
+                NumberField(
+                  label: 'Steel fyk',
+                  unit: 'MPa',
+                  hint: '500',
+                  value: state.steelStrength,
+                  textInputAction: TextInputAction.done,
+                  onChanged: (v) => n.updateSteelStrength(v ?? 0),
+                ),
+              ],
+            ),
+          ],
+        ),
       ],
+      results: results.isEmpty ? null : results,
     );
   }
+}
 
-  IconData _getAltIcon(String type) {
-    if (type.contains('Gabion')) return Icons.grid_view;
-    if (type.contains('Stone')) return Icons.landscape;
-    if (type.contains('Blocks')) return Icons.reorder;
+class _Alternatives extends StatelessWidget {
+  final List<dynamic> alternatives;
+  const _Alternatives({required this.alternatives});
+
+  IconData _icon(String type) {
+    if (type.contains('Gabion')) return Icons.grid_view_rounded;
+    if (type.contains('Stone')) return Icons.landscape_outlined;
+    if (type.contains('Blocks')) return Icons.view_agenda_outlined;
     return Icons.architecture;
   }
 
-  Widget _buildInputForm(BuildContext context, WidgetRef ref, RetainingWallCalculationState state) {
+  @override
+  Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Design Parameters', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Height (m)', border: OutlineInputBorder()),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => ref.read(retainingWallStateProvider(projectId).notifier).updateHeight(double.tryParse(v) ?? 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xs),
+            child: Text(
+              'Alternative wall types',
+              style: context.text.titleMedium,
             ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Soil Density (kN/m³)', border: OutlineInputBorder()),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => ref.read(retainingWallStateProvider(projectId).notifier).updateSoilDensity(double.tryParse(v) ?? 0),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              decoration: const InputDecoration(labelText: 'Friction Angle (deg)', border: OutlineInputBorder()),
-              keyboardType: TextInputType.number,
-              onChanged: (v) => ref.read(retainingWallStateProvider(projectId).notifier).updateFrictionAngle(double.tryParse(v) ?? 0),
-            ),
-            const SizedBox(height: 12),
-             Row(
+          ),
+          for (final alt in alternatives)
+            ExpansionTile(
+              leading: IconBadge(
+                _icon(alt['type'] as String),
+                tone: Tone.neutral,
+                size: 36,
+              ),
+              title: Text(alt['type'] as String),
+              subtitle: Text(
+                'Base ≈ ${_f(alt['recommendedBase'], 2)} m',
+                style: context.text.bodySmall,
+              ),
+              childrenPadding: const EdgeInsets.fromLTRB(
+                Gap.lg,
+                0,
+                Gap.lg,
+                Gap.lg,
+              ),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(labelText: 'Concrete (MPa)', border: OutlineInputBorder()),
-                    keyboardType: TextInputType.number,
-                    onChanged: (v) => ref.read(retainingWallStateProvider(projectId).notifier).updateConcreteStrength(double.tryParse(v) ?? 0),
-                  ),
+                Text(
+                  alt['description'] as String,
+                  style: context.text.bodyMedium,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(labelText: 'Steel (MPa)', border: OutlineInputBorder()),
-                    keyboardType: TextInputType.number,
-                    onChanged: (v) => ref.read(retainingWallStateProvider(projectId).notifier).updateSteelStrength(double.tryParse(v) ?? 0),
-                  ),
+                const SizedBox(height: Gap.md),
+                _ProCon(
+                  icon: Icons.add_circle_outline,
+                  color: context.appColors.success,
+                  text: alt['pros'] as String,
+                ),
+                const SizedBox(height: Gap.sm),
+                _ProCon(
+                  icon: Icons.remove_circle_outline,
+                  color: context.appColors.danger,
+                  text: alt['cons'] as String,
                 ),
               ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildResults(BuildContext context, dynamic calc) {
-    final metadata = calc.metadata;
-    return Card(
-      color: calc.isValid ? Colors.green.shade50 : Colors.red.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Text('Results', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 12),
-            _resultRow('FOS (Overturning)', (metadata['fos'] as double).toStringAsFixed(2)),
-            _resultRow('Earth Pressure', '${(metadata['earthPressure'] as double).toStringAsFixed(1)} kN'),
-            const Divider(),
-            Text(calc.isValid ? 'STABLE' : 'UNSTABLE', 
-              style: TextStyle(fontWeight: FontWeight.bold, color: calc.isValid ? Colors.green.shade700 : Colors.red.shade700)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _resultRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label), Text(value, style: const TextStyle(fontWeight: FontWeight.bold))],
+        ],
       ),
     );
   }
 }
+
+class _ProCon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String text;
+  const _ProCon({required this.icon, required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: color),
+        const SizedBox(width: Gap.sm),
+        Expanded(child: Text(text, style: context.text.bodySmall)),
+      ],
+    );
+  }
+}
+
+String _f(Object? v, int digits) => v is num ? v.toStringAsFixed(digits) : '—';

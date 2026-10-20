@@ -964,7 +964,8 @@ class SlabCalculationAdapter extends TypeAdapter<SlabCalculation> {
   }
 }
 
-class RetainingWallCalculationAdapter extends TypeAdapter<RetainingWallCalculation> {
+class RetainingWallCalculationAdapter
+    extends TypeAdapter<RetainingWallCalculation> {
   @override
   final int typeId = 8;
 

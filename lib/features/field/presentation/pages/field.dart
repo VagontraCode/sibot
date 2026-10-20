@@ -1,124 +1,132 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 import 'package:path/path.dart' as p;
-import '../../../../features/shared/providers/app_providers.dart';
-import '../../../../core/models/entities.dart';
-import '../../../../core/services/core_services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sibot/core/models/entities.dart';
+import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/shared/providers/app_providers.dart';
+import 'package:sibot/ui/ui.dart';
 
-// ============ PHOTO LOG PAGE ============
+Future<T?> _sheet<T>(BuildContext context, Widget child) {
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    constraints: const BoxConstraints(maxWidth: 640),
+    builder: (ctx) => Padding(
+      padding: EdgeInsets.fromLTRB(
+        Gap.xl,
+        0,
+        Gap.xl,
+        Gap.xl + MediaQuery.viewInsetsOf(ctx).bottom,
+      ),
+      child: SingleChildScrollView(child: child),
+    ),
+  );
+}
 
-class PhotoLogPage extends ConsumerStatefulWidget {
+// ============ PHOTO LOG ============
+
+class PhotoLogPage extends ConsumerWidget {
   final String projectId;
   const PhotoLogPage({super.key, required this.projectId});
 
   @override
-  ConsumerState<PhotoLogPage> createState() => _PhotoLogPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final photosAsync = ref.watch(photoLogsProvider(projectId));
+    void add() => _sheet(context, _AddPhotoForm(projectId: projectId));
 
-class _PhotoLogPageState extends ConsumerState<PhotoLogPage> {
-  @override
-  Widget build(BuildContext context) {
-    final photoLogsAsync = ref.watch(photoLogsProvider(widget.projectId));
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Photo Log'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_photo_alternate),
-            onPressed: () => _showAddPhotoDialog(context),
+    return AppPage(
+      title: 'Photo log',
+      eyebrow: 'Field',
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: add,
+        icon: const Icon(Icons.add_a_photo_outlined),
+        label: const Text('Add photo'),
+      ),
+      children: [
+        photosAsync.when(
+          loading: () => const LinearProgressIndicator(),
+          error: (e, _) => StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load photos',
+            message: '$e',
           ),
-        ],
-      ),
-      body: photoLogsAsync.when(
-        data: (photos) {
-          if (photos.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.photo_library_outlined,
-                    size: 64,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No photos yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddPhotoDialog(context),
-                    icon: const Icon(Icons.photo_camera),
-                    label: const Text('Add Photo'),
-                  ),
-                ],
-              ),
+          data: (photos) {
+            if (photos.isEmpty) {
+              return EmptyState(
+                icon: Icons.photo_library_outlined,
+                title: 'No photos yet',
+                message: 'Document progress, defects and rebar before pours.',
+                action: FilledButton.icon(
+                  onPressed: add,
+                  icon: const Icon(Icons.add_a_photo_outlined),
+                  label: const Text('Add photo'),
+                ),
+              );
+            }
+            final sorted = [...photos]
+              ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+            return ResponsiveGrid(
+              minTileWidth: 260,
+              children: [for (final ph in sorted) _PhotoCard(photo: ph)],
             );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: photos.length,
-            itemBuilder: (context, index) {
-              final photo = photos[index];
-              return _buildPhotoCard(context, photo);
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, st) => Center(child: Text('Error: $error')),
-      ),
+          },
+        ),
+      ],
     );
   }
+}
 
-  Widget _buildPhotoCard(BuildContext context, PhotoLog photo) {
+class _PhotoCard extends StatelessWidget {
+  final PhotoLog photo;
+  const _PhotoCard({required this.photo});
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            height: 200,
-            width: double.infinity,
-            color: Colors.grey.shade200,
-            child: photo.imagePath.startsWith('assets')
-                ? Image.asset(photo.imagePath, fit: BoxFit.cover)
-                : Image.file(
-                    File(photo.imagePath),
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        const Icon(Icons.image_not_supported),
-                  ),
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: ColoredBox(
+              color: context.colors.surfaceContainerHigh,
+              child: photo.imagePath.startsWith('assets')
+                  ? Image.asset(photo.imagePath, fit: BoxFit.cover)
+                  : Image.file(
+                      File(photo.imagePath),
+                      fit: BoxFit.cover,
+                      cacheWidth: 800,
+                      errorBuilder: (_, _, _) => Icon(
+                        Icons.broken_image_outlined,
+                        color: context.colors.onSurfaceVariant,
+                      ),
+                    ),
+            ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(Gap.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  photo.description,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  photo.description.isEmpty ? 'Untitled' : photo.description,
+                  style: context.text.titleMedium,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: Gap.xs),
                 Text(
-                  'Location: ${photo.location}',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  photo.timestamp.toString().split('.')[0],
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+                  [
+                    if (photo.location.isNotEmpty) photo.location,
+                    DateFormat.yMMMd().add_Hm().format(photo.timestamp),
+                  ].join('  ·  '),
+                  style: context.text.bodySmall,
                 ),
               ],
             ),
@@ -127,118 +135,126 @@ class _PhotoLogPageState extends ConsumerState<PhotoLogPage> {
       ),
     );
   }
+}
 
-  void _showAddPhotoDialog(BuildContext context) {
-    final descriptionController = TextEditingController();
-    final locationController = TextEditingController();
-    XFile? pickedFile;
+class _AddPhotoForm extends ConsumerStatefulWidget {
+  final String projectId;
+  const _AddPhotoForm({required this.projectId});
 
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Add Photo'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GestureDetector(
-                  onTap: () async {
-                    final ImagePicker picker = ImagePicker();
-                    final XFile? image = await picker.pickImage(
-                      source: ImageSource.camera,
-                    );
-                    if (image != null) {
-                      setState(() => pickedFile = image);
-                    }
-                  },
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: pickedFile != null
-                        ? Image.file(File(pickedFile!.path), fit: BoxFit.cover)
-                        : Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.photo_camera,
-                                  size: 48,
-                                  color: Colors.grey.shade400,
-                                ),
-                                const SizedBox(height: 8),
-                                const Text('Tap to capture photo'),
-                              ],
-                            ),
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: locationController,
-                  decoration: const InputDecoration(
-                    labelText: 'Location',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ],
-            ),
+  @override
+  ConsumerState<_AddPhotoForm> createState() => _AddPhotoFormState();
+}
+
+class _AddPhotoFormState extends ConsumerState<_AddPhotoForm> {
+  final _description = TextEditingController();
+  final _location = TextEditingController();
+  XFile? _file;
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    _description.dispose();
+    _location.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pick(ImageSource source) async {
+    final image = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 2400,
+      imageQuality: 85,
+    );
+    if (image != null) setState(() => _file = image);
+  }
+
+  Future<void> _save() async {
+    final file = _file;
+    if (file == null) return;
+    setState(() => _saving = true);
+    final appDir = await getApplicationDocumentsDirectory();
+    final savedPath = p.join(appDir.path, p.basename(file.path));
+    await File(file.path).copy(savedPath);
+
+    await ref
+        .read(photoLogsProvider(widget.projectId).notifier)
+        .addPhotoLog(
+          PhotoLog(
+            id: IdService.generatePhotoId(),
+            projectId: widget.projectId,
+            imagePath: savedPath,
+            description: _description.text.trim(),
+            timestamp: DateTime.now(),
+            location: _location.text.trim(),
+            tags: [],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+        );
+    if (mounted) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Add photo', style: context.text.headlineSmall),
+        const SizedBox(height: Gap.xl),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(Radii.lg),
+          child: AspectRatio(
+            aspectRatio: 16 / 10,
+            child: _file != null
+                ? Image.file(File(_file!.path), fit: BoxFit.cover)
+                : ColoredBox(
+                    color: context.colors.surfaceContainerLow,
+                    child: Icon(
+                      Icons.image_outlined,
+                      size: 40,
+                      color: context.colors.onSurfaceVariant,
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: Gap.md),
+        FieldRow(
+          children: [
+            OutlinedButton.icon(
+              onPressed: () => _pick(ImageSource.camera),
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: const Text('Camera'),
             ),
-            ElevatedButton(
-              onPressed: () async {
-                if (pickedFile == null) return;
-
-                // Save image locally
-                final appDir = await getApplicationDocumentsDirectory();
-                final fileName = p.basename(pickedFile!.path);
-                final savedPath = p.join(appDir.path, fileName);
-                await File(pickedFile!.path).copy(savedPath);
-
-                final photo = PhotoLog(
-                  id: IdService.generatePhotoId(),
-                  projectId: widget.projectId,
-                  imagePath: savedPath,
-                  description: descriptionController.text,
-                  timestamp: DateTime.now(),
-                  location: locationController.text,
-                  tags: [],
-                );
-
-                ref
-                    .read(photoLogsProvider(widget.projectId).notifier)
-                    .addPhotoLog(photo);
-                
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text('Add'),
+            OutlinedButton.icon(
+              onPressed: () => _pick(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library_outlined),
+              label: const Text('Gallery'),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: Gap.lg),
+        TextField(
+          controller: _description,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(labelText: 'Description'),
+        ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          controller: _location,
+          decoration: const InputDecoration(
+            labelText: 'Location on site',
+            hintText: 'e.g. Grid B-3, level 2',
+          ),
+        ),
+        const SizedBox(height: Gap.xl),
+        FilledButton(
+          onPressed: _file == null || _saving ? null : _save,
+          child: Text(_saving ? 'Saving…' : 'Save photo'),
+        ),
+      ],
     );
   }
 }
 
-// ============ DAILY REPORT PAGE ============
+// ============ DAILY REPORTS ============
 
 class DailyReportPage extends ConsumerWidget {
   final String projectId;
@@ -247,375 +263,518 @@ class DailyReportPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reportsAsync = ref.watch(dailyReportsProvider(projectId));
+    void add() => _sheet(context, _DailyReportForm(projectId: projectId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily Reports'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showNewReportDialog(context, ref),
+    return AppPage(
+      title: 'Daily reports',
+      eyebrow: 'Field',
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: add,
+        icon: const Icon(Icons.edit_note_rounded),
+        label: const Text('New report'),
+      ),
+      children: [
+        reportsAsync.when(
+          loading: () => const LinearProgressIndicator(),
+          error: (e, _) => StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load reports',
+            message: '$e',
+          ),
+          data: (reports) {
+            if (reports.isEmpty) {
+              return EmptyState(
+                icon: Icons.assignment_outlined,
+                title: 'No reports yet',
+                message:
+                    'Log weather, workforce, progress and safety each day.',
+                action: FilledButton.icon(
+                  onPressed: add,
+                  icon: const Icon(Icons.edit_note_rounded),
+                  label: const Text('New report'),
+                ),
+              );
+            }
+            final sorted = [...reports]
+              ..sort((a, b) => b.date.compareTo(a.date));
+            return ResponsiveGrid(
+              minTileWidth: 320,
+              children: [
+                for (final r in sorted)
+                  SurfaceCard(
+                    onTap: () => _sheet(context, _ReportDetail(report: r)),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _DateBadge(date: r.date),
+                        const SizedBox(width: Gap.lg),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                r.progressSummary.isEmpty
+                                    ? 'No summary'
+                                    : r.progressSummary,
+                                style: context.text.titleMedium,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: Gap.xs),
+                              Text(
+                                [
+                                  if (r.weather.isNotEmpty) r.weather,
+                                  '${r.workersCount} workers',
+                                ].join('  ·  '),
+                                style: context.text.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _DateBadge extends StatelessWidget {
+  final DateTime date;
+  const _DateBadge({required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 52,
+      padding: const EdgeInsets.symmetric(vertical: Gap.sm),
+      decoration: BoxDecoration(
+        color: context.colors.primaryContainer,
+        borderRadius: BorderRadius.circular(Radii.md),
+      ),
+      child: Column(
+        children: [
+          Text(
+            DateFormat.MMM().format(date).toUpperCase(),
+            style: context.text.labelSmall?.copyWith(
+              color: context.colors.onPrimaryContainer,
+            ),
+          ),
+          Text(
+            '${date.day}',
+            style: AppTheme.mono(
+              context,
+              size: 20,
+              color: context.colors.onPrimaryContainer,
+            ).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
-      body: reportsAsync.when(
-        data: (reports) {
-          if (reports.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.assignment_outlined,
-                    size: 64,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('No reports yet'),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: reports.length,
-            itemBuilder: (context, index) {
-              final report = reports[index];
-              return Card(
-                child: ListTile(
-                  title: Text(report.date.toString().split(' ')[0]),
-                  subtitle: Text(report.progressSummary),
-                  trailing: const Icon(Icons.chevron_right),
-                ),
-              );
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, st) => Center(child: Text('Error: $error')),
-      ),
     );
   }
+}
 
-  void _showNewReportDialog(BuildContext context, WidgetRef ref) {
-    final weatherController = TextEditingController();
-    final progressController = TextEditingController();
-    final safetyController = TextEditingController();
-    int workers = 10;
+class _ReportDetail extends StatelessWidget {
+  final DailyReport report;
+  const _ReportDetail({required this.report});
 
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Daily Report'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: weatherController,
-                  decoration: InputDecoration(
-                    labelText: 'Weather',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+  @override
+  Widget build(BuildContext context) {
+    Widget block(String label, String value) => Padding(
+      padding: const EdgeInsets.only(bottom: Gap.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label.toUpperCase(), style: context.text.labelSmall),
+          const SizedBox(height: Gap.xs),
+          Text(value.isEmpty ? '—' : value, style: context.text.bodyMedium),
+        ],
+      ),
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          DateFormat.yMMMMEEEEd().format(report.date),
+          style: context.text.headlineSmall,
+        ),
+        const SizedBox(height: Gap.xl),
+        FieldRow(
+          children: [
+            block('Weather', report.weather),
+            block('Workers on site', '${report.workersCount}'),
+          ],
+        ),
+        block('Progress', report.progressSummary),
+        block('Safety', report.safetyNotes),
+      ],
+    );
+  }
+}
+
+class _DailyReportForm extends ConsumerStatefulWidget {
+  final String projectId;
+  const _DailyReportForm({required this.projectId});
+
+  @override
+  ConsumerState<_DailyReportForm> createState() => _DailyReportFormState();
+}
+
+class _DailyReportFormState extends ConsumerState<_DailyReportForm> {
+  final _weather = TextEditingController();
+  final _progress = TextEditingController();
+  final _safety = TextEditingController();
+  int _workers = 10;
+
+  @override
+  void dispose() {
+    _weather.dispose();
+    _progress.dispose();
+    _safety.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    ref
+        .read(dailyReportsProvider(widget.projectId).notifier)
+        .addReport(
+          DailyReport(
+            id: IdService.generateReportId(),
+            projectId: widget.projectId,
+            date: DateTime.now(),
+            weather: _weather.text.trim(),
+            workersCount: _workers,
+            progressSummary: _progress.text.trim(),
+            issues: [],
+            safetyNotes: _safety.text.trim(),
+          ),
+        );
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('Daily report', style: context.text.headlineSmall),
+        const SizedBox(height: Gap.xs),
+        Text(
+          DateFormat.yMMMMEEEEd().format(DateTime.now()),
+          style: context.text.bodySmall,
+        ),
+        const SizedBox(height: Gap.xl),
+        FieldRow(
+          children: [
+            TextField(
+              controller: _weather,
+              decoration: const InputDecoration(
+                labelText: 'Weather',
+                prefixIcon: Icon(Icons.wb_cloudy_outlined, size: 20),
+              ),
+            ),
+            NumberField(
+              label: 'Workers',
+              value: _workers.toDouble(),
+              onChanged: (v) => _workers = v?.round() ?? 0,
+            ),
+          ],
+        ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          controller: _progress,
+          minLines: 3,
+          maxLines: 6,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Progress',
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          controller: _safety,
+          minLines: 2,
+          maxLines: 4,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(
+            labelText: 'Safety notes',
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: Gap.xl),
+        FilledButton(onPressed: _save, child: const Text('Save report')),
+      ],
+    );
+  }
+}
+
+// ============ PUNCH LIST ============
+
+const _priorityTone = {
+  'high': Tone.danger,
+  'medium': Tone.warning,
+  'low': Tone.success,
+};
+
+class PunchListPage extends ConsumerStatefulWidget {
+  final String projectId;
+  const PunchListPage({super.key, required this.projectId});
+
+  @override
+  ConsumerState<PunchListPage> createState() => _PunchListPageState();
+}
+
+class _PunchListPageState extends ConsumerState<PunchListPage> {
+  bool _showClosed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final itemsAsync = ref.watch(punchListProvider(widget.projectId));
+    void add() => _sheet(context, _PunchItemForm(projectId: widget.projectId));
+
+    return AppPage(
+      title: 'Punch list',
+      eyebrow: 'Field',
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: add,
+        icon: const Icon(Icons.add_task_rounded),
+        label: const Text('Add item'),
+      ),
+      children: [
+        itemsAsync.when(
+          loading: () => const LinearProgressIndicator(),
+          error: (e, _) => StatusBanner(
+            tone: Tone.danger,
+            title: 'Could not load the punch list',
+            message: '$e',
+          ),
+          data: (items) {
+            if (items.isEmpty) {
+              return EmptyState(
+                icon: Icons.checklist_rounded,
+                title: 'Nothing to fix yet',
+                message: 'Track defects and snags until they are closed out.',
+                action: FilledButton.icon(
+                  onPressed: add,
+                  icon: const Icon(Icons.add_task_rounded),
+                  label: const Text('Add item'),
                 ),
-                const SizedBox(height: 12),
+              );
+            }
+            const order = {'high': 0, 'medium': 1, 'low': 2};
+            final open = items.where((i) => i.status != 'closed').toList()
+              ..sort(
+                (a, b) =>
+                    (order[a.priority] ?? 3).compareTo(order[b.priority] ?? 3),
+              );
+            final closed = items.where((i) => i.status == 'closed').toList();
+            final shown = _showClosed ? closed : open;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Row(
                   children: [
-                    const Text('Workers: '),
-                    SizedBox(
-                      width: 100,
-                      child: TextFormField(
-                        initialValue: workers.toString(),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) {
-                          setState(() {
-                            workers = int.tryParse(value) ?? 10;
-                          });
-                        },
-                      ),
+                    ChoiceChip(
+                      label: Text('Open · ${open.length}'),
+                      selected: !_showClosed,
+                      showCheckmark: false,
+                      onSelected: (_) => setState(() => _showClosed = false),
+                    ),
+                    const SizedBox(width: Gap.sm),
+                    ChoiceChip(
+                      label: Text('Closed · ${closed.length}'),
+                      selected: _showClosed,
+                      showCheckmark: false,
+                      onSelected: (_) => setState(() => _showClosed = true),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: progressController,
-                  decoration: InputDecoration(
-                    labelText: 'Progress Summary',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: Gap.lg),
+                if (shown.isEmpty)
+                  EmptyState(
+                    icon: Icons.task_alt_rounded,
+                    title: _showClosed ? 'Nothing closed yet' : 'All clear',
+                  )
+                else
+                  Card(
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < shown.length; i++) ...[
+                          if (i > 0) const Divider(),
+                          _PunchRow(
+                            item: shown[i],
+                            projectId: widget.projectId,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: safetyController,
-                  decoration: InputDecoration(
-                    labelText: 'Safety Notes',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  maxLines: 2,
+                const SizedBox(height: Gap.md),
+                Text(
+                  'Swipe right to close an item, left to delete it.',
+                  style: context.text.bodySmall,
+                  textAlign: TextAlign.center,
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final report = DailyReport(
-                  id: IdService.generateReportId(),
-                  projectId: projectId,
-                  date: DateTime.now(),
-                  weather: weatherController.text,
-                  workersCount: workers,
-                  progressSummary: progressController.text,
-                  issues: [],
-                  safetyNotes: safetyController.text,
-                );
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
 
-                ref
-                    .read(dailyReportsProvider(projectId).notifier)
-                    .addReport(report);
-                Navigator.pop(context);
-              },
-              child: const Text('Save'),
-            ),
-          ],
+class _PunchRow extends ConsumerWidget {
+  final PunchListItem item;
+  final String projectId;
+  const _PunchRow({required this.item, required this.projectId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(punchListProvider(projectId).notifier);
+    final closed = item.status == 'closed';
+
+    void setClosed(bool value) => notifier.updateItem(
+      item.copyWith(
+        status: value ? 'closed' : 'open',
+        completedAt: value ? DateTime.now() : null,
+      ),
+    );
+
+    return Dismissible(
+      key: ValueKey(item.id),
+      background: Container(
+        color: context.appColors.success,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+        child: const Icon(Icons.check_rounded, color: Colors.white),
+      ),
+      secondaryBackground: Container(
+        color: context.appColors.danger,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: Gap.xl),
+        child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          setClosed(!closed);
+          return false;
+        }
+        return true;
+      },
+      onDismissed: (_) => notifier.deleteItem(item.id),
+      child: ListTile(
+        contentPadding: const EdgeInsets.fromLTRB(
+          Gap.sm,
+          Gap.xs,
+          Gap.lg,
+          Gap.xs,
+        ),
+        leading: Checkbox(
+          value: closed,
+          onChanged: (v) => setClosed(v == true),
+        ),
+        title: Text(
+          item.description,
+          style: TextStyle(
+            decoration: closed ? TextDecoration.lineThrough : null,
+            color: closed ? context.colors.onSurfaceVariant : null,
+          ),
+        ),
+        subtitle: item.assignedTo.isEmpty
+            ? null
+            : Text('Assigned to ${item.assignedTo}'),
+        trailing: StatusPill(
+          item.priority,
+          tone: _priorityTone[item.priority] ?? Tone.neutral,
         ),
       ),
     );
   }
 }
 
-// ============ PUNCH LIST PAGE ============
-
-class PunchListPage extends ConsumerWidget {
+class _PunchItemForm extends ConsumerStatefulWidget {
   final String projectId;
-  const PunchListPage({super.key, required this.projectId});
+  const _PunchItemForm({required this.projectId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final punchListAsync = ref.watch(punchListProvider(projectId));
+  ConsumerState<_PunchItemForm> createState() => _PunchItemFormState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Punch List'),
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _showAddItemDialog(context, ref),
-          ),
-        ],
-      ),
-      body: punchListAsync.when(
-        data: (items) {
-          if (items.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.checklist_outlined,
-                    size: 64,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('No items yet'),
-                ],
-              ),
-            );
-          }
+class _PunchItemFormState extends ConsumerState<_PunchItemForm> {
+  final _description = TextEditingController();
+  final _assigned = TextEditingController();
+  String _priority = 'medium';
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              final item = items[index];
-              return _buildPunchListCard(context, item, ref);
-            },
-          );
-        },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, st) => Center(child: Text('Error: $error')),
-      ),
-    );
+  @override
+  void dispose() {
+    _description.dispose();
+    _assigned.dispose();
+    super.dispose();
   }
 
-  Widget _buildPunchListCard(
-    BuildContext context,
-    PunchListItem item,
-    WidgetRef ref,
-  ) {
-    final priorityColor =
-        {
-          'high': Colors.red,
-          'medium': Colors.orange,
-          'low': Colors.green,
-        }[item.priority] ??
-        Colors.blue;
-
-    return Dismissible(
-      key: Key(item.id),
-      background: Container(
-        color: Colors.green,
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Icon(Icons.check, color: Colors.white),
-      ),
-      secondaryBackground: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          // Swipe Right: Mark as Completed
-          final updatedItem = item.copyWith(
-            status: 'closed',
-            completedAt: DateTime.now(),
-          );
-          ref.read(punchListProvider(projectId).notifier).updateItem(updatedItem);
-          return false; // Don't remove from list, just update
-        } else {
-          // Swipe Left: Delete
-          return true; // Remove from list
-        }
-      },
-      onDismissed: (direction) {
-        if (direction == DismissDirection.endToStart) {
-          ref.read(punchListProvider(projectId).notifier).deleteItem(item.id);
-        }
-      },
-      child: Card(
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
-          leading: Checkbox(
-            value: item.status == 'closed',
-            onChanged: (value) {
-              final updatedItem = item.copyWith(
-                status: value == true ? 'closed' : 'open',
-                completedAt: value == true ? DateTime.now() : null,
-              );
-              ref
-                  .read(punchListProvider(projectId).notifier)
-                  .updateItem(updatedItem);
-            },
+  void _save() {
+    if (_description.text.trim().isEmpty) return;
+    ref
+        .read(punchListProvider(widget.projectId).notifier)
+        .addItem(
+          PunchListItem(
+            id: IdService.generateId(),
+            projectId: widget.projectId,
+            description: _description.text.trim(),
+            priority: _priority,
+            status: 'open',
+            createdAt: DateTime.now(),
+            assignedTo: _assigned.text.trim(),
           ),
-          title: Text(
-            item.description,
-            style: TextStyle(
-              decoration: item.status == 'closed'
-                  ? TextDecoration.lineThrough
-                  : null,
-            ),
-          ),
-          subtitle: Text('Assigned to: ${item.assignedTo}'),
-          trailing: Chip(
-            label: Text(item.priority),
-            backgroundColor: priorityColor.withValues(alpha: 0.2),
-            labelStyle: TextStyle(color: priorityColor),
-          ),
-        ),
-      ),
-    );
+        );
+    Navigator.pop(context);
   }
 
-  void _showAddItemDialog(BuildContext context, WidgetRef ref) {
-    final descriptionController = TextEditingController();
-    final assignedController = TextEditingController();
-    String priority = 'medium';
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text('Add Item'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  initialValue: priority,
-                  items: const [
-                    DropdownMenuItem(value: 'high', child: Text('High')),
-                    DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                    DropdownMenuItem(value: 'low', child: Text('Low')),
-                  ],
-                  onChanged: (value) {
-                    setState(() => priority = value ?? 'medium');
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Priority',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: assignedController,
-                  decoration: InputDecoration(
-                    labelText: 'Assigned To',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final item = PunchListItem(
-                  id: IdService.generateId(),
-                  projectId: projectId,
-                  description: descriptionController.text,
-                  priority: priority,
-                  status: 'open',
-                  createdAt: DateTime.now(),
-                  assignedTo: assignedController.text,
-                );
-
-                ref.read(punchListProvider(projectId).notifier).addItem(item);
-                Navigator.pop(context);
-              },
-              child: const Text('Add'),
-            ),
-          ],
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('New punch item', style: context.text.headlineSmall),
+        const SizedBox(height: Gap.xl),
+        TextField(
+          controller: _description,
+          autofocus: true,
+          minLines: 1,
+          maxLines: 3,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(labelText: 'What needs fixing?'),
         ),
-      ),
+        const SizedBox(height: Gap.md),
+        TextField(
+          controller: _assigned,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(
+            labelText: 'Assigned to',
+            prefixIcon: Icon(Icons.person_outline, size: 20),
+          ),
+        ),
+        const SizedBox(height: Gap.lg),
+        ChoiceField<String>(
+          label: 'Priority',
+          value: _priority,
+          options: const {'high': 'High', 'medium': 'Medium', 'low': 'Low'},
+          onChanged: (v) => setState(() => _priority = v),
+        ),
+        const SizedBox(height: Gap.xl),
+        FilledButton(onPressed: _save, child: const Text('Add item')),
+      ],
     );
   }
 }
