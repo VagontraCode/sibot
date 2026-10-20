@@ -158,6 +158,24 @@ class WallDesign {
   final double stemAs;
   final BarSpacing? stemBars;
 
+  /// ULS base pressure at the toe and heel ends, kPa.
+  final double ulsPressureToe;
+  final double ulsPressureHeel;
+
+  /// Toe (bottom steel) and heel (top steel) at ULS, per metre.
+  final double toeMoment;
+  final double heelMoment;
+  final double toeAs;
+  final double heelAs;
+  final BarSpacing? toeBars;
+  final BarSpacing? heelBars;
+
+  /// EC2 / EC7 only: EQU moments and DA2 sliding force and resistance.
+  final double? equDestabilising;
+  final double? equStabilising;
+  final double? slidingAction;
+  final double? slidingResistance;
+
   final List<Check> checks;
 
   const WallDesign({
@@ -179,6 +197,18 @@ class WallDesign {
     required this.stemD,
     required this.stemAs,
     required this.stemBars,
+    required this.ulsPressureToe,
+    required this.ulsPressureHeel,
+    required this.toeMoment,
+    required this.heelMoment,
+    required this.toeAs,
+    required this.heelAs,
+    required this.toeBars,
+    required this.heelBars,
+    this.equDestabilising,
+    this.equStabilising,
+    this.slidingAction,
+    this.slidingResistance,
     required this.checks,
   });
 
@@ -280,20 +310,124 @@ WallDesign designWall(WallInput i) {
     DesignCode.bael => 0.07 * i.fck / Concrete.gammaC * 1000 * d / 1e3,
   };
 
-  const global = 'FS ≥ 1.5';
+  // Base slab (toe and heel) at ULS: factored loads and the linear base
+  // pressure they produce. Soil over the toe is ignored (conservative).
+  final vU = 1.35 * v + 1.5 * qHeel;
+  final mNetU =
+      1.35 * mr +
+      1.5 * qHeel * (i.toe + tb + i.heel / 2) -
+      (1.35 * pa * hTot / 3 + 1.5 * pq * hTot / 2);
+  final xU = mNetU / vU;
+  final eU = b / 2 - xU;
+  // Pressure at distance x from the toe, kPa.
+  double sigmaU(double x) {
+    if (eU.abs() <= b / 6) {
+      final mean = vU / b;
+      return mean * (1 + 6 * eU / b * (1 - 2 * x / b));
+    }
+    final len = 3 * xU; // triangular block from the toe
+    return x >= len ? 0 : 2 * vU / len * (1 - x / len);
+  }
+
+  final wBase = 1.35 * gc * i.baseThickness;
+  double integrate(double from, double to, double Function(double) f) {
+    const n = 400;
+    final dx = (to - from) / n;
+    var s = 0.0;
+    for (var k = 0; k < n; k++) {
+      s += f(from + (k + 0.5) * dx) * dx;
+    }
+    return s;
+  }
+
+  // Toe: upward pressure minus base weight, moment at the stem front face.
+  final toeMoment = math.max(
+    0.0,
+    integrate(0, i.toe, (x) => (sigmaU(x) - wBase) * (i.toe - x)),
+  );
+  // Heel: soil, surcharge and base weight minus pressure, at the back face.
+  final xb = i.toe + tb;
+  final wHeel = wBase + 1.35 * g * h + 1.5 * i.surcharge;
+  final heelMoment = math.max(
+    0.0,
+    integrate(xb, b, (x) => (wHeel - sigmaU(x)) * (x - xb)),
+  );
+  final baseD = i.baseThickness * 1000 - 50 - 6; // cover 50 mm to ground
+  double slabSteel(double m) => math.max(
+    designRectangularBending(
+      code: i.code,
+      concrete: concrete,
+      steel: steel,
+      mEd: m,
+      b: 1000,
+      d: baseD,
+    ).asTension,
+    minTensionSteel(
+      code: i.code,
+      concrete: concrete,
+      steel: steel,
+      b: 1000,
+      d: baseD,
+    ),
+  );
+  final toeAs = slabSteel(toeMoment);
+  final heelAs = slabSteel(heelMoment);
+  final baseMax = math.min(3 * i.baseThickness * 1000, 300.0);
+  final toeBars = chooseSpacing(toeAs, baseMax);
+  final heelBars = chooseSpacing(heelAs, baseMax);
+
+  // Stability checks.
+  late final List<Check> stability;
+  double? eqDst, eqStb, slideHd, slideRd;
+  switch (i.code) {
+    case DesignCode.bael:
+      const global = 'FS ≥ 1.5';
+      stability = [
+        Check(
+          kind: CheckKind.overturning,
+          demand: wallSafetyFactor,
+          capacity: fsO,
+          clause: global,
+        ),
+        Check(
+          kind: CheckKind.sliding,
+          demand: wallSafetyFactor,
+          capacity: fsS,
+          clause: global,
+        ),
+      ];
+    case DesignCode.ec2:
+      // EQU (EN 1997-1 2.4.7.2, Tables A.1–A.2): γG,dst = 1.1,
+      // γG,stb = 0.9, γQ = 1.5, γφ′ = 1.25 on tan φ′.
+      final phiD = math.atan(math.tan(_rad(i.phi)) / 1.25);
+      final kaD = math.pow(math.tan(math.pi / 4 - phiD / 2), 2).toDouble();
+      eqDst =
+          1.1 * 0.5 * kaD * g * hTot * hTot * hTot / 3 +
+          1.5 * kaD * i.surcharge * hTot * hTot / 2;
+      eqStb = 0.9 * mr;
+      // DA2 sliding (NF P94-281): Hd = 1.35·Pa + 1.5·Pq ≤ V·tan δ / 1.1.
+      slideHd = 1.35 * pa + 1.5 * pq;
+      slideRd = v * math.tan(_rad(delta)) / 1.1;
+      stability = [
+        Check(
+          kind: CheckKind.overturning,
+          demand: eqDst,
+          capacity: eqStb,
+          clause: 'EN 1997-1 2.4.7.2 (EQU)',
+          unit: 'kN·m/m',
+        ),
+        Check(
+          kind: CheckKind.sliding,
+          demand: slideHd,
+          capacity: slideRd,
+          clause: 'EN 1997-1 6.5.3 (DA2)',
+          unit: 'kN/m',
+        ),
+      ];
+  }
+
   final checks = <Check>[
-    Check(
-      kind: CheckKind.overturning,
-      demand: wallSafetyFactor,
-      capacity: fsO,
-      clause: global,
-    ),
-    Check(
-      kind: CheckKind.sliding,
-      demand: wallSafetyFactor,
-      capacity: fsS,
-      clause: global,
-    ),
+    ...stability,
     Check(
       kind: CheckKind.baseEccentricity,
       demand: e.abs(),
@@ -322,6 +456,22 @@ WallDesign designWall(WallInput i) {
       clause: i.code == DesignCode.ec2 ? 'EN 1992-1-1 6.2.2' : 'BAEL A.5.2.2',
       unit: 'kN/m',
     ),
+    if (i.toe > 0)
+      Check(
+        kind: CheckKind.bendingSteel,
+        demand: toeAs,
+        capacity: toeBars?.areaPerMetre ?? 0,
+        clause: bendingClause(i.code),
+        unit: 'mm²/m',
+      ),
+    if (i.heel > 0)
+      Check(
+        kind: CheckKind.bendingSteel,
+        demand: heelAs,
+        capacity: heelBars?.areaPerMetre ?? 0,
+        clause: bendingClause(i.code),
+        unit: 'mm²/m',
+      ),
   ];
 
   return WallDesign(
@@ -343,6 +493,18 @@ WallDesign designWall(WallInput i) {
     stemD: d,
     stemAs: asReq,
     stemBars: bars,
+    ulsPressureToe: sigmaU(0),
+    ulsPressureHeel: sigmaU(b),
+    toeMoment: toeMoment,
+    heelMoment: heelMoment,
+    toeAs: toeAs,
+    heelAs: heelAs,
+    toeBars: toeBars,
+    heelBars: heelBars,
+    equDestabilising: eqDst,
+    equStabilising: eqStb,
+    slidingAction: slideHd,
+    slidingResistance: slideRd,
     checks: checks,
   );
 }
