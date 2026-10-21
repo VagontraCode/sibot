@@ -148,7 +148,8 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [ ] Steel EC3: minor-axis bending, utilisation colour map on the frame
 - [x] Timber EC5 (Beta): C16–C30 and GL24h–GL32h, kmod/kh/kdef, bending with kcrit, shear, column buckling, 6.23/6.24/6.35 interaction, deflection with creep
 - [ ] Timber EC5: bearing perpendicular to grain, notches, connections
-- [ ] Masonry EC6: vertical load capacity of walls, slenderness
+- [x] Masonry EC6 (Beta): fk = K fb^0.7 fm^0.3, effective height, slenderness ≤ 27, end and mid-height reduction (Annex G) with creep
+- [ ] Masonry EC6: lateral load, concentrated loads, cavity walls
 - [ ] EC1 wind and snow, EC8 / PS92 equivalent lateral force method
 
 ### Phase 4 — 3D frames and dynamics

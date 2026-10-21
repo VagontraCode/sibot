@@ -962,5 +962,45 @@
   "timberNoteScope": "Rectangular sections, bending about the major axis only. kcr = 0.67 for shear. Bearing perpendicular to the grain, notches and connections are not checked.",
   "checkCombinedStress": "Bending with axial force",
   "checkDeflectionInstant": "Instantaneous deflection",
-  "checkDeflectionFinal": "Final deflection"
+  "checkDeflectionFinal": "Final deflection",
+  "masonrySubtitle": "EN 1996-1-1 · single-leaf wall under vertical load",
+  "masonryUnit": "Masonry unit",
+  "masonryClay": "Clay",
+  "masonryConcrete": "Concrete block",
+  "masonryCalciumSilicate": "Calcium silicate",
+  "masonryAac": "Autoclaved aerated concrete",
+  "masonryGroup": "group {n}",
+  "@masonryGroup": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "masonryFb": "Unit strength fb",
+  "masonryFm": "Mortar strength fm",
+  "masonryGammaHelp": "Partial factor for masonry, 1.5 to 3.0 depending on execution control (National Annex)",
+  "masonryWallTitle": "Wall and loading",
+  "masonryThickness": "Thickness t",
+  "masonryHeight": "Clear height",
+  "masonryRestraint": "End restraint",
+  "masonryRhoFloors": "Floors · ρ2 0.75",
+  "masonryRhoOther": "Other · ρ2 1.0",
+  "masonryLoad": "Design load NEd",
+  "masonryETop": "Eccentricity, top",
+  "masonryEBottom": "Eccentricity, bottom",
+  "masonryEccNote": "ρ2 = 0.75 when both ends bear on concrete floors. Eccentricity of the load from the floor bearings (M/N), measured from the wall centreline. The initial imperfection hef/450 and the minimum 0.05 t are added automatically.",
+  "masonryStrength": "Masonry strength",
+  "masonryFk": "Characteristic strength",
+  "masonryFd": "Design strength",
+  "masonryCapacityTitle": "Vertical resistance",
+  "masonryEffHeight": "Effective height and slenderness",
+  "masonryEInit": "Initial eccentricity",
+  "masonryEnds": "Top and bottom",
+  "masonryMid": "Mid-height",
+  "masonryCreep": "Creep eccentricity",
+  "masonryNRd": "Design resistance per metre",
+  "masonryNoteScope": "General purpose mortar, unreinforced single-leaf wall. Lateral load (wind), concentrated loads and cavity walls are not covered. Mid-height eccentricity from the end values over the middle fifth.",
+  "checkWallEnd": "Resistance at wall ends",
+  "checkWallMid": "Resistance at mid-height"
 }

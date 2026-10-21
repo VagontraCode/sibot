@@ -4357,6 +4357,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Final deflection'**
   String get checkDeflectionFinal;
+
+  /// No description provided for @masonrySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1996-1-1 · single-leaf wall under vertical load'**
+  String get masonrySubtitle;
+
+  /// No description provided for @masonryUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Masonry unit'**
+  String get masonryUnit;
+
+  /// No description provided for @masonryClay.
+  ///
+  /// In en, this message translates to:
+  /// **'Clay'**
+  String get masonryClay;
+
+  /// No description provided for @masonryConcrete.
+  ///
+  /// In en, this message translates to:
+  /// **'Concrete block'**
+  String get masonryConcrete;
+
+  /// No description provided for @masonryCalciumSilicate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calcium silicate'**
+  String get masonryCalciumSilicate;
+
+  /// No description provided for @masonryAac.
+  ///
+  /// In en, this message translates to:
+  /// **'Autoclaved aerated concrete'**
+  String get masonryAac;
+
+  /// No description provided for @masonryGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'group {n}'**
+  String masonryGroup(int n);
+
+  /// No description provided for @masonryFb.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit strength fb'**
+  String get masonryFb;
+
+  /// No description provided for @masonryFm.
+  ///
+  /// In en, this message translates to:
+  /// **'Mortar strength fm'**
+  String get masonryFm;
+
+  /// No description provided for @masonryGammaHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Partial factor for masonry, 1.5 to 3.0 depending on execution control (National Annex)'**
+  String get masonryGammaHelp;
+
+  /// No description provided for @masonryWallTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wall and loading'**
+  String get masonryWallTitle;
+
+  /// No description provided for @masonryThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness t'**
+  String get masonryThickness;
+
+  /// No description provided for @masonryHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear height'**
+  String get masonryHeight;
+
+  /// No description provided for @masonryRestraint.
+  ///
+  /// In en, this message translates to:
+  /// **'End restraint'**
+  String get masonryRestraint;
+
+  /// No description provided for @masonryRhoFloors.
+  ///
+  /// In en, this message translates to:
+  /// **'Floors · ρ2 0.75'**
+  String get masonryRhoFloors;
+
+  /// No description provided for @masonryRhoOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other · ρ2 1.0'**
+  String get masonryRhoOther;
+
+  /// No description provided for @masonryLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Design load NEd'**
+  String get masonryLoad;
+
+  /// No description provided for @masonryETop.
+  ///
+  /// In en, this message translates to:
+  /// **'Eccentricity, top'**
+  String get masonryETop;
+
+  /// No description provided for @masonryEBottom.
+  ///
+  /// In en, this message translates to:
+  /// **'Eccentricity, bottom'**
+  String get masonryEBottom;
+
+  /// No description provided for @masonryEccNote.
+  ///
+  /// In en, this message translates to:
+  /// **'ρ2 = 0.75 when both ends bear on concrete floors. Eccentricity of the load from the floor bearings (M/N), measured from the wall centreline. The initial imperfection hef/450 and the minimum 0.05 t are added automatically.'**
+  String get masonryEccNote;
+
+  /// No description provided for @masonryStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Masonry strength'**
+  String get masonryStrength;
+
+  /// No description provided for @masonryFk.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic strength'**
+  String get masonryFk;
+
+  /// No description provided for @masonryFd.
+  ///
+  /// In en, this message translates to:
+  /// **'Design strength'**
+  String get masonryFd;
+
+  /// No description provided for @masonryCapacityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical resistance'**
+  String get masonryCapacityTitle;
+
+  /// No description provided for @masonryEffHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective height and slenderness'**
+  String get masonryEffHeight;
+
+  /// No description provided for @masonryEInit.
+  ///
+  /// In en, this message translates to:
+  /// **'Initial eccentricity'**
+  String get masonryEInit;
+
+  /// No description provided for @masonryEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Top and bottom'**
+  String get masonryEnds;
+
+  /// No description provided for @masonryMid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mid-height'**
+  String get masonryMid;
+
+  /// No description provided for @masonryCreep.
+  ///
+  /// In en, this message translates to:
+  /// **'Creep eccentricity'**
+  String get masonryCreep;
+
+  /// No description provided for @masonryNRd.
+  ///
+  /// In en, this message translates to:
+  /// **'Design resistance per metre'**
+  String get masonryNRd;
+
+  /// No description provided for @masonryNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'General purpose mortar, unreinforced single-leaf wall. Lateral load (wind), concentrated loads and cavity walls are not covered. Mid-height eccentricity from the end values over the middle fifth.'**
+  String get masonryNoteScope;
+
+  /// No description provided for @checkWallEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance at wall ends'**
+  String get checkWallEnd;
+
+  /// No description provided for @checkWallMid.
+  ///
+  /// In en, this message translates to:
+  /// **'Resistance at mid-height'**
+  String get checkWallMid;
 }
 
 class _AppLocalizationsDelegate

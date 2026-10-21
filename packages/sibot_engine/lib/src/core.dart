@@ -47,6 +47,8 @@ enum CheckKind {
   combinedStress,
   deflectionInstant,
   deflectionFinal,
+  wallEnd,
+  wallMid,
 }
 
 /// One design check: [demand] must not exceed [capacity].

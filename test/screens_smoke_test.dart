@@ -17,6 +17,7 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
+import 'package:sibot/features/calculations/masonry/presentation/masonry_wall_provider.dart';
 import 'package:sibot/features/calculations/steel/presentation/steel_member_provider.dart';
 import 'package:sibot/features/calculations/timber/presentation/timber_member_provider.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
@@ -180,6 +181,9 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             'qk': 1.5,
           }))
           .calculate(),
+  'masonry_wall': (c) => (c.read(
+    masonryWallStateProvider('PRJ_1').notifier,
+  )..setAll({'t': 200, 'height': 2.7, 'nEd': 300, 'eTop': 20})).calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -257,6 +261,7 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'masonry_wall': '/projects/PRJ_1/masonry-wall',
     'timber_member': '/projects/PRJ_1/timber-member',
     'steel_member': '/projects/PRJ_1/steel-member',
     'footing': '/projects/PRJ_1/footing',

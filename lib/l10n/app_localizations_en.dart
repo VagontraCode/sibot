@@ -2307,4 +2307,109 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkDeflectionFinal => 'Final deflection';
+
+  @override
+  String get masonrySubtitle =>
+      'EN 1996-1-1 · single-leaf wall under vertical load';
+
+  @override
+  String get masonryUnit => 'Masonry unit';
+
+  @override
+  String get masonryClay => 'Clay';
+
+  @override
+  String get masonryConcrete => 'Concrete block';
+
+  @override
+  String get masonryCalciumSilicate => 'Calcium silicate';
+
+  @override
+  String get masonryAac => 'Autoclaved aerated concrete';
+
+  @override
+  String masonryGroup(int n) {
+    return 'group $n';
+  }
+
+  @override
+  String get masonryFb => 'Unit strength fb';
+
+  @override
+  String get masonryFm => 'Mortar strength fm';
+
+  @override
+  String get masonryGammaHelp =>
+      'Partial factor for masonry, 1.5 to 3.0 depending on execution control (National Annex)';
+
+  @override
+  String get masonryWallTitle => 'Wall and loading';
+
+  @override
+  String get masonryThickness => 'Thickness t';
+
+  @override
+  String get masonryHeight => 'Clear height';
+
+  @override
+  String get masonryRestraint => 'End restraint';
+
+  @override
+  String get masonryRhoFloors => 'Floors · ρ2 0.75';
+
+  @override
+  String get masonryRhoOther => 'Other · ρ2 1.0';
+
+  @override
+  String get masonryLoad => 'Design load NEd';
+
+  @override
+  String get masonryETop => 'Eccentricity, top';
+
+  @override
+  String get masonryEBottom => 'Eccentricity, bottom';
+
+  @override
+  String get masonryEccNote =>
+      'ρ2 = 0.75 when both ends bear on concrete floors. Eccentricity of the load from the floor bearings (M/N), measured from the wall centreline. The initial imperfection hef/450 and the minimum 0.05 t are added automatically.';
+
+  @override
+  String get masonryStrength => 'Masonry strength';
+
+  @override
+  String get masonryFk => 'Characteristic strength';
+
+  @override
+  String get masonryFd => 'Design strength';
+
+  @override
+  String get masonryCapacityTitle => 'Vertical resistance';
+
+  @override
+  String get masonryEffHeight => 'Effective height and slenderness';
+
+  @override
+  String get masonryEInit => 'Initial eccentricity';
+
+  @override
+  String get masonryEnds => 'Top and bottom';
+
+  @override
+  String get masonryMid => 'Mid-height';
+
+  @override
+  String get masonryCreep => 'Creep eccentricity';
+
+  @override
+  String get masonryNRd => 'Design resistance per metre';
+
+  @override
+  String get masonryNoteScope =>
+      'General purpose mortar, unreinforced single-leaf wall. Lateral load (wind), concentrated loads and cavity walls are not covered. Mid-height eccentricity from the end values over the middle fifth.';
+
+  @override
+  String get checkWallEnd => 'Resistance at wall ends';
+
+  @override
+  String get checkWallMid => 'Resistance at mid-height';
 }

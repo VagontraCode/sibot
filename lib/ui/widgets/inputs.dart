@@ -109,6 +109,7 @@ class _NumberFieldState extends State<NumberField> {
       decoration: InputDecoration(
         hintText: widget.hint,
         helperText: widget.helper,
+        helperMaxLines: 3,
         suffixText: widget.unit,
       ),
       onChanged: (t) => widget.onChanged(parseNumber(t)),

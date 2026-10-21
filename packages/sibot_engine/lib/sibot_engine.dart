@@ -16,6 +16,7 @@ export 'src/fem/templates.dart';
 export 'src/footing.dart';
 export 'src/geotech.dart';
 export 'src/foundations.dart';
+export 'src/masonry.dart';
 export 'src/materials.dart';
 export 'src/punching.dart';
 export 'src/quantities.dart';

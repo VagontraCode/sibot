@@ -175,8 +175,8 @@ const modules = <EngModule>[
     id: 'masonry-wall',
     icon: Icons.grid_view_outlined,
     category: ModuleCategory.masonry,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'masonry-wall',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'bearing',

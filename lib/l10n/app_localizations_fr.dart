@@ -2321,4 +2321,109 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get checkDeflectionFinal => 'Flèche finale';
+
+  @override
+  String get masonrySubtitle =>
+      'EN 1996-1-1 · mur simple sous charge verticale';
+
+  @override
+  String get masonryUnit => 'Élément de maçonnerie';
+
+  @override
+  String get masonryClay => 'Terre cuite';
+
+  @override
+  String get masonryConcrete => 'Bloc béton';
+
+  @override
+  String get masonryCalciumSilicate => 'Silico-calcaire';
+
+  @override
+  String get masonryAac => 'Béton cellulaire autoclavé';
+
+  @override
+  String masonryGroup(int n) {
+    return 'groupe $n';
+  }
+
+  @override
+  String get masonryFb => 'Résistance des éléments fb';
+
+  @override
+  String get masonryFm => 'Résistance du mortier fm';
+
+  @override
+  String get masonryGammaHelp =>
+      'Coefficient partiel de la maçonnerie, 1,5 à 3,0 selon le contrôle d\'exécution (Annexe nationale)';
+
+  @override
+  String get masonryWallTitle => 'Mur et chargement';
+
+  @override
+  String get masonryThickness => 'Épaisseur t';
+
+  @override
+  String get masonryHeight => 'Hauteur libre';
+
+  @override
+  String get masonryRestraint => 'Maintien aux extrémités';
+
+  @override
+  String get masonryRhoFloors => 'Planchers · ρ2 0,75';
+
+  @override
+  String get masonryRhoOther => 'Autre · ρ2 1,0';
+
+  @override
+  String get masonryLoad => 'Charge de calcul NEd';
+
+  @override
+  String get masonryETop => 'Excentricité en tête';
+
+  @override
+  String get masonryEBottom => 'Excentricité en pied';
+
+  @override
+  String get masonryEccNote =>
+      'ρ2 = 0,75 quand les deux extrémités s\'appuient sur des planchers béton. Excentricité de la charge due aux appuis de plancher (M/N), mesurée depuis l\'axe du mur. L\'imperfection initiale hef/450 et le minimum 0,05 t sont ajoutés automatiquement.';
+
+  @override
+  String get masonryStrength => 'Résistance de la maçonnerie';
+
+  @override
+  String get masonryFk => 'Résistance caractéristique';
+
+  @override
+  String get masonryFd => 'Résistance de calcul';
+
+  @override
+  String get masonryCapacityTitle => 'Résistance verticale';
+
+  @override
+  String get masonryEffHeight => 'Hauteur efficace et élancement';
+
+  @override
+  String get masonryEInit => 'Excentricité initiale';
+
+  @override
+  String get masonryEnds => 'Tête et pied';
+
+  @override
+  String get masonryMid => 'Mi-hauteur';
+
+  @override
+  String get masonryCreep => 'Excentricité de fluage';
+
+  @override
+  String get masonryNRd => 'Résistance de calcul par mètre';
+
+  @override
+  String get masonryNoteScope =>
+      'Mortier d\'usage courant, mur simple non armé. Les charges latérales (vent), les charges concentrées et les murs doubles ne sont pas traités. Excentricité à mi-hauteur déduite des valeurs d\'extrémité sur le cinquième central.';
+
+  @override
+  String get checkWallEnd => 'Résistance aux extrémités';
+
+  @override
+  String get checkWallMid => 'Résistance à mi-hauteur';
 }
