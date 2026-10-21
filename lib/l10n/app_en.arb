@@ -1421,5 +1421,62 @@
   "f3dMinorMoment": "Minor-axis moment",
   "f3dBeamExtraForces": "Biaxial bending or axial force",
   "f3dBeamExtraForcesMsg": "This beam also carries a significant minor-axis moment or axial force, which the beam design ignores. Design it as a column to include them.",
-  "f3dTapToDesign": "Tap a member in the view to design it."
+  "f3dTapToDesign": "Tap a member in the view to design it.",
+  "f3dTabEdit": "Edit",
+  "f3dEditGenerated": "Generated building",
+  "f3dEditGeneratedMsg": "Your first edit turns it into a custom model. Changing the building parameters later regenerates it and discards the edits.",
+  "f3dRegenerate": "Regenerate from the parameters",
+  "f3dRegenerateConfirm": "Discard all edits and regenerate the building from its parameters?",
+  "f3dConfirm": "Confirm",
+  "f3dUndo": "Undo",
+  "f3dConnect": "Add members",
+  "f3dAddNode": "Add node",
+  "f3dConnectHelp": "Tap a node, then the next one: each pair is joined by a member of the active section. Tap the tool again to stop.",
+  "f3dSelectHelp": "Tap a node or a member to edit it.",
+  "f3dLoadCase": "Load case",
+  "f3dAddCase": "Add load case",
+  "f3dCaseName": "Name",
+  "f3dCaseType": "Type",
+  "f3dTypePermanent": "Permanent (G)",
+  "f3dTypeImposed": "Imposed (Q)",
+  "f3dTypeSnow": "Snow (S)",
+  "f3dTypeWind": "Wind (W)",
+  "f3dActiveSection": "Section for new members",
+  "f3dAddSection": "Add section",
+  "f3dSection": "Section",
+  "f3dNodeN": "Node {n}",
+  "@f3dNodeN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dMove": "Move",
+  "f3dSupport": "Support",
+  "f3dSupportFree": "Free",
+  "f3dSupportPinned": "Pinned",
+  "f3dSupportFixed": "Fixed",
+  "f3dNodalLoad": "Nodal load ({name})",
+  "@f3dNodalLoad": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dMemberLoad": "Uniform load ({name})",
+  "@f3dMemberLoad": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dMemberLoadHelp": "Global axes, kN/m along the member; gravity is qz < 0.",
+  "f3dApplyLoad": "Apply load",
+  "f3dApply": "Apply",
+  "f3dRoll": "Roll angle",
+  "f3dDeleteNode": "Delete node and its members",
+  "f3dDeleteMember": "Delete member"
 }

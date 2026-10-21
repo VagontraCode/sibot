@@ -10,6 +10,7 @@ import 'package:sibot/features/calculations/shared/design_form.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
+import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -360,7 +361,7 @@ class _BuildingWizardState extends State<_BuildingWizard> {
   }
 }
 
-enum _Tab { model, statics, modes, seismic, buckling }
+enum _Tab { model, edit, statics, modes, seismic, buckling }
 
 /// Analysis of one 3D building: viewer and result panels.
 class Frame3DPage extends ConsumerStatefulWidget {
@@ -384,6 +385,13 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   int _mode = 0;
   int? _selected;
   final DesignCode _code = defaultDesignCode();
+  Frame3DEditController? _edit;
+
+  @override
+  void dispose() {
+    _edit?.dispose();
+    super.dispose();
+  }
 
   // Seismic input; the analysis runs when [_spectrum] is set.
   String _zone = '4';
@@ -409,10 +417,15 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    final key = paramsKey(record.params);
+    final edit = _edit ??= Frame3DEditController(record)
+      ..addListener(() {
+        if (mounted) setState(() {});
+      });
+    edit.sync(record);
+    final key = sourceKey(edit.record);
     final output = ref.watch(frame3dAnalysisProvider((key, _code)));
     final out = output.value;
-    final model = out?.model ?? buildingFrame(record.params);
+    final model = _tab == _Tab.edit ? edit.model : (out?.model ?? edit.model);
 
     final combo = _combo ?? out?.firstUls ?? 0;
     Frame3DResult? staticResult;
@@ -429,6 +442,15 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     }
 
     Widget viewer = switch (_tab) {
+      _Tab.edit => Frame3DView(
+        model: edit.model,
+        showNodes: true,
+        loadCase: edit.activeCase,
+        selectedNode: edit.node,
+        selectedMember: edit.member,
+        pendingNode: edit.connectFrom,
+        onPick: edit.pick,
+      ),
       _Tab.modes when out != null && out.modes.isNotEmpty => Frame3DView(
         model: model,
         shape: out.modes[_mode.clamp(0, out.modes.length - 1)].shape,
@@ -480,6 +502,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
                   child: ChoiceChip(
                     label: Text(switch (t) {
                       _Tab.model => l.f3dTabModel,
+                      _Tab.edit => l.f3dTabEdit,
                       _Tab.statics => l.f3dTabStatic,
                       _Tab.modes => l.f3dTabModes,
                       _Tab.seismic => l.f3dTabSeismic,
@@ -493,7 +516,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        if (out?.error != null)
+        if (out?.error != null && _tab != _Tab.edit)
           StatusBanner(
             tone: Tone.danger,
             title: l.frameAnalysisFailed,
@@ -501,7 +524,8 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           )
         else
           ...switch (_tab) {
-            _Tab.model => _modelPanel(context, record, model, out),
+            _Tab.model => _modelPanel(context, edit.record, model, out),
+            _Tab.edit => [Frame3DEditPanel(c: edit)],
             _Tab.statics => _staticPanel(context, out, combo, staticResult),
             _Tab.modes => _modesPanel(context, out),
             _Tab.seismic => _seismicPanel(context, spectrum),
@@ -993,8 +1017,8 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     if (out == null || pick is! MemberPick) return;
     setState(() => _selected = pick.member);
     final List<Frame3DResult> results;
-    if (seismic != null && out.caseResults.length >= 2) {
-      final quasi = out.caseResults[0].plus(out.caseResults[1].scaled(0.3));
+    final quasi = out.quasiPermanent;
+    if (seismic != null && quasi != null) {
       results = seismicSituations(quasi, seismic.envelope);
     } else {
       results = [

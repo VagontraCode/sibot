@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot_engine/sibot_engine.dart';
 
-/// A saved 3D building model: its generator parameters.
+/// A saved 3D model: the generator parameters and, once edited, the
+/// edited model itself.
 class Frame3DRecord {
   final String id;
   final String projectId;
@@ -13,13 +14,25 @@ class Frame3DRecord {
   final DateTime updatedAt;
   final BuildingParams params;
 
+  /// Edited model (null while the model is the generated building).
+  final Model3D? custom;
+
+  /// Lumped seismic masses (t) carried over from the generator; dropped
+  /// when the nodes change.
+  final List<double>? masses;
+
   const Frame3DRecord({
     required this.id,
     required this.projectId,
     required this.name,
     required this.updatedAt,
     required this.params,
+    this.custom,
+    this.masses,
   });
+
+  /// The model to analyse.
+  Model3D get model => custom ?? buildingFrame(params);
 
   Frame3DRecord copyWith({String? name, BuildingParams? params}) =>
       Frame3DRecord(
@@ -28,7 +41,39 @@ class Frame3DRecord {
         name: name ?? this.name,
         updatedAt: DateTime.now(),
         params: params ?? this.params,
+        // New parameters regenerate the building.
+        custom: params == null ? custom : null,
+        masses: params == null ? masses : null,
       );
+
+  /// The record with an edited model; masses are kept only while the
+  /// node count is unchanged.
+  Frame3DRecord withModel(Model3D m) {
+    final previous = masses ?? (custom == null ? _generatedMasses() : null);
+    return Frame3DRecord(
+      id: id,
+      projectId: projectId,
+      name: name,
+      updatedAt: DateTime.now(),
+      params: params,
+      custom: m,
+      masses: previous != null && previous.length == m.nodes.length
+          ? previous
+          : null,
+    );
+  }
+
+  List<double> _generatedMasses() =>
+      buildingNodeMasses(params, buildingFrame(params));
+
+  /// Back to the generated building.
+  Frame3DRecord regenerated() => Frame3DRecord(
+    id: id,
+    projectId: projectId,
+    name: name,
+    updatedAt: DateTime.now(),
+    params: params,
+  );
 
   Map<String, dynamic> toStored() => {
     'id': id,
@@ -36,11 +81,14 @@ class Frame3DRecord {
     'name': name,
     'updatedAt': updatedAt.millisecondsSinceEpoch,
     'params': jsonEncode(params.toJson()),
+    if (custom != null) 'model': jsonEncode(custom!.toJson()),
+    if (masses != null) 'masses': masses,
   };
 
   static Frame3DRecord? fromStored(Object? v) {
     if (v is! Map) return null;
     try {
+      final model = v['model'] as String?;
       return Frame3DRecord(
         id: v['id'] as String,
         projectId: v['projectId'] as String,
@@ -49,6 +97,14 @@ class Frame3DRecord {
         params: BuildingParams.fromJson(
           Map<String, dynamic>.from(jsonDecode(v['params'] as String) as Map),
         ),
+        custom: model == null
+            ? null
+            : Model3D.fromJson(
+                Map<String, dynamic>.from(jsonDecode(model) as Map),
+              ),
+        masses: (v['masses'] as List?)
+            ?.map((e) => (e as num).toDouble())
+            .toList(),
       );
     } catch (e) {
       LoggerService.w('Unreadable 3D model: $e');
@@ -98,13 +154,49 @@ final frame3dRecordProvider = StreamProvider.family<Frame3DRecord?, String>((
   }
 });
 
+/// What an isolate analyses, as JSON (value equality for provider keys).
+String sourceKey(Frame3DRecord r) => jsonEncode({
+  'p': r.params.toJson(),
+  if (r.custom != null) 'm': r.custom!.toJson(),
+  if (r.masses != null) 'mass': r.masses,
+});
+
+/// Model and modal options decoded from a [sourceKey].
+(Model3D, ModalOptions) _source(String key) {
+  final j = Map<String, dynamic>.from(jsonDecode(key) as Map);
+  final params = BuildingParams.fromJson(
+    Map<String, dynamic>.from(j['p'] as Map),
+  );
+  final custom = j['m'] == null
+      ? null
+      : Model3D.fromJson(Map<String, dynamic>.from(j['m'] as Map));
+  final model = custom ?? buildingFrame(params);
+  final stored = (j['mass'] as List?)
+      ?.map((e) => (e as num).toDouble())
+      .toList();
+  // Generated buildings: tributary floor areas × (g + 0.3 q) plus
+  // self-weight; edited models: stored masses while the nodes are
+  // unchanged, else the load cases with ψ2 factors (EN 1998-1 3.2.4).
+  final masses = custom == null
+      ? buildingNodeMasses(params, model)
+      : (stored != null && stored.length == model.nodes.length ? stored : null);
+  return (
+    model,
+    ModalOptions(
+      modes: 12,
+      nodeMasses: masses,
+      massCases: masses == null ? model.seismicMassFactors() : const {},
+    ),
+  );
+}
+
 /// Everything computed for a model, sent back from an isolate.
 class Frame3DOutput {
   final Model3D model;
   final List<Combination> combinations;
   final List<Frame3DResult> results;
 
-  /// Results of the load cases themselves (G, Q).
+  /// Results of the load cases themselves.
   final List<Frame3DResult> caseResults;
   final List<Mode> modes;
   final List<double> totalMass;
@@ -133,13 +225,21 @@ class Frame3DOutput {
     }
     return null;
   }
+
+  /// Quasi-permanent forces Σ G + ψ2 Q for the seismic situation.
+  Frame3DResult? get quasiPermanent {
+    Frame3DResult? out;
+    for (final e in model.seismicMassFactors().entries) {
+      if (e.key >= caseResults.length) continue;
+      final r = caseResults[e.key].scaled(e.value);
+      out = out == null ? r : out.plus(r);
+    }
+    return out;
+  }
 }
 
-// Modal masses: tributary floor areas × (g + 0.3 q) plus self-weight
-// (EN 1998-1 3.2.4 with ψE = 0.3).
-
-Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
-  final model = buildingFrame(params);
+Frame3DOutput runFrame3d(String key, DesignCode code) {
+  final (model, modalOptions) = _source(key);
   try {
     final an = Frame3DAnalysis(model);
     final cases = an.solveAll();
@@ -148,17 +248,14 @@ Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
     ], code);
     final results = [
       for (final c in combos)
-        c.factors.entries
-            .map((e) => cases[e.key].scaled(e.value))
-            .reduce((a, b) => a.plus(b)),
+        if (c.factors.isEmpty)
+          cases.first.scaled(0)
+        else
+          c.factors.entries
+              .map((e) => cases[e.key].scaled(e.value))
+              .reduce((a, b) => a.plus(b)),
     ];
-    final modal = modalAnalysis(
-      model,
-      options: ModalOptions(
-        modes: 12,
-        nodeMasses: buildingNodeMasses(params, model),
-      ),
-    );
+    final modal = modalAnalysis(model, options: modalOptions);
     double? alpha;
     List<List<double>>? shape;
     final uls = combos.indexWhere((c) => c.kind == CombinationKind.uls);
@@ -178,34 +275,33 @@ Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
       bucklingShape: shape,
     );
   } on ModelError catch (e) {
-    return Frame3DOutput(model: model, error: e.problem.name);
+    return Frame3DOutput(
+      model: model,
+      error: '${e.problem.name}${e.index == null ? '' : ' (${e.index! + 1})'}',
+    );
   }
 }
 
 final frame3dAnalysisProvider =
     FutureProvider.family<Frame3DOutput, (String, DesignCode)>((ref, key) {
-      final (json, code) = key;
-      return Isolate.run(() => runFrame3d(_decode(json), code));
+      final (source, code) = key;
+      return Isolate.run(() => runFrame3d(source, code));
     });
 
 /// Second-order result of one combination.
-Frame3DResult runPDelta(BuildingParams params, Map<int, double> factors) {
-  final model = buildingFrame(params);
-  final m = withCase(model, combinedCase(model, factors));
+Frame3DResult runPDelta(String key, int combo, DesignCode code) {
+  final (model, _) = _source(key);
+  final combos = combinationsFor([
+    for (final c in model.cases) (c.name, c.type),
+  ], code);
+  final m = withCase(model, combinedCase(model, combos[combo].factors));
   return Frame3DAnalysis(m).pDeltaCase(model.cases.length);
 }
 
 final frame3dPDeltaProvider =
     FutureProvider.family<Frame3DResult, (String, int, DesignCode)>((ref, key) {
-      final (json, combo, code) = key;
-      return Isolate.run(() {
-        final params = _decode(json);
-        final model = buildingFrame(params);
-        final combos = combinationsFor([
-          for (final c in model.cases) (c.name, c.type),
-        ], code);
-        return runPDelta(params, combos[combo].factors);
-      });
+      final (source, combo, code) = key;
+      return Isolate.run(() => runPDelta(source, combo, code));
     });
 
 /// Seismic input of the spectrum analysis.
@@ -274,15 +370,9 @@ class SeismicOutput {
   const SeismicOutput(this.runs, this.envelope);
 }
 
-SeismicOutput runSpectrum(BuildingParams params, SpectrumRequest r) {
-  final model = buildingFrame(params);
-  final modal = modalAnalysis(
-    model,
-    options: ModalOptions(
-      modes: 12,
-      nodeMasses: buildingNodeMasses(params, model),
-    ),
-  );
+SeismicOutput runSpectrum(String key, SpectrumRequest r) {
+  final (model, options) = _source(key);
+  final modal = modalAnalysis(model, options: options);
   SpectrumResult run(int d) => responseSpectrum(
     modal,
     direction: d,
@@ -302,12 +392,6 @@ SeismicOutput runSpectrum(BuildingParams params, SpectrumRequest r) {
 
 final frame3dSpectrumProvider =
     FutureProvider.family<SeismicOutput, (String, SpectrumRequest)>((ref, key) {
-      final (json, request) = key;
-      return Isolate.run(() => runSpectrum(_decode(json), request));
+      final (source, request) = key;
+      return Isolate.run(() => runSpectrum(source, request));
     });
-
-/// Provider key of a model: its parameters as JSON (value equality).
-String paramsKey(BuildingParams p) => jsonEncode(p.toJson());
-
-BuildingParams _decode(String json) =>
-    BuildingParams.fromJson(Map<String, dynamic>.from(jsonDecode(json) as Map));

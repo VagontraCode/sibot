@@ -3200,4 +3200,122 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get f3dTapToDesign => 'Tap a member in the view to design it.';
+
+  @override
+  String get f3dTabEdit => 'Edit';
+
+  @override
+  String get f3dEditGenerated => 'Generated building';
+
+  @override
+  String get f3dEditGeneratedMsg =>
+      'Your first edit turns it into a custom model. Changing the building parameters later regenerates it and discards the edits.';
+
+  @override
+  String get f3dRegenerate => 'Regenerate from the parameters';
+
+  @override
+  String get f3dRegenerateConfirm =>
+      'Discard all edits and regenerate the building from its parameters?';
+
+  @override
+  String get f3dConfirm => 'Confirm';
+
+  @override
+  String get f3dUndo => 'Undo';
+
+  @override
+  String get f3dConnect => 'Add members';
+
+  @override
+  String get f3dAddNode => 'Add node';
+
+  @override
+  String get f3dConnectHelp =>
+      'Tap a node, then the next one: each pair is joined by a member of the active section. Tap the tool again to stop.';
+
+  @override
+  String get f3dSelectHelp => 'Tap a node or a member to edit it.';
+
+  @override
+  String get f3dLoadCase => 'Load case';
+
+  @override
+  String get f3dAddCase => 'Add load case';
+
+  @override
+  String get f3dCaseName => 'Name';
+
+  @override
+  String get f3dCaseType => 'Type';
+
+  @override
+  String get f3dTypePermanent => 'Permanent (G)';
+
+  @override
+  String get f3dTypeImposed => 'Imposed (Q)';
+
+  @override
+  String get f3dTypeSnow => 'Snow (S)';
+
+  @override
+  String get f3dTypeWind => 'Wind (W)';
+
+  @override
+  String get f3dActiveSection => 'Section for new members';
+
+  @override
+  String get f3dAddSection => 'Add section';
+
+  @override
+  String get f3dSection => 'Section';
+
+  @override
+  String f3dNodeN(int n) {
+    return 'Node $n';
+  }
+
+  @override
+  String get f3dMove => 'Move';
+
+  @override
+  String get f3dSupport => 'Support';
+
+  @override
+  String get f3dSupportFree => 'Free';
+
+  @override
+  String get f3dSupportPinned => 'Pinned';
+
+  @override
+  String get f3dSupportFixed => 'Fixed';
+
+  @override
+  String f3dNodalLoad(String name) {
+    return 'Nodal load ($name)';
+  }
+
+  @override
+  String f3dMemberLoad(String name) {
+    return 'Uniform load ($name)';
+  }
+
+  @override
+  String get f3dMemberLoadHelp =>
+      'Global axes, kN/m along the member; gravity is qz < 0.';
+
+  @override
+  String get f3dApplyLoad => 'Apply load';
+
+  @override
+  String get f3dApply => 'Apply';
+
+  @override
+  String get f3dRoll => 'Roll angle';
+
+  @override
+  String get f3dDeleteNode => 'Delete node and its members';
+
+  @override
+  String get f3dDeleteMember => 'Delete member';
 }

@@ -5947,6 +5947,222 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap a member in the view to design it.'**
   String get f3dTapToDesign;
+
+  /// No description provided for @f3dTabEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get f3dTabEdit;
+
+  /// No description provided for @f3dEditGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated building'**
+  String get f3dEditGenerated;
+
+  /// No description provided for @f3dEditGeneratedMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first edit turns it into a custom model. Changing the building parameters later regenerates it and discards the edits.'**
+  String get f3dEditGeneratedMsg;
+
+  /// No description provided for @f3dRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate from the parameters'**
+  String get f3dRegenerate;
+
+  /// No description provided for @f3dRegenerateConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard all edits and regenerate the building from its parameters?'**
+  String get f3dRegenerateConfirm;
+
+  /// No description provided for @f3dConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get f3dConfirm;
+
+  /// No description provided for @f3dUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get f3dUndo;
+
+  /// No description provided for @f3dConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Add members'**
+  String get f3dConnect;
+
+  /// No description provided for @f3dAddNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Add node'**
+  String get f3dAddNode;
+
+  /// No description provided for @f3dConnectHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a node, then the next one: each pair is joined by a member of the active section. Tap the tool again to stop.'**
+  String get f3dConnectHelp;
+
+  /// No description provided for @f3dSelectHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a node or a member to edit it.'**
+  String get f3dSelectHelp;
+
+  /// No description provided for @f3dLoadCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Load case'**
+  String get f3dLoadCase;
+
+  /// No description provided for @f3dAddCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Add load case'**
+  String get f3dAddCase;
+
+  /// No description provided for @f3dCaseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get f3dCaseName;
+
+  /// No description provided for @f3dCaseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get f3dCaseType;
+
+  /// No description provided for @f3dTypePermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent (G)'**
+  String get f3dTypePermanent;
+
+  /// No description provided for @f3dTypeImposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Imposed (Q)'**
+  String get f3dTypeImposed;
+
+  /// No description provided for @f3dTypeSnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow (S)'**
+  String get f3dTypeSnow;
+
+  /// No description provided for @f3dTypeWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind (W)'**
+  String get f3dTypeWind;
+
+  /// No description provided for @f3dActiveSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section for new members'**
+  String get f3dActiveSection;
+
+  /// No description provided for @f3dAddSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add section'**
+  String get f3dAddSection;
+
+  /// No description provided for @f3dSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get f3dSection;
+
+  /// No description provided for @f3dNodeN.
+  ///
+  /// In en, this message translates to:
+  /// **'Node {n}'**
+  String f3dNodeN(int n);
+
+  /// No description provided for @f3dMove.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get f3dMove;
+
+  /// No description provided for @f3dSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get f3dSupport;
+
+  /// No description provided for @f3dSupportFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get f3dSupportFree;
+
+  /// No description provided for @f3dSupportPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get f3dSupportPinned;
+
+  /// No description provided for @f3dSupportFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get f3dSupportFixed;
+
+  /// No description provided for @f3dNodalLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodal load ({name})'**
+  String f3dNodalLoad(String name);
+
+  /// No description provided for @f3dMemberLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Uniform load ({name})'**
+  String f3dMemberLoad(String name);
+
+  /// No description provided for @f3dMemberLoadHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Global axes, kN/m along the member; gravity is qz < 0.'**
+  String get f3dMemberLoadHelp;
+
+  /// No description provided for @f3dApplyLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply load'**
+  String get f3dApplyLoad;
+
+  /// No description provided for @f3dApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get f3dApply;
+
+  /// No description provided for @f3dRoll.
+  ///
+  /// In en, this message translates to:
+  /// **'Roll angle'**
+  String get f3dRoll;
+
+  /// No description provided for @f3dDeleteNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete node and its members'**
+  String get f3dDeleteNode;
+
+  /// No description provided for @f3dDeleteMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete member'**
+  String get f3dDeleteMember;
 }
 
 class _AppLocalizationsDelegate

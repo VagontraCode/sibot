@@ -172,7 +172,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] PS92 spectrum (zones Ia–III, classes B–D, sites S0–S3) as an alternative to EN 1998-1
 - [x] P-δ in the member moment diagrams of second-order runs (exact Timoshenko amplification reproduced)
 - [x] Member design from 3D results: tap a member, envelope of ULS combinations or seismic G + 0.3 Q ± E; RC beam/column (biaxial) and EC3 steel with minor-axis bending
-- [ ] Free 3D editing (nodes, members, loads)
+- [x] Free 3D editing: add, move and delete nodes; connect members; supports; sections; load cases (G, Q, S, W); nodal and member loads; undo; rigid floors follow the levels
 
 ### Phase 5 — Plates, polish and performance
 - [ ] Plate elements for slabs and rafts, contour maps, and reinforcement from Wood–Armer moments

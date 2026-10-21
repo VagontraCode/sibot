@@ -520,7 +520,7 @@ class _FramePainter extends CustomPainter {
         final a = nodes[el.n1], b = nodes[el.n2];
         final w = math.sqrt(q.qx * q.qx + q.qy * q.qy + q.qz * q.qz);
         if (w == 0) continue;
-        for (final t in const [0.25, 0.5, 0.75]) {
+        for (final t in const [0.5]) {
           final tip = pr
               .project(
                 a.x + (b.x - a.x) * t,

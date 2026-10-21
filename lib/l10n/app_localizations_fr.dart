@@ -3220,4 +3220,122 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get f3dTapToDesign =>
       'Touchez une barre dans la vue pour la dimensionner.';
+
+  @override
+  String get f3dTabEdit => 'Modifier';
+
+  @override
+  String get f3dEditGenerated => 'Bâtiment généré';
+
+  @override
+  String get f3dEditGeneratedMsg =>
+      'La première modification en fait un modèle personnalisé. Changer ensuite les paramètres du bâtiment le régénère et efface les modifications.';
+
+  @override
+  String get f3dRegenerate => 'Régénérer depuis les paramètres';
+
+  @override
+  String get f3dRegenerateConfirm =>
+      'Effacer toutes les modifications et régénérer le bâtiment depuis ses paramètres ?';
+
+  @override
+  String get f3dConfirm => 'Confirmer';
+
+  @override
+  String get f3dUndo => 'Annuler';
+
+  @override
+  String get f3dConnect => 'Ajouter des barres';
+
+  @override
+  String get f3dAddNode => 'Ajouter un nœud';
+
+  @override
+  String get f3dConnectHelp =>
+      'Touchez un nœud puis le suivant : chaque paire est reliée par une barre de la section active. Touchez à nouveau l\'outil pour arrêter.';
+
+  @override
+  String get f3dSelectHelp => 'Touchez un nœud ou une barre pour le modifier.';
+
+  @override
+  String get f3dLoadCase => 'Cas de charge';
+
+  @override
+  String get f3dAddCase => 'Ajouter un cas de charge';
+
+  @override
+  String get f3dCaseName => 'Nom';
+
+  @override
+  String get f3dCaseType => 'Type';
+
+  @override
+  String get f3dTypePermanent => 'Permanente (G)';
+
+  @override
+  String get f3dTypeImposed => 'Exploitation (Q)';
+
+  @override
+  String get f3dTypeSnow => 'Neige (S)';
+
+  @override
+  String get f3dTypeWind => 'Vent (W)';
+
+  @override
+  String get f3dActiveSection => 'Section des nouvelles barres';
+
+  @override
+  String get f3dAddSection => 'Ajouter une section';
+
+  @override
+  String get f3dSection => 'Section';
+
+  @override
+  String f3dNodeN(int n) {
+    return 'Nœud $n';
+  }
+
+  @override
+  String get f3dMove => 'Déplacer';
+
+  @override
+  String get f3dSupport => 'Appui';
+
+  @override
+  String get f3dSupportFree => 'Libre';
+
+  @override
+  String get f3dSupportPinned => 'Rotule';
+
+  @override
+  String get f3dSupportFixed => 'Encastré';
+
+  @override
+  String f3dNodalLoad(String name) {
+    return 'Charge nodale ($name)';
+  }
+
+  @override
+  String f3dMemberLoad(String name) {
+    return 'Charge répartie ($name)';
+  }
+
+  @override
+  String get f3dMemberLoadHelp =>
+      'Axes globaux, kN/m le long de la barre ; la pesanteur est qz < 0.';
+
+  @override
+  String get f3dApplyLoad => 'Appliquer la charge';
+
+  @override
+  String get f3dApply => 'Appliquer';
+
+  @override
+  String get f3dRoll => 'Angle de rotation';
+
+  @override
+  String get f3dDeleteNode => 'Supprimer le nœud et ses barres';
+
+  @override
+  String get f3dDeleteMember => 'Supprimer la barre';
 }

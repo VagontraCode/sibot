@@ -32,6 +32,7 @@ import 'package:sibot/features/tools/tools_providers.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
+import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/main.dart';
@@ -342,6 +343,7 @@ void main() {
     'frame3d_list': '/projects/PRJ_1/frame3d',
     'frame3d_static': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_modes': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_edit': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_seismic': '/projects/PRJ_1/frame3d/F3_1',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
@@ -414,10 +416,21 @@ void main() {
                 }
               }
               if (s.key == 'frame3d_modes') {
-                await tester.tap(find.byType(ChoiceChip).at(2));
+                final modes = find.byType(ChoiceChip).at(3);
+                await tester.ensureVisible(modes);
+                await tester.pump();
+                await tester.tap(modes);
+              }
+              if (s.key == 'frame3d_edit') {
+                final edit = find.byType(ChoiceChip).at(1);
+                await tester.ensureVisible(edit);
+                await tester.pump();
+                await tester.tap(edit);
+                await tester.pump();
+                expect(find.byType(Frame3DEditPanel), findsOneWidget);
               }
               if (s.key == 'frame3d_seismic') {
-                final chip = find.byType(ChoiceChip).at(3);
+                final chip = find.byType(ChoiceChip).at(4);
                 await tester.ensureVisible(chip);
                 await tester.pump();
                 await tester.tap(chip);
