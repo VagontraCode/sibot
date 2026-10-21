@@ -5881,6 +5881,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes.'**
   String get f3dRigidFloorsHelp;
+
+  /// No description provided for @f3dPs92Zone.
+  ///
+  /// In en, this message translates to:
+  /// **'Seismic zone'**
+  String get f3dPs92Zone;
+
+  /// No description provided for @f3dPs92Class.
+  ///
+  /// In en, this message translates to:
+  /// **'Building class'**
+  String get f3dPs92Class;
+
+  /// No description provided for @f3dPs92Site.
+  ///
+  /// In en, this message translates to:
+  /// **'Site'**
+  String get f3dPs92Site;
+
+  /// No description provided for @f3dPs92Note.
+  ///
+  /// In en, this message translates to:
+  /// **'PS92 (NF P 06-013): aN = {an} m/s², normalised spectrum R(T) of the site, damping 5 % (ρ = 1), no topographic effect (τ = 1). Design acceleration aN·R(T)/q.'**
+  String f3dPs92Note(String an);
 }
 
 class _AppLocalizationsDelegate

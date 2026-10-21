@@ -3181,4 +3181,18 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get f3dRigidFloorsHelp =>
       'Les dalles solidarisent chaque niveau dans son plan : nécessaire pour la torsion accidentelle et des modes sismiques réalistes.';
+
+  @override
+  String get f3dPs92Zone => 'Zone sismique';
+
+  @override
+  String get f3dPs92Class => 'Classe d\'ouvrage';
+
+  @override
+  String get f3dPs92Site => 'Site';
+
+  @override
+  String f3dPs92Note(String an) {
+    return 'PS92 (NF P 06-013) : aN = $an m/s², spectre normalisé R(T) du site, amortissement 5 % (ρ = 1), sans effet topographique (τ = 1). Accélération de calcul aN·R(T)/q.';
+  }
 }

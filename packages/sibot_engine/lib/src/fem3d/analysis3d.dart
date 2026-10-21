@@ -642,7 +642,12 @@ class Frame3DAnalysis {
         nodeForces[el.e.n1][k] += fg[k];
         nodeForces[el.e.n2][k] += fg[6 + k];
       }
-      members.add(Member3DResult(fe, _stations(el, fe, ul, q[i])));
+      members.add(
+        Member3DResult(
+          fe,
+          _stations(el, fe, ul, q[i], secondOrder: extra != null),
+        ),
+      );
     }
 
     final reactions = <int, List<double>>{
@@ -657,8 +662,9 @@ class Frame3DAnalysis {
     _Elem3 el,
     List<double> f,
     List<double> u,
-    List<double> q,
-  ) {
+    List<double> q, {
+    bool secondOrder = false,
+  }) {
     final l = el.l;
     final (qx, qy, qz) = (q[0], q[1], q[2]);
     final out = <Station3D>[];
@@ -676,15 +682,21 @@ class Frame3DAnalysis {
           n1 * u[1] + n2 * u[5] + n3 * u[7] + n4 * u[11] + qy * bubble / el.eiz;
       final w =
           n1 * u[2] - n2 * u[4] + n3 * u[8] - n4 * u[10] + qz * bubble / el.eiy;
+      final n = -(f[0] + qx * x);
+      // Second-order runs: moments integrated from the start node include
+      // the axial force acting on the deflection relative to that node
+      // (chord rotation and P-δ).
+      final dv = secondOrder ? v - u[1] : 0.0;
+      final dw = secondOrder ? w - u[2] : 0.0;
       out.add(
         Station3D(
           x,
-          -(f[0] + qx * x),
+          n,
           f[1] + qy * x,
           f[2] + qz * x,
           -f[3],
-          f[4] + x * f[2] + qz * x * x / 2,
-          -(f[5] - x * f[1] - qy * x * x / 2),
+          f[4] + x * f[2] + qz * x * x / 2 + n * dw,
+          -(f[5] - x * f[1] - qy * x * x / 2) + n * dv,
           _toGlobal(el, [ua, v, w]),
         ),
       );

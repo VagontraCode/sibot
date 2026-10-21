@@ -963,5 +963,9 @@
   "f3dTorsionApplied": "Torsion accidentelle : Σ Mai = {m} kN·m.",
   "f3dCombinedNote": "Efforts affichés : le plus grand de EX + 0,3 EY et 0,3 EX + EY (EN 1998-1 4.3.3.5.1).",
   "f3dRigidFloors": "Planchers rigides (diaphragmes)",
-  "f3dRigidFloorsHelp": "Les dalles solidarisent chaque niveau dans son plan : nécessaire pour la torsion accidentelle et des modes sismiques réalistes."
+  "f3dRigidFloorsHelp": "Les dalles solidarisent chaque niveau dans son plan : nécessaire pour la torsion accidentelle et des modes sismiques réalistes.",
+  "f3dPs92Zone": "Zone sismique",
+  "f3dPs92Class": "Classe d'ouvrage",
+  "f3dPs92Site": "Site",
+  "f3dPs92Note": "PS92 (NF P 06-013) : aN = {an} m/s², spectre normalisé R(T) du site, amortissement 5 % (ρ = 1), sans effet topographique (τ = 1). Accélération de calcul aN·R(T)/q."
 }

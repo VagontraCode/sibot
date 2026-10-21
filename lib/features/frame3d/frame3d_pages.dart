@@ -391,6 +391,10 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   double? _q = 1.5;
   int _direction = 2;
   bool _torsion = true;
+  bool _ps92 = false;
+  Ps92Zone _psZone = Ps92Zone.ib;
+  String _psClass = 'C';
+  Ps92Site _psSite = Ps92Site.s1;
   SpectrumRequest? _spectrum;
 
   @override
@@ -761,49 +765,99 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
 
   List<Widget> _seismicPanel(BuildContext context, SeismicOutput? s) {
     final l = context.l10n;
-    return [
-      PickerField<String>(
-        key: ValueKey('zone-$_zone'),
-        label: l.seismicZone,
-        value: _zone,
-        options: {
-          'custom': l.seismicZoneCustom,
-          for (final z in frenchZones.entries)
-            '${z.key}': l.seismicZoneN(z.key, fmt(context, z.value, 1)),
-        },
-        onChanged: (v) => setState(() {
-          _zone = v;
-          final n = int.tryParse(v);
-          if (n != null) _agR = frenchZones[n];
-        }),
-      ),
-      const SizedBox(height: Gap.md),
+    final ps92 = <Widget>[
       FieldRow(
         children: [
-          NumberField(
-            key: ValueKey('ag-$_zone'),
-            label: l.seismicAgR,
-            unit: 'm/s²',
-            value: _agR,
-            onChanged: (v) => _agR = v,
+          PickerField<Ps92Zone>(
+            label: l.f3dPs92Zone,
+            value: _psZone,
+            options: const {
+              Ps92Zone.ia: 'Ia',
+              Ps92Zone.ib: 'Ib',
+              Ps92Zone.ii: 'II',
+              Ps92Zone.iii: 'III',
+            },
+            onChanged: (v) => setState(() => _psZone = v),
           ),
-          NumberField(label: l.seismicQ, value: _q, onChanged: (v) => _q = v),
+          PickerField<String>(
+            label: l.f3dPs92Class,
+            value: _psClass,
+            options: const {'B': 'B', 'C': 'C', 'D': 'D'},
+            onChanged: (v) => setState(() => _psClass = v),
+          ),
         ],
       ),
       const SizedBox(height: Gap.md),
-      ChoiceField<GroundType>(
-        label: l.seismicGround,
-        value: _ground,
-        options: {for (final g in GroundType.values) g: g.name.toUpperCase()},
-        onChanged: (v) => setState(() => _ground = v),
+      ChoiceField<Ps92Site>(
+        label: l.f3dPs92Site,
+        value: _psSite,
+        options: {for (final s in Ps92Site.values) s: s.name.toUpperCase()},
+        onChanged: (v) => setState(() => _psSite = v),
       ),
       const SizedBox(height: Gap.md),
-      ChoiceField<int>(
-        label: l.seismicImportance,
-        value: _importance,
-        options: const {1: 'I', 2: 'II', 3: 'III', 4: 'IV'},
-        onChanged: (v) => setState(() => _importance = v),
+      NumberField(label: l.seismicQ, value: _q, onChanged: (v) => _q = v),
+      const SizedBox(height: Gap.sm),
+      Text(
+        l.f3dPs92Note(
+          fmt(context, ps92NominalAcceleration(_psZone, _psClass), 1),
+        ),
+        style: context.text.bodySmall,
       ),
+    ];
+    return [
+      ChoiceField<bool>(
+        label: l.footingCode,
+        value: _ps92,
+        options: const {false: 'EN 1998-1', true: 'PS92'},
+        onChanged: (v) => setState(() => _ps92 = v),
+      ),
+      const SizedBox(height: Gap.md),
+      if (_ps92)
+        ...ps92
+      else ...[
+        PickerField<String>(
+          key: ValueKey('zone-$_zone'),
+          label: l.seismicZone,
+          value: _zone,
+          options: {
+            'custom': l.seismicZoneCustom,
+            for (final z in frenchZones.entries)
+              '${z.key}': l.seismicZoneN(z.key, fmt(context, z.value, 1)),
+          },
+          onChanged: (v) => setState(() {
+            _zone = v;
+            final n = int.tryParse(v);
+            if (n != null) _agR = frenchZones[n];
+          }),
+        ),
+        const SizedBox(height: Gap.md),
+        FieldRow(
+          children: [
+            NumberField(
+              key: ValueKey('ag-$_zone'),
+              label: l.seismicAgR,
+              unit: 'm/s²',
+              value: _agR,
+              onChanged: (v) => _agR = v,
+            ),
+            NumberField(label: l.seismicQ, value: _q, onChanged: (v) => _q = v),
+          ],
+        ),
+        const SizedBox(height: Gap.md),
+        ChoiceField<GroundType>(
+          label: l.seismicGround,
+          value: _ground,
+          options: {for (final g in GroundType.values) g: g.name.toUpperCase()},
+          onChanged: (v) => setState(() => _ground = v),
+        ),
+        const SizedBox(height: Gap.md),
+        ChoiceField<int>(
+          label: l.seismicImportance,
+          value: _importance,
+          options: const {1: 'I', 2: 'II', 3: 'III', 4: 'IV'},
+          onChanged: (v) => setState(() => _importance = v),
+        ),
+      ],
       const SizedBox(height: Gap.md),
       ChoiceField<int>(
         label: l.f3dDirection,
@@ -821,7 +875,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       const SizedBox(height: Gap.sm),
       FilledButton.icon(
         onPressed: () {
-          if ((_agR ?? 0) <= 0 || (_q ?? 0) < 1) return;
+          if ((!_ps92 && (_agR ?? 0) <= 0) || (_q ?? 0) < 1) return;
           setState(
             () => _spectrum = SpectrumRequest(
               agR: _agR!,
@@ -831,6 +885,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
               q: _q!,
               direction: _direction,
               torsion: _torsion,
+              ps92: _ps92,
+              aN: ps92NominalAcceleration(_psZone, _psClass),
+              site: _psSite,
             ),
           );
         },

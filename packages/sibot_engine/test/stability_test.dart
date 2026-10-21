@@ -59,6 +59,36 @@ void main() {
     expect(Frame3DAnalysis(m).bucklingFactor(0), isNull);
   });
 
+  test('P-δ: pinned strut with UDL matches 2(sec u − 1)/u² amplification', () {
+    // Timoshenko: Mmax = M0 · 2(sec u − 1) / u², u = (L/2)√(P/EI).
+    // P = 0.3 Pe: amplification 1.441, M0 = q L² / 8 = 6.25 kN·m.
+    final p = 0.3 * math.pi * math.pi * ei / (l * l);
+    const parts = 4;
+    final m = Model3D(
+      nodes: [for (var i = 0; i <= parts; i++) Node3D(0, 0, l * i / parts)],
+      supports: const {
+        0: Support3D(ux: true, uy: true, uz: true, rz: true),
+        parts: Support3D(ux: true, uy: true),
+      },
+      sections: const [sec],
+      elements: [for (var i = 0; i < parts; i++) Element3D(i, i + 1, 0)],
+      cases: [
+        LoadCase3D(
+          name: 'P',
+          nodal: [NodalLoad3D(parts, fz: -p)],
+          member: [for (var i = 0; i < parts; i++) MemberLoad3D(i, qy: 2)],
+        ),
+      ],
+    );
+    final an = Frame3DAnalysis(m);
+    final m1 = an.solveCase(0).members[1].stations.last.mz.abs();
+    final m2 = an.pDeltaCase(0).members[1].stations.last.mz.abs();
+    final u = l / 2 * math.sqrt(p / ei);
+    final amp = 2 * (1 / math.cos(u) - 1) / (u * u);
+    expect(m1, closeTo(6.25, 1e-6));
+    expect(m2, closeTo(6.25 * amp, 6.25 * amp * 0.015));
+  });
+
   test('P-Δ amplifies the sway by about 1 / (1 − P/Pcr)', () {
     // Cantilever, P = 40 % of Pcr, lateral load H at the top.
     final pcr = math.pi * math.pi * ei / (4 * l * l);

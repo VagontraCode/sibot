@@ -169,7 +169,8 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Modal analysis (subspace iteration), mass ratios; EC8 response spectrum with CQC
 - [x] P-Δ (geometric stiffness iteration) and elastic critical factor αcr
 - [x] Rigid floor diaphragms (master–slave), accidental torsion (±5 %), EX + 0.3 EY combination, tributary-area seismic masses
-- [ ] PS92 spectrum
+- [x] PS92 spectrum (zones Ia–III, classes B–D, sites S0–S3) as an alternative to EN 1998-1
+- [x] P-δ in the member moment diagrams of second-order runs (exact Timoshenko amplification reproduced)
 - [ ] Free 3D editing (nodes, members, loads) and member design from 3D results
 
 ### Phase 5 — Plates, polish and performance

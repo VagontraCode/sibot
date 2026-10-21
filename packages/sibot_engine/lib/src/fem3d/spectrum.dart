@@ -78,6 +78,10 @@ SpectrumResult responseSpectrum(
   required double q,
   double zeta = 0.05,
   bool accidentalTorsion = false,
+
+  /// Design acceleration (m/s²) as a function of the period, replacing
+  /// the EN 1998-1 spectrum (e.g. PS92).
+  double Function(double period)? design,
 }) {
   final an = modal.analysis;
   final responses = <ModalResponse>[];
@@ -86,7 +90,8 @@ SpectrumResult responseSpectrum(
   for (var j = 0; j < modal.modes.length; j++) {
     final m = modal.modes[j];
     if (m.omega <= 0) continue;
-    final sd = designSpectrum(m.period, ag, spectrum, q);
+    final sd =
+        design?.call(m.period) ?? designSpectrum(m.period, ag, spectrum, q);
     final gamma = m.participation[direction];
     // Modal displacements u = Γ φ Sd / ω².
     final f = gamma * sd / (m.omega * m.omega);

@@ -3162,4 +3162,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get f3dRigidFloorsHelp =>
       'Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes.';
+
+  @override
+  String get f3dPs92Zone => 'Seismic zone';
+
+  @override
+  String get f3dPs92Class => 'Building class';
+
+  @override
+  String get f3dPs92Site => 'Site';
+
+  @override
+  String f3dPs92Note(String an) {
+    return 'PS92 (NF P 06-013): aN = $an m/s², normalised spectrum R(T) of the site, damping 5 % (ρ = 1), no topographic effect (τ = 1). Design acceleration aN·R(T)/q.';
+  }
 }

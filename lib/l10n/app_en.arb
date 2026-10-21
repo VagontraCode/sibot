@@ -1403,5 +1403,16 @@
   },
   "f3dCombinedNote": "Forces shown: the larger of EX + 0.3 EY and 0.3 EX + EY (EN 1998-1 4.3.3.5.1).",
   "f3dRigidFloors": "Rigid floors (diaphragms)",
-  "f3dRigidFloorsHelp": "Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes."
+  "f3dRigidFloorsHelp": "Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes.",
+  "f3dPs92Zone": "Seismic zone",
+  "f3dPs92Class": "Building class",
+  "f3dPs92Site": "Site",
+  "f3dPs92Note": "PS92 (NF P 06-013): aN = {an} m/s², normalised spectrum R(T) of the site, damping 5 % (ρ = 1), no topographic effect (τ = 1). Design acceleration aN·R(T)/q.",
+  "@f3dPs92Note": {
+    "placeholders": {
+      "an": {
+        "type": "String"
+      }
+    }
+  }
 }

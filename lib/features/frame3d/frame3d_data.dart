@@ -215,6 +215,11 @@ class SpectrumRequest {
   final int direction;
   final bool torsion;
 
+  /// PS92 instead of EN 1998-1: nominal acceleration and site class.
+  final bool ps92;
+  final double aN;
+  final Ps92Site site;
+
   const SpectrumRequest({
     required this.agR,
     required this.ground,
@@ -223,6 +228,9 @@ class SpectrumRequest {
     this.q = 1.5,
     this.direction = 0,
     this.torsion = true,
+    this.ps92 = false,
+    this.aN = 0,
+    this.site = Ps92Site.s1,
   });
 
   @override
@@ -234,11 +242,24 @@ class SpectrumRequest {
       other.type1 == type1 &&
       other.q == q &&
       other.direction == direction &&
-      other.torsion == torsion;
+      other.torsion == torsion &&
+      other.ps92 == ps92 &&
+      other.aN == aN &&
+      other.site == site;
 
   @override
-  int get hashCode =>
-      Object.hash(agR, importance, ground, type1, q, direction, torsion);
+  int get hashCode => Object.hash(
+    agR,
+    importance,
+    ground,
+    type1,
+    q,
+    direction,
+    torsion,
+    ps92,
+    aN,
+    site,
+  );
 }
 
 /// Spectrum runs (one per direction) and the response to display.
@@ -264,6 +285,7 @@ SeismicOutput runSpectrum(BuildingParams params, SpectrumRequest r) {
     spectrum: spectrumParams(r.ground, type1: r.type1),
     q: r.q,
     accidentalTorsion: r.torsion,
+    design: r.ps92 ? (t) => ps92Spectrum(t, r.aN, r.site, r.q) : null,
   );
   if (r.direction == 2) {
     final x = run(0), y = run(1);
