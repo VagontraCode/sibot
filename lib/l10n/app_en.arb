@@ -1164,5 +1164,94 @@
   "slopeCircles": "Circles analysed",
   "slopeNoteScope": "Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ' and c' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.",
   "checkSlopeGlobal": "Global factor of safety",
-  "checkSlopeEc7": "Overall stability (EC7)"
+  "checkSlopeEc7": "Overall stability (EC7)",
+  "pileCapSubtitle": "Strut-and-tie (Blévot) · 2, 3 or 4 piles",
+  "pileCapPiles": "Number of piles",
+  "pileCapGeometry": "Load and geometry",
+  "pileCapLoad": "Column load NEd (ULS)",
+  "pileCapSpacing": "Pile spacing",
+  "pileCapDiameter": "Pile diameter",
+  "pileCapColumn": "Column side",
+  "pileCapDepth": "Cap depth h",
+  "pileCapEdge": "Edge beyond piles",
+  "pileCapGeometryNote": "Centred square column, piles equally spaced (≥ 2 diameters): in line, triangle or square. Cover measured to the tie bars over the pile heads. Cap self-weight × 1.35 is added.",
+  "pileCapDepthRange": "Use a depth between {min} and {max} mm",
+  "@pileCapDepthRange": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "pileCapDepthMsg": "The strut angle should stay between 45° and 55° for the strut-and-tie model to be valid.",
+  "pileCapUseDepth": "Use the middle of the range",
+  "pileCapModel": "Strut-and-tie model",
+  "pileCapPlan": "Plan dimensions",
+  "pileCapSelfWeight": "Cap self-weight",
+  "pileCapReaction": "Pile reaction (ULS)",
+  "pileCapAngle": "Strut angle",
+  "pileCapTie": "Force per tie ({n, plural, =1{1 tie} other{{n} ties}})",
+  "@pileCapTie": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "pileCapTieSteel": "Steel per tie",
+  "pileCapTieBars": "Bars per tie (over the piles)",
+  "pileCapNodeColumn": "Node under the column",
+  "pileCapNodePile": "Node over each pile",
+  "pileCapNoteScope": "Rigid cap, centred axial load only. Ties run between pile heads and are anchored beyond the pile axes with hooks. Add a nominal mesh (bottom and top) and side bars. Pile capacity and group effects are not checked here. The column node uses the basic limit k1 ν′fcd (EC2 6.5.4(4)a), which is conservative: a confined node may justify a higher limit (6.5.4(6)).",
+  "checkStrutAngle": "Strut angle",
+  "checkTieSteel": "Tie reinforcement",
+  "checkNodeColumn": "Node under the column",
+  "checkNodePile": "Node over the piles",
+  "septicSubtitle": "Volume and layout of a two-compartment tank",
+  "septicUse": "Use",
+  "septicUsers": "Users",
+  "septicRooms": "Main rooms (house)",
+  "septicFlow": "Wastewater per user",
+  "septicRetention": "Retention time",
+  "septicSludge": "Sludge per user",
+  "septicYears": "Emptying interval",
+  "septicUseNote": "Typical values: 100–150 L/d per user with mains water, 40–60 L/d without; 1 day retention; 40 L of sludge per user per year. For a house, enter the number of main rooms to apply the DTU 64.1 minimum (3 m³ up to 5 rooms, + 1 m³ per extra room).",
+  "septicShape": "Shape",
+  "septicDepth": "Liquid depth",
+  "septicFreeboard": "Freeboard",
+  "septicRatio": "Length / width",
+  "septicVolume": "Liquid volume {v} m³",
+  "@septicVolume": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "septicDims": "Inside dimensions {l} × {b} m, total depth {h} m",
+  "@septicDims": {
+    "placeholders": {
+      "l": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      },
+      "h": {
+        "type": "String"
+      }
+    }
+  },
+  "septicVolumes": "Volumes",
+  "septicSettling": "Settling (flow × retention)",
+  "septicSludgeVolume": "Sludge storage",
+  "septicDtuMin": "DTU 64.1 minimum",
+  "septicProvided": "Volume provided",
+  "septicLayout": "Layout",
+  "septicInside": "Inside dimensions",
+  "septicCompartments": "Compartments",
+  "septicNoteScope": "Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered."
 }

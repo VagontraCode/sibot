@@ -2757,4 +2757,180 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get checkSlopeEc7 => 'Stabilité générale (EC7)';
+
+  @override
+  String get pileCapSubtitle => 'Bielles et tirants (Blévot) · 2, 3 ou 4 pieux';
+
+  @override
+  String get pileCapPiles => 'Nombre de pieux';
+
+  @override
+  String get pileCapGeometry => 'Charge et géométrie';
+
+  @override
+  String get pileCapLoad => 'Charge du poteau NEd (ELU)';
+
+  @override
+  String get pileCapSpacing => 'Entraxe des pieux';
+
+  @override
+  String get pileCapDiameter => 'Diamètre des pieux';
+
+  @override
+  String get pileCapColumn => 'Côté du poteau';
+
+  @override
+  String get pileCapDepth => 'Hauteur de la semelle h';
+
+  @override
+  String get pileCapEdge => 'Débord au-delà des pieux';
+
+  @override
+  String get pileCapGeometryNote =>
+      'Poteau carré centré, pieux à entraxes égaux (≥ 2 diamètres) : en ligne, en triangle ou en carré. Enrobage mesuré aux tirants au-dessus des têtes de pieux. Le poids propre de la semelle × 1,35 est ajouté.';
+
+  @override
+  String pileCapDepthRange(String min, String max) {
+    return 'Prendre une hauteur entre $min et $max mm';
+  }
+
+  @override
+  String get pileCapDepthMsg =>
+      'L\'angle des bielles doit rester entre 45° et 55° pour que le modèle bielles-tirants soit valable.';
+
+  @override
+  String get pileCapUseDepth => 'Prendre le milieu de la plage';
+
+  @override
+  String get pileCapModel => 'Modèle bielles et tirants';
+
+  @override
+  String get pileCapPlan => 'Dimensions en plan';
+
+  @override
+  String get pileCapSelfWeight => 'Poids propre de la semelle';
+
+  @override
+  String get pileCapReaction => 'Réaction d\'un pieu (ELU)';
+
+  @override
+  String get pileCapAngle => 'Angle des bielles';
+
+  @override
+  String pileCapTie(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n tirants',
+      one: '1 tirant',
+    );
+    return 'Effort par tirant ($_temp0)';
+  }
+
+  @override
+  String get pileCapTieSteel => 'Acier par tirant';
+
+  @override
+  String get pileCapTieBars => 'Barres par tirant (au-dessus des pieux)';
+
+  @override
+  String get pileCapNodeColumn => 'Nœud sous le poteau';
+
+  @override
+  String get pileCapNodePile => 'Nœud au-dessus de chaque pieu';
+
+  @override
+  String get pileCapNoteScope =>
+      'Semelle rigide, charge axiale centrée uniquement. Les tirants relient les têtes de pieux et sont ancrés au-delà des axes des pieux par des crochets. Prévoir un treillis (inférieur et supérieur) et des armatures de peau. La capacité des pieux et les effets de groupe ne sont pas vérifiés ici. Le nœud sous le poteau utilise la limite de base k1 ν′fcd (EC2 6.5.4(4)a), ce qui est conservatif : un nœud confiné peut justifier une limite plus élevée (6.5.4(6)).';
+
+  @override
+  String get checkStrutAngle => 'Angle des bielles';
+
+  @override
+  String get checkTieSteel => 'Armatures des tirants';
+
+  @override
+  String get checkNodeColumn => 'Nœud sous le poteau';
+
+  @override
+  String get checkNodePile => 'Nœud sur les pieux';
+
+  @override
+  String get septicSubtitle =>
+      'Volume et dimensions d\'une fosse à deux compartiments';
+
+  @override
+  String get septicUse => 'Utilisation';
+
+  @override
+  String get septicUsers => 'Usagers';
+
+  @override
+  String get septicRooms => 'Pièces principales (maison)';
+
+  @override
+  String get septicFlow => 'Eaux usées par usager';
+
+  @override
+  String get septicRetention => 'Temps de séjour';
+
+  @override
+  String get septicSludge => 'Boues par usager';
+
+  @override
+  String get septicYears => 'Intervalle de vidange';
+
+  @override
+  String get septicUseNote =>
+      'Valeurs usuelles : 100–150 L/j par usager avec eau courante, 40–60 L/j sans ; séjour de 1 jour ; 40 L de boues par usager et par an. Pour une maison, saisir le nombre de pièces principales pour appliquer le minimum du DTU 64.1 (3 m³ jusqu\'à 5 pièces, + 1 m³ par pièce supplémentaire).';
+
+  @override
+  String get septicShape => 'Forme';
+
+  @override
+  String get septicDepth => 'Hauteur d\'eau';
+
+  @override
+  String get septicFreeboard => 'Revanche';
+
+  @override
+  String get septicRatio => 'Longueur / largeur';
+
+  @override
+  String septicVolume(String v) {
+    return 'Volume utile $v m³';
+  }
+
+  @override
+  String septicDims(String l, String b, String h) {
+    return 'Dimensions intérieures $l × $b m, profondeur totale $h m';
+  }
+
+  @override
+  String get septicVolumes => 'Volumes';
+
+  @override
+  String get septicSettling => 'Décantation (débit × séjour)';
+
+  @override
+  String get septicSludgeVolume => 'Stockage des boues';
+
+  @override
+  String get septicDtuMin => 'Minimum DTU 64.1';
+
+  @override
+  String get septicProvided => 'Volume obtenu';
+
+  @override
+  String get septicLayout => 'Dimensions';
+
+  @override
+  String get septicInside => 'Dimensions intérieures';
+
+  @override
+  String get septicCompartments => 'Compartiments';
+
+  @override
+  String get septicNoteScope =>
+      'Aide au dimensionnement uniquement : vérifier la réglementation locale. L\'épandage ou le traitement, la ventilation et le calcul structurel des parois et de la dalle ne sont pas traités.';
 }

@@ -5155,6 +5155,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overall stability (EC7)'**
   String get checkSlopeEc7;
+
+  /// No description provided for @pileCapSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strut-and-tie (Blévot) · 2, 3 or 4 piles'**
+  String get pileCapSubtitle;
+
+  /// No description provided for @pileCapPiles.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of piles'**
+  String get pileCapPiles;
+
+  /// No description provided for @pileCapGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Load and geometry'**
+  String get pileCapGeometry;
+
+  /// No description provided for @pileCapLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Column load NEd (ULS)'**
+  String get pileCapLoad;
+
+  /// No description provided for @pileCapSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pile spacing'**
+  String get pileCapSpacing;
+
+  /// No description provided for @pileCapDiameter.
+  ///
+  /// In en, this message translates to:
+  /// **'Pile diameter'**
+  String get pileCapDiameter;
+
+  /// No description provided for @pileCapColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Column side'**
+  String get pileCapColumn;
+
+  /// No description provided for @pileCapDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Cap depth h'**
+  String get pileCapDepth;
+
+  /// No description provided for @pileCapEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge beyond piles'**
+  String get pileCapEdge;
+
+  /// No description provided for @pileCapGeometryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Centred square column, piles equally spaced (≥ 2 diameters): in line, triangle or square. Cover measured to the tie bars over the pile heads. Cap self-weight × 1.35 is added.'**
+  String get pileCapGeometryNote;
+
+  /// No description provided for @pileCapDepthRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a depth between {min} and {max} mm'**
+  String pileCapDepthRange(String min, String max);
+
+  /// No description provided for @pileCapDepthMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'The strut angle should stay between 45° and 55° for the strut-and-tie model to be valid.'**
+  String get pileCapDepthMsg;
+
+  /// No description provided for @pileCapUseDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the middle of the range'**
+  String get pileCapUseDepth;
+
+  /// No description provided for @pileCapModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Strut-and-tie model'**
+  String get pileCapModel;
+
+  /// No description provided for @pileCapPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan dimensions'**
+  String get pileCapPlan;
+
+  /// No description provided for @pileCapSelfWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Cap self-weight'**
+  String get pileCapSelfWeight;
+
+  /// No description provided for @pileCapReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pile reaction (ULS)'**
+  String get pileCapReaction;
+
+  /// No description provided for @pileCapAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strut angle'**
+  String get pileCapAngle;
+
+  /// No description provided for @pileCapTie.
+  ///
+  /// In en, this message translates to:
+  /// **'Force per tie ({n, plural, =1{1 tie} other{{n} ties}})'**
+  String pileCapTie(int n);
+
+  /// No description provided for @pileCapTieSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Steel per tie'**
+  String get pileCapTieSteel;
+
+  /// No description provided for @pileCapTieBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars per tie (over the piles)'**
+  String get pileCapTieBars;
+
+  /// No description provided for @pileCapNodeColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Node under the column'**
+  String get pileCapNodeColumn;
+
+  /// No description provided for @pileCapNodePile.
+  ///
+  /// In en, this message translates to:
+  /// **'Node over each pile'**
+  String get pileCapNodePile;
+
+  /// No description provided for @pileCapNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Rigid cap, centred axial load only. Ties run between pile heads and are anchored beyond the pile axes with hooks. Add a nominal mesh (bottom and top) and side bars. Pile capacity and group effects are not checked here. The column node uses the basic limit k1 ν′fcd (EC2 6.5.4(4)a), which is conservative: a confined node may justify a higher limit (6.5.4(6)).'**
+  String get pileCapNoteScope;
+
+  /// No description provided for @checkStrutAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strut angle'**
+  String get checkStrutAngle;
+
+  /// No description provided for @checkTieSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tie reinforcement'**
+  String get checkTieSteel;
+
+  /// No description provided for @checkNodeColumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Node under the column'**
+  String get checkNodeColumn;
+
+  /// No description provided for @checkNodePile.
+  ///
+  /// In en, this message translates to:
+  /// **'Node over the piles'**
+  String get checkNodePile;
+
+  /// No description provided for @septicSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume and layout of a two-compartment tank'**
+  String get septicSubtitle;
+
+  /// No description provided for @septicUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get septicUse;
+
+  /// No description provided for @septicUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get septicUsers;
+
+  /// No description provided for @septicRooms.
+  ///
+  /// In en, this message translates to:
+  /// **'Main rooms (house)'**
+  String get septicRooms;
+
+  /// No description provided for @septicFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wastewater per user'**
+  String get septicFlow;
+
+  /// No description provided for @septicRetention.
+  ///
+  /// In en, this message translates to:
+  /// **'Retention time'**
+  String get septicRetention;
+
+  /// No description provided for @septicSludge.
+  ///
+  /// In en, this message translates to:
+  /// **'Sludge per user'**
+  String get septicSludge;
+
+  /// No description provided for @septicYears.
+  ///
+  /// In en, this message translates to:
+  /// **'Emptying interval'**
+  String get septicYears;
+
+  /// No description provided for @septicUseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical values: 100–150 L/d per user with mains water, 40–60 L/d without; 1 day retention; 40 L of sludge per user per year. For a house, enter the number of main rooms to apply the DTU 64.1 minimum (3 m³ up to 5 rooms, + 1 m³ per extra room).'**
+  String get septicUseNote;
+
+  /// No description provided for @septicShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape'**
+  String get septicShape;
+
+  /// No description provided for @septicDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid depth'**
+  String get septicDepth;
+
+  /// No description provided for @septicFreeboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Freeboard'**
+  String get septicFreeboard;
+
+  /// No description provided for @septicRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Length / width'**
+  String get septicRatio;
+
+  /// No description provided for @septicVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Liquid volume {v} m³'**
+  String septicVolume(String v);
+
+  /// No description provided for @septicDims.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside dimensions {l} × {b} m, total depth {h} m'**
+  String septicDims(String l, String b, String h);
+
+  /// No description provided for @septicVolumes.
+  ///
+  /// In en, this message translates to:
+  /// **'Volumes'**
+  String get septicVolumes;
+
+  /// No description provided for @septicSettling.
+  ///
+  /// In en, this message translates to:
+  /// **'Settling (flow × retention)'**
+  String get septicSettling;
+
+  /// No description provided for @septicSludgeVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Sludge storage'**
+  String get septicSludgeVolume;
+
+  /// No description provided for @septicDtuMin.
+  ///
+  /// In en, this message translates to:
+  /// **'DTU 64.1 minimum'**
+  String get septicDtuMin;
+
+  /// No description provided for @septicProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume provided'**
+  String get septicProvided;
+
+  /// No description provided for @septicLayout.
+  ///
+  /// In en, this message translates to:
+  /// **'Layout'**
+  String get septicLayout;
+
+  /// No description provided for @septicInside.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside dimensions'**
+  String get septicInside;
+
+  /// No description provided for @septicCompartments.
+  ///
+  /// In en, this message translates to:
+  /// **'Compartments'**
+  String get septicCompartments;
+
+  /// No description provided for @septicNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered.'**
+  String get septicNoteScope;
 }
 
 class _AppLocalizationsDelegate

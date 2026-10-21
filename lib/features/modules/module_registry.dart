@@ -224,15 +224,15 @@ const modules = <EngModule>[
     id: 'pile-cap',
     icon: Icons.view_week_outlined,
     category: ModuleCategory.tools,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'pile-cap',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'septic',
     icon: Icons.water_drop_outlined,
     category: ModuleCategory.tools,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'septic',
+    status: ModuleStatus.beta,
   ),
 ];
 

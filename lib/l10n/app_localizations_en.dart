@@ -2741,4 +2741,179 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkSlopeEc7 => 'Overall stability (EC7)';
+
+  @override
+  String get pileCapSubtitle => 'Strut-and-tie (Blévot) · 2, 3 or 4 piles';
+
+  @override
+  String get pileCapPiles => 'Number of piles';
+
+  @override
+  String get pileCapGeometry => 'Load and geometry';
+
+  @override
+  String get pileCapLoad => 'Column load NEd (ULS)';
+
+  @override
+  String get pileCapSpacing => 'Pile spacing';
+
+  @override
+  String get pileCapDiameter => 'Pile diameter';
+
+  @override
+  String get pileCapColumn => 'Column side';
+
+  @override
+  String get pileCapDepth => 'Cap depth h';
+
+  @override
+  String get pileCapEdge => 'Edge beyond piles';
+
+  @override
+  String get pileCapGeometryNote =>
+      'Centred square column, piles equally spaced (≥ 2 diameters): in line, triangle or square. Cover measured to the tie bars over the pile heads. Cap self-weight × 1.35 is added.';
+
+  @override
+  String pileCapDepthRange(String min, String max) {
+    return 'Use a depth between $min and $max mm';
+  }
+
+  @override
+  String get pileCapDepthMsg =>
+      'The strut angle should stay between 45° and 55° for the strut-and-tie model to be valid.';
+
+  @override
+  String get pileCapUseDepth => 'Use the middle of the range';
+
+  @override
+  String get pileCapModel => 'Strut-and-tie model';
+
+  @override
+  String get pileCapPlan => 'Plan dimensions';
+
+  @override
+  String get pileCapSelfWeight => 'Cap self-weight';
+
+  @override
+  String get pileCapReaction => 'Pile reaction (ULS)';
+
+  @override
+  String get pileCapAngle => 'Strut angle';
+
+  @override
+  String pileCapTie(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n ties',
+      one: '1 tie',
+    );
+    return 'Force per tie ($_temp0)';
+  }
+
+  @override
+  String get pileCapTieSteel => 'Steel per tie';
+
+  @override
+  String get pileCapTieBars => 'Bars per tie (over the piles)';
+
+  @override
+  String get pileCapNodeColumn => 'Node under the column';
+
+  @override
+  String get pileCapNodePile => 'Node over each pile';
+
+  @override
+  String get pileCapNoteScope =>
+      'Rigid cap, centred axial load only. Ties run between pile heads and are anchored beyond the pile axes with hooks. Add a nominal mesh (bottom and top) and side bars. Pile capacity and group effects are not checked here. The column node uses the basic limit k1 ν′fcd (EC2 6.5.4(4)a), which is conservative: a confined node may justify a higher limit (6.5.4(6)).';
+
+  @override
+  String get checkStrutAngle => 'Strut angle';
+
+  @override
+  String get checkTieSteel => 'Tie reinforcement';
+
+  @override
+  String get checkNodeColumn => 'Node under the column';
+
+  @override
+  String get checkNodePile => 'Node over the piles';
+
+  @override
+  String get septicSubtitle => 'Volume and layout of a two-compartment tank';
+
+  @override
+  String get septicUse => 'Use';
+
+  @override
+  String get septicUsers => 'Users';
+
+  @override
+  String get septicRooms => 'Main rooms (house)';
+
+  @override
+  String get septicFlow => 'Wastewater per user';
+
+  @override
+  String get septicRetention => 'Retention time';
+
+  @override
+  String get septicSludge => 'Sludge per user';
+
+  @override
+  String get septicYears => 'Emptying interval';
+
+  @override
+  String get septicUseNote =>
+      'Typical values: 100–150 L/d per user with mains water, 40–60 L/d without; 1 day retention; 40 L of sludge per user per year. For a house, enter the number of main rooms to apply the DTU 64.1 minimum (3 m³ up to 5 rooms, + 1 m³ per extra room).';
+
+  @override
+  String get septicShape => 'Shape';
+
+  @override
+  String get septicDepth => 'Liquid depth';
+
+  @override
+  String get septicFreeboard => 'Freeboard';
+
+  @override
+  String get septicRatio => 'Length / width';
+
+  @override
+  String septicVolume(String v) {
+    return 'Liquid volume $v m³';
+  }
+
+  @override
+  String septicDims(String l, String b, String h) {
+    return 'Inside dimensions $l × $b m, total depth $h m';
+  }
+
+  @override
+  String get septicVolumes => 'Volumes';
+
+  @override
+  String get septicSettling => 'Settling (flow × retention)';
+
+  @override
+  String get septicSludgeVolume => 'Sludge storage';
+
+  @override
+  String get septicDtuMin => 'DTU 64.1 minimum';
+
+  @override
+  String get septicProvided => 'Volume provided';
+
+  @override
+  String get septicLayout => 'Layout';
+
+  @override
+  String get septicInside => 'Inside dimensions';
+
+  @override
+  String get septicCompartments => 'Compartments';
+
+  @override
+  String get septicNoteScope =>
+      'Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered.';
 }

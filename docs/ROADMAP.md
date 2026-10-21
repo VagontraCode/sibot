@@ -158,7 +158,9 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 
 - [x] Slope stability (Beta): Bishop simplified, grid + pattern search of the critical circle, ru, crest surcharge, EC7 DA3 factor; checked against Taylor (φ = 0) and the infinite slope (c = 0)
 - [ ] Slopes: layered soils, water table, non-circular surfaces, faces steeper than 75°
-- [ ] Pile cap (strut-and-tie), septic tank sizing
+- [x] Pile cap (Beta): Blévot strut-and-tie for 2, 3, 4 piles, strut angle 45–55° with depth suggestion, ties, EC2 node stresses
+- [x] Septic tank (Beta): flow × retention + sludge, DTU 64.1 minimum, two-compartment layout
+- [ ] Pile cap: eccentric loads and moments, pile capacity, rectangular columns
 
 ### Phase 4 — 3D frames and dynamics
 - [ ] 3D frame element (6 DOF), rigid diaphragms, 3D viewer (orbit, pan, zoom)

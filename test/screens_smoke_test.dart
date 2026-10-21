@@ -17,6 +17,8 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
+import 'package:sibot/features/calculations/foundations/presentation/pile_cap_provider.dart';
+import 'package:sibot/features/tools/septic_page.dart';
 import 'package:sibot/features/calculations/geotech/presentation/slope_provider.dart';
 import 'package:sibot/features/calculations/loads/presentation/seismic_provider.dart';
 import 'package:sibot/features/calculations/loads/presentation/wind_snow_provider.dart';
@@ -215,6 +217,18 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             'surcharge': 10,
           }))
           .calculate(),
+  'pile_cap': (c) =>
+      (c.read(pileCapStateProvider('PRJ_1').notifier)..setAll({
+            'nEd': 2500,
+            'spacing': 1.5,
+            'pileDiameter': 500,
+            'column': 450,
+            'h': 700,
+          }))
+          .calculate(),
+  'septic': (c) => (c.read(
+    septicStateProvider('PRJ_1').notifier,
+  )..setAll({'users': 12, 'rooms': 6})).calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -292,6 +306,8 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'pile_cap': '/projects/PRJ_1/pile-cap',
+    'septic': '/projects/PRJ_1/septic',
     'slope': '/projects/PRJ_1/slope',
     'seismic': '/projects/PRJ_1/seismic',
     'wind_snow': '/projects/PRJ_1/wind-snow',

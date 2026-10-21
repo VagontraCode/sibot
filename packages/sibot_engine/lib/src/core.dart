@@ -51,6 +51,10 @@ enum CheckKind {
   wallMid,
   slopeGlobal,
   slopeEc7,
+  strutAngle,
+  tieSteel,
+  nodeColumn,
+  nodePile,
 }
 
 /// One design check: [demand] must not exceed [capacity].
