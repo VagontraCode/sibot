@@ -196,8 +196,8 @@ const modules = <EngModule>[
     id: 'wind-snow',
     icon: Icons.air_outlined,
     category: ModuleCategory.loads,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'wind-snow',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'seismic',

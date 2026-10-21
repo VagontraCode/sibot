@@ -2426,4 +2426,142 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get checkWallMid => 'Résistance à mi-hauteur';
+
+  @override
+  String get windSubtitle => 'EN 1991-1-4 vent · EN 1991-1-3 neige';
+
+  @override
+  String get windTitle => 'Vent';
+
+  @override
+  String get windVb => 'Vitesse de référence vb';
+
+  @override
+  String get windVbHelp =>
+      'vb = cdir · cseason · vb,0 selon la carte de l\'Annexe nationale (France : 22 à 28 m/s selon la région)';
+
+  @override
+  String get windTerrain => 'Catégorie de terrain';
+
+  @override
+  String get windTerrain0 => '0 · Mer, zone côtière';
+
+  @override
+  String get windTerrainI => 'I · Lacs, rase campagne';
+
+  @override
+  String get windTerrainII => 'II · Végétation basse, obstacles isolés';
+
+  @override
+  String get windTerrainIII => 'III · Villages, banlieues, forêts';
+
+  @override
+  String get windTerrainIV => 'IV · Urbain, ≥ 15 % bâti';
+
+  @override
+  String get windHeight => 'Hauteur du bâtiment h';
+
+  @override
+  String get windWidth => 'Largeur b (face au vent)';
+
+  @override
+  String get windDepth => 'Profondeur d (dans le sens du vent)';
+
+  @override
+  String get windGeometryNote =>
+      'Bâtiment rectangulaire à toiture-terrasse, hauteur de référence ze = h (h ≤ b). Terrain plat (co = 1).';
+
+  @override
+  String get snowTitle => 'Neige';
+
+  @override
+  String get snowSk => 'Charge de neige au sol sk';
+
+  @override
+  String get snowSkHelp =>
+      'Valeur caractéristique à l\'altitude du site selon l\'Annexe nationale (France : 0,45 à 1,40 kN/m² au niveau de la mer selon la région)';
+
+  @override
+  String get snowRoof => 'Toiture';
+
+  @override
+  String get snowRoofFlat => 'Plate';
+
+  @override
+  String get snowRoofMono => '1 pan';
+
+  @override
+  String get snowRoofDuo => '2 pans';
+
+  @override
+  String get snowPitch => 'Pente α';
+
+  @override
+  String get snowPitch1 => 'Pente α1';
+
+  @override
+  String get snowPitch2 => 'Pente α2';
+
+  @override
+  String get snowCeHelp =>
+      'Exposition : 0,8 site balayé, 1,0 normal, 1,2 site abrité';
+
+  @override
+  String get windPeakTitle => 'Pression dynamique de pointe';
+
+  @override
+  String get windMeanVelocity => 'Rugosité et vitesse moyenne';
+
+  @override
+  String get windTurbulence => 'Intensité de turbulence';
+
+  @override
+  String get windExposure => 'Coefficient d\'exposition';
+
+  @override
+  String get windPeakPressure => 'Pression de pointe';
+
+  @override
+  String windWallsTitle(String e) {
+    return 'Parois verticales (e = $e m)';
+  }
+
+  @override
+  String get windRoofTitle => 'Toiture-terrasse';
+
+  @override
+  String windZone(String zone) {
+    return 'Zone $zone';
+  }
+
+  @override
+  String windZoneExtent(String zone, String extent) {
+    return 'Zone $zone · $extent m';
+  }
+
+  @override
+  String get windNetWall => 'Net au vent + sous le vent (D − E)';
+
+  @override
+  String get snowResultTitle => 'Charge de neige sur la toiture';
+
+  @override
+  String get snowShape => 'Coefficient de forme';
+
+  @override
+  String snowCase(String name) {
+    return 'Disposition ($name)';
+  }
+
+  @override
+  String get windNoteScope =>
+      'Pressions extérieures we = qp · cpe,10 (surfaces chargées ≥ 10 m²) ; positives vers la paroi. Ajouter la pression intérieure cpi = +0,2 ou −0,3 en l\'absence de face dominante. Zones de toiture F/G le long du bord au vent sur e/10, H sur e/2. cs·cd = 1.';
+
+  @override
+  String get snowNoteScope =>
+      'Situation de projet durable, Ct = 1. Les accumulations aux changements de hauteur, les arrêts de neige et la neige exceptionnelle ne sont pas traités. Toitures à 2 pans : (i) sans accumulation, (ii) et (iii) avec demi-charge sur un versant.';
+
+  @override
+  String get windPitchedNote =>
+      'Les coefficients de pression du vent pour les toitures à versants (EN 1991-1-4 7.2.4, 7.2.5) ne sont pas encore calculés ; les zones de parois et qp restent valables.';
 }

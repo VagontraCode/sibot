@@ -2412,4 +2412,141 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkWallMid => 'Resistance at mid-height';
+
+  @override
+  String get windSubtitle => 'EN 1991-1-4 wind · EN 1991-1-3 snow';
+
+  @override
+  String get windTitle => 'Wind';
+
+  @override
+  String get windVb => 'Basic wind velocity vb';
+
+  @override
+  String get windVbHelp =>
+      'vb = cdir · cseason · vb,0 from the National Annex map (France: 22 to 28 m/s by region)';
+
+  @override
+  String get windTerrain => 'Terrain category';
+
+  @override
+  String get windTerrain0 => '0 · Sea, coastal area';
+
+  @override
+  String get windTerrainI => 'I · Lakes, flat open land';
+
+  @override
+  String get windTerrainII => 'II · Low vegetation, isolated obstacles';
+
+  @override
+  String get windTerrainIII => 'III · Villages, suburbs, forests';
+
+  @override
+  String get windTerrainIV => 'IV · Urban, ≥ 15 % built over';
+
+  @override
+  String get windHeight => 'Building height h';
+
+  @override
+  String get windWidth => 'Width b (across the wind)';
+
+  @override
+  String get windDepth => 'Depth d (along the wind)';
+
+  @override
+  String get windGeometryNote =>
+      'Rectangular building with a flat roof, reference height ze = h (h ≤ b). Flat terrain (co = 1).';
+
+  @override
+  String get snowTitle => 'Snow';
+
+  @override
+  String get snowSk => 'Ground snow load sk';
+
+  @override
+  String get snowSkHelp =>
+      'Characteristic value at the site altitude from the National Annex (France: 0.45 to 1.40 kN/m² at sea level by region)';
+
+  @override
+  String get snowRoof => 'Roof';
+
+  @override
+  String get snowRoofFlat => 'Flat';
+
+  @override
+  String get snowRoofMono => 'Monopitch';
+
+  @override
+  String get snowRoofDuo => 'Duopitch';
+
+  @override
+  String get snowPitch => 'Roof pitch α';
+
+  @override
+  String get snowPitch1 => 'Pitch α1';
+
+  @override
+  String get snowPitch2 => 'Pitch α2';
+
+  @override
+  String get snowCeHelp => 'Exposure: 0.8 windswept, 1.0 normal, 1.2 sheltered';
+
+  @override
+  String get windPeakTitle => 'Peak velocity pressure';
+
+  @override
+  String get windMeanVelocity => 'Roughness and mean velocity';
+
+  @override
+  String get windTurbulence => 'Turbulence intensity';
+
+  @override
+  String get windExposure => 'Exposure factor';
+
+  @override
+  String get windPeakPressure => 'Peak pressure';
+
+  @override
+  String windWallsTitle(String e) {
+    return 'Vertical walls (e = $e m)';
+  }
+
+  @override
+  String get windRoofTitle => 'Flat roof';
+
+  @override
+  String windZone(String zone) {
+    return 'Zone $zone';
+  }
+
+  @override
+  String windZoneExtent(String zone, String extent) {
+    return 'Zone $zone · $extent m';
+  }
+
+  @override
+  String get windNetWall => 'Net windward + leeward (D − E)';
+
+  @override
+  String get snowResultTitle => 'Roof snow load';
+
+  @override
+  String get snowShape => 'Shape coefficient';
+
+  @override
+  String snowCase(String name) {
+    return 'Arrangement ($name)';
+  }
+
+  @override
+  String get windNoteScope =>
+      'External pressures we = qp · cpe,10 (loaded areas ≥ 10 m²); positive towards the surface. Add internal pressure cpi = +0.2 or −0.3 when no face is dominant. Roof zones F/G lie along the windward edge over e/10, H over e/2. cs·cd = 1.';
+
+  @override
+  String get snowNoteScope =>
+      'Persistent design situation, Ct = 1. Drifting at abrupt changes of height, snow guards and exceptional snow are not covered. For duopitch roofs: (i) undrifted, (ii) and (iii) drifted with half load on one slope.';
+
+  @override
+  String get windPitchedNote =>
+      'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.';
 }

@@ -4555,6 +4555,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Resistance at mid-height'**
   String get checkWallMid;
+
+  /// No description provided for @windSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1991-1-4 wind · EN 1991-1-3 snow'**
+  String get windSubtitle;
+
+  /// No description provided for @windTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind'**
+  String get windTitle;
+
+  /// No description provided for @windVb.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic wind velocity vb'**
+  String get windVb;
+
+  /// No description provided for @windVbHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'vb = cdir · cseason · vb,0 from the National Annex map (France: 22 to 28 m/s by region)'**
+  String get windVbHelp;
+
+  /// No description provided for @windTerrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain category'**
+  String get windTerrain;
+
+  /// No description provided for @windTerrain0.
+  ///
+  /// In en, this message translates to:
+  /// **'0 · Sea, coastal area'**
+  String get windTerrain0;
+
+  /// No description provided for @windTerrainI.
+  ///
+  /// In en, this message translates to:
+  /// **'I · Lakes, flat open land'**
+  String get windTerrainI;
+
+  /// No description provided for @windTerrainII.
+  ///
+  /// In en, this message translates to:
+  /// **'II · Low vegetation, isolated obstacles'**
+  String get windTerrainII;
+
+  /// No description provided for @windTerrainIII.
+  ///
+  /// In en, this message translates to:
+  /// **'III · Villages, suburbs, forests'**
+  String get windTerrainIII;
+
+  /// No description provided for @windTerrainIV.
+  ///
+  /// In en, this message translates to:
+  /// **'IV · Urban, ≥ 15 % built over'**
+  String get windTerrainIV;
+
+  /// No description provided for @windHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Building height h'**
+  String get windHeight;
+
+  /// No description provided for @windWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width b (across the wind)'**
+  String get windWidth;
+
+  /// No description provided for @windDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth d (along the wind)'**
+  String get windDepth;
+
+  /// No description provided for @windGeometryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular building with a flat roof, reference height ze = h (h ≤ b). Flat terrain (co = 1).'**
+  String get windGeometryNote;
+
+  /// No description provided for @snowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow'**
+  String get snowTitle;
+
+  /// No description provided for @snowSk.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground snow load sk'**
+  String get snowSk;
+
+  /// No description provided for @snowSkHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic value at the site altitude from the National Annex (France: 0.45 to 1.40 kN/m² at sea level by region)'**
+  String get snowSkHelp;
+
+  /// No description provided for @snowRoof.
+  ///
+  /// In en, this message translates to:
+  /// **'Roof'**
+  String get snowRoof;
+
+  /// No description provided for @snowRoofFlat.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat'**
+  String get snowRoofFlat;
+
+  /// No description provided for @snowRoofMono.
+  ///
+  /// In en, this message translates to:
+  /// **'Monopitch'**
+  String get snowRoofMono;
+
+  /// No description provided for @snowRoofDuo.
+  ///
+  /// In en, this message translates to:
+  /// **'Duopitch'**
+  String get snowRoofDuo;
+
+  /// No description provided for @snowPitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Roof pitch α'**
+  String get snowPitch;
+
+  /// No description provided for @snowPitch1.
+  ///
+  /// In en, this message translates to:
+  /// **'Pitch α1'**
+  String get snowPitch1;
+
+  /// No description provided for @snowPitch2.
+  ///
+  /// In en, this message translates to:
+  /// **'Pitch α2'**
+  String get snowPitch2;
+
+  /// No description provided for @snowCeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure: 0.8 windswept, 1.0 normal, 1.2 sheltered'**
+  String get snowCeHelp;
+
+  /// No description provided for @windPeakTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak velocity pressure'**
+  String get windPeakTitle;
+
+  /// No description provided for @windMeanVelocity.
+  ///
+  /// In en, this message translates to:
+  /// **'Roughness and mean velocity'**
+  String get windMeanVelocity;
+
+  /// No description provided for @windTurbulence.
+  ///
+  /// In en, this message translates to:
+  /// **'Turbulence intensity'**
+  String get windTurbulence;
+
+  /// No description provided for @windExposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure factor'**
+  String get windExposure;
+
+  /// No description provided for @windPeakPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak pressure'**
+  String get windPeakPressure;
+
+  /// No description provided for @windWallsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical walls (e = {e} m)'**
+  String windWallsTitle(String e);
+
+  /// No description provided for @windRoofTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat roof'**
+  String get windRoofTitle;
+
+  /// No description provided for @windZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone {zone}'**
+  String windZone(String zone);
+
+  /// No description provided for @windZoneExtent.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone {zone} · {extent} m'**
+  String windZoneExtent(String zone, String extent);
+
+  /// No description provided for @windNetWall.
+  ///
+  /// In en, this message translates to:
+  /// **'Net windward + leeward (D − E)'**
+  String get windNetWall;
+
+  /// No description provided for @snowResultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Roof snow load'**
+  String get snowResultTitle;
+
+  /// No description provided for @snowShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape coefficient'**
+  String get snowShape;
+
+  /// No description provided for @snowCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrangement ({name})'**
+  String snowCase(String name);
+
+  /// No description provided for @windNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'External pressures we = qp · cpe,10 (loaded areas ≥ 10 m²); positive towards the surface. Add internal pressure cpi = +0.2 or −0.3 when no face is dominant. Roof zones F/G lie along the windward edge over e/10, H over e/2. cs·cd = 1.'**
+  String get windNoteScope;
+
+  /// No description provided for @snowNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Persistent design situation, Ct = 1. Drifting at abrupt changes of height, snow guards and exceptional snow are not covered. For duopitch roofs: (i) undrifted, (ii) and (iii) drifted with half load on one slope.'**
+  String get snowNoteScope;
+
+  /// No description provided for @windPitchedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.'**
+  String get windPitchedNote;
 }
 
 class _AppLocalizationsDelegate

@@ -1002,5 +1002,77 @@
   "masonryNRd": "Design resistance per metre",
   "masonryNoteScope": "General purpose mortar, unreinforced single-leaf wall. Lateral load (wind), concentrated loads and cavity walls are not covered. Mid-height eccentricity from the end values over the middle fifth.",
   "checkWallEnd": "Resistance at wall ends",
-  "checkWallMid": "Resistance at mid-height"
+  "checkWallMid": "Resistance at mid-height",
+  "windSubtitle": "EN 1991-1-4 wind · EN 1991-1-3 snow",
+  "windTitle": "Wind",
+  "windVb": "Basic wind velocity vb",
+  "windVbHelp": "vb = cdir · cseason · vb,0 from the National Annex map (France: 22 to 28 m/s by region)",
+  "windTerrain": "Terrain category",
+  "windTerrain0": "0 · Sea, coastal area",
+  "windTerrainI": "I · Lakes, flat open land",
+  "windTerrainII": "II · Low vegetation, isolated obstacles",
+  "windTerrainIII": "III · Villages, suburbs, forests",
+  "windTerrainIV": "IV · Urban, ≥ 15 % built over",
+  "windHeight": "Building height h",
+  "windWidth": "Width b (across the wind)",
+  "windDepth": "Depth d (along the wind)",
+  "windGeometryNote": "Rectangular building with a flat roof, reference height ze = h (h ≤ b). Flat terrain (co = 1).",
+  "snowTitle": "Snow",
+  "snowSk": "Ground snow load sk",
+  "snowSkHelp": "Characteristic value at the site altitude from the National Annex (France: 0.45 to 1.40 kN/m² at sea level by region)",
+  "snowRoof": "Roof",
+  "snowRoofFlat": "Flat",
+  "snowRoofMono": "Monopitch",
+  "snowRoofDuo": "Duopitch",
+  "snowPitch": "Roof pitch α",
+  "snowPitch1": "Pitch α1",
+  "snowPitch2": "Pitch α2",
+  "snowCeHelp": "Exposure: 0.8 windswept, 1.0 normal, 1.2 sheltered",
+  "windPeakTitle": "Peak velocity pressure",
+  "windMeanVelocity": "Roughness and mean velocity",
+  "windTurbulence": "Turbulence intensity",
+  "windExposure": "Exposure factor",
+  "windPeakPressure": "Peak pressure",
+  "windWallsTitle": "Vertical walls (e = {e} m)",
+  "@windWallsTitle": {
+    "placeholders": {
+      "e": {
+        "type": "String"
+      }
+    }
+  },
+  "windRoofTitle": "Flat roof",
+  "windZone": "Zone {zone}",
+  "@windZone": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      }
+    }
+  },
+  "windZoneExtent": "Zone {zone} · {extent} m",
+  "@windZoneExtent": {
+    "placeholders": {
+      "zone": {
+        "type": "String"
+      },
+      "extent": {
+        "type": "String"
+      }
+    }
+  },
+  "windNetWall": "Net windward + leeward (D − E)",
+  "snowResultTitle": "Roof snow load",
+  "snowShape": "Shape coefficient",
+  "snowCase": "Arrangement ({name})",
+  "@snowCase": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "windNoteScope": "External pressures we = qp · cpe,10 (loaded areas ≥ 10 m²); positive towards the surface. Add internal pressure cpi = +0.2 or −0.3 when no face is dominant. Roof zones F/G lie along the windward edge over e/10, H over e/2. cs·cd = 1.",
+  "snowNoteScope": "Persistent design situation, Ct = 1. Drifting at abrupt changes of height, snow guards and exceptional snow are not covered. For duopitch roofs: (i) undrifted, (ii) and (iii) drifted with half load on one slope.",
+  "windPitchedNote": "Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply."
 }

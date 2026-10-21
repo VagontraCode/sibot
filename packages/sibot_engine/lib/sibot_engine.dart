@@ -7,6 +7,7 @@ library;
 export 'src/beam.dart';
 export 'src/bearing.dart';
 export 'src/column.dart';
+export 'src/climate.dart';
 export 'src/core.dart';
 export 'src/fem/analysis.dart';
 export 'src/fem/banded.dart';

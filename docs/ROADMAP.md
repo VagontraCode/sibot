@@ -150,7 +150,10 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [ ] Timber EC5: bearing perpendicular to grain, notches, connections
 - [x] Masonry EC6 (Beta): fk = K fb^0.7 fm^0.3, effective height, slenderness ≤ 27, end and mid-height reduction (Annex G) with creep
 - [ ] Masonry EC6: lateral load, concentrated loads, cavity walls
-- [ ] EC1 wind and snow, EC8 / PS92 equivalent lateral force method
+- [x] EC1 wind (Beta): qp(z) by terrain category, wall zones A–E (Table 7.1) with lack of correlation, flat-roof zones F–I
+- [x] EC1 snow (Beta): μ1 for flat, monopitch and duopitch roofs with drifted arrangements, Ce
+- [ ] Wind on pitched roofs, orography, French NA maps (vb,0 and sk by department and altitude)
+- [ ] EC8 / PS92 equivalent lateral force method
 
 ### Phase 4 — 3D frames and dynamics
 - [ ] 3D frame element (6 DOF), rigid diaphragms, 3D viewer (orbit, pan, zoom)
