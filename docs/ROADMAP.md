@@ -176,7 +176,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 
 ### Phase 5 — Plates, polish and performance
 - [x] Plate elements (ACM Kirchhoff) for slabs and rafts: edge supports, columns, Winkler soil, contour maps, Wood–Armer reinforcement; checked against Timoshenko (SS and clamped squares)
-- [ ] Full calculation notes in PDF (EN/FR) with diagrams and code clauses
+- [x] Calculation notes in PDF (EN/FR) for every calculator, the 2D and 3D frames and the plates: inputs, results, checks with clauses, diagrams captured from the screen
 - [ ] `.sibot` and DXF geometry import/export
 - [ ] Performance profiling on low-end Android, and battery and memory budgets
 

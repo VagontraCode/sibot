@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:printing/printing.dart';
+import 'package:sibot/core/models/entities.dart';
+import 'package:sibot/core/note/calc_note.dart';
+import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/config/theme.dart';
 import 'package:sibot/features/modules/module_registry.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -43,6 +50,62 @@ class CalculatorScaffold extends StatefulWidget {
 
 class _CalculatorScaffoldState extends State<CalculatorScaffold> {
   final _resultsAnchor = GlobalKey();
+  final List<GlobalKey> _keys = [];
+  bool _exporting = false;
+
+  List<GlobalKey> _keysFor(int n) {
+    while (_keys.length < n) {
+      _keys.add(GlobalKey());
+    }
+    return _keys;
+  }
+
+  String? _projectName() {
+    try {
+      final id = GoRouterState.of(context).pathParameters['projectId'];
+      if (id == null) return null;
+      final p = HiveService.getBox(HiveService.projectsBox).get(id);
+      return p is Project ? p.name : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _export() async {
+    final results = widget.results;
+    if (results == null || _exporting) return;
+    setState(() => _exporting = true);
+    final l = context.l10n;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    try {
+      final note = await collectNote(
+        context,
+        title: widget.title,
+        subtitle: widget.subtitle,
+        project: _projectName(),
+        inputs: widget.inputs,
+        results: results,
+        keys: _keysFor(results.length),
+      );
+      if (!mounted) return;
+      final bytes = await renderNote(
+        note,
+        noteLabels(l),
+        dateText: DateFormat.yMMMd(
+          context.localeName,
+        ).add_Hm().format(note.date),
+      );
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: 'Sibot - ${widget.title}.pdf',
+      );
+    } catch (e, st) {
+      LoggerService.e('Calculation note failed: $e', e, st);
+      messenger?.showSnackBar(SnackBar(content: Text(l.noteFailed)));
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
 
   @override
   void didUpdateWidget(CalculatorScaffold old) {
@@ -111,8 +174,24 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
         else
           for (var i = 0; i < widget.results!.length; i++) ...[
             if (i > 0) const SizedBox(height: Gap.md),
-            widget.results![i],
+            RepaintBoundary(
+              key: _keysFor(widget.results!.length)[i],
+              child: widget.results![i],
+            ),
           ],
+        if (widget.results != null) ...[
+          const SizedBox(height: Gap.md),
+          OutlinedButton.icon(
+            onPressed: _exporting ? null : _export,
+            icon: _exporting
+                ? const SizedBox.square(
+                    dimension: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.picture_as_pdf_outlined),
+            label: Text(l.noteExport),
+          ),
+        ],
       ],
     );
 

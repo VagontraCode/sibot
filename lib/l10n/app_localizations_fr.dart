@@ -3461,4 +3461,53 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get plateNoteScope =>
       'Plaque rectangulaire, élastique linéaire, non fissurée (les flèches à long terme et fissurées sont plus grandes). Les poteaux sont des appuis ponctuels : vérifier le poinçonnement séparément et prendre les aciers sur poteaux sur les valeurs de pic (lissées sur la largeur du poteau en pratique). Barres x en nappe extérieure.';
+
+  @override
+  String get noteExport => 'Note de calcul (PDF)';
+
+  @override
+  String get noteFailed => 'La note de calcul n\'a pas pu être créée.';
+
+  @override
+  String get noteInputs => 'Données';
+
+  @override
+  String get noteResults => 'Résultats';
+
+  @override
+  String get noteProject => 'Projet';
+
+  @override
+  String get noteDate => 'Date';
+
+  @override
+  String get notePage => 'Page';
+
+  @override
+  String get noteRatio => 'Taux';
+
+  @override
+  String get noteDisclaimer =>
+      'Générée par Sibot (Bêta). Les résultats doivent être vérifiés par un ingénieur qualifié avant utilisation.';
+
+  @override
+  String get noteSelfWeight => 'poids propre';
+
+  @override
+  String noteLoadCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n charges',
+      one: '1 charge',
+      zero: 'aucune charge',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noteCombinations => 'Combinaisons de charges';
+
+  @override
+  String get noteEnvelope => 'Enveloppe ELU par barre (kN·m, kN)';
 }

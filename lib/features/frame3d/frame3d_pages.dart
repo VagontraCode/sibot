@@ -11,6 +11,8 @@ import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
+import 'package:sibot/features/frame3d/frame_notes.dart';
+import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -386,6 +388,33 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   int? _selected;
   final DesignCode _code = defaultDesignCode();
   Frame3DEditController? _edit;
+  final _viewKey = GlobalKey();
+
+  Future<void> _exportNote(
+    Frame3DRecord record,
+    Frame3DOutput? out,
+    SeismicOutput? seismic,
+  ) async {
+    final l = context.l10n;
+    if (out == null || out.error != null) return;
+    final view = await captureImage(_viewKey);
+    if (!mounted) return;
+    final ok = await shareNote(
+      context,
+      frame3dNote(
+        context,
+        record: record,
+        out: out,
+        view: view,
+        seismic: seismic,
+      ),
+    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.noteFailed)));
+    }
+  }
 
   @override
   void dispose() {
@@ -476,17 +505,20 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       ),
       _ => Frame3DView(model: model),
     };
-    viewer = Stack(
-      children: [
-        Positioned.fill(child: viewer),
-        if (output.isLoading)
-          const Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: LinearProgressIndicator(),
-          ),
-      ],
+    viewer = RepaintBoundary(
+      key: _viewKey,
+      child: Stack(
+        children: [
+          Positioned.fill(child: viewer),
+          if (output.isLoading)
+            const Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: LinearProgressIndicator(),
+            ),
+        ],
+      ),
     );
 
     final panel = ListView(
@@ -538,6 +570,11 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       appBar: AppBar(
         title: Text(record.name),
         actions: [
+          IconButton(
+            tooltip: l.noteExport,
+            onPressed: () => _exportNote(edit.record, out, spectrum),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+          ),
           IconButton(
             tooltip: l.f3dEditBuilding,
             icon: const Icon(Icons.tune_rounded),

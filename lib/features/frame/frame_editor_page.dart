@@ -7,6 +7,8 @@ import 'package:sibot/features/calculations/shared/diagrams.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
 import 'package:sibot/features/frame/frame_member_design.dart';
 import 'package:sibot/features/frame/frame_providers.dart';
+import 'package:sibot/features/frame3d/frame_notes.dart';
+import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
@@ -35,6 +37,30 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
   String _source = 'env';
   int? _resultMember;
   final _canvasKey = GlobalKey<FrameCanvasState>();
+  final _viewKey = GlobalKey();
+
+  Future<void> _exportNote(FrameEditorState s) async {
+    final out = ref.read(frameAnalysisProvider(widget.modelId)).value;
+    final l = context.l10n;
+    if (out == null || out.error != null) return;
+    final view = await captureImage(_viewKey);
+    if (!mounted) return;
+    final ok = await shareNote(
+      context,
+      frame2dNote(
+        context,
+        name: s.record.name,
+        model: s.model,
+        out: out,
+        view: view,
+      ),
+    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l.noteFailed)));
+    }
+  }
 
   FrameEditorNotifier get _n =>
       ref.read(frameEditorProvider(widget.modelId).notifier);
@@ -61,6 +87,11 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
             tooltip: l.frameRedo,
             onPressed: s.redo.isEmpty ? null : _n.redo,
             icon: const Icon(Icons.redo_rounded),
+          ),
+          IconButton(
+            tooltip: l.noteExport,
+            onPressed: () => _exportNote(s),
+            icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
           IconButton(
             tooltip: l.frameFit,
@@ -313,18 +344,25 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
           );
         }
         final (result, env) = _selected(out);
-        final canvas = ColoredBox(
-          color: context.colors.surface,
-          child: FrameCanvas(
-            key: _canvasKey,
-            model: s.model,
-            selection: _resultMember == null
-                ? null
-                : ElementSelection(_resultMember!),
-            overlay: ResultOverlay(view: _view, result: result, envelope: env),
-            onTapElement: (k) => setState(() => _resultMember = k),
-            onTapEmpty: (_, _) => setState(() => _resultMember = null),
-            onTapNode: (_) {},
+        final canvas = RepaintBoundary(
+          key: _viewKey,
+          child: ColoredBox(
+            color: context.colors.surface,
+            child: FrameCanvas(
+              key: _canvasKey,
+              model: s.model,
+              selection: _resultMember == null
+                  ? null
+                  : ElementSelection(_resultMember!),
+              overlay: ResultOverlay(
+                view: _view,
+                result: result,
+                envelope: env,
+              ),
+              onTapElement: (k) => setState(() => _resultMember = k),
+              onTapEmpty: (_, _) => setState(() => _resultMember = null),
+              onTapNode: (_) {},
+            ),
           ),
         );
         final panel = _resultMember == null || result == null

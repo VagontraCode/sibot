@@ -1048,5 +1048,18 @@
   "plateShow": "Afficher",
   "plateFieldW": "Flèche",
   "plateProbe": "x = {x} m, y = {y} m : {value}",
-  "plateNoteScope": "Plaque rectangulaire, élastique linéaire, non fissurée (les flèches à long terme et fissurées sont plus grandes). Les poteaux sont des appuis ponctuels : vérifier le poinçonnement séparément et prendre les aciers sur poteaux sur les valeurs de pic (lissées sur la largeur du poteau en pratique). Barres x en nappe extérieure."
+  "plateNoteScope": "Plaque rectangulaire, élastique linéaire, non fissurée (les flèches à long terme et fissurées sont plus grandes). Les poteaux sont des appuis ponctuels : vérifier le poinçonnement séparément et prendre les aciers sur poteaux sur les valeurs de pic (lissées sur la largeur du poteau en pratique). Barres x en nappe extérieure.",
+  "noteExport": "Note de calcul (PDF)",
+  "noteFailed": "La note de calcul n'a pas pu être créée.",
+  "noteInputs": "Données",
+  "noteResults": "Résultats",
+  "noteProject": "Projet",
+  "noteDate": "Date",
+  "notePage": "Page",
+  "noteRatio": "Taux",
+  "noteDisclaimer": "Générée par Sibot (Bêta). Les résultats doivent être vérifiés par un ingénieur qualifié avant utilisation.",
+  "noteSelfWeight": "poids propre",
+  "noteLoadCount": "{n, plural, =0{aucune charge} =1{1 charge} other{{n} charges}}",
+  "noteCombinations": "Combinaisons de charges",
+  "noteEnvelope": "Enveloppe ELU par barre (kN·m, kN)"
 }

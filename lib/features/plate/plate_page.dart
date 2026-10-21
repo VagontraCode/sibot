@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
+import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart' show heat;
 import 'package:sibot/features/modules/module_registry.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -244,11 +245,17 @@ class PlatePage extends ConsumerWidget {
   }
 }
 
-class _TextOption extends StatefulWidget {
+class _TextOption extends StatefulWidget with NoteEntry {
   final String label;
   final String hint;
   final String value;
   final ValueChanged<String> onChanged;
+
+  @override
+  String get noteLabel => label;
+  @override
+  String get noteValue => value;
+
   const _TextOption({
     required this.label,
     required this.hint,
