@@ -34,6 +34,7 @@ import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
+import 'package:sibot/features/plate/plate_provider.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/main.dart';
 import 'package:sibot_engine/sibot_engine.dart';
@@ -247,6 +248,17 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
   'septic': (c) => (c.read(
     septicStateProvider('PRJ_1').notifier,
   )..setAll({'users': 12, 'rooms': 6})).calculate(),
+  'plate': (c) =>
+      (c.read(plateStateProvider('PRJ_1').notifier)
+            ..setOption('columns', '')
+            ..setAll({'lx': 6, 'ly': 5, 't': 200}))
+          .calculate(),
+  'plate_raft': (c) =>
+      (c.read(plateStateProvider('PRJ_1').notifier)
+            ..setMode('raft')
+            ..setOption('points', '1,1,600 9,1,600 9,7,600 1,7,600')
+            ..setAll({'lx': 10, 'ly': 8, 't': 500}))
+          .calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -324,6 +336,8 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'plate': '/projects/PRJ_1/plate',
+    'plate_raft': '/projects/PRJ_1/plate',
     'pile_cap': '/projects/PRJ_1/pile-cap',
     'septic': '/projects/PRJ_1/septic',
     'slope': '/projects/PRJ_1/slope',

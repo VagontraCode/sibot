@@ -1478,5 +1478,63 @@
   "f3dApply": "Apply",
   "f3dRoll": "Roll angle",
   "f3dDeleteNode": "Delete node and its members",
-  "f3dDeleteMember": "Delete member"
+  "f3dDeleteMember": "Delete member",
+  "modPlate": "Slabs & Rafts (FE)",
+  "modPlateSub": "Plates, Wood–Armer steel",
+  "plateSubtitle": "Finite elements (Kirchhoff plate) · contour maps · Wood–Armer reinforcement",
+  "plateType": "Element",
+  "plateSlab": "Slab",
+  "plateRaft": "Raft",
+  "plateGeometry": "Geometry and supports",
+  "plateThickness": "Thickness",
+  "plateSimple": "Simple",
+  "plateColumns": "Columns (x,y)",
+  "plateColumnsHelp": "Point supports under a slab or columns of a raft, in metres from the corner x = 0, y = 0, separated by spaces. Edges: support along each side.",
+  "plateSupports": "Supports",
+  "plateLoads": "Loads",
+  "plateG": "Permanent g (excl. self-weight)",
+  "plateQ": "Imposed q",
+  "platePointLoads": "Point loads (x,y,P)",
+  "plateSubgrade": "Subgrade modulus k",
+  "plateLoadsHelp": "Self-weight is added (25 kN/m³). ULS: 1.35 G + 1.5 Q for moments and steel; SLS: G + Q for deflections. Point loads are characteristic permanent loads, kN.",
+  "plateRaftHelp": "Winkler springs: soil pressure = k · w. Typical k: 10 000–30 000 kN/m³ for medium soils, from the geotechnical report. Point loads: column loads (G), kN.",
+  "plateMesh": "Elements on the long side",
+  "plateSummary": "Results",
+  "plateMaxDeflection": "Max. deflection (elastic, uncracked)",
+  "plateSpanRatio": "Span ratio",
+  "plateSoilPressure": "Max. soil pressure",
+  "plateMomentsX": "Moments x (ULS)",
+  "plateMomentsY": "Moments y (ULS)",
+  "plateTwist": "Twisting moment",
+  "plateColumnN": "Column {n}",
+  "@plateColumnN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "plateReinforcement": "Reinforcement (Wood–Armer)",
+  "plateBottomX": "Bottom x",
+  "plateBottomY": "Bottom y",
+  "plateTopX": "Top x",
+  "plateTopY": "Top y",
+  "plateMinimum": "Minimum per layer",
+  "plateShow": "Show",
+  "plateFieldW": "Deflection",
+  "plateProbe": "x = {x} m, y = {y} m: {value}",
+  "@plateProbe": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "y": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "plateNoteScope": "Rectangular plate, linear elastic, uncracked (long-term and cracked deflections are larger). Columns are point supports: check punching separately and use the steel over columns from the peak values (smoothed over the column width in practice). x bars in the outer layer."
 }

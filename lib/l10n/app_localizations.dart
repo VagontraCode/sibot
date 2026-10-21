@@ -6163,6 +6163,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete member'**
   String get f3dDeleteMember;
+
+  /// No description provided for @modPlate.
+  ///
+  /// In en, this message translates to:
+  /// **'Slabs & Rafts (FE)'**
+  String get modPlate;
+
+  /// No description provided for @modPlateSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Plates, Wood–Armer steel'**
+  String get modPlateSub;
+
+  /// No description provided for @plateSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finite elements (Kirchhoff plate) · contour maps · Wood–Armer reinforcement'**
+  String get plateSubtitle;
+
+  /// No description provided for @plateType.
+  ///
+  /// In en, this message translates to:
+  /// **'Element'**
+  String get plateType;
+
+  /// No description provided for @plateSlab.
+  ///
+  /// In en, this message translates to:
+  /// **'Slab'**
+  String get plateSlab;
+
+  /// No description provided for @plateRaft.
+  ///
+  /// In en, this message translates to:
+  /// **'Raft'**
+  String get plateRaft;
+
+  /// No description provided for @plateGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Geometry and supports'**
+  String get plateGeometry;
+
+  /// No description provided for @plateThickness.
+  ///
+  /// In en, this message translates to:
+  /// **'Thickness'**
+  String get plateThickness;
+
+  /// No description provided for @plateSimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple'**
+  String get plateSimple;
+
+  /// No description provided for @plateColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns (x,y)'**
+  String get plateColumns;
+
+  /// No description provided for @plateColumnsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Point supports under a slab or columns of a raft, in metres from the corner x = 0, y = 0, separated by spaces. Edges: support along each side.'**
+  String get plateColumnsHelp;
+
+  /// No description provided for @plateSupports.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports'**
+  String get plateSupports;
+
+  /// No description provided for @plateLoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loads'**
+  String get plateLoads;
+
+  /// No description provided for @plateG.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent g (excl. self-weight)'**
+  String get plateG;
+
+  /// No description provided for @plateQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Imposed q'**
+  String get plateQ;
+
+  /// No description provided for @platePointLoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Point loads (x,y,P)'**
+  String get platePointLoads;
+
+  /// No description provided for @plateSubgrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Subgrade modulus k'**
+  String get plateSubgrade;
+
+  /// No description provided for @plateLoadsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-weight is added (25 kN/m³). ULS: 1.35 G + 1.5 Q for moments and steel; SLS: G + Q for deflections. Point loads are characteristic permanent loads, kN.'**
+  String get plateLoadsHelp;
+
+  /// No description provided for @plateRaftHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Winkler springs: soil pressure = k · w. Typical k: 10 000–30 000 kN/m³ for medium soils, from the geotechnical report. Point loads: column loads (G), kN.'**
+  String get plateRaftHelp;
+
+  /// No description provided for @plateMesh.
+  ///
+  /// In en, this message translates to:
+  /// **'Elements on the long side'**
+  String get plateMesh;
+
+  /// No description provided for @plateSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get plateSummary;
+
+  /// No description provided for @plateMaxDeflection.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. deflection (elastic, uncracked)'**
+  String get plateMaxDeflection;
+
+  /// No description provided for @plateSpanRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'Span ratio'**
+  String get plateSpanRatio;
+
+  /// No description provided for @plateSoilPressure.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. soil pressure'**
+  String get plateSoilPressure;
+
+  /// No description provided for @plateMomentsX.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments x (ULS)'**
+  String get plateMomentsX;
+
+  /// No description provided for @plateMomentsY.
+  ///
+  /// In en, this message translates to:
+  /// **'Moments y (ULS)'**
+  String get plateMomentsY;
+
+  /// No description provided for @plateTwist.
+  ///
+  /// In en, this message translates to:
+  /// **'Twisting moment'**
+  String get plateTwist;
+
+  /// No description provided for @plateColumnN.
+  ///
+  /// In en, this message translates to:
+  /// **'Column {n}'**
+  String plateColumnN(int n);
+
+  /// No description provided for @plateReinforcement.
+  ///
+  /// In en, this message translates to:
+  /// **'Reinforcement (Wood–Armer)'**
+  String get plateReinforcement;
+
+  /// No description provided for @plateBottomX.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom x'**
+  String get plateBottomX;
+
+  /// No description provided for @plateBottomY.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom y'**
+  String get plateBottomY;
+
+  /// No description provided for @plateTopX.
+  ///
+  /// In en, this message translates to:
+  /// **'Top x'**
+  String get plateTopX;
+
+  /// No description provided for @plateTopY.
+  ///
+  /// In en, this message translates to:
+  /// **'Top y'**
+  String get plateTopY;
+
+  /// No description provided for @plateMinimum.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum per layer'**
+  String get plateMinimum;
+
+  /// No description provided for @plateShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get plateShow;
+
+  /// No description provided for @plateFieldW.
+  ///
+  /// In en, this message translates to:
+  /// **'Deflection'**
+  String get plateFieldW;
+
+  /// No description provided for @plateProbe.
+  ///
+  /// In en, this message translates to:
+  /// **'x = {x} m, y = {y} m: {value}'**
+  String plateProbe(String x, String y, String value);
+
+  /// No description provided for @plateNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular plate, linear elastic, uncracked (long-term and cracked deflections are larger). Columns are point supports: check punching separately and use the steel over columns from the peak values (smoothed over the column width in practice). x bars in the outer layer.'**
+  String get plateNoteScope;
 }
 
 class _AppLocalizationsDelegate

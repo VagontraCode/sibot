@@ -3318,4 +3318,127 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get f3dDeleteMember => 'Delete member';
+
+  @override
+  String get modPlate => 'Slabs & Rafts (FE)';
+
+  @override
+  String get modPlateSub => 'Plates, Wood–Armer steel';
+
+  @override
+  String get plateSubtitle =>
+      'Finite elements (Kirchhoff plate) · contour maps · Wood–Armer reinforcement';
+
+  @override
+  String get plateType => 'Element';
+
+  @override
+  String get plateSlab => 'Slab';
+
+  @override
+  String get plateRaft => 'Raft';
+
+  @override
+  String get plateGeometry => 'Geometry and supports';
+
+  @override
+  String get plateThickness => 'Thickness';
+
+  @override
+  String get plateSimple => 'Simple';
+
+  @override
+  String get plateColumns => 'Columns (x,y)';
+
+  @override
+  String get plateColumnsHelp =>
+      'Point supports under a slab or columns of a raft, in metres from the corner x = 0, y = 0, separated by spaces. Edges: support along each side.';
+
+  @override
+  String get plateSupports => 'Supports';
+
+  @override
+  String get plateLoads => 'Loads';
+
+  @override
+  String get plateG => 'Permanent g (excl. self-weight)';
+
+  @override
+  String get plateQ => 'Imposed q';
+
+  @override
+  String get platePointLoads => 'Point loads (x,y,P)';
+
+  @override
+  String get plateSubgrade => 'Subgrade modulus k';
+
+  @override
+  String get plateLoadsHelp =>
+      'Self-weight is added (25 kN/m³). ULS: 1.35 G + 1.5 Q for moments and steel; SLS: G + Q for deflections. Point loads are characteristic permanent loads, kN.';
+
+  @override
+  String get plateRaftHelp =>
+      'Winkler springs: soil pressure = k · w. Typical k: 10 000–30 000 kN/m³ for medium soils, from the geotechnical report. Point loads: column loads (G), kN.';
+
+  @override
+  String get plateMesh => 'Elements on the long side';
+
+  @override
+  String get plateSummary => 'Results';
+
+  @override
+  String get plateMaxDeflection => 'Max. deflection (elastic, uncracked)';
+
+  @override
+  String get plateSpanRatio => 'Span ratio';
+
+  @override
+  String get plateSoilPressure => 'Max. soil pressure';
+
+  @override
+  String get plateMomentsX => 'Moments x (ULS)';
+
+  @override
+  String get plateMomentsY => 'Moments y (ULS)';
+
+  @override
+  String get plateTwist => 'Twisting moment';
+
+  @override
+  String plateColumnN(int n) {
+    return 'Column $n';
+  }
+
+  @override
+  String get plateReinforcement => 'Reinforcement (Wood–Armer)';
+
+  @override
+  String get plateBottomX => 'Bottom x';
+
+  @override
+  String get plateBottomY => 'Bottom y';
+
+  @override
+  String get plateTopX => 'Top x';
+
+  @override
+  String get plateTopY => 'Top y';
+
+  @override
+  String get plateMinimum => 'Minimum per layer';
+
+  @override
+  String get plateShow => 'Show';
+
+  @override
+  String get plateFieldW => 'Deflection';
+
+  @override
+  String plateProbe(String x, String y, String value) {
+    return 'x = $x m, y = $y m: $value';
+  }
+
+  @override
+  String get plateNoteScope =>
+      'Rectangular plate, linear elastic, uncracked (long-term and cracked deflections are larger). Columns are point supports: check punching separately and use the steel over columns from the peak values (smoothed over the column width in practice). x bars in the outer layer.';
 }

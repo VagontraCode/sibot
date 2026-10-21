@@ -175,7 +175,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Free 3D editing: add, move and delete nodes; connect members; supports; sections; load cases (G, Q, S, W); nodal and member loads; undo; rigid floors follow the levels
 
 ### Phase 5 — Plates, polish and performance
-- [ ] Plate elements for slabs and rafts, contour maps, and reinforcement from Wood–Armer moments
+- [x] Plate elements (ACM Kirchhoff) for slabs and rafts: edge supports, columns, Winkler soil, contour maps, Wood–Armer reinforcement; checked against Timoshenko (SS and clamped squares)
 - [ ] Full calculation notes in PDF (EN/FR) with diagrams and code clauses
 - [ ] `.sibot` and DXF geometry import/export
 - [ ] Performance profiling on low-end Android, and battery and memory budgets

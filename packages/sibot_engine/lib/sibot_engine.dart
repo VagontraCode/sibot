@@ -13,6 +13,7 @@ export 'src/fem/analysis.dart';
 export 'src/fem/banded.dart';
 export 'src/fem/combinations.dart';
 export 'src/fem/model.dart';
+export 'src/fem/plate.dart';
 export 'src/fem/templates.dart';
 export 'src/fem3d/analysis3d.dart';
 export 'src/fem3d/design3d.dart';

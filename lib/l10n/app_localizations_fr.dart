@@ -3338,4 +3338,127 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get f3dDeleteMember => 'Supprimer la barre';
+
+  @override
+  String get modPlate => 'Dalles et radiers (EF)';
+
+  @override
+  String get modPlateSub => 'Plaques, aciers Wood–Armer';
+
+  @override
+  String get plateSubtitle =>
+      'Éléments finis (plaque de Kirchhoff) · cartographies · ferraillage Wood–Armer';
+
+  @override
+  String get plateType => 'Élément';
+
+  @override
+  String get plateSlab => 'Dalle';
+
+  @override
+  String get plateRaft => 'Radier';
+
+  @override
+  String get plateGeometry => 'Géométrie et appuis';
+
+  @override
+  String get plateThickness => 'Épaisseur';
+
+  @override
+  String get plateSimple => 'Simple';
+
+  @override
+  String get plateColumns => 'Poteaux (x,y)';
+
+  @override
+  String get plateColumnsHelp =>
+      'Appuis ponctuels sous une dalle ou poteaux d\'un radier, en mètres depuis l\'angle x = 0, y = 0, séparés par des espaces. Bords : appui le long de chaque côté.';
+
+  @override
+  String get plateSupports => 'Appuis';
+
+  @override
+  String get plateLoads => 'Charges';
+
+  @override
+  String get plateG => 'Permanente g (hors poids propre)';
+
+  @override
+  String get plateQ => 'Exploitation q';
+
+  @override
+  String get platePointLoads => 'Charges ponctuelles (x,y,P)';
+
+  @override
+  String get plateSubgrade => 'Module de réaction k';
+
+  @override
+  String get plateLoadsHelp =>
+      'Le poids propre est ajouté (25 kN/m³). ELU : 1,35 G + 1,5 Q pour les moments et les aciers ; ELS : G + Q pour les flèches. Les charges ponctuelles sont des charges permanentes caractéristiques, en kN.';
+
+  @override
+  String get plateRaftHelp =>
+      'Ressorts de Winkler : pression du sol = k · w. k usuel : 10 000–30 000 kN/m³ pour des sols moyens, selon le rapport géotechnique. Charges ponctuelles : descentes des poteaux (G), en kN.';
+
+  @override
+  String get plateMesh => 'Éléments sur le grand côté';
+
+  @override
+  String get plateSummary => 'Résultats';
+
+  @override
+  String get plateMaxDeflection => 'Flèche max. (élastique, non fissurée)';
+
+  @override
+  String get plateSpanRatio => 'Rapport à la portée';
+
+  @override
+  String get plateSoilPressure => 'Pression max. sur le sol';
+
+  @override
+  String get plateMomentsX => 'Moments x (ELU)';
+
+  @override
+  String get plateMomentsY => 'Moments y (ELU)';
+
+  @override
+  String get plateTwist => 'Moment de torsion';
+
+  @override
+  String plateColumnN(int n) {
+    return 'Poteau $n';
+  }
+
+  @override
+  String get plateReinforcement => 'Ferraillage (Wood–Armer)';
+
+  @override
+  String get plateBottomX => 'Inférieur x';
+
+  @override
+  String get plateBottomY => 'Inférieur y';
+
+  @override
+  String get plateTopX => 'Supérieur x';
+
+  @override
+  String get plateTopY => 'Supérieur y';
+
+  @override
+  String get plateMinimum => 'Minimum par nappe';
+
+  @override
+  String get plateShow => 'Afficher';
+
+  @override
+  String get plateFieldW => 'Flèche';
+
+  @override
+  String plateProbe(String x, String y, String value) {
+    return 'x = $x m, y = $y m : $value';
+  }
+
+  @override
+  String get plateNoteScope =>
+      'Plaque rectangulaire, élastique linéaire, non fissurée (les flèches à long terme et fissurées sont plus grandes). Les poteaux sont des appuis ponctuels : vérifier le poinçonnement séparément et prendre les aciers sur poteaux sur les valeurs de pic (lissées sur la largeur du poteau en pratique). Barres x en nappe extérieure.';
 }

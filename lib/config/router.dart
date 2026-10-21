@@ -22,6 +22,7 @@ import 'package:sibot/features/shared/presentation/pages/reference_page.dart';
 import 'package:sibot/features/frame/frame_editor_page.dart';
 import 'package:sibot/features/frame/frame_models_page.dart';
 import 'package:sibot/features/frame3d/frame3d_pages.dart';
+import 'package:sibot/features/plate/plate_page.dart';
 import 'package:sibot/features/settings/settings_page.dart';
 import 'package:sibot/features/shell/app_shell.dart';
 import 'package:sibot/features/tools/septic_page.dart';
@@ -154,6 +155,12 @@ final GoRouter appRouter = GoRouter(
                       name: 'septic',
                       builder: (context, state) =>
                           SepticPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'plate',
+                      name: 'plate',
+                      builder: (context, state) =>
+                          PlatePage(projectId: _pid(state)),
                     ),
                     GoRoute(
                       path: 'slab',

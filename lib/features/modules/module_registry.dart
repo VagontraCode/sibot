@@ -65,6 +65,7 @@ class EngModule {
   String title(AppLocalizations l) => switch (id) {
     'frame2d' => l.modFrame2d,
     'frame3d' => l.modFrame3d,
+    'plate' => l.modPlate,
     'beam' => l.modBeam,
     'column' => l.modColumn,
     'slab' => l.modSlab,
@@ -87,6 +88,7 @@ class EngModule {
   String subtitle(AppLocalizations l) => switch (id) {
     'frame2d' => l.modFrame2dSub,
     'frame3d' => l.modFrame3dSub,
+    'plate' => l.modPlateSub,
     'beam' => l.modBeamSub,
     'column' => l.modColumnSub,
     'slab' => l.modSlabSub,
@@ -120,6 +122,13 @@ const modules = <EngModule>[
     icon: Icons.view_in_ar_outlined,
     category: ModuleCategory.analysis,
     route: 'frame3d',
+    status: ModuleStatus.beta,
+  ),
+  EngModule(
+    id: 'plate',
+    icon: Icons.grid_4x4_rounded,
+    category: ModuleCategory.analysis,
+    route: 'plate',
     status: ModuleStatus.beta,
   ),
   EngModule(
