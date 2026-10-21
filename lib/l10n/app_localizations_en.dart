@@ -2916,4 +2916,219 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get septicNoteScope =>
       'Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered.';
+
+  @override
+  String get f3dSubtitle =>
+      'Space frames: static, modal, response spectrum and buckling';
+
+  @override
+  String get f3dNewBuilding => 'New building';
+
+  @override
+  String get f3dEditBuilding => 'Edit building';
+
+  @override
+  String get f3dEmptyTitle => 'No 3D model yet';
+
+  @override
+  String get f3dEmptyMessage =>
+      'Generate a building frame from its grid, storeys, sections and floor loads, then explore it in 3D.';
+
+  @override
+  String f3dGridSummary(int x, int y, int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n storeys',
+      one: '1 storey',
+    );
+    return '$x × $y bays · $_temp0';
+  }
+
+  @override
+  String f3dDefaultName(int x, int y, int n) {
+    return 'Building $x×$y R+$n';
+  }
+
+  @override
+  String get f3dWizardInvalid =>
+      'Check the values: whole numbers of bays (1–20) and storeys (1–40), positive spans, heights and sections.';
+
+  @override
+  String get f3dGrid => 'Grid';
+
+  @override
+  String get f3dBaysX => 'Bays in X';
+
+  @override
+  String get f3dSpanX => 'Span X';
+
+  @override
+  String get f3dBaysY => 'Bays in Y';
+
+  @override
+  String get f3dSpanY => 'Span Y';
+
+  @override
+  String get f3dStoreys => 'Storeys';
+
+  @override
+  String get f3dGroundHeight => 'Ground storey';
+
+  @override
+  String get f3dStoreyHeight => 'Typical storey';
+
+  @override
+  String get f3dSections => 'Sections';
+
+  @override
+  String get f3dMaterial => 'Material';
+
+  @override
+  String get f3dColumns => 'Columns';
+
+  @override
+  String get f3dBeams => 'Beams';
+
+  @override
+  String get f3dLoads => 'Floor loads';
+
+  @override
+  String get f3dFloorG => 'Permanent g';
+
+  @override
+  String get f3dFloorQ => 'Imposed q';
+
+  @override
+  String get f3dFacade => 'Facade on edge beams';
+
+  @override
+  String get f3dLoadsNote =>
+      'Applied at every level including the roof, carried to the beams by 45° lines (moment-equivalent uniform loads). Member self-weight is added to G.';
+
+  @override
+  String get f3dSave => 'Save and analyse';
+
+  @override
+  String get f3dTabModel => 'Model';
+
+  @override
+  String get f3dTabStatic => 'Static';
+
+  @override
+  String get f3dTabModes => 'Modes';
+
+  @override
+  String get f3dTabSeismic => 'Seismic';
+
+  @override
+  String get f3dTabBuckling => 'Buckling';
+
+  @override
+  String get f3dFootprint => 'Size L × W × H';
+
+  @override
+  String get f3dNodesMembers => 'Nodes / members';
+
+  @override
+  String get f3dSeismicMass => 'Seismic mass';
+
+  @override
+  String get f3dModelNote =>
+      'Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.';
+
+  @override
+  String get f3dCombination => 'Combination';
+
+  @override
+  String get f3dColourBy => 'Show';
+
+  @override
+  String get f3dDeformed => 'Shape';
+
+  @override
+  String get f3dPDelta => 'Second order (P-Δ)';
+
+  @override
+  String get f3dPDeltaHelp =>
+      'Iterates with the geometric stiffness of the axial forces.';
+
+  @override
+  String get f3dMaxVertical => 'Max. vertical displacement';
+
+  @override
+  String get f3dMaxLateral => 'Max. horizontal displacement';
+
+  @override
+  String get f3dMaxBeamMoment => 'Max. beam moment';
+
+  @override
+  String get f3dMaxColumnLoad => 'Max. column compression';
+
+  @override
+  String get f3dTotalReaction => 'Total vertical reaction';
+
+  @override
+  String get f3dNoModes => 'No vibrating mass: add loads or self-weight.';
+
+  @override
+  String get f3dModesHelp => 'Mass from G + 0.3 Q. Tap a mode to animate it.';
+
+  @override
+  String f3dCumulativeMass(String x, String y) {
+    return 'Cumulative mass: X $x · Y $y';
+  }
+
+  @override
+  String get f3dCumulativeHelp =>
+      'EN 1998-1 4.3.3.3.1 asks for at least 90 % of the mass in each direction.';
+
+  @override
+  String get f3dDirection => 'Direction';
+
+  @override
+  String get f3dRunSpectrum => 'Run response spectrum';
+
+  @override
+  String f3dSpectrumMass(String pct) {
+    return 'Modes used: $pct % of the mass in this direction (90 % required).';
+  }
+
+  @override
+  String get f3dModalContributions => 'Modal contributions';
+
+  @override
+  String f3dModeN(int n) {
+    return 'Mode $n';
+  }
+
+  @override
+  String get f3dSpectrumNote =>
+      'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.';
+
+  @override
+  String get f3dNoBuckling =>
+      'No member is in compression: no buckling factor.';
+
+  @override
+  String f3dAlphaCr(String a) {
+    return 'αcr = $a';
+  }
+
+  @override
+  String get f3dAlphaFirstOrder =>
+      'αcr ≥ 10: first-order analysis is sufficient (EN 1993-1-1 5.2.1).';
+
+  @override
+  String get f3dAlphaSecondOrder =>
+      '3 ≤ αcr < 10: include second-order effects (use P-Δ in the Static tab).';
+
+  @override
+  String get f3dAlphaTooLow =>
+      'αcr < 3: the frame is too flexible; stiffen it.';
+
+  @override
+  String f3dBucklingNote(String combo) {
+    return 'Elastic critical load factor of the combination $combo: the loads multiplied by αcr would make the frame buckle. The buckled shape is shown.';
+  }
 }

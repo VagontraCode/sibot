@@ -1253,5 +1253,130 @@
   "septicLayout": "Layout",
   "septicInside": "Inside dimensions",
   "septicCompartments": "Compartments",
-  "septicNoteScope": "Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered."
+  "septicNoteScope": "Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered.",
+  "f3dSubtitle": "Space frames: static, modal, response spectrum and buckling",
+  "f3dNewBuilding": "New building",
+  "f3dEditBuilding": "Edit building",
+  "f3dEmptyTitle": "No 3D model yet",
+  "f3dEmptyMessage": "Generate a building frame from its grid, storeys, sections and floor loads, then explore it in 3D.",
+  "f3dGridSummary": "{x} × {y} bays · {n, plural, =1{1 storey} other{{n} storeys}}",
+  "@f3dGridSummary": {
+    "placeholders": {
+      "x": {
+        "type": "int"
+      },
+      "y": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dDefaultName": "Building {x}×{y} R+{n}",
+  "@f3dDefaultName": {
+    "placeholders": {
+      "x": {
+        "type": "int"
+      },
+      "y": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dWizardInvalid": "Check the values: whole numbers of bays (1–20) and storeys (1–40), positive spans, heights and sections.",
+  "f3dGrid": "Grid",
+  "f3dBaysX": "Bays in X",
+  "f3dSpanX": "Span X",
+  "f3dBaysY": "Bays in Y",
+  "f3dSpanY": "Span Y",
+  "f3dStoreys": "Storeys",
+  "f3dGroundHeight": "Ground storey",
+  "f3dStoreyHeight": "Typical storey",
+  "f3dSections": "Sections",
+  "f3dMaterial": "Material",
+  "f3dColumns": "Columns",
+  "f3dBeams": "Beams",
+  "f3dLoads": "Floor loads",
+  "f3dFloorG": "Permanent g",
+  "f3dFloorQ": "Imposed q",
+  "f3dFacade": "Facade on edge beams",
+  "f3dLoadsNote": "Applied at every level including the roof, carried to the beams by 45° lines (moment-equivalent uniform loads). Member self-weight is added to G.",
+  "f3dSave": "Save and analyse",
+  "f3dTabModel": "Model",
+  "f3dTabStatic": "Static",
+  "f3dTabModes": "Modes",
+  "f3dTabSeismic": "Seismic",
+  "f3dTabBuckling": "Buckling",
+  "f3dFootprint": "Size L × W × H",
+  "f3dNodesMembers": "Nodes / members",
+  "f3dSeismicMass": "Seismic mass",
+  "f3dModelNote": "Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.",
+  "f3dCombination": "Combination",
+  "f3dColourBy": "Show",
+  "f3dDeformed": "Shape",
+  "f3dPDelta": "Second order (P-Δ)",
+  "f3dPDeltaHelp": "Iterates with the geometric stiffness of the axial forces.",
+  "f3dMaxVertical": "Max. vertical displacement",
+  "f3dMaxLateral": "Max. horizontal displacement",
+  "f3dMaxBeamMoment": "Max. beam moment",
+  "f3dMaxColumnLoad": "Max. column compression",
+  "f3dTotalReaction": "Total vertical reaction",
+  "f3dNoModes": "No vibrating mass: add loads or self-weight.",
+  "f3dModesHelp": "Mass from G + 0.3 Q. Tap a mode to animate it.",
+  "f3dCumulativeMass": "Cumulative mass: X {x} · Y {y}",
+  "@f3dCumulativeMass": {
+    "placeholders": {
+      "x": {
+        "type": "String"
+      },
+      "y": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dCumulativeHelp": "EN 1998-1 4.3.3.3.1 asks for at least 90 % of the mass in each direction.",
+  "f3dDirection": "Direction",
+  "f3dRunSpectrum": "Run response spectrum",
+  "f3dSpectrumMass": "Modes used: {pct} % of the mass in this direction (90 % required).",
+  "@f3dSpectrumMass": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dModalContributions": "Modal contributions",
+  "f3dModeN": "Mode {n}",
+  "@f3dModeN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dSpectrumNote": "Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.",
+  "f3dNoBuckling": "No member is in compression: no buckling factor.",
+  "f3dAlphaCr": "αcr = {a}",
+  "@f3dAlphaCr": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dAlphaFirstOrder": "αcr ≥ 10: first-order analysis is sufficient (EN 1993-1-1 5.2.1).",
+  "f3dAlphaSecondOrder": "3 ≤ αcr < 10: include second-order effects (use P-Δ in the Static tab).",
+  "f3dAlphaTooLow": "αcr < 3: the frame is too flexible; stiffen it.",
+  "f3dBucklingNote": "Elastic critical load factor of the combination {combo}: the loads multiplied by αcr would make the frame buckle. The buckled shape is shown.",
+  "@f3dBucklingNote": {
+    "placeholders": {
+      "combo": {
+        "type": "String"
+      }
+    }
+  }
 }

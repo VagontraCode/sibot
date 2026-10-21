@@ -119,8 +119,8 @@ const modules = <EngModule>[
     id: 'frame3d',
     icon: Icons.view_in_ar_outlined,
     category: ModuleCategory.analysis,
-    status: ModuleStatus.comingSoon,
-    phase: 4,
+    route: 'frame3d',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'beam',

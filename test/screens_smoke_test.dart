@@ -31,6 +31,8 @@ import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.da
 import 'package:sibot/features/tools/tools_providers.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
+import 'package:sibot/features/frame3d/frame3d_data.dart';
+import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/main.dart';
 import 'package:sibot_engine/sibot_engine.dart';
@@ -94,6 +96,21 @@ Future<void> _seed() async {
         g: 20,
         q: 10,
         wind: 15,
+      ),
+    ),
+  );
+  await Frame3DRepository.save(
+    Frame3DRecord(
+      id: 'F3_1',
+      projectId: 'PRJ_1',
+      name: 'Office R+3',
+      updatedAt: now,
+      params: BuildingParams(
+        spansX: const [5, 5, 5],
+        spansY: const [4.5, 4.5],
+        storeyHeights: const [3.5, 3, 3, 3],
+        column: Section3D.rectangle(350, 350),
+        beam: Section3D.rectangle(250, 500),
       ),
     ),
   );
@@ -322,6 +339,9 @@ void main() {
     'frame_list': '/projects/PRJ_1/frame2d',
     'frame_editor': '/projects/PRJ_1/frame2d/FM_1',
     'frame_results': '/projects/PRJ_1/frame2d/FM_1',
+    'frame3d_list': '/projects/PRJ_1/frame3d',
+    'frame3d_static': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_modes': '/projects/PRJ_1/frame3d/F3_1',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
     'punch_list': '/field/punch-list/PRJ_1',
@@ -360,7 +380,14 @@ void main() {
 
           for (final s in screens.entries) {
             appRouter.go(s.value);
-            await tester.pumpAndSettle();
+            final live3d =
+                s.key.startsWith('frame3d_') && s.key != 'frame3d_list';
+            if (live3d) {
+              // The analysis runs in an isolate behind a progress bar.
+              await tester.pump(const Duration(milliseconds: 500));
+            } else {
+              await tester.pumpAndSettle();
+            }
 
             // Frame results: switch to the Results tab and let the isolate
             // finish outside the fake clock.
@@ -372,6 +399,24 @@ void main() {
               );
               await tester.pumpAndSettle();
               expect(find.byType(FrameCanvas), findsOneWidget);
+            }
+
+            // 3D model: let the isolate analysis finish; open the modes tab.
+            if (live3d) {
+              for (var i = 0; i < 40; i++) {
+                await tester.runAsync(
+                  () => Future<void>.delayed(const Duration(milliseconds: 250)),
+                );
+                await tester.pump();
+                if (find.byType(LinearProgressIndicator).evaluate().isEmpty) {
+                  break;
+                }
+              }
+              if (s.key == 'frame3d_modes') {
+                await tester.tap(find.byType(ChoiceChip).at(2));
+              }
+              await tester.pump(const Duration(milliseconds: 400));
+              expect(find.byType(Frame3DView), findsOneWidget);
             }
 
             // Run a calculation so the results view is rendered too.

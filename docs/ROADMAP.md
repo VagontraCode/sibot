@@ -162,10 +162,14 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Septic tank (Beta): flow × retention + sludge, DTU 64.1 minimum, two-compartment layout
 - [ ] Pile cap: eccentric loads and moments, pile capacity, rectangular columns
 
-### Phase 4 — 3D frames and dynamics
-- [ ] 3D frame element (6 DOF), rigid diaphragms, 3D viewer (orbit, pan, zoom)
-- [ ] Modal analysis, then response spectrum (EC8 / PS92) with CQC combination
-- [ ] P-Δ and linear buckling
+### Phase 4 — 3D frames and dynamics ✅ (Beta)
+- [x] 3D frame element (6 DOF), verified against closed forms and the 2D solver
+- [x] 3D viewer: orbit, pinch zoom, pan, depth fading, deformed shape and moment colours, animated modes
+- [x] Building generator (grid, storeys, concrete or steel sections, floor loads by 45° lines)
+- [x] Modal analysis (subspace iteration), mass ratios; EC8 response spectrum with CQC
+- [x] P-Δ (geometric stiffness iteration) and elastic critical factor αcr
+- [ ] Rigid floor diaphragms, accidental torsion, E + 0.3 E directional combination, PS92 spectrum
+- [ ] Free 3D editing (nodes, members, loads) and member design from 3D results
 
 ### Phase 5 — Plates, polish and performance
 - [ ] Plate elements for slabs and rafts, contour maps, and reinforcement from Wood–Armer moments

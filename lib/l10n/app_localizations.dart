@@ -5467,6 +5467,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sizing guidance only: check local regulations. The soakaway or treatment field, ventilation and the structural design of the walls and slab are not covered.'**
   String get septicNoteScope;
+
+  /// No description provided for @f3dSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Space frames: static, modal, response spectrum and buckling'**
+  String get f3dSubtitle;
+
+  /// No description provided for @f3dNewBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'New building'**
+  String get f3dNewBuilding;
+
+  /// No description provided for @f3dEditBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit building'**
+  String get f3dEditBuilding;
+
+  /// No description provided for @f3dEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No 3D model yet'**
+  String get f3dEmptyTitle;
+
+  /// No description provided for @f3dEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate a building frame from its grid, storeys, sections and floor loads, then explore it in 3D.'**
+  String get f3dEmptyMessage;
+
+  /// No description provided for @f3dGridSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{x} × {y} bays · {n, plural, =1{1 storey} other{{n} storeys}}'**
+  String f3dGridSummary(int x, int y, int n);
+
+  /// No description provided for @f3dDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Building {x}×{y} R+{n}'**
+  String f3dDefaultName(int x, int y, int n);
+
+  /// No description provided for @f3dWizardInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the values: whole numbers of bays (1–20) and storeys (1–40), positive spans, heights and sections.'**
+  String get f3dWizardInvalid;
+
+  /// No description provided for @f3dGrid.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get f3dGrid;
+
+  /// No description provided for @f3dBaysX.
+  ///
+  /// In en, this message translates to:
+  /// **'Bays in X'**
+  String get f3dBaysX;
+
+  /// No description provided for @f3dSpanX.
+  ///
+  /// In en, this message translates to:
+  /// **'Span X'**
+  String get f3dSpanX;
+
+  /// No description provided for @f3dBaysY.
+  ///
+  /// In en, this message translates to:
+  /// **'Bays in Y'**
+  String get f3dBaysY;
+
+  /// No description provided for @f3dSpanY.
+  ///
+  /// In en, this message translates to:
+  /// **'Span Y'**
+  String get f3dSpanY;
+
+  /// No description provided for @f3dStoreys.
+  ///
+  /// In en, this message translates to:
+  /// **'Storeys'**
+  String get f3dStoreys;
+
+  /// No description provided for @f3dGroundHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground storey'**
+  String get f3dGroundHeight;
+
+  /// No description provided for @f3dStoreyHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical storey'**
+  String get f3dStoreyHeight;
+
+  /// No description provided for @f3dSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get f3dSections;
+
+  /// No description provided for @f3dMaterial.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get f3dMaterial;
+
+  /// No description provided for @f3dColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get f3dColumns;
+
+  /// No description provided for @f3dBeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Beams'**
+  String get f3dBeams;
+
+  /// No description provided for @f3dLoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor loads'**
+  String get f3dLoads;
+
+  /// No description provided for @f3dFloorG.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent g'**
+  String get f3dFloorG;
+
+  /// No description provided for @f3dFloorQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Imposed q'**
+  String get f3dFloorQ;
+
+  /// No description provided for @f3dFacade.
+  ///
+  /// In en, this message translates to:
+  /// **'Facade on edge beams'**
+  String get f3dFacade;
+
+  /// No description provided for @f3dLoadsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Applied at every level including the roof, carried to the beams by 45° lines (moment-equivalent uniform loads). Member self-weight is added to G.'**
+  String get f3dLoadsNote;
+
+  /// No description provided for @f3dSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and analyse'**
+  String get f3dSave;
+
+  /// No description provided for @f3dTabModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get f3dTabModel;
+
+  /// No description provided for @f3dTabStatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Static'**
+  String get f3dTabStatic;
+
+  /// No description provided for @f3dTabModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Modes'**
+  String get f3dTabModes;
+
+  /// No description provided for @f3dTabSeismic.
+  ///
+  /// In en, this message translates to:
+  /// **'Seismic'**
+  String get f3dTabSeismic;
+
+  /// No description provided for @f3dTabBuckling.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling'**
+  String get f3dTabBuckling;
+
+  /// No description provided for @f3dFootprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Size L × W × H'**
+  String get f3dFootprint;
+
+  /// No description provided for @f3dNodesMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodes / members'**
+  String get f3dNodesMembers;
+
+  /// No description provided for @f3dSeismicMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Seismic mass'**
+  String get f3dSeismicMass;
+
+  /// No description provided for @f3dModelNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.'**
+  String get f3dModelNote;
+
+  /// No description provided for @f3dCombination.
+  ///
+  /// In en, this message translates to:
+  /// **'Combination'**
+  String get f3dCombination;
+
+  /// No description provided for @f3dColourBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get f3dColourBy;
+
+  /// No description provided for @f3dDeformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape'**
+  String get f3dDeformed;
+
+  /// No description provided for @f3dPDelta.
+  ///
+  /// In en, this message translates to:
+  /// **'Second order (P-Δ)'**
+  String get f3dPDelta;
+
+  /// No description provided for @f3dPDeltaHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Iterates with the geometric stiffness of the axial forces.'**
+  String get f3dPDeltaHelp;
+
+  /// No description provided for @f3dMaxVertical.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. vertical displacement'**
+  String get f3dMaxVertical;
+
+  /// No description provided for @f3dMaxLateral.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. horizontal displacement'**
+  String get f3dMaxLateral;
+
+  /// No description provided for @f3dMaxBeamMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. beam moment'**
+  String get f3dMaxBeamMoment;
+
+  /// No description provided for @f3dMaxColumnLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. column compression'**
+  String get f3dMaxColumnLoad;
+
+  /// No description provided for @f3dTotalReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Total vertical reaction'**
+  String get f3dTotalReaction;
+
+  /// No description provided for @f3dNoModes.
+  ///
+  /// In en, this message translates to:
+  /// **'No vibrating mass: add loads or self-weight.'**
+  String get f3dNoModes;
+
+  /// No description provided for @f3dModesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Mass from G + 0.3 Q. Tap a mode to animate it.'**
+  String get f3dModesHelp;
+
+  /// No description provided for @f3dCumulativeMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Cumulative mass: X {x} · Y {y}'**
+  String f3dCumulativeMass(String x, String y);
+
+  /// No description provided for @f3dCumulativeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1998-1 4.3.3.3.1 asks for at least 90 % of the mass in each direction.'**
+  String get f3dCumulativeHelp;
+
+  /// No description provided for @f3dDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get f3dDirection;
+
+  /// No description provided for @f3dRunSpectrum.
+  ///
+  /// In en, this message translates to:
+  /// **'Run response spectrum'**
+  String get f3dRunSpectrum;
+
+  /// No description provided for @f3dSpectrumMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Modes used: {pct} % of the mass in this direction (90 % required).'**
+  String f3dSpectrumMass(String pct);
+
+  /// No description provided for @f3dModalContributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Modal contributions'**
+  String get f3dModalContributions;
+
+  /// No description provided for @f3dModeN.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode {n}'**
+  String f3dModeN(int n);
+
+  /// No description provided for @f3dSpectrumNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.'**
+  String get f3dSpectrumNote;
+
+  /// No description provided for @f3dNoBuckling.
+  ///
+  /// In en, this message translates to:
+  /// **'No member is in compression: no buckling factor.'**
+  String get f3dNoBuckling;
+
+  /// No description provided for @f3dAlphaCr.
+  ///
+  /// In en, this message translates to:
+  /// **'αcr = {a}'**
+  String f3dAlphaCr(String a);
+
+  /// No description provided for @f3dAlphaFirstOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'αcr ≥ 10: first-order analysis is sufficient (EN 1993-1-1 5.2.1).'**
+  String get f3dAlphaFirstOrder;
+
+  /// No description provided for @f3dAlphaSecondOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'3 ≤ αcr < 10: include second-order effects (use P-Δ in the Static tab).'**
+  String get f3dAlphaSecondOrder;
+
+  /// No description provided for @f3dAlphaTooLow.
+  ///
+  /// In en, this message translates to:
+  /// **'αcr < 3: the frame is too flexible; stiffen it.'**
+  String get f3dAlphaTooLow;
+
+  /// No description provided for @f3dBucklingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Elastic critical load factor of the combination {combo}: the loads multiplied by αcr would make the frame buckle. The buckled shape is shown.'**
+  String f3dBucklingNote(String combo);
 }
 
 class _AppLocalizationsDelegate

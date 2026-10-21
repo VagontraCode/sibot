@@ -17,6 +17,7 @@ class HiveService {
   static const String punchListBox = 'punchList';
   static const String settingsBox = 'settings';
   static const String frameModelsBox = 'frameModels';
+  static const String frame3dModelsBox = 'frame3dModels';
 
   static Future<void> init() async {
     try {
@@ -60,6 +61,7 @@ class HiveService {
         punchListBox,
         settingsBox,
         frameModelsBox,
+        frame3dModelsBox,
       ]) {
         await _openBox(name);
       }

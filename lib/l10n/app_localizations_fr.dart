@@ -2933,4 +2933,221 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get septicNoteScope =>
       'Aide au dimensionnement uniquement : vérifier la réglementation locale. L\'épandage ou le traitement, la ventilation et le calcul structurel des parois et de la dalle ne sont pas traités.';
+
+  @override
+  String get f3dSubtitle =>
+      'Ossatures spatiales : statique, modal, spectre de réponse et flambement';
+
+  @override
+  String get f3dNewBuilding => 'Nouveau bâtiment';
+
+  @override
+  String get f3dEditBuilding => 'Modifier le bâtiment';
+
+  @override
+  String get f3dEmptyTitle => 'Aucun modèle 3D';
+
+  @override
+  String get f3dEmptyMessage =>
+      'Générez une ossature de bâtiment à partir de sa trame, de ses niveaux, de ses sections et des charges de plancher, puis explorez-la en 3D.';
+
+  @override
+  String f3dGridSummary(int x, int y, int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n niveaux',
+      one: '1 niveau',
+    );
+    return '$x × $y travées · $_temp0';
+  }
+
+  @override
+  String f3dDefaultName(int x, int y, int n) {
+    return 'Bâtiment $x×$y R+$n';
+  }
+
+  @override
+  String get f3dWizardInvalid =>
+      'Vérifiez les valeurs : nombres entiers de travées (1–20) et de niveaux (1–40), portées, hauteurs et sections positives.';
+
+  @override
+  String get f3dGrid => 'Trame';
+
+  @override
+  String get f3dBaysX => 'Travées en X';
+
+  @override
+  String get f3dSpanX => 'Portée X';
+
+  @override
+  String get f3dBaysY => 'Travées en Y';
+
+  @override
+  String get f3dSpanY => 'Portée Y';
+
+  @override
+  String get f3dStoreys => 'Niveaux';
+
+  @override
+  String get f3dGroundHeight => 'Rez-de-chaussée';
+
+  @override
+  String get f3dStoreyHeight => 'Étage courant';
+
+  @override
+  String get f3dSections => 'Sections';
+
+  @override
+  String get f3dMaterial => 'Matériau';
+
+  @override
+  String get f3dColumns => 'Poteaux';
+
+  @override
+  String get f3dBeams => 'Poutres';
+
+  @override
+  String get f3dLoads => 'Charges de plancher';
+
+  @override
+  String get f3dFloorG => 'Permanente g';
+
+  @override
+  String get f3dFloorQ => 'Exploitation q';
+
+  @override
+  String get f3dFacade => 'Façade sur poutres de rive';
+
+  @override
+  String get f3dLoadsNote =>
+      'Appliquées à tous les niveaux, toiture comprise, transmises aux poutres par des lignes à 45° (charges uniformes équivalentes en moment). Le poids propre des barres est ajouté à G.';
+
+  @override
+  String get f3dSave => 'Enregistrer et analyser';
+
+  @override
+  String get f3dTabModel => 'Modèle';
+
+  @override
+  String get f3dTabStatic => 'Statique';
+
+  @override
+  String get f3dTabModes => 'Modes';
+
+  @override
+  String get f3dTabSeismic => 'Séisme';
+
+  @override
+  String get f3dTabBuckling => 'Flambement';
+
+  @override
+  String get f3dFootprint => 'Dimensions L × l × H';
+
+  @override
+  String get f3dNodesMembers => 'Nœuds / barres';
+
+  @override
+  String get f3dSeismicMass => 'Masse sismique';
+
+  @override
+  String get f3dModelNote =>
+      'Pieds de poteaux encastrés, nœuds rigides, pas de diaphragme de dalle (les poutres portent le plancher en flexion). Glisser pour tourner, pincer pour zoomer, deux doigts pour déplacer, double tap pour réinitialiser la vue.';
+
+  @override
+  String get f3dCombination => 'Combinaison';
+
+  @override
+  String get f3dColourBy => 'Afficher';
+
+  @override
+  String get f3dDeformed => 'Forme';
+
+  @override
+  String get f3dPDelta => 'Second ordre (P-Δ)';
+
+  @override
+  String get f3dPDeltaHelp =>
+      'Itère avec la rigidité géométrique des efforts normaux.';
+
+  @override
+  String get f3dMaxVertical => 'Déplacement vertical max.';
+
+  @override
+  String get f3dMaxLateral => 'Déplacement horizontal max.';
+
+  @override
+  String get f3dMaxBeamMoment => 'Moment max. des poutres';
+
+  @override
+  String get f3dMaxColumnLoad => 'Compression max. des poteaux';
+
+  @override
+  String get f3dTotalReaction => 'Réaction verticale totale';
+
+  @override
+  String get f3dNoModes =>
+      'Aucune masse vibrante : ajoutez des charges ou le poids propre.';
+
+  @override
+  String get f3dModesHelp =>
+      'Masse issue de G + 0,3 Q. Touchez un mode pour l\'animer.';
+
+  @override
+  String f3dCumulativeMass(String x, String y) {
+    return 'Masse cumulée : X $x · Y $y';
+  }
+
+  @override
+  String get f3dCumulativeHelp =>
+      'L\'EN 1998-1 4.3.3.3.1 demande au moins 90 % de la masse dans chaque direction.';
+
+  @override
+  String get f3dDirection => 'Direction';
+
+  @override
+  String get f3dRunSpectrum => 'Lancer le spectre de réponse';
+
+  @override
+  String f3dSpectrumMass(String pct) {
+    return 'Modes retenus : $pct % de la masse dans cette direction (90 % requis).';
+  }
+
+  @override
+  String get f3dModalContributions => 'Contributions modales';
+
+  @override
+  String f3dModeN(int n) {
+    return 'Mode $n';
+  }
+
+  @override
+  String get f3dSpectrumNote =>
+      'Spectre de calcul de l\'EN 1998-1 (paramètres recommandés), amortissement 5 %, combinaison CQC de 12 modes. Les résultats sont des enveloppes (valeurs absolues). La torsion accidentelle et la combinaison des directions (E + 0,3 E) ne sont pas encore prises en compte.';
+
+  @override
+  String get f3dNoBuckling =>
+      'Aucune barre n\'est comprimée : pas de coefficient de flambement.';
+
+  @override
+  String f3dAlphaCr(String a) {
+    return 'αcr = $a';
+  }
+
+  @override
+  String get f3dAlphaFirstOrder =>
+      'αcr ≥ 10 : une analyse au premier ordre suffit (EN 1993-1-1 5.2.1).';
+
+  @override
+  String get f3dAlphaSecondOrder =>
+      '3 ≤ αcr < 10 : tenir compte des effets du second ordre (activer P-Δ dans l\'onglet Statique).';
+
+  @override
+  String get f3dAlphaTooLow =>
+      'αcr < 3 : l\'ossature est trop souple ; la rigidifier.';
+
+  @override
+  String f3dBucklingNote(String combo) {
+    return 'Coefficient critique élastique de la combinaison $combo : les charges multipliées par αcr feraient flamber l\'ossature. La déformée de flambement est affichée.';
+  }
 }
