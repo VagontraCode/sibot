@@ -417,10 +417,18 @@ void main() {
                 await tester.tap(find.byType(ChoiceChip).at(2));
               }
               if (s.key == 'frame3d_seismic') {
-                await tester.tap(find.byType(ChoiceChip).at(3));
+                final chip = find.byType(ChoiceChip).at(3);
+                await tester.ensureVisible(chip);
+                await tester.pump();
+                await tester.tap(chip);
                 await tester.pump();
                 final run = find.byIcon(Icons.play_arrow_rounded);
-                await tester.ensureVisible(run);
+                await tester.dragUntilVisible(
+                  run,
+                  find.byType(ListView).last,
+                  const Offset(0, -200),
+                );
+                await tester.pump();
                 await tester.tap(run);
                 for (var i = 0; i < 60; i++) {
                   await tester.runAsync(
