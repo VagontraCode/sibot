@@ -168,8 +168,8 @@ const modules = <EngModule>[
     id: 'timber-member',
     icon: Icons.forest_outlined,
     category: ModuleCategory.timber,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'timber-member',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'masonry-wall',

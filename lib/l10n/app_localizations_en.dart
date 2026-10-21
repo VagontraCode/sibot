@@ -2219,12 +2219,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkLtb => 'Lateral-torsional buckling';
 
   @override
-  String get checkInteractionY => 'Buckling interaction (6.61)';
+  String get checkInteractionY => 'Buckling interaction (y)';
 
   @override
-  String get checkInteractionZ => 'Buckling interaction (6.62)';
+  String get checkInteractionZ => 'Buckling interaction (z)';
 
   @override
   String get memberSteelNote =>
       'Envelope extremes are combined in one check (largest N with largest M), which is conservative. Length L is the member length between its two nodes.';
+
+  @override
+  String get timberSubtitle =>
+      'EN 1995-1-1 · solid and glulam rectangular members';
+
+  @override
+  String get timberWidth => 'Width b';
+
+  @override
+  String get timberDepth => 'Depth h';
+
+  @override
+  String get timberMaterialTitle => 'Material and environment';
+
+  @override
+  String get timberStrengthClass => 'Strength class';
+
+  @override
+  String get timberDuration => 'Load duration';
+
+  @override
+  String get timberDurPermanent => 'Permanent';
+
+  @override
+  String get timberDurLong => 'Long term';
+
+  @override
+  String get timberDurMedium => 'Medium term';
+
+  @override
+  String get timberDurShort => 'Short term';
+
+  @override
+  String get timberDurInstant => 'Instantaneous';
+
+  @override
+  String get timberServiceClass => 'Service class';
+
+  @override
+  String get timberServiceNote =>
+      '1: heated interior · 2: covered, unheated · 3: exposed to weather. Load duration is that of the shortest action in the combination (imposed floor loads: medium term; snow: short term; wind: instantaneous).';
+
+  @override
+  String get timberBucklingNote =>
+      'Bending about the depth h. Lcr = k × L for buckling about y (in the plane of bending) and z, and lef = kLT × L for lateral-torsional buckling (≈ 0.9 for a uniform load on a simply supported beam, + 2h when the load acts on the compression edge).';
+
+  @override
+  String get timberSlsTitle => 'Deflection (simply supported span)';
+
+  @override
+  String get timberGk => 'Permanent gk';
+
+  @override
+  String get timberQk => 'Variable qk';
+
+  @override
+  String get timberSlsNote =>
+      'Characteristic uniform loads. Limits: L/300 instantaneous under qk, L/250 final with creep (kdef). Leave 0 to skip.';
+
+  @override
+  String get timberStrengths => 'Stresses and design strengths';
+
+  @override
+  String get timberFactors => 'Modification factors';
+
+  @override
+  String get timberAxialStress => 'Axial stress';
+
+  @override
+  String get timberNoteScope =>
+      'Rectangular sections, bending about the major axis only. kcr = 0.67 for shear. Bearing perpendicular to the grain, notches and connections are not checked.';
+
+  @override
+  String get checkCombinedStress => 'Bending with axial force';
+
+  @override
+  String get checkDeflectionInstant => 'Instantaneous deflection';
+
+  @override
+  String get checkDeflectionFinal => 'Final deflection';
 }

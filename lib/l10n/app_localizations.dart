@@ -4193,13 +4193,13 @@ abstract class AppLocalizations {
   /// No description provided for @checkInteractionY.
   ///
   /// In en, this message translates to:
-  /// **'Buckling interaction (6.61)'**
+  /// **'Buckling interaction (y)'**
   String get checkInteractionY;
 
   /// No description provided for @checkInteractionZ.
   ///
   /// In en, this message translates to:
-  /// **'Buckling interaction (6.62)'**
+  /// **'Buckling interaction (z)'**
   String get checkInteractionZ;
 
   /// No description provided for @memberSteelNote.
@@ -4207,6 +4207,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Envelope extremes are combined in one check (largest N with largest M), which is conservative. Length L is the member length between its two nodes.'**
   String get memberSteelNote;
+
+  /// No description provided for @timberSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1995-1-1 · solid and glulam rectangular members'**
+  String get timberSubtitle;
+
+  /// No description provided for @timberWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Width b'**
+  String get timberWidth;
+
+  /// No description provided for @timberDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth h'**
+  String get timberDepth;
+
+  /// No description provided for @timberMaterialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Material and environment'**
+  String get timberMaterialTitle;
+
+  /// No description provided for @timberStrengthClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Strength class'**
+  String get timberStrengthClass;
+
+  /// No description provided for @timberDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Load duration'**
+  String get timberDuration;
+
+  /// No description provided for @timberDurPermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent'**
+  String get timberDurPermanent;
+
+  /// No description provided for @timberDurLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Long term'**
+  String get timberDurLong;
+
+  /// No description provided for @timberDurMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium term'**
+  String get timberDurMedium;
+
+  /// No description provided for @timberDurShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Short term'**
+  String get timberDurShort;
+
+  /// No description provided for @timberDurInstant.
+  ///
+  /// In en, this message translates to:
+  /// **'Instantaneous'**
+  String get timberDurInstant;
+
+  /// No description provided for @timberServiceClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Service class'**
+  String get timberServiceClass;
+
+  /// No description provided for @timberServiceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'1: heated interior · 2: covered, unheated · 3: exposed to weather. Load duration is that of the shortest action in the combination (imposed floor loads: medium term; snow: short term; wind: instantaneous).'**
+  String get timberServiceNote;
+
+  /// No description provided for @timberBucklingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending about the depth h. Lcr = k × L for buckling about y (in the plane of bending) and z, and lef = kLT × L for lateral-torsional buckling (≈ 0.9 for a uniform load on a simply supported beam, + 2h when the load acts on the compression edge).'**
+  String get timberBucklingNote;
+
+  /// No description provided for @timberSlsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deflection (simply supported span)'**
+  String get timberSlsTitle;
+
+  /// No description provided for @timberGk.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent gk'**
+  String get timberGk;
+
+  /// No description provided for @timberQk.
+  ///
+  /// In en, this message translates to:
+  /// **'Variable qk'**
+  String get timberQk;
+
+  /// No description provided for @timberSlsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic uniform loads. Limits: L/300 instantaneous under qk, L/250 final with creep (kdef). Leave 0 to skip.'**
+  String get timberSlsNote;
+
+  /// No description provided for @timberStrengths.
+  ///
+  /// In en, this message translates to:
+  /// **'Stresses and design strengths'**
+  String get timberStrengths;
+
+  /// No description provided for @timberFactors.
+  ///
+  /// In en, this message translates to:
+  /// **'Modification factors'**
+  String get timberFactors;
+
+  /// No description provided for @timberAxialStress.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial stress'**
+  String get timberAxialStress;
+
+  /// No description provided for @timberNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular sections, bending about the major axis only. kcr = 0.67 for shear. Bearing perpendicular to the grain, notches and connections are not checked.'**
+  String get timberNoteScope;
+
+  /// No description provided for @checkCombinedStress.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending with axial force'**
+  String get checkCombinedStress;
+
+  /// No description provided for @checkDeflectionInstant.
+  ///
+  /// In en, this message translates to:
+  /// **'Instantaneous deflection'**
+  String get checkDeflectionInstant;
+
+  /// No description provided for @checkDeflectionFinal.
+  ///
+  /// In en, this message translates to:
+  /// **'Final deflection'**
+  String get checkDeflectionFinal;
 }
 
 class _AppLocalizationsDelegate

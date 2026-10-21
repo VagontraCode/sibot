@@ -2233,12 +2233,92 @@ class AppLocalizationsFr extends AppLocalizations {
   String get checkLtb => 'Déversement';
 
   @override
-  String get checkInteractionY => 'Interaction flambement (6.61)';
+  String get checkInteractionY => 'Interaction flambement (y)';
 
   @override
-  String get checkInteractionZ => 'Interaction flambement (6.62)';
+  String get checkInteractionZ => 'Interaction flambement (z)';
 
   @override
   String get memberSteelNote =>
       'Les extrêmes de l\'enveloppe sont combinés en une seule vérification (N max avec M max), ce qui est conservatif. La longueur L est celle de la barre entre ses deux nœuds.';
+
+  @override
+  String get timberSubtitle =>
+      'EN 1995-1-1 · bois massif et lamellé-collé, sections rectangulaires';
+
+  @override
+  String get timberWidth => 'Largeur b';
+
+  @override
+  String get timberDepth => 'Hauteur h';
+
+  @override
+  String get timberMaterialTitle => 'Matériau et environnement';
+
+  @override
+  String get timberStrengthClass => 'Classe de résistance';
+
+  @override
+  String get timberDuration => 'Durée de charge';
+
+  @override
+  String get timberDurPermanent => 'Permanente';
+
+  @override
+  String get timberDurLong => 'Long terme';
+
+  @override
+  String get timberDurMedium => 'Moyen terme';
+
+  @override
+  String get timberDurShort => 'Court terme';
+
+  @override
+  String get timberDurInstant => 'Instantanée';
+
+  @override
+  String get timberServiceClass => 'Classe de service';
+
+  @override
+  String get timberServiceNote =>
+      '1 : intérieur chauffé · 2 : abrité, non chauffé · 3 : exposé aux intempéries. La durée de charge est celle de l\'action la plus courte de la combinaison (charges d\'exploitation : moyen terme ; neige : court terme ; vent : instantanée).';
+
+  @override
+  String get timberBucklingNote =>
+      'Flexion selon la hauteur h. Lcr = k × L pour le flambement selon y (dans le plan de flexion) et z, et lef = kLT × L pour le déversement (≈ 0,9 pour une charge répartie sur poutre isostatique, + 2h si la charge est appliquée sur la fibre comprimée).';
+
+  @override
+  String get timberSlsTitle => 'Flèche (travée isostatique)';
+
+  @override
+  String get timberGk => 'Permanente gk';
+
+  @override
+  String get timberQk => 'Variable qk';
+
+  @override
+  String get timberSlsNote =>
+      'Charges réparties caractéristiques. Limites : L/300 instantanée sous qk, L/250 finale avec fluage (kdef). Laisser 0 pour ignorer.';
+
+  @override
+  String get timberStrengths => 'Contraintes et résistances de calcul';
+
+  @override
+  String get timberFactors => 'Coefficients de modification';
+
+  @override
+  String get timberAxialStress => 'Contrainte axiale';
+
+  @override
+  String get timberNoteScope =>
+      'Sections rectangulaires, flexion selon l\'axe fort uniquement. kcr = 0,67 pour le cisaillement. La compression transversale, les entailles et les assemblages ne sont pas vérifiés.';
+
+  @override
+  String get checkCombinedStress => 'Flexion et effort normal';
+
+  @override
+  String get checkDeflectionInstant => 'Flèche instantanée';
+
+  @override
+  String get checkDeflectionFinal => 'Flèche finale';
 }

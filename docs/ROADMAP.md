@@ -146,7 +146,8 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [ ] Section library: HEM, UPN, L, CHS, RHS, SHS
 - [x] Steel EC3 (Beta): classification, resistances with M+V+N, flexural buckling, LTB (6.3.2.3), Annex B interaction, lightest-section search
 - [ ] Steel EC3: minor-axis bending, utilisation colour map on the frame
-- [ ] Timber EC5: service classes, k_mod, members in bending and compression
+- [x] Timber EC5 (Beta): C16–C30 and GL24h–GL32h, kmod/kh/kdef, bending with kcrit, shear, column buckling, 6.23/6.24/6.35 interaction, deflection with creep
+- [ ] Timber EC5: bearing perpendicular to grain, notches, connections
 - [ ] Masonry EC6: vertical load capacity of walls, slenderness
 - [ ] EC1 wind and snow, EC8 / PS92 equivalent lateral force method
 

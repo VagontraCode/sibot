@@ -44,6 +44,9 @@ enum CheckKind {
   lateralTorsional,
   bucklingInteractionY,
   bucklingInteractionZ,
+  combinedStress,
+  deflectionInstant,
+  deflectionFinal,
 }
 
 /// One design check: [demand] must not exceed [capacity].
