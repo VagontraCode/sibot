@@ -18,17 +18,24 @@ import 'model.dart';
 /// SLS characteristic and quasi-permanent.
 /// BAEL (A.3.3, annexe D): 1.35G + 1.5Q1 + 1.3ψ0Qi (ψ0 = 0.77),
 /// G + 1.5W; ELS G + Q.
-List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) {
+List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) =>
+    combinationsFor([for (final c in cases) (c.name, c.type)], code);
+
+/// Same as [generateCombinations] from case names and types, for any model.
+List<Combination> combinationsFor(
+  List<(String, LoadType)> cases,
+  DesignCode code,
+) {
   final perm = [
     for (var i = 0; i < cases.length; i++)
-      if (cases[i].type == LoadType.permanent) i,
+      if (cases[i].$2 == LoadType.permanent) i,
   ];
   final variable = [
     for (var i = 0; i < cases.length; i++)
-      if (cases[i].type != LoadType.permanent) i,
+      if (cases[i].$2 != LoadType.permanent) i,
   ];
   final out = <Combination>[];
-  String label(int i) => cases[i].name;
+  String label(int i) => cases[i].$1;
 
   Map<int, double> base(double g) => {for (final i in perm) i: g};
 
@@ -44,7 +51,7 @@ List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) {
     for (final o in variable) {
       if (o == lead) continue;
       f[o] = code == DesignCode.ec2
-          ? 1.5 * psiFactors(cases[o].type).$1
+          ? 1.5 * psiFactors(cases[o].$2).$1
           : 1.3 * 0.77;
     }
     out.add(
@@ -52,7 +59,7 @@ List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) {
     );
   }
   // Wind with favourable permanent actions (uplift, overturning).
-  for (final w in variable.where((i) => cases[i].type == LoadType.wind)) {
+  for (final w in variable.where((i) => cases[i].$2 == LoadType.wind)) {
     final f = base(1.0);
     f[w] = 1.5;
     out.add(Combination('ULS G + 1.5 ${label(w)}', CombinationKind.uls, f));
@@ -64,7 +71,7 @@ List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) {
     f[lead] = 1.0;
     for (final o in variable) {
       if (o == lead) continue;
-      f[o] = code == DesignCode.ec2 ? psiFactors(cases[o].type).$1 : 0.77;
+      f[o] = code == DesignCode.ec2 ? psiFactors(cases[o].$2).$1 : 0.77;
     }
     out.add(
       Combination(
@@ -77,7 +84,7 @@ List<Combination> generateCombinations(List<LoadCase> cases, DesignCode code) {
   if (code == DesignCode.ec2) {
     final f = base(1.0);
     for (final o in variable) {
-      final psi2 = psiFactors(cases[o].type).$2;
+      final psi2 = psiFactors(cases[o].$2).$2;
       if (psi2 > 0) f[o] = psi2;
     }
     out.add(Combination('SLS QP', CombinationKind.slsQuasiPermanent, f));
