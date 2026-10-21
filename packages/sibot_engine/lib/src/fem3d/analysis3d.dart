@@ -186,6 +186,7 @@ class Frame3DAnalysis {
   late final List<List<int>> _eq;
   late final int _neq;
   late final BandedMatrix _k;
+  late final Float64List _kDiag;
 
   /// Stations per member for the result diagrams.
   static const stationCount = 11;
@@ -198,6 +199,19 @@ class Frame3DAnalysis {
   }
 
   int get equations => _neq;
+
+  /// Equation number of a node DOF (−1 when restrained).
+  int equationOf(int node, int dof) => _eq[node][dof];
+
+  /// Diagonal of the stiffness matrix before factorisation.
+  Float64List get stiffnessDiagonal => _kDiag;
+
+  /// Solves K·x = rhs with the factorised stiffness.
+  Float64List solveVector(Float64List rhs) =>
+      _neq == 0 ? Float64List(0) : _k.solve(rhs);
+
+  /// Member lengths, m.
+  List<double> get lengths => [for (final e in _elems) e.l];
 
   void _validate() {
     if (model.nodes.isEmpty) throw const ModelError(ModelProblem.noNodes);
@@ -288,8 +302,8 @@ class Frame3DAnalysis {
 
   List<int> _dofs(Element3D e) => [..._eq[e.n1], ..._eq[e.n2]];
 
-  /// Global stiffness of an element: Tᵀ k T.
-  List<double> _globalK(_Elem3 el) {
+  /// Global form Tᵀ k T of a local element matrix.
+  List<double> _globalOf(_Elem3 el, Float64List k) {
     final r = el.r;
     final out = List<double>.filled(144, 0);
     // (Tᵀ k T)[i][j] = Σ_ab T[a][i] k[a][b] T[b][j], T block-diagonal.
@@ -302,7 +316,7 @@ class Frame3DAnalysis {
               final ra = r[a][i];
               if (ra == 0) continue;
               for (var b = 0; b < 3; b++) {
-                s += ra * el.k[(bi * 3 + a) * 12 + bj * 3 + b] * r[b][j];
+                s += ra * k[(bi * 3 + a) * 12 + bj * 3 + b] * r[b][j];
               }
             }
             out[(bi * 3 + i) * 12 + bj * 3 + j] = s;
@@ -314,31 +328,48 @@ class Frame3DAnalysis {
   }
 
   void _assemble() {
+    _k = _build(null, keepDiagonal: true);
+  }
+
+  /// Assembles and factorises K (+ the local matrices [extra], e.g.
+  /// geometric stiffness, element by element).
+  BandedMatrix _build(List<Float64List>? extra, {bool keepDiagonal = false}) {
     var band = 0;
     for (final el in _elems) {
       final d = _dofs(el.e).where((x) => x >= 0).toList();
       if (d.isEmpty) continue;
       band = math.max(band, d.reduce(math.max) - d.reduce(math.min));
     }
-    _k = BandedMatrix(math.max(_neq, 1), band);
-    for (final el in _elems) {
-      final g = _globalK(el);
+    final k = BandedMatrix(math.max(_neq, 1), band);
+    for (var e = 0; e < _elems.length; e++) {
+      final el = _elems[e];
+      final local = extra == null
+          ? el.k
+          : Float64List.fromList([
+              for (var i = 0; i < 144; i++) el.k[i] + extra[e][i],
+            ]);
+      final g = _globalOf(el, local);
       final d = _dofs(el.e);
       for (var i = 0; i < 12; i++) {
         if (d[i] < 0) continue;
         for (var j = i; j < 12; j++) {
           if (d[j] < 0) continue;
           if (d[j] >= d[i]) {
-            _k.add(d[i], d[j], g[i * 12 + j]);
+            k.add(d[i], d[j], g[i * 12 + j]);
           } else if (i != j) {
-            _k.add(d[j], d[i], g[i * 12 + j]);
+            k.add(d[j], d[i], g[i * 12 + j]);
           }
         }
       }
     }
-    if (_neq == 0) return;
+    if (keepDiagonal) {
+      _kDiag = Float64List.fromList([
+        for (var i = 0; i < _neq; i++) k.get(i, i),
+      ]);
+    }
+    if (_neq == 0) return k;
     try {
-      _k.factorize();
+      k.factorize();
     } on SingularStiffness catch (s) {
       int? node;
       for (var i = 0; i < _eq.length && node == null; i++) {
@@ -346,6 +377,7 @@ class Frame3DAnalysis {
       }
       throw ModelError(ModelProblem.unstable, node);
     }
+    return k;
   }
 
   List<double> _toLocal(_Elem3 el, List<double> g) => [
@@ -414,6 +446,13 @@ class Frame3DAnalysis {
   }
 
   Frame3DResult solveCase(int index) {
+    final (f, applied, feq, q) = _loads(index);
+    final x = _neq == 0 ? Float64List(1) : _k.solve(f);
+    return _result(x, applied, feq, q);
+  }
+
+  (Float64List, List<List<double>>, List<List<double>>, List<List<double>>)
+  _loads(int index) {
     final c = model.cases[index];
     final f = Float64List(math.max(_neq, 1));
     final applied = List.generate(
@@ -441,8 +480,25 @@ class Frame3DAnalysis {
         if (d[k] >= 0) f[d[k]] += g[k];
       }
     }
-    final x = _neq == 0 ? Float64List(1) : _k.solve(f);
+    return (f, applied, feq, q);
+  }
 
+  /// Member forces and reactions from a displacement vector over the
+  /// equations, with no member loads (used for modal responses).
+  Frame3DResult resultFromDisplacements(Float64List x) => _result(
+    x,
+    List.generate(model.nodes.length, (_) => List.filled(6, 0.0)),
+    List.generate(_elems.length, (_) => List.filled(12, 0.0)),
+    List.generate(_elems.length, (_) => [0.0, 0.0, 0.0]),
+  );
+
+  Frame3DResult _result(
+    Float64List x,
+    List<List<double>> applied,
+    List<List<double>> feq,
+    List<List<double>> q, {
+    List<Float64List>? extra,
+  }) {
     final disp = [
       for (var n = 0; n < model.nodes.length; n++)
         [for (var d = 0; d < 6; d++) _eq[n][d] >= 0 ? x[_eq[n][d]] : 0.0],
@@ -461,7 +517,7 @@ class Frame3DAnalysis {
       for (var a = 0; a < 12; a++) {
         var s = -feq[i][a];
         for (var b = 0; b < 12; b++) {
-          s += el.k[a * 12 + b] * ul[b];
+          s += (el.k[a * 12 + b] + (extra?[i][a * 12 + b] ?? 0)) * ul[b];
         }
         fe[a] = s;
       }
@@ -518,6 +574,163 @@ class Frame3DAnalysis {
       );
     }
     return out;
+  }
+
+  /// Consistent geometric stiffness (local) of a member under axial
+  /// force [n] (kN, tension positive).
+  Float64List geometricStiffness(int element, double n) {
+    final el = _elems[element];
+    final l = el.l;
+    final s = model.sections[el.e.section];
+    final k = Float64List(144);
+    void set(int i, int j, double v) {
+      k[i * 12 + j] = v;
+      k[j * 12 + i] = v;
+    }
+
+    final c = n / (30 * l);
+    // Lateral displacement v (with θz) and w (with θy).
+    set(1, 1, 36 * c);
+    set(1, 5, 3 * l * c);
+    set(1, 7, -36 * c);
+    set(1, 11, 3 * l * c);
+    set(5, 5, 4 * l * l * c);
+    set(5, 7, -3 * l * c);
+    set(5, 11, -l * l * c);
+    set(7, 7, 36 * c);
+    set(7, 11, -3 * l * c);
+    set(11, 11, 4 * l * l * c);
+    set(2, 2, 36 * c);
+    set(2, 4, -3 * l * c);
+    set(2, 8, -36 * c);
+    set(2, 10, -3 * l * c);
+    set(4, 4, 4 * l * l * c);
+    set(4, 8, 3 * l * c);
+    set(4, 10, -l * l * c);
+    set(8, 8, 36 * c);
+    set(8, 10, 3 * l * c);
+    set(10, 10, 4 * l * l * c);
+    // Torsion (Wagner term with the polar radius of gyration).
+    final ip = n * (s.iy + s.iz) / (s.area * l);
+    set(3, 3, ip);
+    set(3, 9, -ip);
+    set(9, 9, ip);
+    return k;
+  }
+
+  /// Mean axial force of each member in a result.
+  List<double> _axial(Frame3DResult r) => [
+    for (final m in r.members)
+      m.stations.fold(0.0, (s, st) => s + st.n) / m.stations.length,
+  ];
+
+  /// Second-order (P-Δ) analysis of a load case: K + Kg(N) iterated
+  /// until the axial forces converge. Effects within members (P-δ) on
+  /// the moment diagrams are not included.
+  Frame3DResult pDeltaCase(int index, {int maxIterations = 20}) {
+    final (f, applied, feq, q) = _loads(index);
+    var r = solveCase(index);
+    var n = _axial(r);
+    for (var it = 0; it < maxIterations; it++) {
+      final kg = [
+        for (var e = 0; e < _elems.length; e++) geometricStiffness(e, n[e]),
+      ];
+      final kt = _build(kg);
+      final x = _neq == 0 ? Float64List(1) : kt.solve(f);
+      r = _result(x, applied, feq, q, extra: kg);
+      final n2 = _axial(r);
+      var change = 0.0, scale = 1e-9;
+      for (var e = 0; e < n.length; e++) {
+        change = math.max(change, (n2[e] - n[e]).abs());
+        scale = math.max(scale, n2[e].abs());
+      }
+      n = n2;
+      if (change <= 1e-6 * scale) break;
+    }
+    return r;
+  }
+
+  /// Elastic critical load factor αcr of a load case (linear buckling,
+  /// K φ = α (−Kg) φ) by inverse power iteration, with the buckled shape
+  /// per node (largest translation scaled to 1). Null when the case puts
+  /// no member in compression.
+  (double, List<List<double>>)? bucklingFactor(int index) {
+    if (_neq == 0) return null;
+    final n = _axial(solveCase(index));
+    if (!n.any((v) => v < 0)) return null;
+    final kg = [
+      for (var e = 0; e < _elems.length; e++) geometricStiffness(e, n[e]),
+    ];
+    // y = −Kg x, assembled element by element.
+    Float64List minusKg(Float64List x) {
+      final y = Float64List(_neq);
+      for (var e = 0; e < _elems.length; e++) {
+        final el = _elems[e];
+        final d = _dofs(el.e);
+        final ug = [for (final i in d) i >= 0 ? x[i] : 0.0];
+        final ul = _toLocal(el, ug);
+        final fl = [
+          for (var a = 0; a < 12; a++)
+            () {
+              var s = 0.0;
+              for (var b = 0; b < 12; b++) {
+                s -= kg[e][a * 12 + b] * ul[b];
+              }
+              return s;
+            }(),
+        ];
+        final fg = _toGlobal(el, fl);
+        for (var k = 0; k < 12; k++) {
+          if (d[k] >= 0) y[d[k]] += fg[k];
+        }
+      }
+      return y;
+    }
+
+    var x = Float64List(_neq);
+    for (var i = 0; i < _neq; i++) {
+      x[i] = 1 + 0.1 * math.sin(i + 1.0);
+    }
+    var mu = 0.0;
+    for (var it = 0; it < 500; it++) {
+      final z = _k.solve(minusKg(x));
+      // Rayleigh quotient μ = xᵀ(−Kg)z / xᵀ(−Kg)x ≈ 1/α.
+      final gx = minusKg(x), gz = minusKg(z);
+      var num = 0.0, den = 0.0, norm = 0.0;
+      for (var i = 0; i < _neq; i++) {
+        num += z[i] * gz[i];
+        den += z[i] * gx[i];
+        norm = math.max(norm, z[i].abs());
+      }
+      final next = den == 0 ? 0.0 : num / den;
+      for (var i = 0; i < _neq; i++) {
+        x[i] = z[i] / norm;
+      }
+      if (it > 3 && (next - mu).abs() <= 1e-10 * next.abs()) {
+        mu = next;
+        break;
+      }
+      mu = next;
+    }
+    if (mu <= 0) return null;
+    final shape = [
+      for (var node = 0; node < model.nodes.length; node++)
+        [for (var d = 0; d < 6; d++) _eq[node][d] >= 0 ? x[_eq[node][d]] : 0.0],
+    ];
+    var maxT = 0.0;
+    for (final s in shape) {
+      for (var d = 0; d < 3; d++) {
+        maxT = math.max(maxT, s[d].abs());
+      }
+    }
+    if (maxT > 0) {
+      for (final s in shape) {
+        for (var d = 0; d < 6; d++) {
+          s[d] /= maxT;
+        }
+      }
+    }
+    return (1 / mu, shape);
   }
 
   List<Frame3DResult> solveAll() => [

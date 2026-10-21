@@ -16,6 +16,8 @@ export 'src/fem/model.dart';
 export 'src/fem/templates.dart';
 export 'src/fem3d/analysis3d.dart';
 export 'src/fem3d/model3d.dart';
+export 'src/fem3d/modal.dart';
+export 'src/fem3d/spectrum.dart';
 export 'src/footing.dart';
 export 'src/geotech.dart';
 export 'src/foundations.dart';
