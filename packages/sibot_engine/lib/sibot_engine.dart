@@ -12,6 +12,7 @@ export 'src/core.dart';
 export 'src/fem/analysis.dart';
 export 'src/fem/banded.dart';
 export 'src/fem/combinations.dart';
+export 'src/fem/dxf.dart';
 export 'src/fem/model.dart';
 export 'src/fem/plate.dart';
 export 'src/fem/templates.dart';

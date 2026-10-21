@@ -15,6 +15,8 @@ import 'package:sibot/features/frame3d/frame_notes.dart';
 import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/exchange/exchange.dart';
+import 'package:sibot/features/exchange/exchange_ui.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'package:sibot_engine/sibot_engine.dart';
@@ -37,6 +39,7 @@ class Frame3DModelsPage extends ConsumerWidget {
     final models = ref.watch(frame3dModelsProvider(projectId));
     return AppPage(
       title: l.modFrame3d,
+      actions: [ImportButton(projectId: projectId, threeD: true)],
       eyebrow: l.catAnalysis,
       subtitle: l.f3dSubtitle,
       floatingActionButton: FloatingActionButton.extended(
@@ -46,6 +49,8 @@ class Frame3DModelsPage extends ConsumerWidget {
       ),
       children: [
         const BetaNotice(),
+        const SizedBox(height: Gap.md),
+        const ImportHint(),
         const SizedBox(height: Gap.xl),
         models.when(
           loading: () => const LinearProgressIndicator(),
@@ -570,6 +575,11 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       appBar: AppBar(
         title: Text(record.name),
         actions: [
+          ExportMenu(
+            name: edit.record.name,
+            sibot: () => encodeFrame3d(edit.record),
+            dxf: () => model3dToDxf(edit.model),
+          ),
           IconButton(
             tooltip: l.noteExport,
             onPressed: () => _exportNote(edit.record, out, spectrum),

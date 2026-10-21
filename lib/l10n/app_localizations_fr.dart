@@ -3510,4 +3510,44 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get noteEnvelope => 'Enveloppe ELU par barre (kN·m, kN)';
+
+  @override
+  String get exchangeImport => 'Importer .sibot ou DXF';
+
+  @override
+  String get exchangeExport => 'Exporter';
+
+  @override
+  String get exchangeSibot => 'Modèle Sibot (.sibot)';
+
+  @override
+  String get exchangeSibotHelp => 'Modèle complet, à rouvrir dans Sibot';
+
+  @override
+  String get exchangeDxf => 'Dessin (DXF)';
+
+  @override
+  String get exchangeDxfHelp => 'Lignes des barres par section, pour la CAO';
+
+  @override
+  String get exchangeDxfUnit => 'Unité du dessin';
+
+  @override
+  String get exchangeMetres => 'Mètres';
+
+  @override
+  String get exchangeCentimetres => 'Centimètres';
+
+  @override
+  String get exchangeMillimetres => 'Millimètres';
+
+  @override
+  String get exchangeImportFailed => 'Ce fichier n\'a pas pu être importé.';
+
+  @override
+  String get exchangeExportFailed => 'Le fichier n\'a pas pu être exporté.';
+
+  @override
+  String get exchangeImportHint =>
+      'Importez un modèle .sibot ou un dessin DXF : chaque LINE ou polyligne devient une barre (une section par calque), les points les plus bas deviennent des appuis encastrés.';
 }

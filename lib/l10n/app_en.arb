@@ -1556,5 +1556,18 @@
     }
   },
   "noteCombinations": "Load combinations",
-  "noteEnvelope": "ULS envelope per member (kN·m, kN)"
+  "noteEnvelope": "ULS envelope per member (kN·m, kN)",
+  "exchangeImport": "Import .sibot or DXF",
+  "exchangeExport": "Export",
+  "exchangeSibot": "Sibot model (.sibot)",
+  "exchangeSibotHelp": "Complete model, to reopen in Sibot",
+  "exchangeDxf": "Drawing (DXF)",
+  "exchangeDxfHelp": "Member lines by section, for CAD",
+  "exchangeDxfUnit": "Drawing unit",
+  "exchangeMetres": "Metres",
+  "exchangeCentimetres": "Centimetres",
+  "exchangeMillimetres": "Millimetres",
+  "exchangeImportFailed": "This file could not be imported.",
+  "exchangeExportFailed": "The file could not be exported.",
+  "exchangeImportHint": "Import a .sibot model or a DXF drawing: each LINE or polyline becomes a member (one section per layer), the lowest points become fixed supports."
 }

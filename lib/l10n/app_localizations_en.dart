@@ -3490,4 +3490,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noteEnvelope => 'ULS envelope per member (kN·m, kN)';
+
+  @override
+  String get exchangeImport => 'Import .sibot or DXF';
+
+  @override
+  String get exchangeExport => 'Export';
+
+  @override
+  String get exchangeSibot => 'Sibot model (.sibot)';
+
+  @override
+  String get exchangeSibotHelp => 'Complete model, to reopen in Sibot';
+
+  @override
+  String get exchangeDxf => 'Drawing (DXF)';
+
+  @override
+  String get exchangeDxfHelp => 'Member lines by section, for CAD';
+
+  @override
+  String get exchangeDxfUnit => 'Drawing unit';
+
+  @override
+  String get exchangeMetres => 'Metres';
+
+  @override
+  String get exchangeCentimetres => 'Centimetres';
+
+  @override
+  String get exchangeMillimetres => 'Millimetres';
+
+  @override
+  String get exchangeImportFailed => 'This file could not be imported.';
+
+  @override
+  String get exchangeExportFailed => 'The file could not be exported.';
+
+  @override
+  String get exchangeImportHint =>
+      'Import a .sibot model or a DXF drawing: each LINE or polyline becomes a member (one section per layer), the lowest points become fixed supports.';
 }

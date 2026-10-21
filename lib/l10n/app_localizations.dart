@@ -6469,6 +6469,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ULS envelope per member (kN·m, kN)'**
   String get noteEnvelope;
+
+  /// No description provided for @exchangeImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import .sibot or DXF'**
+  String get exchangeImport;
+
+  /// No description provided for @exchangeExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get exchangeExport;
+
+  /// No description provided for @exchangeSibot.
+  ///
+  /// In en, this message translates to:
+  /// **'Sibot model (.sibot)'**
+  String get exchangeSibot;
+
+  /// No description provided for @exchangeSibotHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete model, to reopen in Sibot'**
+  String get exchangeSibotHelp;
+
+  /// No description provided for @exchangeDxf.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing (DXF)'**
+  String get exchangeDxf;
+
+  /// No description provided for @exchangeDxfHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Member lines by section, for CAD'**
+  String get exchangeDxfHelp;
+
+  /// No description provided for @exchangeDxfUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawing unit'**
+  String get exchangeDxfUnit;
+
+  /// No description provided for @exchangeMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Metres'**
+  String get exchangeMetres;
+
+  /// No description provided for @exchangeCentimetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Centimetres'**
+  String get exchangeCentimetres;
+
+  /// No description provided for @exchangeMillimetres.
+  ///
+  /// In en, this message translates to:
+  /// **'Millimetres'**
+  String get exchangeMillimetres;
+
+  /// No description provided for @exchangeImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'This file could not be imported.'**
+  String get exchangeImportFailed;
+
+  /// No description provided for @exchangeExportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be exported.'**
+  String get exchangeExportFailed;
+
+  /// No description provided for @exchangeImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a .sibot model or a DXF drawing: each LINE or polyline becomes a member (one section per layer), the lowest points become fixed supports.'**
+  String get exchangeImportHint;
 }
 
 class _AppLocalizationsDelegate

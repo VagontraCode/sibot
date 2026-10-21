@@ -10,6 +10,8 @@ import 'package:sibot/features/frame/frame_providers.dart';
 import 'package:sibot/features/frame3d/frame_notes.dart';
 import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame/section_library.dart';
+import 'package:sibot/features/exchange/exchange.dart';
+import 'package:sibot/features/exchange/exchange_ui.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'package:sibot_engine/sibot_engine.dart';
@@ -78,6 +80,11 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
           child: Text(s.record.name, overflow: TextOverflow.ellipsis),
         ),
         actions: [
+          ExportMenu(
+            name: s.record.name,
+            sibot: () => encodeFrame2d(s.record),
+            dxf: () => model2dToDxf(s.model),
+          ),
           IconButton(
             tooltip: l.frameUndo,
             onPressed: s.undo.isEmpty ? null : _n.undo,

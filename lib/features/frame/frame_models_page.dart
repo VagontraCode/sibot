@@ -5,6 +5,7 @@ import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
+import 'package:sibot/features/exchange/exchange_ui.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
 import 'package:sibot_engine/sibot_engine.dart';
@@ -33,6 +34,7 @@ class FrameModelsPage extends ConsumerWidget {
     final models = ref.watch(frameModelsProvider(projectId));
     return AppPage(
       title: l.modFrame2d,
+      actions: [ImportButton(projectId: projectId, threeD: false)],
       eyebrow: l.catAnalysis,
       subtitle: l.frameSubtitle,
       floatingActionButton: FloatingActionButton.extended(
@@ -42,6 +44,8 @@ class FrameModelsPage extends ConsumerWidget {
       ),
       children: [
         const BetaNotice(),
+        const SizedBox(height: Gap.md),
+        const ImportHint(),
         const SizedBox(height: Gap.xl),
         models.when(
           loading: () => const LinearProgressIndicator(),

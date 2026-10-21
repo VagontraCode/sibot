@@ -1061,5 +1061,18 @@
   "noteSelfWeight": "poids propre",
   "noteLoadCount": "{n, plural, =0{aucune charge} =1{1 charge} other{{n} charges}}",
   "noteCombinations": "Combinaisons de charges",
-  "noteEnvelope": "Enveloppe ELU par barre (kN·m, kN)"
+  "noteEnvelope": "Enveloppe ELU par barre (kN·m, kN)",
+  "exchangeImport": "Importer .sibot ou DXF",
+  "exchangeExport": "Exporter",
+  "exchangeSibot": "Modèle Sibot (.sibot)",
+  "exchangeSibotHelp": "Modèle complet, à rouvrir dans Sibot",
+  "exchangeDxf": "Dessin (DXF)",
+  "exchangeDxfHelp": "Lignes des barres par section, pour la CAO",
+  "exchangeDxfUnit": "Unité du dessin",
+  "exchangeMetres": "Mètres",
+  "exchangeCentimetres": "Centimètres",
+  "exchangeMillimetres": "Millimètres",
+  "exchangeImportFailed": "Ce fichier n'a pas pu être importé.",
+  "exchangeExportFailed": "Le fichier n'a pas pu être exporté.",
+  "exchangeImportHint": "Importez un modèle .sibot ou un dessin DXF : chaque LINE ou polyligne devient une barre (une section par calque), les points les plus bas deviennent des appuis encastrés."
 }
