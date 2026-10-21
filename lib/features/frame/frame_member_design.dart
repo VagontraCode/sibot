@@ -92,6 +92,11 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
   DesignCode _code = defaultDesignCode();
   double? _fyk = 500, _cover = 30, _l0Factor = 1.0;
 
+  // Steel members.
+  String _grade = 'S275';
+  double? _ky = 1, _kz = 1, _kLT = 1;
+  MomentShape _shape = MomentShape.uniform;
+
   FrameSection get _section =>
       widget.model.sections[widget.model.elements[widget.index].section];
 
@@ -103,6 +108,9 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
     Widget body;
     if (f == null) {
       body = StatusBanner(tone: Tone.warning, title: l.memberNoEnvelope);
+    } else if (sec.material == SectionMaterial.steel &&
+        steelSections[sec.profile] != null) {
+      body = _steel(context, f, steelSections[sec.profile]!);
     } else if (sec.material != SectionMaterial.concrete ||
         sec.b == null ||
         sec.h == null) {
@@ -339,6 +347,148 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
           'fyk': l.calcSteelFyk,
           'nEd': l.memberCompression,
           'cover': l.calcCover,
+        }),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        inputs,
+        const SizedBox(height: Gap.lg),
+        results,
+      ],
+    );
+  }
+
+  Widget _steel(BuildContext context, MemberForces f, ISteelSection p) {
+    final l = context.l10n;
+    final inputs = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        PickerField<String>(
+          label: l.steelGrade,
+          value: _grade,
+          options: {for (final g in steelGrades.keys) g: g},
+          onChanged: (v) => setState(() => _grade = v),
+        ),
+        const SizedBox(height: Gap.md),
+        ChoiceField<MomentShape>(
+          label: l.steelMomentShape,
+          value: _shape,
+          options: {
+            MomentShape.uniform: l.steelShapeUniform,
+            MomentShape.udl: l.steelShapeUdl,
+            MomentShape.pointLoad: l.steelShapePoint,
+          },
+          onChanged: (v) => setState(() => _shape = v),
+        ),
+        const SizedBox(height: Gap.md),
+        FieldRow(
+          children: [
+            NumberField(
+              label: 'ky',
+              value: _ky,
+              onChanged: (v) => setState(() => _ky = v),
+            ),
+            NumberField(
+              label: 'kz',
+              value: _kz,
+              onChanged: (v) => setState(() => _kz = v),
+            ),
+            NumberField(
+              label: 'kLT',
+              value: _kLT,
+              onChanged: (v) => setState(() => _kLT = v),
+            ),
+          ],
+        ),
+        const SizedBox(height: Gap.sm),
+        Text(l.steelBucklingNote, style: context.text.bodySmall),
+      ],
+    );
+
+    SteelMemberInput inputFor(ISteelSection s) => SteelMemberInput(
+      section: s,
+      grade: _grade,
+      length: f.length,
+      // Largest compression governs; a pure tie is checked in tension.
+      nEd: f.nCompression > 0 ? f.nCompression : -f.nTension,
+      myEd: f.mAbs,
+      vEd: f.vMax,
+      ky: _ky ?? 0,
+      kz: _kz ?? 0,
+      kLT: _kLT ?? 0,
+      shape: _shape,
+    );
+
+    Widget results;
+    try {
+      final r = designSteelMember(inputFor(p));
+      final series = p.name.split(' ').first;
+      final lightest = lightestSteelSection(series, inputFor);
+      results = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          VerdictBanner(checks: r.checks),
+          if (lightest != null && lightest.name != p.name) ...[
+            const SizedBox(height: Gap.md),
+            StatusBanner(
+              tone: Tone.primary,
+              icon: Icons.auto_awesome_rounded,
+              title: l.steelLightest(lightest.name),
+              message: l.steelLightestMsg(
+                fmt(context, lightest.mass, 1),
+                fmt(context, p.mass, 1),
+              ),
+            ),
+          ],
+          const SizedBox(height: Gap.md),
+          ResultCard(
+            title: l.steelStability,
+            icon: Icons.unfold_more_rounded,
+            rows: [
+              ResultRow(
+                label: l.steelClass,
+                symbol: 'fy = ${fmt(context, r.fy, 0)} MPa',
+                value: '${r.sectionClass}',
+              ),
+              ResultRow(
+                label: l.steelMomentResistance,
+                symbol: 'Mc,Rd',
+                value: fmt(context, r.mcRd),
+                unit: 'kN·m',
+              ),
+              ResultRow(
+                label: l.steelLtbResistance,
+                symbol: 'Mb,Rd',
+                value: fmt(context, r.mbRd),
+                unit: 'kN·m',
+                emphasize: true,
+              ),
+              ResultRow(
+                label: l.steelFlexuralZ,
+                symbol: 'χz · Npl,Rd',
+                value: fmt(context, r.chiZ * r.nPlRd),
+                unit: 'kN',
+              ),
+            ],
+          ),
+          const SizedBox(height: Gap.md),
+          ChecksCard(checks: r.checks),
+          const SizedBox(height: Gap.sm),
+          Text(l.memberSteelNote, style: context.text.bodySmall),
+        ],
+      );
+    } on InputError catch (e) {
+      results = StatusBanner(
+        tone: Tone.danger,
+        title: l.calcCheckInputs,
+        message: problemMessage(l, FormProblem(e.field, e.problem), {
+          'ky': 'ky',
+          'kz': 'kz',
+          'kLT': 'kLT',
+          'length': l.steelLength,
         }),
       );
     }

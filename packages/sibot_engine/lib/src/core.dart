@@ -34,6 +34,16 @@ enum CheckKind {
   overturning,
   sliding,
   baseEccentricity,
+  steelTension,
+  steelCompression,
+  steelBending,
+  steelShear,
+  steelCombined,
+  flexuralBucklingY,
+  flexuralBucklingZ,
+  lateralTorsional,
+  bucklingInteractionY,
+  bucklingInteractionZ,
 }
 
 /// One design check: [demand] must not exceed [capacity].

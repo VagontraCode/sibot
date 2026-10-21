@@ -45,6 +45,16 @@ String checkLabel(AppLocalizations l, CheckKind k) => switch (k) {
   CheckKind.overturning => l.checkOverturning,
   CheckKind.sliding => l.checkSliding,
   CheckKind.baseEccentricity => l.checkEccentricity,
+  CheckKind.steelTension => l.checkSteelTension,
+  CheckKind.steelCompression => l.checkSteelCompression,
+  CheckKind.steelBending => l.checkSteelBending,
+  CheckKind.steelShear => l.checkSteelShear,
+  CheckKind.steelCombined => l.checkSteelCombined,
+  CheckKind.flexuralBucklingY => l.checkFlexuralBucklingY,
+  CheckKind.flexuralBucklingZ => l.checkFlexuralBucklingZ,
+  CheckKind.lateralTorsional => l.checkLtb,
+  CheckKind.bucklingInteractionY => l.checkInteractionY,
+  CheckKind.bucklingInteractionZ => l.checkInteractionZ,
 };
 
 /// Message for an input problem, using the page's field labels.
@@ -257,6 +267,8 @@ class FormNumber extends StatelessWidget {
   final String label;
   final String? unit;
   final String? hint;
+  final String? helper;
+  final bool allowNegative;
 
   const FormNumber({
     super.key,
@@ -266,6 +278,8 @@ class FormNumber extends StatelessWidget {
     required this.label,
     this.unit,
     this.hint,
+    this.helper,
+    this.allowNegative = false,
   });
 
   @override
@@ -274,6 +288,8 @@ class FormNumber extends StatelessWidget {
       label: label,
       unit: unit,
       hint: hint,
+      helper: helper,
+      allowNegative: allowNegative,
       value: state[field],
       onChanged: (v) => notifier.set(field, v),
     );

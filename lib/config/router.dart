@@ -5,6 +5,7 @@ import 'package:sibot/features/calculations/columns/presentation/columns_page.da
 import 'package:sibot/features/calculations/footings/presentation/footings_page.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_page.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_page.dart';
+import 'package:sibot/features/calculations/steel/presentation/steel_member_page.dart';
 import 'package:sibot/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sibot/features/field/presentation/pages/field.dart';
 import 'package:sibot/features/field/presentation/pages/field_hub.dart';
@@ -97,6 +98,12 @@ final GoRouter appRouter = GoRouter(
                       name: 'column',
                       builder: (context, state) =>
                           ColumnPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'steel-member',
+                      name: 'steel-member',
+                      builder: (context, state) =>
+                          SteelMemberPage(projectId: _pid(state)),
                     ),
                     GoRoute(
                       path: 'slab',

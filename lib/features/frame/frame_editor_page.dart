@@ -1147,7 +1147,7 @@ class _SectionsSheetState extends ConsumerState<_SectionsSheet> {
             ChoiceField<String>(
               label: l.frameSectionType,
               value: _kind,
-              options: {'concrete': l.frameConcreteRect, 'steel': 'IPE'},
+              options: {'concrete': l.frameConcreteRect, 'steel': l.catSteel},
               onChanged: (v) => setState(() => _kind = v),
             ),
             const SizedBox(height: Gap.md),
@@ -1180,7 +1180,7 @@ class _SectionsSheetState extends ConsumerState<_SectionsSheet> {
                 initialValue: _ipe,
                 decoration: InputDecoration(labelText: l.frameProfile),
                 items: [
-                  for (final k in ipeProfiles.keys)
+                  for (final k in steelSections.keys)
                     DropdownMenuItem(value: k, child: Text(k)),
                 ],
                 onChanged: (v) => _ipe = v ?? _ipe,

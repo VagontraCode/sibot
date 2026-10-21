@@ -211,3 +211,50 @@ class ChoiceField<T> extends StatelessWidget {
     );
   }
 }
+
+/// Drop-down choice for long option lists, label above like [NumberField].
+class PickerField<T> extends StatelessWidget {
+  final String label;
+  final T value;
+  final Map<T, String> options;
+  final ValueChanged<T> onChanged;
+
+  const PickerField({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: context.text.labelMedium?.copyWith(
+            color: context.colors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<T>(
+          initialValue: value,
+          isExpanded: true,
+          style: AppTheme.mono(context, size: 15),
+          items: [
+            for (final e in options.entries)
+              DropdownMenuItem(value: e.key, child: Text(e.value)),
+          ],
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+        ),
+      ],
+    );
+  }
+}

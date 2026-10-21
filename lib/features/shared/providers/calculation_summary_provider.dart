@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
+import 'package:sibot/features/modules/module_registry.dart';
 
 /// Type-independent view of a saved calculation, for lists.
 @immutable
@@ -69,6 +70,15 @@ class CalcSummary {
       name: c.name,
       moduleId: 'retaining-wall',
       icon: Icons.stairs_outlined,
+      isValid: c.isValid,
+      createdAt: c.createdAt,
+    ),
+    ModuleCalculation c => CalcSummary(
+      id: c.id,
+      projectId: c.projectId,
+      name: c.name,
+      moduleId: c.moduleId,
+      icon: moduleById(c.moduleId)?.icon ?? Icons.calculate_outlined,
       isValid: c.isValid,
       createdAt: c.createdAt,
     ),

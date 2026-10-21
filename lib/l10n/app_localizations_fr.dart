@@ -2064,9 +2064,181 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get memberUnsupportedSectionMsg =>
-      'Les rectangles en béton sont dimensionnés ici ; les profilés en acier le seront avec le module EC3.';
+      'Les rectangles en béton et les profilés laminés IPE, HEA et HEB peuvent être dimensionnés ici.';
 
   @override
   String get memberBeamNote =>
       'Utilise les moments extrêmes de l\'enveloppe sur toute la barre ; l\'arrêt des barres le long de la portée n\'est pas optimisé.';
+
+  @override
+  String get steelSubtitle => 'EN 1993-1-1 · profilés laminés I et H';
+
+  @override
+  String get steelLength => 'Longueur de la barre';
+
+  @override
+  String get steelLengthHelp => 'Entre maintiens latéraux';
+
+  @override
+  String get steelAxialForce => 'Effort normal NEd';
+
+  @override
+  String get steelAxialHelp => 'Compression +, traction −';
+
+  @override
+  String get steelMoment => 'Moment fort My,Ed';
+
+  @override
+  String get steelShear => 'Effort tranchant VEd';
+
+  @override
+  String get steelGrade => 'Nuance d\'acier';
+
+  @override
+  String get steelProfileTitle => 'Profilé';
+
+  @override
+  String get steelSeries => 'Série';
+
+  @override
+  String get steelProfile => 'Section';
+
+  @override
+  String get steelBasisNote =>
+      'γM0 = γM1 = 1,00 (valeurs recommandées). Caractéristiques calculées à partir des dimensions nominales, congés compris.';
+
+  @override
+  String get steelForcesTitle => 'Efforts de calcul (ELU)';
+
+  @override
+  String get steelMomentShape => 'Diagramme de moment';
+
+  @override
+  String get steelShapeUdl => 'Répartie';
+
+  @override
+  String get steelShapePoint => 'Ponct.';
+
+  @override
+  String get steelShapeUniform => 'Const.';
+
+  @override
+  String get steelShapeLinear => 'Linéaire';
+
+  @override
+  String get steelPsiHelp => 'Rapport des moments d\'extrémité, −1 ≤ ψ ≤ 1';
+
+  @override
+  String get steelBucklingTitle => 'Longueurs de flambement';
+
+  @override
+  String get steelBucklingNote =>
+      'Lcr = k × L selon l\'axe fort (y), l\'axe faible (z) et pour le déversement. kLT = 1 pour une poutre maintenue seulement aux appuis ; une petite valeur pour une semelle maintenue en continu.';
+
+  @override
+  String steelLightest(String name) {
+    return '$name suffit';
+  }
+
+  @override
+  String steelLightestMsg(String a, String b) {
+    return 'Profilé le plus léger de la série qui satisfait toutes les vérifications : $a kg/m au lieu de $b kg/m.';
+  }
+
+  @override
+  String steelUseProfile(String name) {
+    return 'Utiliser $name';
+  }
+
+  @override
+  String get steelResistances => 'Résistance de la section';
+
+  @override
+  String get steelClass => 'Classe de section';
+
+  @override
+  String get steelAxialResistance => 'Résistance axiale';
+
+  @override
+  String get steelMomentResistance => 'Résistance en flexion';
+
+  @override
+  String get steelShearResistance => 'Résistance au cisaillement';
+
+  @override
+  String get steelReducedMoment => 'Moment résistant avec N et V';
+
+  @override
+  String get steelStability => 'Stabilité de la barre';
+
+  @override
+  String get steelFlexuralY => 'Flambement (y)';
+
+  @override
+  String get steelFlexuralZ => 'Flambement (z)';
+
+  @override
+  String get steelCriticalMoment => 'Moment critique élastique';
+
+  @override
+  String get steelLtb => 'Déversement';
+
+  @override
+  String get steelLtbResistance => 'Moment résistant au déversement';
+
+  @override
+  String get steelInteractionFactors => 'Facteurs d\'interaction (annexe B)';
+
+  @override
+  String get steelProperties => 'Caractéristiques';
+
+  @override
+  String get steelArea => 'Aire';
+
+  @override
+  String get steelInertia => 'Moments d\'inertie';
+
+  @override
+  String get steelPlasticModulus => 'Module plastique';
+
+  @override
+  String get steelMass => 'Masse';
+
+  @override
+  String get steelNoteScope =>
+      'Flexion selon l\'axe fort uniquement. Charges appliquées au centre de cisaillement, gauchissement libre aux appuis. Les âmes de classe 4 utilisent l\'aire efficace en compression ; l\'introduction des charges locales et le voilement de l\'âme ne sont pas vérifiés.';
+
+  @override
+  String get checkSteelTension => 'Traction';
+
+  @override
+  String get checkSteelCompression => 'Compression (section)';
+
+  @override
+  String get checkSteelBending => 'Flexion (section)';
+
+  @override
+  String get checkSteelShear => 'Cisaillement (section)';
+
+  @override
+  String get checkSteelCombined => 'Flexion avec N et V';
+
+  @override
+  String get checkFlexuralBucklingY => 'Flambement y-y';
+
+  @override
+  String get checkFlexuralBucklingZ => 'Flambement z-z';
+
+  @override
+  String get checkLtb => 'Déversement';
+
+  @override
+  String get checkInteractionY => 'Interaction flambement (6.61)';
+
+  @override
+  String get checkInteractionZ => 'Interaction flambement (6.62)';
+
+  @override
+  String get memberSteelNote =>
+      'Les extrêmes de l\'enveloppe sont combinés en une seule vérification (N max avec M max), ce qui est conservatif. La longueur L est celle de la barre entre ses deux nœuds.';
 }

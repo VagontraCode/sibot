@@ -858,6 +858,84 @@
   "memberBucklingFactorHelp": "1.0 for a braced storey column is a safe default; use 0.7 to 0.85 if the ends are restrained by stiff beams.",
   "memberNoEnvelope": "No ULS combination: add a load case first.",
   "memberUnsupportedSection": "This section cannot be designed here yet",
-  "memberUnsupportedSectionMsg": "Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.",
-  "memberBeamNote": "Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised."
+  "memberUnsupportedSectionMsg": "Concrete rectangles and rolled IPE, HEA and HEB profiles can be designed here.",
+  "memberBeamNote": "Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised.",
+  "steelSubtitle": "EN 1993-1-1 · rolled I and H sections",
+  "steelLength": "Member length",
+  "steelLengthHelp": "Between lateral restraints",
+  "steelAxialForce": "Axial force NEd",
+  "steelAxialHelp": "Compression +, tension −",
+  "steelMoment": "Major-axis moment My,Ed",
+  "steelShear": "Shear force VEd",
+  "steelGrade": "Steel grade",
+  "steelProfileTitle": "Profile",
+  "steelSeries": "Series",
+  "steelProfile": "Section",
+  "steelBasisNote": "γM0 = γM1 = 1.00 (recommended values). Properties computed from the nominal dimensions, including root fillets.",
+  "steelForcesTitle": "Design forces (ULS)",
+  "steelMomentShape": "Moment diagram",
+  "steelShapeUdl": "UDL",
+  "steelShapePoint": "Point",
+  "steelShapeUniform": "Uniform",
+  "steelShapeLinear": "Linear",
+  "steelPsiHelp": "End moment ratio, −1 ≤ ψ ≤ 1",
+  "steelBucklingTitle": "Buckling lengths",
+  "steelBucklingNote": "Lcr = k × L about the major axis (y), the minor axis (z) and for lateral-torsional buckling. kLT = 1 for a beam restrained only at its ends; a small value for a continuously restrained flange.",
+  "steelLightest": "{name} is enough",
+  "@steelLightest": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "steelLightestMsg": "Lightest section of this series passing every check: {a} kg/m instead of {b} kg/m.",
+  "@steelLightestMsg": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "steelUseProfile": "Use {name}",
+  "@steelUseProfile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "steelResistances": "Cross-section resistance",
+  "steelClass": "Section class",
+  "steelAxialResistance": "Axial resistance",
+  "steelMomentResistance": "Bending resistance",
+  "steelShearResistance": "Shear resistance",
+  "steelReducedMoment": "Moment resistance with N and V",
+  "steelStability": "Member stability",
+  "steelFlexuralY": "Flexural buckling (y)",
+  "steelFlexuralZ": "Flexural buckling (z)",
+  "steelCriticalMoment": "Elastic critical moment",
+  "steelLtb": "Lateral-torsional buckling",
+  "steelLtbResistance": "Buckling moment resistance",
+  "steelInteractionFactors": "Interaction factors (Annex B)",
+  "steelProperties": "Section properties",
+  "steelArea": "Area",
+  "steelInertia": "Second moments",
+  "steelPlasticModulus": "Plastic modulus",
+  "steelMass": "Mass",
+  "steelNoteScope": "Major-axis bending only. Loads assumed at the shear centre with free warping at the supports. Class 4 webs use the effective area in compression; local load introduction and web buckling are not checked.",
+  "checkSteelTension": "Tension",
+  "checkSteelCompression": "Compression (section)",
+  "checkSteelBending": "Bending (section)",
+  "checkSteelShear": "Shear (section)",
+  "checkSteelCombined": "Bending with N and V",
+  "checkFlexuralBucklingY": "Flexural buckling y-y",
+  "checkFlexuralBucklingZ": "Flexural buckling z-z",
+  "checkLtb": "Lateral-torsional buckling",
+  "checkInteractionY": "Buckling interaction (6.61)",
+  "checkInteractionZ": "Buckling interaction (6.62)",
+  "memberSteelNote": "Envelope extremes are combined in one check (largest N with largest M), which is conservative. Length L is the member length between its two nodes."
 }

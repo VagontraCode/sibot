@@ -2050,9 +2050,181 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberUnsupportedSectionMsg =>
-      'Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.';
+      'Concrete rectangles and rolled IPE, HEA and HEB profiles can be designed here.';
 
   @override
   String get memberBeamNote =>
       'Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised.';
+
+  @override
+  String get steelSubtitle => 'EN 1993-1-1 · rolled I and H sections';
+
+  @override
+  String get steelLength => 'Member length';
+
+  @override
+  String get steelLengthHelp => 'Between lateral restraints';
+
+  @override
+  String get steelAxialForce => 'Axial force NEd';
+
+  @override
+  String get steelAxialHelp => 'Compression +, tension −';
+
+  @override
+  String get steelMoment => 'Major-axis moment My,Ed';
+
+  @override
+  String get steelShear => 'Shear force VEd';
+
+  @override
+  String get steelGrade => 'Steel grade';
+
+  @override
+  String get steelProfileTitle => 'Profile';
+
+  @override
+  String get steelSeries => 'Series';
+
+  @override
+  String get steelProfile => 'Section';
+
+  @override
+  String get steelBasisNote =>
+      'γM0 = γM1 = 1.00 (recommended values). Properties computed from the nominal dimensions, including root fillets.';
+
+  @override
+  String get steelForcesTitle => 'Design forces (ULS)';
+
+  @override
+  String get steelMomentShape => 'Moment diagram';
+
+  @override
+  String get steelShapeUdl => 'UDL';
+
+  @override
+  String get steelShapePoint => 'Point';
+
+  @override
+  String get steelShapeUniform => 'Uniform';
+
+  @override
+  String get steelShapeLinear => 'Linear';
+
+  @override
+  String get steelPsiHelp => 'End moment ratio, −1 ≤ ψ ≤ 1';
+
+  @override
+  String get steelBucklingTitle => 'Buckling lengths';
+
+  @override
+  String get steelBucklingNote =>
+      'Lcr = k × L about the major axis (y), the minor axis (z) and for lateral-torsional buckling. kLT = 1 for a beam restrained only at its ends; a small value for a continuously restrained flange.';
+
+  @override
+  String steelLightest(String name) {
+    return '$name is enough';
+  }
+
+  @override
+  String steelLightestMsg(String a, String b) {
+    return 'Lightest section of this series passing every check: $a kg/m instead of $b kg/m.';
+  }
+
+  @override
+  String steelUseProfile(String name) {
+    return 'Use $name';
+  }
+
+  @override
+  String get steelResistances => 'Cross-section resistance';
+
+  @override
+  String get steelClass => 'Section class';
+
+  @override
+  String get steelAxialResistance => 'Axial resistance';
+
+  @override
+  String get steelMomentResistance => 'Bending resistance';
+
+  @override
+  String get steelShearResistance => 'Shear resistance';
+
+  @override
+  String get steelReducedMoment => 'Moment resistance with N and V';
+
+  @override
+  String get steelStability => 'Member stability';
+
+  @override
+  String get steelFlexuralY => 'Flexural buckling (y)';
+
+  @override
+  String get steelFlexuralZ => 'Flexural buckling (z)';
+
+  @override
+  String get steelCriticalMoment => 'Elastic critical moment';
+
+  @override
+  String get steelLtb => 'Lateral-torsional buckling';
+
+  @override
+  String get steelLtbResistance => 'Buckling moment resistance';
+
+  @override
+  String get steelInteractionFactors => 'Interaction factors (Annex B)';
+
+  @override
+  String get steelProperties => 'Section properties';
+
+  @override
+  String get steelArea => 'Area';
+
+  @override
+  String get steelInertia => 'Second moments';
+
+  @override
+  String get steelPlasticModulus => 'Plastic modulus';
+
+  @override
+  String get steelMass => 'Mass';
+
+  @override
+  String get steelNoteScope =>
+      'Major-axis bending only. Loads assumed at the shear centre with free warping at the supports. Class 4 webs use the effective area in compression; local load introduction and web buckling are not checked.';
+
+  @override
+  String get checkSteelTension => 'Tension';
+
+  @override
+  String get checkSteelCompression => 'Compression (section)';
+
+  @override
+  String get checkSteelBending => 'Bending (section)';
+
+  @override
+  String get checkSteelShear => 'Shear (section)';
+
+  @override
+  String get checkSteelCombined => 'Bending with N and V';
+
+  @override
+  String get checkFlexuralBucklingY => 'Flexural buckling y-y';
+
+  @override
+  String get checkFlexuralBucklingZ => 'Flexural buckling z-z';
+
+  @override
+  String get checkLtb => 'Lateral-torsional buckling';
+
+  @override
+  String get checkInteractionY => 'Buckling interaction (6.61)';
+
+  @override
+  String get checkInteractionZ => 'Buckling interaction (6.62)';
+
+  @override
+  String get memberSteelNote =>
+      'Envelope extremes are combined in one check (largest N with largest M), which is conservative. Length L is the member length between its two nodes.';
 }

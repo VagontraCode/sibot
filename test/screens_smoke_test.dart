@@ -17,6 +17,7 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
+import 'package:sibot/features/calculations/steel/presentation/steel_member_provider.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
@@ -155,6 +156,18 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             ..setOption('shape', 'circle')
             ..setAll({'b': 400, 'l0': 3, 'nEd': 1500, 'm0Ed': 60, 'm0EdB': 0}))
           .calculate(),
+  'steel_member': (c) =>
+      (c.read(steelMemberStateProvider('PRJ_1').notifier)
+            ..setSeries('HEB')
+            ..setOption('shape', 'linear')
+            ..setAll({
+              'length': 4,
+              'nEd': 600,
+              'myEd': 60,
+              'vEd': 40,
+              'psi': 0,
+            }))
+          .calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -232,6 +245,7 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'steel_member': '/projects/PRJ_1/steel-member',
     'footing': '/projects/PRJ_1/footing',
     'footing_combined': '/projects/PRJ_1/footing',
     'bearing': '/projects/PRJ_1/bearing',

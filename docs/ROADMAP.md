@@ -138,12 +138,14 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Verification: 19 closed-form benchmarks (cantilever, simple / fixed / continuous beams, propped cantilever, Kleinlogel portal, truss, hinge, spring, inclined member, equilibrium) + template tests; 2091-node frame in ~0.55 s
 - [ ] Compare with the user's RSA models, then remove the Beta banner
 - [ ] Editor: point loads and partial / trapezoidal loads in the UI (engine supports them), node dragging, copy / array tools
-- [ ] Send member forces to the RC design modules (Phase 3)
+- [x] Send member forces to the RC design modules (Phase 3)
 
 ### Phase 3 — Analysis-to-design link and the other materials
-- [ ] Send members from the FEM model straight to RC design, which designs from the envelopes automatically
-- [ ] Section library: IPE, HEA, HEB, HEM, UPN, L, CHS, RHS, SHS (JSON assets)
-- [ ] Steel EC3: cross-section classification, resistances, flexural and lateral-torsional buckling, interaction checks, utilisation colour map
+- [x] Send members from the FEM model straight to RC and steel design, which designs from the envelopes automatically
+- [x] Section library: IPE, HEA, HEB, with properties computed from the dimensions and checked against the tables (A, Iy, Wpl,y within 1 %)
+- [ ] Section library: HEM, UPN, L, CHS, RHS, SHS
+- [x] Steel EC3 (Beta): classification, resistances with M+V+N, flexural buckling, LTB (6.3.2.3), Annex B interaction, lightest-section search
+- [ ] Steel EC3: minor-axis bending, utilisation colour map on the frame
 - [ ] Timber EC5: service classes, k_mod, members in bending and compression
 - [ ] Masonry EC6: vertical load capacity of walls, slenderness
 - [ ] EC1 wind and snow, EC8 / PS92 equivalent lateral force method

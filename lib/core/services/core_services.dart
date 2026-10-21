@@ -48,6 +48,9 @@ class HiveService {
       if (!Hive.isAdapterRegistered(8)) {
         Hive.registerAdapter(RetainingWallCalculationAdapter());
       }
+      if (!Hive.isAdapterRegistered(9)) {
+        Hive.registerAdapter(ModuleCalculationAdapter());
+      }
 
       for (final name in [
         projectsBox,

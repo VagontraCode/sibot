@@ -3875,7 +3875,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberUnsupportedSectionMsg.
   ///
   /// In en, this message translates to:
-  /// **'Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.'**
+  /// **'Concrete rectangles and rolled IPE, HEA and HEB profiles can be designed here.'**
   String get memberUnsupportedSectionMsg;
 
   /// No description provided for @memberBeamNote.
@@ -3883,6 +3883,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised.'**
   String get memberBeamNote;
+
+  /// No description provided for @steelSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1993-1-1 · rolled I and H sections'**
+  String get steelSubtitle;
+
+  /// No description provided for @steelLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Member length'**
+  String get steelLength;
+
+  /// No description provided for @steelLengthHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Between lateral restraints'**
+  String get steelLengthHelp;
+
+  /// No description provided for @steelAxialForce.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial force NEd'**
+  String get steelAxialForce;
+
+  /// No description provided for @steelAxialHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression +, tension −'**
+  String get steelAxialHelp;
+
+  /// No description provided for @steelMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Major-axis moment My,Ed'**
+  String get steelMoment;
+
+  /// No description provided for @steelShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear force VEd'**
+  String get steelShear;
+
+  /// No description provided for @steelGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Steel grade'**
+  String get steelGrade;
+
+  /// No description provided for @steelProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get steelProfileTitle;
+
+  /// No description provided for @steelSeries.
+  ///
+  /// In en, this message translates to:
+  /// **'Series'**
+  String get steelSeries;
+
+  /// No description provided for @steelProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get steelProfile;
+
+  /// No description provided for @steelBasisNote.
+  ///
+  /// In en, this message translates to:
+  /// **'γM0 = γM1 = 1.00 (recommended values). Properties computed from the nominal dimensions, including root fillets.'**
+  String get steelBasisNote;
+
+  /// No description provided for @steelForcesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design forces (ULS)'**
+  String get steelForcesTitle;
+
+  /// No description provided for @steelMomentShape.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment diagram'**
+  String get steelMomentShape;
+
+  /// No description provided for @steelShapeUdl.
+  ///
+  /// In en, this message translates to:
+  /// **'UDL'**
+  String get steelShapeUdl;
+
+  /// No description provided for @steelShapePoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point'**
+  String get steelShapePoint;
+
+  /// No description provided for @steelShapeUniform.
+  ///
+  /// In en, this message translates to:
+  /// **'Uniform'**
+  String get steelShapeUniform;
+
+  /// No description provided for @steelShapeLinear.
+  ///
+  /// In en, this message translates to:
+  /// **'Linear'**
+  String get steelShapeLinear;
+
+  /// No description provided for @steelPsiHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'End moment ratio, −1 ≤ ψ ≤ 1'**
+  String get steelPsiHelp;
+
+  /// No description provided for @steelBucklingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling lengths'**
+  String get steelBucklingTitle;
+
+  /// No description provided for @steelBucklingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Lcr = k × L about the major axis (y), the minor axis (z) and for lateral-torsional buckling. kLT = 1 for a beam restrained only at its ends; a small value for a continuously restrained flange.'**
+  String get steelBucklingNote;
+
+  /// No description provided for @steelLightest.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is enough'**
+  String steelLightest(String name);
+
+  /// No description provided for @steelLightestMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Lightest section of this series passing every check: {a} kg/m instead of {b} kg/m.'**
+  String steelLightestMsg(String a, String b);
+
+  /// No description provided for @steelUseProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {name}'**
+  String steelUseProfile(String name);
+
+  /// No description provided for @steelResistances.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-section resistance'**
+  String get steelResistances;
+
+  /// No description provided for @steelClass.
+  ///
+  /// In en, this message translates to:
+  /// **'Section class'**
+  String get steelClass;
+
+  /// No description provided for @steelAxialResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial resistance'**
+  String get steelAxialResistance;
+
+  /// No description provided for @steelMomentResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending resistance'**
+  String get steelMomentResistance;
+
+  /// No description provided for @steelShearResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear resistance'**
+  String get steelShearResistance;
+
+  /// No description provided for @steelReducedMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment resistance with N and V'**
+  String get steelReducedMoment;
+
+  /// No description provided for @steelStability.
+  ///
+  /// In en, this message translates to:
+  /// **'Member stability'**
+  String get steelStability;
+
+  /// No description provided for @steelFlexuralY.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexural buckling (y)'**
+  String get steelFlexuralY;
+
+  /// No description provided for @steelFlexuralZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexural buckling (z)'**
+  String get steelFlexuralZ;
+
+  /// No description provided for @steelCriticalMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Elastic critical moment'**
+  String get steelCriticalMoment;
+
+  /// No description provided for @steelLtb.
+  ///
+  /// In en, this message translates to:
+  /// **'Lateral-torsional buckling'**
+  String get steelLtb;
+
+  /// No description provided for @steelLtbResistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling moment resistance'**
+  String get steelLtbResistance;
+
+  /// No description provided for @steelInteractionFactors.
+  ///
+  /// In en, this message translates to:
+  /// **'Interaction factors (Annex B)'**
+  String get steelInteractionFactors;
+
+  /// No description provided for @steelProperties.
+  ///
+  /// In en, this message translates to:
+  /// **'Section properties'**
+  String get steelProperties;
+
+  /// No description provided for @steelArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Area'**
+  String get steelArea;
+
+  /// No description provided for @steelInertia.
+  ///
+  /// In en, this message translates to:
+  /// **'Second moments'**
+  String get steelInertia;
+
+  /// No description provided for @steelPlasticModulus.
+  ///
+  /// In en, this message translates to:
+  /// **'Plastic modulus'**
+  String get steelPlasticModulus;
+
+  /// No description provided for @steelMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Mass'**
+  String get steelMass;
+
+  /// No description provided for @steelNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Major-axis bending only. Loads assumed at the shear centre with free warping at the supports. Class 4 webs use the effective area in compression; local load introduction and web buckling are not checked.'**
+  String get steelNoteScope;
+
+  /// No description provided for @checkSteelTension.
+  ///
+  /// In en, this message translates to:
+  /// **'Tension'**
+  String get checkSteelTension;
+
+  /// No description provided for @checkSteelCompression.
+  ///
+  /// In en, this message translates to:
+  /// **'Compression (section)'**
+  String get checkSteelCompression;
+
+  /// No description provided for @checkSteelBending.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending (section)'**
+  String get checkSteelBending;
+
+  /// No description provided for @checkSteelShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear (section)'**
+  String get checkSteelShear;
+
+  /// No description provided for @checkSteelCombined.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending with N and V'**
+  String get checkSteelCombined;
+
+  /// No description provided for @checkFlexuralBucklingY.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexural buckling y-y'**
+  String get checkFlexuralBucklingY;
+
+  /// No description provided for @checkFlexuralBucklingZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Flexural buckling z-z'**
+  String get checkFlexuralBucklingZ;
+
+  /// No description provided for @checkLtb.
+  ///
+  /// In en, this message translates to:
+  /// **'Lateral-torsional buckling'**
+  String get checkLtb;
+
+  /// No description provided for @checkInteractionY.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling interaction (6.61)'**
+  String get checkInteractionY;
+
+  /// No description provided for @checkInteractionZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling interaction (6.62)'**
+  String get checkInteractionZ;
+
+  /// No description provided for @memberSteelNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Envelope extremes are combined in one check (largest N with largest M), which is conservative. Length L is the member length between its two nodes.'**
+  String get memberSteelNote;
 }
 
 class _AppLocalizationsDelegate

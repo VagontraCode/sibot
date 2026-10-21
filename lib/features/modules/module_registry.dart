@@ -161,8 +161,8 @@ const modules = <EngModule>[
     id: 'steel-member',
     icon: Icons.horizontal_split_outlined,
     category: ModuleCategory.steel,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'steel-member',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'timber-member',

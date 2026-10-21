@@ -33,7 +33,9 @@ void main() {
   });
 
   for (final index in [2, 0]) {
-    testWidgets('design sheet for member $index shows a verdict', (tester) async {
+    testWidgets('design sheet for member $index shows a verdict', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.lightTheme,

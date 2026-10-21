@@ -647,3 +647,111 @@ class _ForcePainter extends CustomPainter {
   @override
   bool shouldRepaint(_ForcePainter old) => true;
 }
+
+/// Rolled I / H profile drawn to scale with its main dimensions.
+class ISectionSketch extends StatelessWidget {
+  final ISteelSection section;
+  const ISectionSketch({super.key, required this.section});
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      child: AspectRatio(
+        aspectRatio: 1.4,
+        child: CustomPaint(
+          painter: _ISectionPainter(section, _Colors(context)),
+        ),
+      ),
+    );
+  }
+}
+
+class _ISectionPainter extends CustomPainter {
+  final ISteelSection s;
+  final _Colors c;
+  _ISectionPainter(this.s, this.c);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const pad = 34.0;
+    final k = math.min(
+      (size.width - 2 * pad) / s.b,
+      (size.height - 2 * pad) / s.h,
+    );
+    final cx = size.width / 2, cy = size.height / 2;
+    final hb = s.b * k / 2, hh = s.h * k / 2;
+    final tw = s.tw * k / 2, tf = s.tf * k, r = s.r * k;
+
+    // Outline clockwise from the top-left corner, with root fillets.
+    final p = Path()
+      ..moveTo(cx - hb, cy - hh)
+      ..lineTo(cx + hb, cy - hh)
+      ..lineTo(cx + hb, cy - hh + tf)
+      ..lineTo(cx + tw + r, cy - hh + tf)
+      ..arcToPoint(
+        Offset(cx + tw, cy - hh + tf + r),
+        radius: Radius.circular(r),
+        clockwise: false,
+      )
+      ..lineTo(cx + tw, cy + hh - tf - r)
+      ..arcToPoint(
+        Offset(cx + tw + r, cy + hh - tf),
+        radius: Radius.circular(r),
+        clockwise: false,
+      )
+      ..lineTo(cx + hb, cy + hh - tf)
+      ..lineTo(cx + hb, cy + hh)
+      ..lineTo(cx - hb, cy + hh)
+      ..lineTo(cx - hb, cy + hh - tf)
+      ..lineTo(cx - tw - r, cy + hh - tf)
+      ..arcToPoint(
+        Offset(cx - tw, cy + hh - tf - r),
+        radius: Radius.circular(r),
+        clockwise: false,
+      )
+      ..lineTo(cx - tw, cy - hh + tf + r)
+      ..arcToPoint(
+        Offset(cx - tw - r, cy - hh + tf),
+        radius: Radius.circular(r),
+        clockwise: false,
+      )
+      ..lineTo(cx - hb, cy - hh + tf)
+      ..close();
+    canvas.drawPath(p, Paint()..color = c.link.withValues(alpha: 0.18));
+    canvas.drawPath(
+      p,
+      Paint()
+        ..color = c.link
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4,
+    );
+
+    final dim = Paint()
+      ..color = c.muted
+      ..strokeWidth = 1;
+    // Width below, height on the left.
+    final yb = cy + hh + 14;
+    canvas.drawLine(Offset(cx - hb, yb), Offset(cx + hb, yb), dim);
+    final lb = _label('b = ${s.b.toStringAsFixed(0)}', c.muted);
+    lb.paint(canvas, Offset(cx - lb.width / 2, yb + 2));
+    final xh = cx - hb - 14;
+    canvas.drawLine(Offset(xh, cy - hh), Offset(xh, cy + hh), dim);
+    final lh = _label('h = ${s.h.toStringAsFixed(0)}', c.muted);
+    canvas.save();
+    canvas.translate(xh - 4, cy + lh.width / 2);
+    canvas.rotate(-math.pi / 2);
+    lh.paint(canvas, Offset(0, -lh.height));
+    canvas.restore();
+
+    final lt = _label('tw ${_n(s.tw)} · tf ${_n(s.tf)} · r ${_n(s.r)}', c.ink);
+    lt.paint(canvas, const Offset(4, 20));
+    final name = _label(s.name, c.accent, size: 12);
+    name.paint(canvas, const Offset(4, 2));
+  }
+
+  static String _n(double v) =>
+      v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+
+  @override
+  bool shouldRepaint(_ISectionPainter old) => old.s != s;
+}

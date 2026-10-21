@@ -27,3 +27,5 @@ export 'src/rebar.dart';
 export 'src/retaining_wall.dart';
 export 'src/section_properties.dart';
 export 'src/slab.dart';
+export 'src/steel_member.dart';
+export 'src/steel_sections.dart';
