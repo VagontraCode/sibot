@@ -1074,5 +1074,74 @@
   },
   "windNoteScope": "External pressures we = qp · cpe,10 (loaded areas ≥ 10 m²); positive towards the surface. Add internal pressure cpi = +0.2 or −0.3 when no face is dominant. Roof zones F/G lie along the windward edge over e/10, H over e/2. cs·cd = 1.",
   "snowNoteScope": "Persistent design situation, Ct = 1. Drifting at abrupt changes of height, snow guards and exceptional snow are not covered. For duopitch roofs: (i) undrifted, (ii) and (iii) drifted with half load on one slope.",
-  "windPitchedNote": "Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply."
+  "windPitchedNote": "Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.",
+  "seismicSubtitle": "EN 1998-1 · lateral force method (4.3.3.2)",
+  "seismicHazard": "Seismic action",
+  "seismicZone": "Zone (France)",
+  "seismicZoneCustom": "Other — enter agR",
+  "seismicZoneN": "Zone {n} · agR = {ag} m/s²",
+  "@seismicZoneN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "ag": {
+        "type": "String"
+      }
+    }
+  },
+  "seismicAgR": "Reference ground acceleration agR",
+  "seismicImportance": "Importance class",
+  "seismicGround": "Ground type",
+  "seismicSpectrumType": "Spectrum",
+  "seismicHazardNote": "Recommended spectrum parameters of EN 1998-1 (Tables 3.2, 3.3) and γI = 0.8 / 1.0 / 1.2 / 1.4. Type 2 for moderate seismicity (mainland France), type 1 for high seismicity (French Antilles). Check the National Annex values for your project.",
+  "seismicBuilding": "Building",
+  "seismicSystem": "Structural system (period)",
+  "seismicSysConcrete": "RC moment frames (Ct = 0.075)",
+  "seismicSysSteel": "Steel moment frames (Ct = 0.085)",
+  "seismicSysOther": "Walls and other (Ct = 0.050)",
+  "seismicStoreys": "Storeys",
+  "seismicStoreyHeight": "Storey height",
+  "seismicFloorMass": "Mass per floor",
+  "seismicRoofMass": "Roof mass",
+  "seismicRoofHelp": "Roof mass empty = same as floors",
+  "seismicQ": "Behaviour factor q",
+  "seismicQHelp": "q = 1.5 for low dissipation (DCL)",
+  "seismicPeriodOverride": "Period T1",
+  "seismicPeriodHelp": "T1 empty = Ct · H^3/4",
+  "seismicBaseShear": "Base shear Fb = {fb} kN",
+  "@seismicBaseShear": {
+    "placeholders": {
+      "fb": {
+        "type": "String"
+      }
+    }
+  },
+  "seismicMassRatio": "{pct} % of the seismic weight",
+  "@seismicMassRatio": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "seismicPeriodOut": "T1 exceeds min(4 TC, 2 s): the lateral force method does not apply; use modal response spectrum analysis.",
+  "seismicSpectrumTitle": "Design spectrum",
+  "seismicDesignAg": "Design ground acceleration",
+  "seismicSpectrumParams": "Spectrum parameters",
+  "seismicPeriod": "Fundamental period",
+  "seismicSd": "Spectral acceleration",
+  "seismicLambda": "Correction factor",
+  "seismicTotalMass": "Total seismic mass",
+  "seismicOverturning": "Overturning moment at the base",
+  "seismicStoreyForces": "Storey forces and shears",
+  "seismicLevel": "Level +{z} m",
+  "@seismicLevel": {
+    "placeholders": {
+      "z": {
+        "type": "String"
+      }
+    }
+  },
+  "seismicNoteScope": "Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q."
 }

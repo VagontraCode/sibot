@@ -4801,6 +4801,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.'**
   String get windPitchedNote;
+
+  /// No description provided for @seismicSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'EN 1998-1 · lateral force method (4.3.3.2)'**
+  String get seismicSubtitle;
+
+  /// No description provided for @seismicHazard.
+  ///
+  /// In en, this message translates to:
+  /// **'Seismic action'**
+  String get seismicHazard;
+
+  /// No description provided for @seismicZone.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone (France)'**
+  String get seismicZone;
+
+  /// No description provided for @seismicZoneCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Other — enter agR'**
+  String get seismicZoneCustom;
+
+  /// No description provided for @seismicZoneN.
+  ///
+  /// In en, this message translates to:
+  /// **'Zone {n} · agR = {ag} m/s²'**
+  String seismicZoneN(int n, String ag);
+
+  /// No description provided for @seismicAgR.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference ground acceleration agR'**
+  String get seismicAgR;
+
+  /// No description provided for @seismicImportance.
+  ///
+  /// In en, this message translates to:
+  /// **'Importance class'**
+  String get seismicImportance;
+
+  /// No description provided for @seismicGround.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground type'**
+  String get seismicGround;
+
+  /// No description provided for @seismicSpectrumType.
+  ///
+  /// In en, this message translates to:
+  /// **'Spectrum'**
+  String get seismicSpectrumType;
+
+  /// No description provided for @seismicHazardNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended spectrum parameters of EN 1998-1 (Tables 3.2, 3.3) and γI = 0.8 / 1.0 / 1.2 / 1.4. Type 2 for moderate seismicity (mainland France), type 1 for high seismicity (French Antilles). Check the National Annex values for your project.'**
+  String get seismicHazardNote;
+
+  /// No description provided for @seismicBuilding.
+  ///
+  /// In en, this message translates to:
+  /// **'Building'**
+  String get seismicBuilding;
+
+  /// No description provided for @seismicSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Structural system (period)'**
+  String get seismicSystem;
+
+  /// No description provided for @seismicSysConcrete.
+  ///
+  /// In en, this message translates to:
+  /// **'RC moment frames (Ct = 0.075)'**
+  String get seismicSysConcrete;
+
+  /// No description provided for @seismicSysSteel.
+  ///
+  /// In en, this message translates to:
+  /// **'Steel moment frames (Ct = 0.085)'**
+  String get seismicSysSteel;
+
+  /// No description provided for @seismicSysOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Walls and other (Ct = 0.050)'**
+  String get seismicSysOther;
+
+  /// No description provided for @seismicStoreys.
+  ///
+  /// In en, this message translates to:
+  /// **'Storeys'**
+  String get seismicStoreys;
+
+  /// No description provided for @seismicStoreyHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Storey height'**
+  String get seismicStoreyHeight;
+
+  /// No description provided for @seismicFloorMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Mass per floor'**
+  String get seismicFloorMass;
+
+  /// No description provided for @seismicRoofMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Roof mass'**
+  String get seismicRoofMass;
+
+  /// No description provided for @seismicRoofHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Roof mass empty = same as floors'**
+  String get seismicRoofHelp;
+
+  /// No description provided for @seismicQ.
+  ///
+  /// In en, this message translates to:
+  /// **'Behaviour factor q'**
+  String get seismicQ;
+
+  /// No description provided for @seismicQHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'q = 1.5 for low dissipation (DCL)'**
+  String get seismicQHelp;
+
+  /// No description provided for @seismicPeriodOverride.
+  ///
+  /// In en, this message translates to:
+  /// **'Period T1'**
+  String get seismicPeriodOverride;
+
+  /// No description provided for @seismicPeriodHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'T1 empty = Ct · H^3/4'**
+  String get seismicPeriodHelp;
+
+  /// No description provided for @seismicBaseShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Base shear Fb = {fb} kN'**
+  String seismicBaseShear(String fb);
+
+  /// No description provided for @seismicMassRatio.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct} % of the seismic weight'**
+  String seismicMassRatio(String pct);
+
+  /// No description provided for @seismicPeriodOut.
+  ///
+  /// In en, this message translates to:
+  /// **'T1 exceeds min(4 TC, 2 s): the lateral force method does not apply; use modal response spectrum analysis.'**
+  String get seismicPeriodOut;
+
+  /// No description provided for @seismicSpectrumTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Design spectrum'**
+  String get seismicSpectrumTitle;
+
+  /// No description provided for @seismicDesignAg.
+  ///
+  /// In en, this message translates to:
+  /// **'Design ground acceleration'**
+  String get seismicDesignAg;
+
+  /// No description provided for @seismicSpectrumParams.
+  ///
+  /// In en, this message translates to:
+  /// **'Spectrum parameters'**
+  String get seismicSpectrumParams;
+
+  /// No description provided for @seismicPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Fundamental period'**
+  String get seismicPeriod;
+
+  /// No description provided for @seismicSd.
+  ///
+  /// In en, this message translates to:
+  /// **'Spectral acceleration'**
+  String get seismicSd;
+
+  /// No description provided for @seismicLambda.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction factor'**
+  String get seismicLambda;
+
+  /// No description provided for @seismicTotalMass.
+  ///
+  /// In en, this message translates to:
+  /// **'Total seismic mass'**
+  String get seismicTotalMass;
+
+  /// No description provided for @seismicOverturning.
+  ///
+  /// In en, this message translates to:
+  /// **'Overturning moment at the base'**
+  String get seismicOverturning;
+
+  /// No description provided for @seismicStoreyForces.
+  ///
+  /// In en, this message translates to:
+  /// **'Storey forces and shears'**
+  String get seismicStoreyForces;
+
+  /// No description provided for @seismicLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level +{z} m'**
+  String seismicLevel(String z);
+
+  /// No description provided for @seismicNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q.'**
+  String get seismicNoteScope;
 }
 
 class _AppLocalizationsDelegate

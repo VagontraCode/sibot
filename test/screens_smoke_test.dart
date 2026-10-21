@@ -17,6 +17,7 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
+import 'package:sibot/features/calculations/loads/presentation/seismic_provider.dart';
 import 'package:sibot/features/calculations/loads/presentation/wind_snow_provider.dart';
 import 'package:sibot/features/calculations/masonry/presentation/masonry_wall_provider.dart';
 import 'package:sibot/features/calculations/steel/presentation/steel_member_provider.dart';
@@ -198,6 +199,12 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
               'alpha2': 20,
             }))
           .calculate(),
+  'seismic': (c) =>
+      (c.read(seismicStateProvider('PRJ_1').notifier)
+            ..setZone('4')
+            ..setOption('ground', 'c')
+            ..setAll({'storeys': 4, 'mass': 300}))
+          .calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -275,6 +282,7 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'seismic': '/projects/PRJ_1/seismic',
     'wind_snow': '/projects/PRJ_1/wind-snow',
     'masonry_wall': '/projects/PRJ_1/masonry-wall',
     'timber_member': '/projects/PRJ_1/timber-member',

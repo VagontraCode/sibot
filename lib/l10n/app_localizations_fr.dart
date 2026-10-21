@@ -2564,4 +2564,130 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get windPitchedNote =>
       'Les coefficients de pression du vent pour les toitures à versants (EN 1991-1-4 7.2.4, 7.2.5) ne sont pas encore calculés ; les zones de parois et qp restent valables.';
+
+  @override
+  String get seismicSubtitle =>
+      'EN 1998-1 · méthode des forces latérales (4.3.3.2)';
+
+  @override
+  String get seismicHazard => 'Action sismique';
+
+  @override
+  String get seismicZone => 'Zone (France)';
+
+  @override
+  String get seismicZoneCustom => 'Autre — saisir agR';
+
+  @override
+  String seismicZoneN(int n, String ag) {
+    return 'Zone $n · agR = $ag m/s²';
+  }
+
+  @override
+  String get seismicAgR => 'Accélération de référence agR';
+
+  @override
+  String get seismicImportance => 'Catégorie d\'importance';
+
+  @override
+  String get seismicGround => 'Classe de sol';
+
+  @override
+  String get seismicSpectrumType => 'Spectre';
+
+  @override
+  String get seismicHazardNote =>
+      'Paramètres de spectre recommandés de l\'EN 1998-1 (tableaux 3.2, 3.3) et γI = 0,8 / 1,0 / 1,2 / 1,4. Type 2 pour la sismicité modérée (métropole), type 1 pour la forte sismicité (Antilles). Vérifier les valeurs de l\'Annexe nationale pour votre projet.';
+
+  @override
+  String get seismicBuilding => 'Bâtiment';
+
+  @override
+  String get seismicSystem => 'Système structural (période)';
+
+  @override
+  String get seismicSysConcrete => 'Portiques béton (Ct = 0,075)';
+
+  @override
+  String get seismicSysSteel => 'Portiques acier (Ct = 0,085)';
+
+  @override
+  String get seismicSysOther => 'Voiles et autres (Ct = 0,050)';
+
+  @override
+  String get seismicStoreys => 'Niveaux';
+
+  @override
+  String get seismicStoreyHeight => 'Hauteur d\'étage';
+
+  @override
+  String get seismicFloorMass => 'Masse par plancher';
+
+  @override
+  String get seismicRoofMass => 'Masse de la toiture';
+
+  @override
+  String get seismicRoofHelp => 'Masse de toiture vide = comme les planchers';
+
+  @override
+  String get seismicQ => 'Coefficient de comportement q';
+
+  @override
+  String get seismicQHelp => 'q = 1,5 en faible dissipation (DCL)';
+
+  @override
+  String get seismicPeriodOverride => 'Période T1';
+
+  @override
+  String get seismicPeriodHelp => 'T1 vide = Ct · H^3/4';
+
+  @override
+  String seismicBaseShear(String fb) {
+    return 'Effort tranchant à la base Fb = $fb kN';
+  }
+
+  @override
+  String seismicMassRatio(String pct) {
+    return '$pct % du poids sismique';
+  }
+
+  @override
+  String get seismicPeriodOut =>
+      'T1 dépasse min(4 TC, 2 s) : la méthode des forces latérales ne s\'applique pas ; utiliser l\'analyse modale spectrale.';
+
+  @override
+  String get seismicSpectrumTitle => 'Spectre de calcul';
+
+  @override
+  String get seismicDesignAg => 'Accélération de calcul';
+
+  @override
+  String get seismicSpectrumParams => 'Paramètres du spectre';
+
+  @override
+  String get seismicPeriod => 'Période fondamentale';
+
+  @override
+  String get seismicSd => 'Accélération spectrale';
+
+  @override
+  String get seismicLambda => 'Coefficient de correction';
+
+  @override
+  String get seismicTotalMass => 'Masse sismique totale';
+
+  @override
+  String get seismicOverturning => 'Moment de renversement à la base';
+
+  @override
+  String get seismicStoreyForces => 'Forces et efforts tranchants d\'étage';
+
+  @override
+  String seismicLevel(String z) {
+    return 'Niveau +$z m';
+  }
+
+  @override
+  String get seismicNoteScope =>
+      'Bâtiment régulier en élévation, une direction horizontale. Forces d\'étage proportionnelles à hauteur × masse (4.11). La torsion accidentelle, la composante verticale, les effets du second ordre et le PS92 ne sont pas encore traités. Masse sismique = G + ψE,i Q.';
 }

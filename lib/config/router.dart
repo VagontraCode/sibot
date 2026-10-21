@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_page.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_page.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_page.dart';
+import 'package:sibot/features/calculations/loads/presentation/seismic_page.dart';
 import 'package:sibot/features/calculations/loads/presentation/wind_snow_page.dart';
 import 'package:sibot/features/calculations/masonry/presentation/masonry_wall_page.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_page.dart';
@@ -125,6 +126,12 @@ final GoRouter appRouter = GoRouter(
                       name: 'wind-snow',
                       builder: (context, state) =>
                           WindSnowPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'seismic',
+                      name: 'seismic',
+                      builder: (context, state) =>
+                          SeismicPage(projectId: _pid(state)),
                     ),
                     GoRoute(
                       path: 'slab',

@@ -203,8 +203,8 @@ const modules = <EngModule>[
     id: 'seismic',
     icon: Icons.waves_outlined,
     category: ModuleCategory.loads,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'seismic',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'sections',

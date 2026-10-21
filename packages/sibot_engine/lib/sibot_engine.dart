@@ -27,6 +27,7 @@ export 'src/rc_shear.dart';
 export 'src/rc_sls.dart';
 export 'src/rebar.dart';
 export 'src/retaining_wall.dart';
+export 'src/seismic.dart';
 export 'src/section_properties.dart';
 export 'src/slab.dart';
 export 'src/steel_member.dart';

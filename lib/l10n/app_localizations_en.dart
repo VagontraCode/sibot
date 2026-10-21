@@ -2549,4 +2549,129 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get windPitchedNote =>
       'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.';
+
+  @override
+  String get seismicSubtitle => 'EN 1998-1 · lateral force method (4.3.3.2)';
+
+  @override
+  String get seismicHazard => 'Seismic action';
+
+  @override
+  String get seismicZone => 'Zone (France)';
+
+  @override
+  String get seismicZoneCustom => 'Other — enter agR';
+
+  @override
+  String seismicZoneN(int n, String ag) {
+    return 'Zone $n · agR = $ag m/s²';
+  }
+
+  @override
+  String get seismicAgR => 'Reference ground acceleration agR';
+
+  @override
+  String get seismicImportance => 'Importance class';
+
+  @override
+  String get seismicGround => 'Ground type';
+
+  @override
+  String get seismicSpectrumType => 'Spectrum';
+
+  @override
+  String get seismicHazardNote =>
+      'Recommended spectrum parameters of EN 1998-1 (Tables 3.2, 3.3) and γI = 0.8 / 1.0 / 1.2 / 1.4. Type 2 for moderate seismicity (mainland France), type 1 for high seismicity (French Antilles). Check the National Annex values for your project.';
+
+  @override
+  String get seismicBuilding => 'Building';
+
+  @override
+  String get seismicSystem => 'Structural system (period)';
+
+  @override
+  String get seismicSysConcrete => 'RC moment frames (Ct = 0.075)';
+
+  @override
+  String get seismicSysSteel => 'Steel moment frames (Ct = 0.085)';
+
+  @override
+  String get seismicSysOther => 'Walls and other (Ct = 0.050)';
+
+  @override
+  String get seismicStoreys => 'Storeys';
+
+  @override
+  String get seismicStoreyHeight => 'Storey height';
+
+  @override
+  String get seismicFloorMass => 'Mass per floor';
+
+  @override
+  String get seismicRoofMass => 'Roof mass';
+
+  @override
+  String get seismicRoofHelp => 'Roof mass empty = same as floors';
+
+  @override
+  String get seismicQ => 'Behaviour factor q';
+
+  @override
+  String get seismicQHelp => 'q = 1.5 for low dissipation (DCL)';
+
+  @override
+  String get seismicPeriodOverride => 'Period T1';
+
+  @override
+  String get seismicPeriodHelp => 'T1 empty = Ct · H^3/4';
+
+  @override
+  String seismicBaseShear(String fb) {
+    return 'Base shear Fb = $fb kN';
+  }
+
+  @override
+  String seismicMassRatio(String pct) {
+    return '$pct % of the seismic weight';
+  }
+
+  @override
+  String get seismicPeriodOut =>
+      'T1 exceeds min(4 TC, 2 s): the lateral force method does not apply; use modal response spectrum analysis.';
+
+  @override
+  String get seismicSpectrumTitle => 'Design spectrum';
+
+  @override
+  String get seismicDesignAg => 'Design ground acceleration';
+
+  @override
+  String get seismicSpectrumParams => 'Spectrum parameters';
+
+  @override
+  String get seismicPeriod => 'Fundamental period';
+
+  @override
+  String get seismicSd => 'Spectral acceleration';
+
+  @override
+  String get seismicLambda => 'Correction factor';
+
+  @override
+  String get seismicTotalMass => 'Total seismic mass';
+
+  @override
+  String get seismicOverturning => 'Overturning moment at the base';
+
+  @override
+  String get seismicStoreyForces => 'Storey forces and shears';
+
+  @override
+  String seismicLevel(String z) {
+    return 'Level +$z m';
+  }
+
+  @override
+  String get seismicNoteScope =>
+      'Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q.';
 }
