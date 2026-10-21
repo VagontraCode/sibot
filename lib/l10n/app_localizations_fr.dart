@@ -150,7 +150,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dashDesignModulesSubtitle =>
-      'Béton, fondations, géotechnique et outils';
+      'Analyse, béton, fondations et outils';
 
   @override
   String get dashRoadmap => 'Feuille de route';
@@ -1724,4 +1724,306 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get noteQuantitiesMix =>
       'Le dosage par défaut est un dosage courant de chantier (350 kg/m³). Adaptez-le à votre formulation.';
+
+  @override
+  String get frameSubtitle =>
+      'Portiques, poutres continues et treillis : modéliser, calculer, lire les diagrammes.';
+
+  @override
+  String get frameNewModel => 'Nouveau modèle';
+
+  @override
+  String get frameLoadError => 'Impossible de charger les modèles';
+
+  @override
+  String get frameEmptyTitle => 'Aucun modèle';
+
+  @override
+  String get frameEmptyMessage =>
+      'Partez d\'une poutre continue, d\'un portique ou d\'un treillis, ou dessinez le vôtre.';
+
+  @override
+  String frameCounts(int nodes, int members) {
+    return '$nodes nœuds, $members barres';
+  }
+
+  @override
+  String get frameTemplateInvalid => 'Vérifiez les dimensions du modèle type.';
+
+  @override
+  String get frameTemplateBeam => 'Poutre continue';
+
+  @override
+  String get frameTemplateFrame => 'Portique';
+
+  @override
+  String get frameTemplateTruss => 'Treillis';
+
+  @override
+  String get frameTemplateBlank => 'Vide';
+
+  @override
+  String get frameModelName => 'Nom du modèle';
+
+  @override
+  String get frameSpans => 'Portées';
+
+  @override
+  String get frameSpansHelp =>
+      'Séparez les portées par des virgules, ex. 5; 6; 5';
+
+  @override
+  String get frameBays => 'Travées';
+
+  @override
+  String get frameBayWidth => 'Largeur de travée';
+
+  @override
+  String get frameStoreys => 'Niveaux';
+
+  @override
+  String get frameStoreyHeight => 'Hauteur d\'étage';
+
+  @override
+  String get frameTrussType => 'Type de treillis';
+
+  @override
+  String get frameSpan => 'Portée';
+
+  @override
+  String get frameTrussHeight => 'Hauteur';
+
+  @override
+  String get framePanels => 'Panneaux';
+
+  @override
+  String get frameWindPerFloor => 'Effort de vent par niveau (côté gauche)';
+
+  @override
+  String get frameTemplateNote =>
+      'Charges caractéristiques, vers le bas. Le poids propre est ajouté à G. Sections et charges sont modifiables ensuite.';
+
+  @override
+  String get frameCreate => 'Créer le modèle';
+
+  @override
+  String get frameUndo => 'Annuler';
+
+  @override
+  String get frameRedo => 'Rétablir';
+
+  @override
+  String get frameFit => 'Ajuster à l\'écran';
+
+  @override
+  String get frameLoadCases => 'Cas de charge';
+
+  @override
+  String get frameSections => 'Sections';
+
+  @override
+  String get frameModeModel => 'Modèle';
+
+  @override
+  String get frameModeResults => 'Résultats';
+
+  @override
+  String get frameEnvelope => 'Enveloppe ELU';
+
+  @override
+  String get frameViewDeformed => 'Déformée';
+
+  @override
+  String get frameViewReactions => 'Réactions';
+
+  @override
+  String get frameResultSource => 'Cas ou combinaison';
+
+  @override
+  String get frameAnalysisFailed => 'Calcul impossible';
+
+  @override
+  String get frameErrEmpty => 'Ajoutez d\'abord des nœuds et des barres.';
+
+  @override
+  String get frameErrZeroLength => 'Une barre a une longueur nulle.';
+
+  @override
+  String get frameErrUnstable =>
+      'La structure est instable : ajoutez des appuis ou supprimez des rotules pour qu\'elle ne puisse plus bouger librement.';
+
+  @override
+  String get frameErrInvalid =>
+      'Le modèle contient une barre ou une section invalide.';
+
+  @override
+  String get frameRename => 'Renommer le modèle';
+
+  @override
+  String get frameToolSelect => 'Sélection';
+
+  @override
+  String get frameToolNode => 'Nœud';
+
+  @override
+  String get frameToolMember => 'Barre';
+
+  @override
+  String get frameToolSupport => 'Appui';
+
+  @override
+  String get frameToolLoad => 'Charge';
+
+  @override
+  String get frameHintSelect =>
+      'Touchez un nœud ou une barre pour le modifier. Pincez pour zoomer, glissez pour déplacer.';
+
+  @override
+  String frameHintNode(String grid) {
+    return 'Touchez pour placer des nœuds (grille $grid m).';
+  }
+
+  @override
+  String get frameHintMember =>
+      'Touchez un point de départ puis un point d\'arrivée. Les barres s\'enchaînent.';
+
+  @override
+  String get frameHintSupport =>
+      'Touchez un nœud pour alterner : libre, articulé, encastré, appui simple.';
+
+  @override
+  String get frameHintLoad =>
+      'Touchez une barre ou un nœud pour définir sa charge dans le cas actif.';
+
+  @override
+  String get frameActiveCase => 'Cas de charge actif';
+
+  @override
+  String frameNodeTitle(int n) {
+    return 'Nœud $n';
+  }
+
+  @override
+  String get frameApply => 'Appliquer';
+
+  @override
+  String get frameSupport => 'Appui';
+
+  @override
+  String get frameSupportFree => 'Libre';
+
+  @override
+  String get frameSupportPinned => 'Articulé';
+
+  @override
+  String get frameSupportFixed => 'Encastré';
+
+  @override
+  String get frameSupportRollerX => 'Appui simple (glisse en x)';
+
+  @override
+  String get frameSupportRollerY => 'Appui simple (glisse en y)';
+
+  @override
+  String frameNodalLoad(String name) {
+    return 'Charge nodale, cas $name';
+  }
+
+  @override
+  String get frameApplyLoad => 'Appliquer la charge';
+
+  @override
+  String frameMemberTitle(int n) {
+    return 'Barre $n';
+  }
+
+  @override
+  String frameMemberNodes(int a, int b) {
+    return 'Nœuds $a → $b';
+  }
+
+  @override
+  String get frameSection => 'Section';
+
+  @override
+  String get frameMemberKind => 'Type de barre';
+
+  @override
+  String get frameKindBeam => 'Poutre';
+
+  @override
+  String get frameKindTruss => 'Barre de treillis';
+
+  @override
+  String get frameHingeStart => 'Rotule à l\'origine';
+
+  @override
+  String get frameHingeEnd => 'Rotule à l\'extrémité';
+
+  @override
+  String frameMemberLoad(String name) {
+    return 'Charge répartie, cas $name';
+  }
+
+  @override
+  String get frameLoadDirection => 'Direction';
+
+  @override
+  String get frameLoadGravity => 'Verticale';
+
+  @override
+  String get frameLoadNormal => 'Perpendiculaire';
+
+  @override
+  String get frameMaxSagging => 'Moment positif maximal';
+
+  @override
+  String get frameMaxHogging => 'Moment négatif maximal';
+
+  @override
+  String get frameMaxShear => 'Effort tranchant maximal';
+
+  @override
+  String get frameAxialRange => 'Effort normal';
+
+  @override
+  String get frameMaxDeflection => 'Flèche maximale';
+
+  @override
+  String get loadTypePermanent => 'Permanente';
+
+  @override
+  String get loadTypeImposed => 'Exploitation';
+
+  @override
+  String get loadTypeSnow => 'Neige';
+
+  @override
+  String get loadTypeWind => 'Vent';
+
+  @override
+  String get frameSelfWeight => 'Inclure le poids propre';
+
+  @override
+  String get frameAddCase => 'Ajouter un cas de charge';
+
+  @override
+  String get frameCombinationsNote =>
+      'Les combinaisons ELU et ELS sont générées à partir des types de cas, selon le règlement par défaut (EN 1990 ou BAEL).';
+
+  @override
+  String get frameAddSection => 'Ajouter une section';
+
+  @override
+  String get frameSectionType => 'Type de section';
+
+  @override
+  String get frameConcreteRect => 'Rectangle en béton';
+
+  @override
+  String get frameProfile => 'Profilé';
+
+  @override
+  String get frameSectionNote =>
+      'Les nouvelles barres utilisent la section sélectionnée.';
 }

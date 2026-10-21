@@ -12,6 +12,8 @@ import 'package:sibot/features/projects/presentation/pages/project_detail.dart';
 import 'package:sibot/features/projects/presentation/pages/project_page.dart';
 import 'package:sibot/features/report/presentation/pages/report_page.dart';
 import 'package:sibot/features/shared/presentation/pages/reference_page.dart';
+import 'package:sibot/features/frame/frame_editor_page.dart';
+import 'package:sibot/features/frame/frame_models_page.dart';
 import 'package:sibot/features/settings/settings_page.dart';
 import 'package:sibot/features/shell/app_shell.dart';
 import 'package:sibot/features/tools/tools_pages.dart';
@@ -125,6 +127,22 @@ final GoRouter appRouter = GoRouter(
                       name: 'quantities',
                       builder: (context, state) =>
                           QuantitiesPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'frame2d',
+                      name: 'frame2d',
+                      builder: (context, state) =>
+                          FrameModelsPage(projectId: _pid(state)),
+                      routes: [
+                        GoRoute(
+                          path: ':modelId',
+                          name: 'frame2d-editor',
+                          builder: (context, state) => FrameEditorPage(
+                            projectId: _pid(state),
+                            modelId: state.pathParameters['modelId']!,
+                          ),
+                        ),
+                      ],
                     ),
                     ..._fieldRoutes('project'),
                   ],

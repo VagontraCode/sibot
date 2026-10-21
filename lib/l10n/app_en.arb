@@ -78,7 +78,7 @@
   "dashStatRoadmap": "On the roadmap",
   "dashRecentProjects": "Recent projects",
   "dashDesignModules": "Design modules",
-  "dashDesignModulesSubtitle": "Concrete, foundations, geotechnics and tools",
+  "dashDesignModulesSubtitle": "Analysis, concrete, foundations and tools",
   "dashRoadmap": "Roadmap",
   "dashRoadmapSubtitle": "Analysis, steel, timber, masonry and more",
   "dashOpenModuleIn": "Open {module} in…",
@@ -700,5 +700,152 @@
   "qtyRebarMass": "Mass",
   "qtyStockBars": "12 m bars to order",
   "qtyNothing": "Fill in the elements or the reinforcement.",
-  "noteQuantitiesMix": "Default mix is a common site dosage (350 kg/m³). Adjust it to your mix design."
+  "noteQuantitiesMix": "Default mix is a common site dosage (350 kg/m³). Adjust it to your mix design.",
+  "frameSubtitle": "Frames, continuous beams and trusses: model, analyse, read diagrams.",
+  "frameNewModel": "New model",
+  "frameLoadError": "Could not load models",
+  "frameEmptyTitle": "No models yet",
+  "frameEmptyMessage": "Start from a continuous beam, a frame or a truss, or draw your own.",
+  "frameCounts": "{nodes} nodes, {members} members",
+  "@frameCounts": {
+    "placeholders": {
+      "nodes": {
+        "type": "int"
+      },
+      "members": {
+        "type": "int"
+      }
+    }
+  },
+  "frameTemplateInvalid": "Check the template dimensions.",
+  "frameTemplateBeam": "Continuous beam",
+  "frameTemplateFrame": "Frame",
+  "frameTemplateTruss": "Truss",
+  "frameTemplateBlank": "Blank",
+  "frameModelName": "Model name",
+  "frameSpans": "Spans",
+  "frameSpansHelp": "Separate spans with commas, e.g. 5, 6, 5",
+  "frameBays": "Bays",
+  "frameBayWidth": "Bay width",
+  "frameStoreys": "Storeys",
+  "frameStoreyHeight": "Storey height",
+  "frameTrussType": "Truss type",
+  "frameSpan": "Span",
+  "frameTrussHeight": "Height",
+  "framePanels": "Panels",
+  "frameWindPerFloor": "Wind force per floor (left side)",
+  "frameTemplateNote": "Characteristic loads, downwards. Self-weight is added to G. Sections and loads can be changed afterwards.",
+  "frameCreate": "Create model",
+  "frameUndo": "Undo",
+  "frameRedo": "Redo",
+  "frameFit": "Fit to screen",
+  "frameLoadCases": "Load cases",
+  "frameSections": "Sections",
+  "frameModeModel": "Model",
+  "frameModeResults": "Results",
+  "frameEnvelope": "ULS envelope",
+  "frameViewDeformed": "Deformed",
+  "frameViewReactions": "Reactions",
+  "frameResultSource": "Case or combination",
+  "frameAnalysisFailed": "Analysis not possible",
+  "frameErrEmpty": "Add nodes and members first.",
+  "frameErrZeroLength": "A member has zero length.",
+  "frameErrUnstable": "The structure is unstable: add supports or remove hinges so it cannot move freely.",
+  "frameErrInvalid": "The model contains an invalid member or section.",
+  "frameRename": "Rename model",
+  "frameToolSelect": "Select",
+  "frameToolNode": "Node",
+  "frameToolMember": "Member",
+  "frameToolSupport": "Support",
+  "frameToolLoad": "Load",
+  "frameHintSelect": "Tap a node or member to edit it. Pinch to zoom, drag to pan.",
+  "frameHintNode": "Tap to place nodes (grid {grid} m).",
+  "@frameHintNode": {
+    "placeholders": {
+      "grid": {
+        "type": "String"
+      }
+    }
+  },
+  "frameHintMember": "Tap a start point, then an end point. Members chain.",
+  "frameHintSupport": "Tap a node to cycle: free, pinned, fixed, roller.",
+  "frameHintLoad": "Tap a member or node to set its load in the active case.",
+  "frameActiveCase": "Active load case",
+  "frameNodeTitle": "Node {n}",
+  "@frameNodeTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "frameApply": "Apply",
+  "frameSupport": "Support",
+  "frameSupportFree": "Free",
+  "frameSupportPinned": "Pinned",
+  "frameSupportFixed": "Fixed",
+  "frameSupportRollerX": "Roller (slides in x)",
+  "frameSupportRollerY": "Roller (slides in y)",
+  "frameNodalLoad": "Nodal load, case {name}",
+  "@frameNodalLoad": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frameApplyLoad": "Apply load",
+  "frameMemberTitle": "Member {n}",
+  "@frameMemberTitle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "frameMemberNodes": "Nodes {a} → {b}",
+  "@frameMemberNodes": {
+    "placeholders": {
+      "a": {
+        "type": "int"
+      },
+      "b": {
+        "type": "int"
+      }
+    }
+  },
+  "frameSection": "Section",
+  "frameMemberKind": "Member type",
+  "frameKindBeam": "Beam",
+  "frameKindTruss": "Truss bar",
+  "frameHingeStart": "Hinge at start",
+  "frameHingeEnd": "Hinge at end",
+  "frameMemberLoad": "Uniform load, case {name}",
+  "@frameMemberLoad": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "frameLoadDirection": "Direction",
+  "frameLoadGravity": "Vertical",
+  "frameLoadNormal": "Perpendicular",
+  "frameMaxSagging": "Maximum sagging moment",
+  "frameMaxHogging": "Maximum hogging moment",
+  "frameMaxShear": "Maximum shear",
+  "frameAxialRange": "Axial force",
+  "frameMaxDeflection": "Maximum deflection",
+  "loadTypePermanent": "Permanent",
+  "loadTypeImposed": "Imposed",
+  "loadTypeSnow": "Snow",
+  "loadTypeWind": "Wind",
+  "frameSelfWeight": "Include self-weight",
+  "frameAddCase": "Add load case",
+  "frameCombinationsNote": "ULS and SLS combinations are generated from the case types with the selected default code (EN 1990 or BAEL).",
+  "frameAddSection": "Add section",
+  "frameSectionType": "Section type",
+  "frameConcreteRect": "Concrete rectangle",
+  "frameProfile": "Profile",
+  "frameSectionNote": "New members use the selected section."
 }

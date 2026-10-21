@@ -21,7 +21,11 @@ import 'package:sibot/features/calculations/footings/presentation/footings_provi
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
 import 'package:sibot/features/tools/tools_providers.dart';
+import 'package:sibot/features/frame/frame_canvas.dart';
+import 'package:sibot/features/frame/frame_repository.dart';
+import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/main.dart';
+import 'package:sibot_engine/sibot_engine.dart';
 import 'package:sibot/ui/ui.dart';
 
 final _shotsDir = Platform.environment['SIBOT_SHOTS'];
@@ -66,6 +70,25 @@ Future<void> _seed() async {
   final now = DateTime(2026, 10, 20, 9);
   final projects = HiveService.getBox(HiveService.projectsBox);
   final calcs = HiveService.getBox(HiveService.calculationsBox);
+  await FrameRepository.save(
+    FrameModelRecord(
+      id: 'FM_1',
+      projectId: 'PRJ_1',
+      name: 'Two-bay frame',
+      updatedAt: now,
+      model: portalFrame(
+        bays: 2,
+        bayWidth: 5,
+        storeys: 2,
+        storeyHeight: 3,
+        column: concreteRectangle(300, 300),
+        beam: concreteRectangle(300, 500),
+        g: 20,
+        q: 10,
+        wind: 15,
+      ),
+    ),
+  );
   await projects.put(
     'PRJ_1',
     Project(
@@ -214,6 +237,9 @@ void main() {
     'bearing': '/projects/PRJ_1/bearing',
     'sections': '/projects/PRJ_1/sections',
     'quantities': '/projects/PRJ_1/quantities',
+    'frame_list': '/projects/PRJ_1/frame2d',
+    'frame_editor': '/projects/PRJ_1/frame2d/FM_1',
+    'frame_results': '/projects/PRJ_1/frame2d/FM_1',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
     'punch_list': '/field/punch-list/PRJ_1',
@@ -254,6 +280,18 @@ void main() {
             appRouter.go(s.value);
             await tester.pumpAndSettle();
 
+            // Frame results: switch to the Results tab and let the isolate
+            // finish outside the fake clock.
+            if (s.key == 'frame_results') {
+              await tester.tap(find.byIcon(Icons.insights_rounded).first);
+              await tester.pump();
+              await tester.runAsync(
+                () => Future<void>.delayed(const Duration(seconds: 2)),
+              );
+              await tester.pumpAndSettle();
+              expect(find.byType(FrameCanvas), findsOneWidget);
+            }
+
             // Run a calculation so the results view is rendered too.
             final calculate = _calculations[s.key];
             if (calculate != null) {
@@ -262,7 +300,11 @@ void main() {
               );
               await tester.runAsync(() => calculate(container));
               await tester.pumpAndSettle();
-              expect(find.byType(ResultsPlaceholder), findsNothing, reason: s.key);
+              expect(
+                find.byType(ResultsPlaceholder),
+                findsNothing,
+                reason: s.key,
+              );
             }
             expect(tester.takeException(), isNull, reason: s.key);
 

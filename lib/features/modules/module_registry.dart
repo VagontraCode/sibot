@@ -112,8 +112,8 @@ const modules = <EngModule>[
     id: 'frame2d',
     icon: Icons.hub_outlined,
     category: ModuleCategory.analysis,
-    status: ModuleStatus.comingSoon,
-    phase: 2,
+    route: 'frame2d',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'frame3d',

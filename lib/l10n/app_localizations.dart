@@ -359,7 +359,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashDesignModulesSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Concrete, foundations, geotechnics and tools'**
+  /// **'Analysis, concrete, foundations and tools'**
   String get dashDesignModulesSubtitle;
 
   /// No description provided for @dashRoadmap.
@@ -3259,6 +3259,558 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default mix is a common site dosage (350 kg/m³). Adjust it to your mix design.'**
   String get noteQuantitiesMix;
+
+  /// No description provided for @frameSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Frames, continuous beams and trusses: model, analyse, read diagrams.'**
+  String get frameSubtitle;
+
+  /// No description provided for @frameNewModel.
+  ///
+  /// In en, this message translates to:
+  /// **'New model'**
+  String get frameNewModel;
+
+  /// No description provided for @frameLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load models'**
+  String get frameLoadError;
+
+  /// No description provided for @frameEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No models yet'**
+  String get frameEmptyTitle;
+
+  /// No description provided for @frameEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a continuous beam, a frame or a truss, or draw your own.'**
+  String get frameEmptyMessage;
+
+  /// No description provided for @frameCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{nodes} nodes, {members} members'**
+  String frameCounts(int nodes, int members);
+
+  /// No description provided for @frameTemplateInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the template dimensions.'**
+  String get frameTemplateInvalid;
+
+  /// No description provided for @frameTemplateBeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous beam'**
+  String get frameTemplateBeam;
+
+  /// No description provided for @frameTemplateFrame.
+  ///
+  /// In en, this message translates to:
+  /// **'Frame'**
+  String get frameTemplateFrame;
+
+  /// No description provided for @frameTemplateTruss.
+  ///
+  /// In en, this message translates to:
+  /// **'Truss'**
+  String get frameTemplateTruss;
+
+  /// No description provided for @frameTemplateBlank.
+  ///
+  /// In en, this message translates to:
+  /// **'Blank'**
+  String get frameTemplateBlank;
+
+  /// No description provided for @frameModelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Model name'**
+  String get frameModelName;
+
+  /// No description provided for @frameSpans.
+  ///
+  /// In en, this message translates to:
+  /// **'Spans'**
+  String get frameSpans;
+
+  /// No description provided for @frameSpansHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Separate spans with commas, e.g. 5, 6, 5'**
+  String get frameSpansHelp;
+
+  /// No description provided for @frameBays.
+  ///
+  /// In en, this message translates to:
+  /// **'Bays'**
+  String get frameBays;
+
+  /// No description provided for @frameBayWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bay width'**
+  String get frameBayWidth;
+
+  /// No description provided for @frameStoreys.
+  ///
+  /// In en, this message translates to:
+  /// **'Storeys'**
+  String get frameStoreys;
+
+  /// No description provided for @frameStoreyHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Storey height'**
+  String get frameStoreyHeight;
+
+  /// No description provided for @frameTrussType.
+  ///
+  /// In en, this message translates to:
+  /// **'Truss type'**
+  String get frameTrussType;
+
+  /// No description provided for @frameSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Span'**
+  String get frameSpan;
+
+  /// No description provided for @frameTrussHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get frameTrussHeight;
+
+  /// No description provided for @framePanels.
+  ///
+  /// In en, this message translates to:
+  /// **'Panels'**
+  String get framePanels;
+
+  /// No description provided for @frameWindPerFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind force per floor (left side)'**
+  String get frameWindPerFloor;
+
+  /// No description provided for @frameTemplateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Characteristic loads, downwards. Self-weight is added to G. Sections and loads can be changed afterwards.'**
+  String get frameTemplateNote;
+
+  /// No description provided for @frameCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create model'**
+  String get frameCreate;
+
+  /// No description provided for @frameUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get frameUndo;
+
+  /// No description provided for @frameRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get frameRedo;
+
+  /// No description provided for @frameFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit to screen'**
+  String get frameFit;
+
+  /// No description provided for @frameLoadCases.
+  ///
+  /// In en, this message translates to:
+  /// **'Load cases'**
+  String get frameLoadCases;
+
+  /// No description provided for @frameSections.
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get frameSections;
+
+  /// No description provided for @frameModeModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model'**
+  String get frameModeModel;
+
+  /// No description provided for @frameModeResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Results'**
+  String get frameModeResults;
+
+  /// No description provided for @frameEnvelope.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS envelope'**
+  String get frameEnvelope;
+
+  /// No description provided for @frameViewDeformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Deformed'**
+  String get frameViewDeformed;
+
+  /// No description provided for @frameViewReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get frameViewReactions;
+
+  /// No description provided for @frameResultSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Case or combination'**
+  String get frameResultSource;
+
+  /// No description provided for @frameAnalysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis not possible'**
+  String get frameAnalysisFailed;
+
+  /// No description provided for @frameErrEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Add nodes and members first.'**
+  String get frameErrEmpty;
+
+  /// No description provided for @frameErrZeroLength.
+  ///
+  /// In en, this message translates to:
+  /// **'A member has zero length.'**
+  String get frameErrZeroLength;
+
+  /// No description provided for @frameErrUnstable.
+  ///
+  /// In en, this message translates to:
+  /// **'The structure is unstable: add supports or remove hinges so it cannot move freely.'**
+  String get frameErrUnstable;
+
+  /// No description provided for @frameErrInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'The model contains an invalid member or section.'**
+  String get frameErrInvalid;
+
+  /// No description provided for @frameRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename model'**
+  String get frameRename;
+
+  /// No description provided for @frameToolSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get frameToolSelect;
+
+  /// No description provided for @frameToolNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get frameToolNode;
+
+  /// No description provided for @frameToolMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get frameToolMember;
+
+  /// No description provided for @frameToolSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get frameToolSupport;
+
+  /// No description provided for @frameToolLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Load'**
+  String get frameToolLoad;
+
+  /// No description provided for @frameHintSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a node or member to edit it. Pinch to zoom, drag to pan.'**
+  String get frameHintSelect;
+
+  /// No description provided for @frameHintNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to place nodes (grid {grid} m).'**
+  String frameHintNode(String grid);
+
+  /// No description provided for @frameHintMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a start point, then an end point. Members chain.'**
+  String get frameHintMember;
+
+  /// No description provided for @frameHintSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a node to cycle: free, pinned, fixed, roller.'**
+  String get frameHintSupport;
+
+  /// No description provided for @frameHintLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a member or node to set its load in the active case.'**
+  String get frameHintLoad;
+
+  /// No description provided for @frameActiveCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Active load case'**
+  String get frameActiveCase;
+
+  /// No description provided for @frameNodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Node {n}'**
+  String frameNodeTitle(int n);
+
+  /// No description provided for @frameApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get frameApply;
+
+  /// No description provided for @frameSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get frameSupport;
+
+  /// No description provided for @frameSupportFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get frameSupportFree;
+
+  /// No description provided for @frameSupportPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get frameSupportPinned;
+
+  /// No description provided for @frameSupportFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get frameSupportFixed;
+
+  /// No description provided for @frameSupportRollerX.
+  ///
+  /// In en, this message translates to:
+  /// **'Roller (slides in x)'**
+  String get frameSupportRollerX;
+
+  /// No description provided for @frameSupportRollerY.
+  ///
+  /// In en, this message translates to:
+  /// **'Roller (slides in y)'**
+  String get frameSupportRollerY;
+
+  /// No description provided for @frameNodalLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodal load, case {name}'**
+  String frameNodalLoad(String name);
+
+  /// No description provided for @frameApplyLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply load'**
+  String get frameApplyLoad;
+
+  /// No description provided for @frameMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Member {n}'**
+  String frameMemberTitle(int n);
+
+  /// No description provided for @frameMemberNodes.
+  ///
+  /// In en, this message translates to:
+  /// **'Nodes {a} → {b}'**
+  String frameMemberNodes(int a, int b);
+
+  /// No description provided for @frameSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get frameSection;
+
+  /// No description provided for @frameMemberKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Member type'**
+  String get frameMemberKind;
+
+  /// No description provided for @frameKindBeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Beam'**
+  String get frameKindBeam;
+
+  /// No description provided for @frameKindTruss.
+  ///
+  /// In en, this message translates to:
+  /// **'Truss bar'**
+  String get frameKindTruss;
+
+  /// No description provided for @frameHingeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Hinge at start'**
+  String get frameHingeStart;
+
+  /// No description provided for @frameHingeEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Hinge at end'**
+  String get frameHingeEnd;
+
+  /// No description provided for @frameMemberLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Uniform load, case {name}'**
+  String frameMemberLoad(String name);
+
+  /// No description provided for @frameLoadDirection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direction'**
+  String get frameLoadDirection;
+
+  /// No description provided for @frameLoadGravity.
+  ///
+  /// In en, this message translates to:
+  /// **'Vertical'**
+  String get frameLoadGravity;
+
+  /// No description provided for @frameLoadNormal.
+  ///
+  /// In en, this message translates to:
+  /// **'Perpendicular'**
+  String get frameLoadNormal;
+
+  /// No description provided for @frameMaxSagging.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum sagging moment'**
+  String get frameMaxSagging;
+
+  /// No description provided for @frameMaxHogging.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum hogging moment'**
+  String get frameMaxHogging;
+
+  /// No description provided for @frameMaxShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum shear'**
+  String get frameMaxShear;
+
+  /// No description provided for @frameAxialRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Axial force'**
+  String get frameAxialRange;
+
+  /// No description provided for @frameMaxDeflection.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum deflection'**
+  String get frameMaxDeflection;
+
+  /// No description provided for @loadTypePermanent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent'**
+  String get loadTypePermanent;
+
+  /// No description provided for @loadTypeImposed.
+  ///
+  /// In en, this message translates to:
+  /// **'Imposed'**
+  String get loadTypeImposed;
+
+  /// No description provided for @loadTypeSnow.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow'**
+  String get loadTypeSnow;
+
+  /// No description provided for @loadTypeWind.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind'**
+  String get loadTypeWind;
+
+  /// No description provided for @frameSelfWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Include self-weight'**
+  String get frameSelfWeight;
+
+  /// No description provided for @frameAddCase.
+  ///
+  /// In en, this message translates to:
+  /// **'Add load case'**
+  String get frameAddCase;
+
+  /// No description provided for @frameCombinationsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS and SLS combinations are generated from the case types with the selected default code (EN 1990 or BAEL).'**
+  String get frameCombinationsNote;
+
+  /// No description provided for @frameAddSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Add section'**
+  String get frameAddSection;
+
+  /// No description provided for @frameSectionType.
+  ///
+  /// In en, this message translates to:
+  /// **'Section type'**
+  String get frameSectionType;
+
+  /// No description provided for @frameConcreteRect.
+  ///
+  /// In en, this message translates to:
+  /// **'Concrete rectangle'**
+  String get frameConcreteRect;
+
+  /// No description provided for @frameProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get frameProfile;
+
+  /// No description provided for @frameSectionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'New members use the selected section.'**
+  String get frameSectionNote;
 }
 
 class _AppLocalizationsDelegate

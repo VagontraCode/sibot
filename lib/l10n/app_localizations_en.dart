@@ -150,7 +150,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashDesignModulesSubtitle =>
-      'Concrete, foundations, geotechnics and tools';
+      'Analysis, concrete, foundations and tools';
 
   @override
   String get dashRoadmap => 'Roadmap';
@@ -1714,4 +1714,304 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noteQuantitiesMix =>
       'Default mix is a common site dosage (350 kg/m³). Adjust it to your mix design.';
+
+  @override
+  String get frameSubtitle =>
+      'Frames, continuous beams and trusses: model, analyse, read diagrams.';
+
+  @override
+  String get frameNewModel => 'New model';
+
+  @override
+  String get frameLoadError => 'Could not load models';
+
+  @override
+  String get frameEmptyTitle => 'No models yet';
+
+  @override
+  String get frameEmptyMessage =>
+      'Start from a continuous beam, a frame or a truss, or draw your own.';
+
+  @override
+  String frameCounts(int nodes, int members) {
+    return '$nodes nodes, $members members';
+  }
+
+  @override
+  String get frameTemplateInvalid => 'Check the template dimensions.';
+
+  @override
+  String get frameTemplateBeam => 'Continuous beam';
+
+  @override
+  String get frameTemplateFrame => 'Frame';
+
+  @override
+  String get frameTemplateTruss => 'Truss';
+
+  @override
+  String get frameTemplateBlank => 'Blank';
+
+  @override
+  String get frameModelName => 'Model name';
+
+  @override
+  String get frameSpans => 'Spans';
+
+  @override
+  String get frameSpansHelp => 'Separate spans with commas, e.g. 5, 6, 5';
+
+  @override
+  String get frameBays => 'Bays';
+
+  @override
+  String get frameBayWidth => 'Bay width';
+
+  @override
+  String get frameStoreys => 'Storeys';
+
+  @override
+  String get frameStoreyHeight => 'Storey height';
+
+  @override
+  String get frameTrussType => 'Truss type';
+
+  @override
+  String get frameSpan => 'Span';
+
+  @override
+  String get frameTrussHeight => 'Height';
+
+  @override
+  String get framePanels => 'Panels';
+
+  @override
+  String get frameWindPerFloor => 'Wind force per floor (left side)';
+
+  @override
+  String get frameTemplateNote =>
+      'Characteristic loads, downwards. Self-weight is added to G. Sections and loads can be changed afterwards.';
+
+  @override
+  String get frameCreate => 'Create model';
+
+  @override
+  String get frameUndo => 'Undo';
+
+  @override
+  String get frameRedo => 'Redo';
+
+  @override
+  String get frameFit => 'Fit to screen';
+
+  @override
+  String get frameLoadCases => 'Load cases';
+
+  @override
+  String get frameSections => 'Sections';
+
+  @override
+  String get frameModeModel => 'Model';
+
+  @override
+  String get frameModeResults => 'Results';
+
+  @override
+  String get frameEnvelope => 'ULS envelope';
+
+  @override
+  String get frameViewDeformed => 'Deformed';
+
+  @override
+  String get frameViewReactions => 'Reactions';
+
+  @override
+  String get frameResultSource => 'Case or combination';
+
+  @override
+  String get frameAnalysisFailed => 'Analysis not possible';
+
+  @override
+  String get frameErrEmpty => 'Add nodes and members first.';
+
+  @override
+  String get frameErrZeroLength => 'A member has zero length.';
+
+  @override
+  String get frameErrUnstable =>
+      'The structure is unstable: add supports or remove hinges so it cannot move freely.';
+
+  @override
+  String get frameErrInvalid =>
+      'The model contains an invalid member or section.';
+
+  @override
+  String get frameRename => 'Rename model';
+
+  @override
+  String get frameToolSelect => 'Select';
+
+  @override
+  String get frameToolNode => 'Node';
+
+  @override
+  String get frameToolMember => 'Member';
+
+  @override
+  String get frameToolSupport => 'Support';
+
+  @override
+  String get frameToolLoad => 'Load';
+
+  @override
+  String get frameHintSelect =>
+      'Tap a node or member to edit it. Pinch to zoom, drag to pan.';
+
+  @override
+  String frameHintNode(String grid) {
+    return 'Tap to place nodes (grid $grid m).';
+  }
+
+  @override
+  String get frameHintMember =>
+      'Tap a start point, then an end point. Members chain.';
+
+  @override
+  String get frameHintSupport =>
+      'Tap a node to cycle: free, pinned, fixed, roller.';
+
+  @override
+  String get frameHintLoad =>
+      'Tap a member or node to set its load in the active case.';
+
+  @override
+  String get frameActiveCase => 'Active load case';
+
+  @override
+  String frameNodeTitle(int n) {
+    return 'Node $n';
+  }
+
+  @override
+  String get frameApply => 'Apply';
+
+  @override
+  String get frameSupport => 'Support';
+
+  @override
+  String get frameSupportFree => 'Free';
+
+  @override
+  String get frameSupportPinned => 'Pinned';
+
+  @override
+  String get frameSupportFixed => 'Fixed';
+
+  @override
+  String get frameSupportRollerX => 'Roller (slides in x)';
+
+  @override
+  String get frameSupportRollerY => 'Roller (slides in y)';
+
+  @override
+  String frameNodalLoad(String name) {
+    return 'Nodal load, case $name';
+  }
+
+  @override
+  String get frameApplyLoad => 'Apply load';
+
+  @override
+  String frameMemberTitle(int n) {
+    return 'Member $n';
+  }
+
+  @override
+  String frameMemberNodes(int a, int b) {
+    return 'Nodes $a → $b';
+  }
+
+  @override
+  String get frameSection => 'Section';
+
+  @override
+  String get frameMemberKind => 'Member type';
+
+  @override
+  String get frameKindBeam => 'Beam';
+
+  @override
+  String get frameKindTruss => 'Truss bar';
+
+  @override
+  String get frameHingeStart => 'Hinge at start';
+
+  @override
+  String get frameHingeEnd => 'Hinge at end';
+
+  @override
+  String frameMemberLoad(String name) {
+    return 'Uniform load, case $name';
+  }
+
+  @override
+  String get frameLoadDirection => 'Direction';
+
+  @override
+  String get frameLoadGravity => 'Vertical';
+
+  @override
+  String get frameLoadNormal => 'Perpendicular';
+
+  @override
+  String get frameMaxSagging => 'Maximum sagging moment';
+
+  @override
+  String get frameMaxHogging => 'Maximum hogging moment';
+
+  @override
+  String get frameMaxShear => 'Maximum shear';
+
+  @override
+  String get frameAxialRange => 'Axial force';
+
+  @override
+  String get frameMaxDeflection => 'Maximum deflection';
+
+  @override
+  String get loadTypePermanent => 'Permanent';
+
+  @override
+  String get loadTypeImposed => 'Imposed';
+
+  @override
+  String get loadTypeSnow => 'Snow';
+
+  @override
+  String get loadTypeWind => 'Wind';
+
+  @override
+  String get frameSelfWeight => 'Include self-weight';
+
+  @override
+  String get frameAddCase => 'Add load case';
+
+  @override
+  String get frameCombinationsNote =>
+      'ULS and SLS combinations are generated from the case types with the selected default code (EN 1990 or BAEL).';
+
+  @override
+  String get frameAddSection => 'Add section';
+
+  @override
+  String get frameSectionType => 'Section type';
+
+  @override
+  String get frameConcreteRect => 'Concrete rectangle';
+
+  @override
+  String get frameProfile => 'Profile';
+
+  @override
+  String get frameSectionNote => 'New members use the selected section.';
 }

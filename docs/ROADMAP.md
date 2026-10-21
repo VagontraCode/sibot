@@ -128,12 +128,17 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [ ] Each module checked against at least 2 published worked examples per code (and the user's RSA models) → then remove the Beta banner
 - [ ] Later: continuous beams (with Phase 2 analysis), edge/corner punching, combined footing widening optimisation
 
-### Phase 2 — 2D FEM analysis (core RSA feature)
-- [ ] Engine: 2D truss and frame elements, releases, supports and springs, member loads, sparse solver in an isolate
-- [ ] Load cases, EC0 and BAEL combinations, envelopes
-- [ ] Model editor (canvas, grid, snapping, undo) and the wizards
-- [ ] Results: deformed shape, N/V/M diagrams, reactions, tables
-- [ ] Verification: cantilever, fixed beam, continuous beam, portal frame and Pratt truss against closed-form solutions and RSA
+### Phase 2 — 2D FEM analysis (core RSA feature) ✅ (Beta)
+- [x] Engine: 2D beam and truss elements, hinges (static condensation), supports and springs, banded Cholesky with RCM renumbering; analysis in a background isolate
+- [x] Loads: nodal, uniform / trapezoidal / partial distributed (global, local, projected), point loads on members, self-weight
+- [x] Load cases (G, Q, snow, wind), automatic EN 1990 and BAEL combinations, ULS envelopes
+- [x] Model editor: touch canvas with pan/zoom, grid snapping, node / member / support / load tools, undo/redo, autosave, properties panel (side panel on tablets)
+- [x] Wizards: continuous beam, multi-bay multi-storey frame, Pratt / Howe / Warren trusses
+- [x] Results: deformed shape, N/V/M diagrams drawn on the tension side, reactions, per-member values and diagrams, envelope
+- [x] Verification: 19 closed-form benchmarks (cantilever, simple / fixed / continuous beams, propped cantilever, Kleinlogel portal, truss, hinge, spring, inclined member, equilibrium) + template tests; 2091-node frame in ~0.55 s
+- [ ] Compare with the user's RSA models, then remove the Beta banner
+- [ ] Editor: point loads and partial / trapezoidal loads in the UI (engine supports them), node dragging, copy / array tools
+- [ ] Send member forces to the RC design modules (Phase 3)
 
 ### Phase 3 — Analysis-to-design link and the other materials
 - [ ] Send members from the FEM model straight to RC design, which designs from the envelopes automatically
