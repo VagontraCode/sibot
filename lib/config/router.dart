@@ -14,6 +14,7 @@ import 'package:sibot/features/report/presentation/pages/report_page.dart';
 import 'package:sibot/features/shared/presentation/pages/reference_page.dart';
 import 'package:sibot/features/settings/settings_page.dart';
 import 'package:sibot/features/shell/app_shell.dart';
+import 'package:sibot/features/tools/tools_pages.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -106,6 +107,24 @@ final GoRouter appRouter = GoRouter(
                       name: 'retaining-wall',
                       builder: (context, state) =>
                           RetainingWallPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'bearing',
+                      name: 'bearing',
+                      builder: (context, state) =>
+                          BearingPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'sections',
+                      name: 'sections',
+                      builder: (context, state) =>
+                          SectionsPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'quantities',
+                      name: 'quantities',
+                      builder: (context, state) =>
+                          QuantitiesPage(projectId: _pid(state)),
                     ),
                     ..._fieldRoutes('project'),
                   ],

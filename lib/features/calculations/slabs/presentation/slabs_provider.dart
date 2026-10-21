@@ -22,12 +22,16 @@ class SlabNotifier extends DesignFormNotifier<SlabDesign> {
     'cover': 25,
     'fck': 25,
     'fyk': 500,
+    'punchLoad': null,
+    'punchC1': 300,
+    'punchC2': 300,
   };
 
   @override
   Map<String, String> get initialOptions => {
     'type': 'oneWay',
     'support': 'simple',
+    'punchType': 'column',
   };
 
   @override
@@ -57,11 +61,15 @@ class SlabNotifier extends DesignFormNotifier<SlabDesign> {
           : SlabSupport.simplySupported,
       fck: s['fck']!,
       fyk: s['fyk']!,
+      punchLoad: s['punchLoad'],
+      punchC1: s['punchC1'] ?? 300,
+      punchC2: s['punchC2'] ?? 300,
+      punchBeta: s.options['punchType'] == 'load' ? 1.0 : 1.15,
     ),
   );
 
   @override
-  Future<String> persist(DesignFormState<SlabDesign> s, SlabDesign r) async {
+  Future<String> saveResult(DesignFormState<SlabDesign> s, SlabDesign r) async {
     final id = IdService.generateCalculationId();
     await save(
       id,

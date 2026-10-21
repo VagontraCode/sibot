@@ -30,6 +30,9 @@ class BeamPage extends ConsumerWidget {
       'cover': l.calcCover,
       'fck': l.calcConcreteFck,
       'fyk': l.calcSteelFyk,
+      'psi2': l.slsPsi2,
+      'wmax': l.slsCrackLimit,
+      'crackLimit': l.slsCrackLimit,
     };
     Widget field(String key, String unit, [String? hint]) => FormNumber(
       state: s,
@@ -84,6 +87,25 @@ class BeamPage extends ConsumerWidget {
           children: [
             FieldRow(children: [field('fck', 'MPa'), field('fyk', 'MPa')]),
             field('cover', 'mm'),
+          ],
+        ),
+        FormSection(
+          title: l.slsTitle,
+          icon: Icons.blur_linear_rounded,
+          children: [
+            if (s.code == DesignCode.ec2)
+              FieldRow(children: [field('psi2', ''), field('wmax', 'mm')])
+            else
+              ChoiceField<String>(
+                label: l.slsCracking,
+                value: s.options['cracking']!,
+                options: {
+                  'slight': l.slsCrackingSlight,
+                  'harmful': l.slsCrackingHarmful,
+                  'veryHarmful': l.slsCrackingVeryHarmful,
+                },
+                onChanged: (v) => n.setOption('cracking', v),
+              ),
           ],
         ),
       ],
@@ -171,6 +193,52 @@ class BeamPage extends ConsumerWidget {
           ),
         ],
       ),
+      if (r.sls != null)
+        ResultCard(
+          title: l.slsTitle,
+          icon: Icons.blur_linear_rounded,
+          rows: [
+            ResultRow(
+              label: l.slsCharMoment,
+              symbol: 'Mser',
+              value: fmt(context, r.sls!.mChar),
+              unit: 'kN·m',
+            ),
+            ResultRow(
+              label: l.slsConcreteStress,
+              symbol: 'σc',
+              value: fmt(context, r.sls!.sigmaC),
+              unit: 'MPa',
+            ),
+            ResultRow(
+              label: l.slsSteelStress,
+              symbol: 'σs',
+              value: fmt(context, r.sls!.sigmaS),
+              unit: 'MPa',
+            ),
+            if (r.sls!.crack != null) ...[
+              ResultRow(
+                label: l.slsQpMoment,
+                symbol: 'Mqp',
+                value: fmt(context, r.sls!.mQp),
+                unit: 'kN·m',
+              ),
+              ResultRow(
+                label: l.slsCrackSpacing,
+                symbol: 'sr,max',
+                value: fmt(context, r.sls!.crack!.srMax, 0),
+                unit: 'mm',
+              ),
+              ResultRow(
+                label: l.checkCrackWidth,
+                symbol: 'wk',
+                value: fmt(context, r.sls!.crack!.wk, 3),
+                unit: 'mm',
+                emphasize: true,
+              ),
+            ],
+          ],
+        ),
       SectionSketch(
         b: r.input.b,
         h: r.input.h,

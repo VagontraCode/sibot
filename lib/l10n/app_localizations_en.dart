@@ -150,7 +150,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashDesignModulesSubtitle =>
-      'Reinforced concrete, Eurocode 2 and BAEL';
+      'Concrete, foundations, geotechnics and tools';
 
   @override
   String get dashRoadmap => 'Roadmap';
@@ -381,7 +381,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modFooting => 'Footing';
 
   @override
-  String get modFootingSub => 'Pad footing, punching';
+  String get modFootingSub => 'Isolated, strip, combined';
 
   @override
   String get modRetainingWall => 'Retaining Wall';
@@ -535,7 +535,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get footingSubtitle =>
-      'Pad footing under a column: sizing, steel and punching.';
+      'Isolated, strip or combined footing: sizing, steel, punching.';
 
   @override
   String get footingDesignBasis => 'Design basis';
@@ -1065,7 +1065,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get columnUlsNote =>
-      'ULS design values. Bending acts about the axis parallel to b.';
+      'ULS design values. The h-direction moment bends the section across h; the b-direction moment across b.';
 
   @override
   String get columnSlendernessTitle => 'Slenderness and moments';
@@ -1252,4 +1252,466 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noteWallShearKey =>
       'Sliding is not satisfied: add a shear key or lengthen the heel.';
+
+  @override
+  String get columnDiameter => 'Diameter D';
+
+  @override
+  String get columnMomentH => 'Moment, h direction';
+
+  @override
+  String get columnMomentB => 'Moment, b direction';
+
+  @override
+  String get columnMomentX => 'Moment Mx';
+
+  @override
+  String get columnMomentY => 'Moment My';
+
+  @override
+  String get columnShape => 'Section';
+
+  @override
+  String get columnRectangular => 'Rectangular';
+
+  @override
+  String get columnCircular => 'Circular';
+
+  @override
+  String get columnUlsNoteCircle =>
+      'ULS design values. The two moments are combined vectorially.';
+
+  @override
+  String get columnBarsPerFace => 'Bars per face';
+
+  @override
+  String get noteBiaxial =>
+      'Moments in both directions: biaxial check EN 1992-1-1 5.8.9(4).';
+
+  @override
+  String get noteImperfectionOneDirection =>
+      'Imperfection and minimum eccentricity are applied in one direction at a time (EN 1992-1-1 5.8.9(2)); the worse case governs.';
+
+  @override
+  String get checkConcreteStress => 'Concrete stress (SLS)';
+
+  @override
+  String get checkSteelStress => 'Steel stress (SLS)';
+
+  @override
+  String get checkCrackWidth => 'Crack width';
+
+  @override
+  String get diagramShear => 'Shear force V';
+
+  @override
+  String get diagramMoment => 'Bending moment M';
+
+  @override
+  String get slsTitle => 'Serviceability';
+
+  @override
+  String get slsCracking => 'Cracking class';
+
+  @override
+  String get slsCrackingSlight => 'Not harmful';
+
+  @override
+  String get slsCrackingHarmful => 'Harmful';
+
+  @override
+  String get slsCrackingVeryHarmful => 'Very harmful';
+
+  @override
+  String get slsPsi2 => 'Quasi-permanent factor ψ2';
+
+  @override
+  String get slsCrackLimit => 'Crack width limit wmax';
+
+  @override
+  String get slsCharMoment => 'Characteristic moment';
+
+  @override
+  String get slsConcreteStress => 'Concrete stress';
+
+  @override
+  String get slsSteelStress => 'Steel stress';
+
+  @override
+  String get slsQpMoment => 'Quasi-permanent moment';
+
+  @override
+  String get slsCrackSpacing => 'Maximum crack spacing';
+
+  @override
+  String get punchingTitle => 'Punching (optional)';
+
+  @override
+  String get punchingType => 'Load type';
+
+  @override
+  String get punchingColumn => 'Interior column';
+
+  @override
+  String get punchingPointLoad => 'Point load';
+
+  @override
+  String get punchingOptionalNote =>
+      'Leave the load empty to skip punching. ULS load on a c1 × c2 area.';
+
+  @override
+  String get punchingLoad => 'Punching load VEd';
+
+  @override
+  String get punchingC1 => 'Loaded area c1';
+
+  @override
+  String get punchingC2 => 'Loaded area c2';
+
+  @override
+  String get punchingPerimeter => 'Control perimeter';
+
+  @override
+  String get punchingDemand => 'Punching action';
+
+  @override
+  String get punchingResistance => 'Resistance without reinforcement';
+
+  @override
+  String get punchingReinforcement =>
+      'Punching reinforcement per perimeter (sr = 0.75d)';
+
+  @override
+  String get footingTypeLabel => 'Footing type';
+
+  @override
+  String get footingIsolatedType => 'Isolated';
+
+  @override
+  String get footingStripType => 'Strip';
+
+  @override
+  String get footingCombinedType => 'Combined';
+
+  @override
+  String get footingWallActions => 'Wall actions (per metre)';
+
+  @override
+  String get footingWallThickness => 'Wall thickness';
+
+  @override
+  String get footingCol1A => 'Column 1, a (along footing)';
+
+  @override
+  String get footingCol1B => 'Column 1, b';
+
+  @override
+  String get footingCol2A => 'Column 2, a (along footing)';
+
+  @override
+  String get footingCol2B => 'Column 2, b';
+
+  @override
+  String get footingSpacingInput => 'Column spacing (centres)';
+
+  @override
+  String get footingG1 => 'Column 1, G';
+
+  @override
+  String get footingQ1 => 'Column 1, Q';
+
+  @override
+  String get footingG2 => 'Column 2, G';
+
+  @override
+  String get footingQ2 => 'Column 2, Q';
+
+  @override
+  String get footingWidth => 'Width';
+
+  @override
+  String get footingTransverseBars => 'Transverse bars';
+
+  @override
+  String get footingOverhang => 'Overhang beyond column 1';
+
+  @override
+  String get footingLongBottom => 'Longitudinal, bottom';
+
+  @override
+  String get footingLongTop => 'Longitudinal, top';
+
+  @override
+  String footingTransverseUnder(int n) {
+    return 'Transverse under column $n';
+  }
+
+  @override
+  String get noteCombinedFooting =>
+      'Length set so the service resultant is at mid-length; designed as a beam on a linear soil reaction. Thickness increased until no shear links are needed.';
+
+  @override
+  String get noteSoilEc7 =>
+      'Bearing resistance from EN 1997-1 Annex D, design approach 2 (γR,v = 1.4), vertical load.';
+
+  @override
+  String get soilBearingMode => 'Bearing check';
+
+  @override
+  String get soilModeAllowable => 'Allowable pressure';
+
+  @override
+  String get soilModeParameters => 'Soil parameters (EC7)';
+
+  @override
+  String get soilDrainage => 'Soil condition';
+
+  @override
+  String get soilDrained => 'Drained (c′, φ′)';
+
+  @override
+  String get soilUndrained => 'Undrained (cu)';
+
+  @override
+  String get soilCohesion => 'Cohesion c′';
+
+  @override
+  String get soilPhi => 'Friction angle φ′';
+
+  @override
+  String get soilCu => 'Undrained strength cu';
+
+  @override
+  String get soilModulus => 'Young\'s modulus E';
+
+  @override
+  String get soilPoisson => 'Poisson\'s ratio ν';
+
+  @override
+  String get wallBase => 'Base slab';
+
+  @override
+  String get wallUlsPressure => 'ULS base pressure, toe / heel';
+
+  @override
+  String get wallToeMoment => 'Toe, bottom bars';
+
+  @override
+  String get wallHeelMoment => 'Heel, top bars';
+
+  @override
+  String get wallEqu => 'EQU overturning';
+
+  @override
+  String get wallDa2Sliding => 'DA2 sliding';
+
+  @override
+  String get noteWallEc7 =>
+      'EC7: overturning by EQU (γG,dst 1.1, γG,stb 0.9, γφ′ 1.25), sliding by DA2 (1.35 / 1.5, γR,h 1.1). Global factors are shown for information.';
+
+  @override
+  String get bearingSubtitle =>
+      'EC7 bearing resistance and settlement of a shallow footing.';
+
+  @override
+  String get bearingWidth => 'Width B';
+
+  @override
+  String get bearingLength => 'Length L';
+
+  @override
+  String get bearingLoadNote =>
+      'Characteristic loads including the footing and backfill weight.';
+
+  @override
+  String get bearingResistance => 'Bearing resistance';
+
+  @override
+  String get bearingFactors => 'Bearing factors';
+
+  @override
+  String get bearingUltimate => 'Ultimate bearing pressure';
+
+  @override
+  String get bearingDesignResistance => 'Design resistance';
+
+  @override
+  String get bearingDesignPressure => 'Design pressure (1.35G + 1.5Q)';
+
+  @override
+  String get bearingSettlement => 'Settlement';
+
+  @override
+  String get bearingServicePressure => 'Service pressure';
+
+  @override
+  String get noteSettlementEstimate =>
+      'Settlement is an elastic estimate for a rigid footing (equivalent circle); use oedometer results for clays.';
+
+  @override
+  String get sectionsSubtitle => 'Area, inertia and section moduli.';
+
+  @override
+  String get sectionShape => 'Shape';
+
+  @override
+  String get sectionRect => 'Rectangle';
+
+  @override
+  String get sectionCircle => 'Circle';
+
+  @override
+  String get sectionHollow => 'Hollow';
+
+  @override
+  String get sectionI => 'I';
+
+  @override
+  String get sectionT => 'T';
+
+  @override
+  String get sectionWidth => 'Width b';
+
+  @override
+  String get sectionHeight => 'Height h';
+
+  @override
+  String get sectionThickness => 'Wall thickness t';
+
+  @override
+  String get sectionFlange => 'Flange thickness tf';
+
+  @override
+  String get sectionWeb => 'Web thickness tw';
+
+  @override
+  String get sectionResults => 'Properties';
+
+  @override
+  String get sectionArea => 'Area';
+
+  @override
+  String get sectionCentroid => 'Centroid from top';
+
+  @override
+  String get sectionInertiaY => 'Second moment, strong axis';
+
+  @override
+  String get sectionInertiaZ => 'Second moment, weak axis';
+
+  @override
+  String get sectionWelTop => 'Elastic modulus, top';
+
+  @override
+  String get sectionWelBottom => 'Elastic modulus, bottom';
+
+  @override
+  String get sectionWpl => 'Plastic modulus';
+
+  @override
+  String get sectionRadii => 'Radii of gyration';
+
+  @override
+  String get noteSectionNoFillets =>
+      'Root fillets are not included; tabulated values for rolled sections are slightly higher.';
+
+  @override
+  String get quantitiesSubtitle =>
+      'Concrete materials, formwork and rebar weights.';
+
+  @override
+  String get qtyElements => 'Elements';
+
+  @override
+  String get qtyLength => 'Length';
+
+  @override
+  String get qtyWidth => 'Width';
+
+  @override
+  String get qtyHeight => 'Height / thickness';
+
+  @override
+  String get qtyCount => 'Number';
+
+  @override
+  String get qtyFormworkType => 'Formwork faces';
+
+  @override
+  String get qtyColumnWall => 'Column / wall';
+
+  @override
+  String get qtyMix => 'Mix per m³';
+
+  @override
+  String get qtyCement => 'Cement';
+
+  @override
+  String get qtySand => 'Sand';
+
+  @override
+  String get qtyGravel => 'Gravel';
+
+  @override
+  String get qtyWater => 'Water';
+
+  @override
+  String get qtyWaste => 'Waste allowance';
+
+  @override
+  String get qtyRebar => 'Reinforcement';
+
+  @override
+  String get qtyBarDiameter => 'Bar diameter';
+
+  @override
+  String get qtyBarCount => 'Number of bars';
+
+  @override
+  String get qtyBarLength => 'Bar length';
+
+  @override
+  String get qtyLap => 'Laps and waste';
+
+  @override
+  String get qtyConcrete => 'Concrete';
+
+  @override
+  String get qtyVolume => 'Volume';
+
+  @override
+  String get qtyCementTotal => 'Cement';
+
+  @override
+  String qtyBags(int n) {
+    return '$n bags of 50 kg';
+  }
+
+  @override
+  String get qtySandTotal => 'Sand';
+
+  @override
+  String get qtyGravelTotal => 'Gravel';
+
+  @override
+  String get qtyWaterTotal => 'Water';
+
+  @override
+  String get qtyFormwork => 'Formwork area';
+
+  @override
+  String get qtyRebarLength => 'Total length';
+
+  @override
+  String get qtyRebarMass => 'Mass';
+
+  @override
+  String get qtyStockBars => '12 m bars to order';
+
+  @override
+  String get qtyNothing => 'Fill in the elements or the reinforcement.';
+
+  @override
+  String get noteQuantitiesMix =>
+      'Default mix is a common site dosage (350 kg/m³). Adjust it to your mix design.';
 }

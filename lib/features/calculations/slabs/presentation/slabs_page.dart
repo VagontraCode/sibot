@@ -28,6 +28,12 @@ class SlabPage extends ConsumerWidget {
       'cover': l.calcCover,
       'fck': l.calcConcreteFck,
       'fyk': l.calcSteelFyk,
+      'punchLoad': l.punchingLoad,
+      'vEd': l.punchingLoad,
+      'punchC1': l.punchingC1,
+      'c1': l.punchingC1,
+      'punchC2': l.punchingC2,
+      'c2': l.punchingC2,
     };
     Widget field(String key, String unit, [String? hint]) => FormNumber(
       state: s,
@@ -92,6 +98,26 @@ class SlabPage extends ConsumerWidget {
           children: [
             FieldRow(children: [field('fck', 'MPa'), field('fyk', 'MPa')]),
             field('cover', 'mm'),
+          ],
+        ),
+        FormSection(
+          title: l.punchingTitle,
+          icon: Icons.adjust_rounded,
+          children: [
+            ChoiceField<String>(
+              label: l.punchingType,
+              value: s.options['punchType']!,
+              options: {
+                'column': l.punchingColumn,
+                'load': l.punchingPointLoad,
+              },
+              onChanged: (v) => n.setOption('punchType', v),
+            ),
+            field('punchLoad', 'kN'),
+            FieldRow(
+              children: [field('punchC1', 'mm'), field('punchC2', 'mm')],
+            ),
+            Text(l.punchingOptionalNote, style: context.text.bodySmall),
           ],
         ),
       ],
@@ -178,6 +204,39 @@ class SlabPage extends ConsumerWidget {
           ),
         ],
       ),
+      if (r.punching != null)
+        ResultCard(
+          title: l.punchingTitle,
+          icon: Icons.adjust_rounded,
+          rows: [
+            ResultRow(
+              label: l.punchingPerimeter,
+              symbol: 'u1',
+              value: fmt(context, r.punching!.u1, 0),
+              unit: 'mm',
+            ),
+            ResultRow(
+              label: l.punchingDemand,
+              symbol: r.input.code == DesignCode.ec2 ? 'vEd' : 'Qu',
+              value: fmt(context, r.punching!.demand),
+              unit: r.input.code == DesignCode.ec2 ? 'MPa' : 'kN',
+            ),
+            ResultRow(
+              label: l.punchingResistance,
+              symbol: r.input.code == DesignCode.ec2 ? 'vRd,c' : 'Qu,lim',
+              value: fmt(context, r.punching!.resistance),
+              unit: r.input.code == DesignCode.ec2 ? 'MPa' : 'kN',
+            ),
+            if (r.punching!.aswPerPerimeter != null)
+              ResultRow(
+                label: l.punchingReinforcement,
+                symbol: 'Asw',
+                value: fmt(context, r.punching!.aswPerPerimeter!, 0),
+                unit: 'mm²',
+                emphasize: true,
+              ),
+          ],
+        ),
       ChecksCard(checks: r.checks),
       NotesCard(notes: notes),
     ];

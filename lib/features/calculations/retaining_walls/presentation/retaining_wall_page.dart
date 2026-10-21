@@ -149,6 +149,22 @@ class RetainingWallPage extends ConsumerWidget {
             value: fmt(context, r.fsSliding, 2),
             emphasize: true,
           ),
+          if (r.equDestabilising != null)
+            ResultRow(
+              label: l.wallEqu,
+              symbol: 'Mdst / Mstb',
+              value:
+                  '${fmt(context, r.equDestabilising!)} / ${fmt(context, r.equStabilising!)}',
+              unit: 'kN·m/m',
+            ),
+          if (r.slidingAction != null)
+            ResultRow(
+              label: l.wallDa2Sliding,
+              symbol: 'Hd / Rd',
+              value:
+                  '${fmt(context, r.slidingAction!)} / ${fmt(context, r.slidingResistance!)}',
+              unit: 'kN/m',
+            ),
           ResultRow(
             label: l.footingPressure,
             symbol: 'σ',
@@ -186,10 +202,35 @@ class RetainingWallPage extends ConsumerWidget {
           ),
         ],
       ),
+      ResultCard(
+        title: l.wallBase,
+        icon: Icons.horizontal_rule_rounded,
+        rows: [
+          ResultRow(
+            label: l.wallUlsPressure,
+            symbol: 'σtoe / σheel',
+            value:
+                '${fmt(context, r.ulsPressureToe)} / ${fmt(context, r.ulsPressureHeel)}',
+            unit: 'kPa',
+          ),
+          ResultRow(
+            label: l.wallToeMoment,
+            symbol: '${fmt(context, r.toeMoment)} kN·m/m',
+            value: r.toeBars?.toString() ?? '—',
+            emphasize: true,
+          ),
+          ResultRow(
+            label: l.wallHeelMoment,
+            symbol: '${fmt(context, r.heelMoment)} kN·m/m',
+            value: r.heelBars?.toString() ?? '—',
+            emphasize: true,
+          ),
+        ],
+      ),
       ChecksCard(checks: r.checks),
       NotesCard(
         notes: [
-          l.noteWallMethod,
+          r.input.code == DesignCode.ec2 ? l.noteWallEc7 : l.noteWallMethod,
           if (!r.checks.firstWhere((c) => c.kind == CheckKind.sliding).ok)
             l.noteWallShearKey,
         ],

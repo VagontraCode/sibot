@@ -77,8 +77,10 @@ abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {
   /// Runs the engine. May throw [InputError].
   R compute(DesignFormState<R> s);
 
-  /// Saves the result; returns the saved calculation id.
-  Future<String> persist(DesignFormState<R> s, R result);
+  /// Saves the result; returns the saved calculation id. Tools that keep
+  /// no record (section properties, quantities) use this default.
+  Future<String> saveResult(DesignFormState<R> s, R r) async =>
+      DateTime.now().microsecondsSinceEpoch.toString();
 
   @override
   DesignFormState<R> build() => DesignFormState(
@@ -121,7 +123,7 @@ abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {
     }
     String? id;
     try {
-      id = await persist(state, result);
+      id = await saveResult(state, result);
     } catch (e, st) {
       LoggerService.e('Saving calculation failed: $e', e, st);
     }

@@ -21,6 +21,7 @@ class ColumnNotifier extends DesignFormNotifier<ColumnDesign> {
     'l0': null,
     'nEd': null,
     'm0Ed': 0,
+    'm0EdB': 0,
     'cover': 30,
     'creep': 1.0,
     'fck': 25,
@@ -28,12 +29,16 @@ class ColumnNotifier extends DesignFormNotifier<ColumnDesign> {
   };
 
   @override
-  List<String> get requiredKeys => const [
+  Map<String, String> get initialOptions => {'shape': 'rect'};
+
+  @override
+  List<String> get requiredKeys => [
     'b',
-    'h',
+    if (state.options['shape'] != 'circle') 'h',
     'l0',
     'nEd',
     'm0Ed',
+    'm0EdB',
     'cover',
     'fck',
     'fyk',
@@ -44,10 +49,14 @@ class ColumnNotifier extends DesignFormNotifier<ColumnDesign> {
     ColumnInput(
       code: s.code,
       b: s['b']!,
-      h: s['h']!,
+      shape: s.options['shape'] == 'circle'
+          ? ColumnShape.circular
+          : ColumnShape.rectangular,
+      h: s.options['shape'] == 'circle' ? 0 : s['h']!,
       l0: s['l0']!,
       nEd: s['nEd']!,
       m0Ed: s['m0Ed']!,
+      m0EdB: s['m0EdB']!,
       cover: s['cover']!,
       creepRatio: s['creep'] ?? 1.0,
       fck: s['fck']!,
@@ -56,7 +65,7 @@ class ColumnNotifier extends DesignFormNotifier<ColumnDesign> {
   );
 
   @override
-  Future<String> persist(
+  Future<String> saveResult(
     DesignFormState<ColumnDesign> s,
     ColumnDesign r,
   ) async {
@@ -66,7 +75,9 @@ class ColumnNotifier extends DesignFormNotifier<ColumnDesign> {
       ColumnCalculation(
         id: id,
         projectId: projectId,
-        name: 'Column ${s['b']!.round()}×${s['h']!.round()}',
+        name: s.options['shape'] == 'circle'
+            ? 'Column Ø${s['b']!.round()}'
+            : 'Column ${s['b']!.round()}×${s['h']!.round()}',
         axialLoad: s['nEd']!,
         height: s['l0']!,
         concrete: s['fck']!,

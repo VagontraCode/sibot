@@ -41,6 +41,9 @@ class SectionSketch extends StatelessWidget {
   final BarSet? bottom;
   final BarSet? top;
 
+  /// Intermediate bars on each side face (columns), same diameter.
+  final int sideBars;
+
   const SectionSketch({
     super.key,
     required this.b,
@@ -49,6 +52,7 @@ class SectionSketch extends StatelessWidget {
     this.linkDiameter = 8,
     this.bottom,
     this.top,
+    this.sideBars = 0,
   });
 
   @override
@@ -117,6 +121,24 @@ class _SectionPainter extends CustomPainter {
     bars(s.bottom, true);
     bars(s.top, false);
 
+    // Intermediate bars on the side faces.
+    final ref = s.bottom ?? s.top;
+    if (s.sideBars > 0 && ref != null) {
+      final r = ref.diameter / 2 * scale;
+      final edge = (s.cover + s.linkDiameter) * scale + r;
+      final y0 = rect.top + edge, y1 = rect.bottom - edge;
+      for (var k = 1; k <= s.sideBars; k++) {
+        final y = y0 + (y1 - y0) * k / (s.sideBars + 1);
+        for (final x in [rect.left + edge, rect.right - edge]) {
+          canvas.drawCircle(
+            Offset(x, y),
+            math.max(r, 2.5),
+            Paint()..color = c.steel,
+          );
+        }
+      }
+    }
+
     // Dimensions.
     final bl = _label('${s.b.round()}', c.muted);
     bl.paint(canvas, Offset(rect.center.dx - bl.width / 2, rect.bottom + 6));
@@ -138,6 +160,7 @@ class InteractionDiagram extends StatelessWidget {
   final double nEd;
   final double mEd;
   final bool ok;
+  final String? title;
 
   const InteractionDiagram({
     super.key,
@@ -145,6 +168,7 @@ class InteractionDiagram extends StatelessWidget {
     required this.nEd,
     required this.mEd,
     required this.ok,
+    this.title,
   });
 
   @override
@@ -154,7 +178,7 @@ class InteractionDiagram extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.columnInteraction, style: context.text.titleMedium),
+          Text(title ?? l.columnInteraction, style: context.text.titleMedium),
           const SizedBox(height: Gap.md),
           AspectRatio(
             aspectRatio: 1.2,
@@ -386,4 +410,240 @@ class _WallPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_WallPainter old) => true;
+}
+
+/// Circular column section with bars on a circle.
+class CircularSectionSketch extends StatelessWidget {
+  final double diameter;
+  final double cover;
+  final int linkDiameter;
+  final BarSet? bars;
+
+  const CircularSectionSketch({
+    super.key,
+    required this.diameter,
+    required this.cover,
+    this.linkDiameter = 8,
+    this.bars,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      child: AspectRatio(
+        aspectRatio: 1.4,
+        child: CustomPaint(painter: _CirclePainter(this, _Colors(context))),
+      ),
+    );
+  }
+}
+
+class _CirclePainter extends CustomPainter {
+  final CircularSectionSketch s;
+  final _Colors c;
+  _CirclePainter(this.s, this.c);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const pad = 24.0;
+    final scale = (math.min(size.width, size.height) - 2 * pad) / s.diameter;
+    final centre = size.center(Offset.zero);
+    final r = s.diameter / 2 * scale;
+    canvas.drawCircle(centre, r, Paint()..color = c.concrete);
+    canvas.drawCircle(
+      centre,
+      r,
+      Paint()
+        ..color = c.edge
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2,
+    );
+    final linkR = (s.diameter / 2 - s.cover - s.linkDiameter / 2) * scale;
+    canvas.drawCircle(
+      centre,
+      linkR,
+      Paint()
+        ..color = c.link
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = math.max(1.5, s.linkDiameter * scale),
+    );
+    final set = s.bars;
+    if (set != null) {
+      final rb =
+          (s.diameter / 2 - s.cover - s.linkDiameter - set.diameter / 2) *
+          scale;
+      for (var k = 0; k < set.count; k++) {
+        final a = 2 * math.pi * k / set.count;
+        canvas.drawCircle(
+          centre + Offset(rb * math.sin(a), -rb * math.cos(a)),
+          math.max(set.diameter / 2 * scale, 2.5),
+          Paint()..color = c.steel,
+        );
+      }
+    }
+    final l = _label('Ø${s.diameter.round()}', c.muted);
+    l.paint(canvas, Offset(centre.dx - l.width / 2, centre.dy + r + 4));
+  }
+
+  @override
+  bool shouldRepaint(_CirclePainter old) => true;
+}
+
+/// One sample of a member diagram: position (m), shear (kN) and moment
+/// (kN·m, positive = bottom fibre in tension).
+class ForcePoint {
+  final double x;
+  final double v;
+  final double m;
+  const ForcePoint(this.x, this.v, this.m);
+}
+
+/// Shear and bending-moment diagrams along a member. Moments are drawn
+/// on the tension side (positive below the axis), as on site drawings.
+class ForceDiagram extends StatelessWidget {
+  final List<ForcePoint> points;
+
+  /// Positions (m) to mark, e.g. columns or supports.
+  final List<double> marks;
+
+  const ForceDiagram({super.key, required this.points, this.marks = const []});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return SurfaceCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.diagramShear, style: context.text.titleMedium),
+          const SizedBox(height: Gap.sm),
+          SizedBox(
+            height: 120,
+            child: CustomPaint(
+              painter: _ForcePainter(
+                points,
+                marks,
+                (p) => p.v,
+                'kN',
+                _Colors(context),
+                context,
+                downPositive: false,
+              ),
+            ),
+          ),
+          const SizedBox(height: Gap.lg),
+          Text(l.diagramMoment, style: context.text.titleMedium),
+          const SizedBox(height: Gap.sm),
+          SizedBox(
+            height: 140,
+            child: CustomPaint(
+              painter: _ForcePainter(
+                points,
+                marks,
+                (p) => p.m,
+                'kN·m',
+                _Colors(context),
+                context,
+                downPositive: true,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ForcePainter extends CustomPainter {
+  final List<ForcePoint> pts;
+  final List<double> marks;
+  final double Function(ForcePoint) value;
+  final String unit;
+  final _Colors c;
+  final BuildContext context;
+  final bool downPositive;
+
+  _ForcePainter(
+    this.pts,
+    this.marks,
+    this.value,
+    this.unit,
+    this.c,
+    this.context, {
+    required this.downPositive,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (pts.length < 2) return;
+    const padX = 8.0, padY = 16.0;
+    final x0 = pts.first.x, x1 = pts.last.x;
+    final vals = pts.map(value).toList();
+    final vMax = vals.reduce(math.max), vMin = vals.reduce(math.min);
+    final range = math.max(vMax.abs(), vMin.abs());
+    if (range == 0) return;
+    final mid = size.height / 2;
+    final half = size.height / 2 - padY;
+    Offset at(double x, double v) => Offset(
+      padX + (x - x0) / (x1 - x0) * (size.width - 2 * padX),
+      mid + (downPositive ? 1 : -1) * v / range * half,
+    );
+
+    final area = Path()..moveTo(at(x0, 0).dx, mid);
+    for (var k = 0; k < pts.length; k++) {
+      final o = at(pts[k].x, vals[k]);
+      area.lineTo(o.dx, o.dy);
+    }
+    area.lineTo(at(x1, 0).dx, mid);
+    area.close();
+    canvas.drawPath(area, Paint()..color = c.accent.withValues(alpha: 0.14));
+    final line = Path();
+    for (var k = 0; k < pts.length; k++) {
+      final o = at(pts[k].x, vals[k]);
+      k == 0 ? line.moveTo(o.dx, o.dy) : line.lineTo(o.dx, o.dy);
+    }
+    canvas.drawPath(
+      line,
+      Paint()
+        ..color = c.accent
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8,
+    );
+    canvas.drawLine(
+      Offset(padX, mid),
+      Offset(size.width - padX, mid),
+      Paint()
+        ..color = c.ink
+        ..strokeWidth = 1.5,
+    );
+    for (final m in marks) {
+      final o = at(m, 0);
+      final path = Path()
+        ..moveTo(o.dx, mid - 7)
+        ..lineTo(o.dx - 5, mid - 14)
+        ..lineTo(o.dx + 5, mid - 14)
+        ..close();
+      canvas.drawPath(path, Paint()..color = c.ink);
+    }
+
+    // Extreme values.
+    void tag(int k) {
+      final o = at(pts[k].x, vals[k]);
+      final t = _label('${fmt(context, vals[k])} $unit', c.ink, size: 10);
+      final dx = (o.dx - t.width / 2).clamp(0.0, size.width - t.width);
+      final below = o.dy >= mid;
+      t.paint(canvas, Offset(dx, below ? o.dy + 2 : o.dy - t.height - 2));
+    }
+
+    var iMax = 0, iMin = 0;
+    for (var k = 1; k < vals.length; k++) {
+      if (vals[k] > vals[iMax]) iMax = k;
+      if (vals[k] < vals[iMin]) iMin = k;
+    }
+    if (vals[iMax].abs() > range * 0.05) tag(iMax);
+    if (vals[iMin].abs() > range * 0.05 && iMin != iMax) tag(iMin);
+  }
+
+  @override
+  bool shouldRepaint(_ForcePainter old) => true;
 }

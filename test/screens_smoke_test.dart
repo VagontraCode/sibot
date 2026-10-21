@@ -19,9 +19,10 @@ import 'package:sibot/features/calculations/beams/presentation/beams_provider.da
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
-import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
+import 'package:sibot/features/tools/tools_providers.dart';
 import 'package:sibot/main.dart';
+import 'package:sibot/ui/ui.dart';
 
 final _shotsDir = Platform.environment['SIBOT_SHOTS'];
 final _rootKey = GlobalKey();
@@ -117,24 +118,76 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
     beamStateProvider('PRJ_1').notifier,
   )..setAll({'span': 6, 'b': 300, 'h': 600, 'g': 20, 'q': 15})).calculate(),
   'column': (c) =>
+      (c.read(columnStateProvider('PRJ_1').notifier)..setAll({
+            'b': 400,
+            'h': 400,
+            'l0': 3,
+            'nEd': 1500,
+            'm0Ed': 120,
+            'm0EdB': 80,
+          }))
+          .calculate(),
+  'column_circular': (c) =>
       (c.read(columnStateProvider('PRJ_1').notifier)
-            ..setAll({'b': 300, 'h': 300, 'l0': 3, 'nEd': 1200, 'm0Ed': 30}))
+            ..setOption('shape', 'circle')
+            ..setAll({'b': 400, 'l0': 3, 'nEd': 1500, 'm0Ed': 60, 'm0EdB': 0}))
           .calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
             ..setOption('support', 'continuous')
-            ..setAll({'lx': 4, 'ly': 5, 'h': 160, 'g': 1.5, 'q': 2.5}))
+            ..setAll({
+              'lx': 4,
+              'ly': 5,
+              'h': 200,
+              'g': 1.5,
+              'q': 2.5,
+              'punchLoad': 250,
+            }))
           .calculate(),
   'footing': (c) => (c.read(
     footingStateProvider('PRJ_1').notifier,
   )..setAll({'a': 300, 'b': 300, 'g': 400, 'q': 150, 'qAdm': 200})).calculate(),
+  'footing_combined': (c) =>
+      (c.read(footingStateProvider('PRJ_1').notifier)
+            ..setOption('type', 'combined')
+            ..setOption('bearing', 'soil')
+            ..setAll({
+              'a1': 300,
+              'b1': 300,
+              'a2': 400,
+              'b2': 400,
+              'spacing': 3.5,
+              'g1': 300,
+              'q1': 100,
+              'g2': 600,
+              'q2': 250,
+            }))
+          .calculate(),
   'retaining_wall': (c) {
     final n = c.read(retainingWallStateProvider('PRJ_1').notifier)
       ..setAll({'stemHeight': 3, 'qAdm': 200})
       ..presize();
     return n.calculate();
   },
+  'bearing': (c) => (c.read(
+    bearingStateProvider('PRJ_1').notifier,
+  )..setAll({'b': 2, 'l': 2, 'g': 600, 'q': 200})).calculate(),
+  'sections': (c) =>
+      (c.read(sectionStateProvider('PRJ_1').notifier)
+            ..setOption('shape', 'i')
+            ..setAll({'b': 150, 'h': 300, 'tf': 10.7, 'tw': 7.1}))
+          .calculate(),
+  'quantities': (c) =>
+      (c.read(quantitiesStateProvider('PRJ_1').notifier)..setAll({
+            'length': 5,
+            'width': 0.3,
+            'height': 0.6,
+            'barDia': 12,
+            'barCount': 10,
+            'barLength': 6,
+          }))
+          .calculate(),
 };
 
 void main() {
@@ -154,8 +207,13 @@ void main() {
     'project': '/projects/PRJ_1',
     'beam': '/projects/PRJ_1/beam',
     'column': '/projects/PRJ_1/column',
+    'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
     'footing': '/projects/PRJ_1/footing',
+    'footing_combined': '/projects/PRJ_1/footing',
+    'bearing': '/projects/PRJ_1/bearing',
+    'sections': '/projects/PRJ_1/sections',
+    'quantities': '/projects/PRJ_1/quantities',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
     'punch_list': '/field/punch-list/PRJ_1',
@@ -204,7 +262,7 @@ void main() {
               );
               await tester.runAsync(() => calculate(container));
               await tester.pumpAndSettle();
-              expect(find.byType(VerdictBanner), findsOneWidget, reason: s.key);
+              expect(find.byType(ResultsPlaceholder), findsNothing, reason: s.key);
             }
             expect(tester.takeException(), isNull, reason: s.key);
 

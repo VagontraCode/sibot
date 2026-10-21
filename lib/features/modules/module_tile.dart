@@ -46,7 +46,7 @@ class ModuleTile extends StatelessWidget {
                 const Spacer(),
                 if (module.status == ModuleStatus.beta)
                   StatusPill(l.commonBeta, tone: Tone.warning)
-                else
+                else if (module.status == ModuleStatus.comingSoon)
                   StatusPill(l.commonPhase(module.phase ?? 0)),
               ],
             ),

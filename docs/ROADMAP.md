@@ -112,20 +112,21 @@ Each phase ends with a usable app, passing tests, and a git tag.
 - [x] Route or hide the 8 unreachable pages, with one entry point per module (hidden as "Phase N": they showed made-up results)
 - [x] Settings: language, theme, default design code (national annex and units in Phase 1)
 
-### Phase 1 — Correct RC design (EC2 and BAEL), with tests
-Engine: `packages/sibot_engine` (pure Dart), 53 tests against hand calculations.
+### Phase 1 — Correct RC design (EC2 and BAEL), with tests ✅
+Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations.
 - [x] Materials: concrete and steel design values per code (EC2 αcc = 1.0, γc = 1.5; BAEL fbu, ft28)
-- [x] Beam: ULS bending (singly and doubly reinforced), shear (EC2 variable strut; BAEL τu), deflection by span/depth (EC2 7.4.2, BAEL B.6.5.1), bar and link selection
-- [ ] Beam: crack-width control, continuous beams (comes with Phase 2 analysis)
-- [x] Column: N–M interaction (strain compatibility), EC2 nominal curvature, BAEL α method and A.4.4 second order
-- [ ] Column: biaxial bending, circular sections
+- [x] Beam: ULS bending (singly and doubly reinforced), shear (EC2 variable strut; BAEL τu), deflection by span/depth, bar and link selection
+- [x] Beam SLS: cracked-section stresses, EC2 crack width (7.3.4) and σs ≤ 0.8 fyk; BAEL σbc and cracking classes (A.4.5)
+- [x] Column: N–M interaction (strain compatibility, any section), EC2 nominal curvature, BAEL α method and A.4.4 second order
+- [x] Column: biaxial bending (EC2 5.8.9(4)), circular sections
 - [x] Slabs: one-way and two-way (BAEL Annexe E3), simple or continuous (A.8.2.32), shear without links, deflection
-- [ ] Slabs: punching under point loads
-- [x] Footings: isolated pad, eccentric load, BAEL struts and ties, EC2 bending and punching (6.4 with β)
-- [ ] Footings: strip and combined footings; EC7 bearing resistance from soil parameters
-- [x] Retaining wall: overturning, sliding, eccentricity, bearing (global FS 1.5), stem design, iterative pre-design
-- [ ] Retaining wall: EC7 DA1/DA2 partial factors, heel and toe design
+- [x] Slabs: punching under columns / point loads (EC2 6.4 incl. reinforcement, BAEL A.5.2.42)
+- [x] Footings: isolated (eccentric), strip, combined two-column footing with V/M diagrams; punching
+- [x] Footings: EC7 Annex D bearing resistance from soil parameters (drained / undrained, DA2)
+- [x] Retaining wall: EC7 EQU overturning and DA2 sliding (EC2 code) or global FS 1.5 (BAEL); stem, toe and heel design; iterative pre-design
+- [x] Tools: bearing & settlement (EC7), section properties (rect, circle, hollow, I, T), quantities (concrete, formwork, rebar)
 - [ ] Each module checked against at least 2 published worked examples per code (and the user's RSA models) → then remove the Beta banner
+- [ ] Later: continuous beams (with Phase 2 analysis), edge/corner punching, combined footing widening optimisation
 
 ### Phase 2 — 2D FEM analysis (core RSA feature)
 - [ ] Engine: 2D truss and frame elements, releases, supports and springs, member loads, sparse solver in an isolate

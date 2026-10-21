@@ -22,10 +22,15 @@ class BeamNotifier extends DesignFormNotifier<BeamDesign> {
     'cover': 30,
     'fck': 25,
     'fyk': 500,
+    'psi2': 0.3,
+    'wmax': 0.3,
   };
 
   @override
-  Map<String, String> get initialOptions => {'support': 'simple'};
+  Map<String, String> get initialOptions => {
+    'support': 'simple',
+    'cracking': 'slight',
+  };
 
   @override
   List<String> get requiredKeys => const [
@@ -54,11 +59,14 @@ class BeamNotifier extends DesignFormNotifier<BeamDesign> {
       cover: s['cover']!,
       fck: s['fck']!,
       fyk: s['fyk']!,
+      psi2: s['psi2'] ?? 0.3,
+      crackLimit: s['wmax'] ?? 0.3,
+      baelCracking: BaelCracking.values.byName(s.options['cracking']!),
     ),
   );
 
   @override
-  Future<String> persist(DesignFormState<BeamDesign> s, BeamDesign r) async {
+  Future<String> saveResult(DesignFormState<BeamDesign> s, BeamDesign r) async {
     final id = IdService.generateCalculationId();
     await save(
       id,

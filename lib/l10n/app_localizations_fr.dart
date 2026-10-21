@@ -149,7 +149,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get dashDesignModules => 'Modules de calcul';
 
   @override
-  String get dashDesignModulesSubtitle => 'Béton armé, Eurocode 2 et BAEL';
+  String get dashDesignModulesSubtitle =>
+      'Béton, fondations, géotechnique et outils';
 
   @override
   String get dashRoadmap => 'Feuille de route';
@@ -388,7 +389,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get modFooting => 'Semelle';
 
   @override
-  String get modFootingSub => 'Semelle isolée, poinçonnement';
+  String get modFootingSub => 'Isolée, filante, combinée';
 
   @override
   String get modRetainingWall => 'Mur de soutènement';
@@ -543,7 +544,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get footingSubtitle =>
-      'Semelle isolée sous poteau : dimensions, armatures et poinçonnement.';
+      'Semelle isolée, filante ou combinée : dimensions, armatures, poinçonnement.';
 
   @override
   String get footingDesignBasis => 'Bases de calcul';
@@ -1073,7 +1074,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get columnUlsNote =>
-      'Valeurs de calcul ELU. La flexion agit autour de l\'axe parallèle à b.';
+      'Valeurs de calcul ELU. Le moment sens h fléchit la section suivant h ; le moment sens b suivant b.';
 
   @override
   String get columnSlendernessTitle => 'Élancement et moments';
@@ -1261,4 +1262,466 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get noteWallShearKey =>
       'Le glissement n\'est pas vérifié : ajoutez une bêche ou allongez le talon.';
+
+  @override
+  String get columnDiameter => 'Diamètre D';
+
+  @override
+  String get columnMomentH => 'Moment, sens h';
+
+  @override
+  String get columnMomentB => 'Moment, sens b';
+
+  @override
+  String get columnMomentX => 'Moment Mx';
+
+  @override
+  String get columnMomentY => 'Moment My';
+
+  @override
+  String get columnShape => 'Section';
+
+  @override
+  String get columnRectangular => 'Rectangulaire';
+
+  @override
+  String get columnCircular => 'Circulaire';
+
+  @override
+  String get columnUlsNoteCircle =>
+      'Valeurs de calcul ELU. Les deux moments sont composés vectoriellement.';
+
+  @override
+  String get columnBarsPerFace => 'Barres par face';
+
+  @override
+  String get noteBiaxial =>
+      'Moments dans les deux sens : vérification en flexion déviée EN 1992-1-1 5.8.9(4).';
+
+  @override
+  String get noteImperfectionOneDirection =>
+      'Imperfection et excentricité minimale appliquées dans un seul sens à la fois (EN 1992-1-1 5.8.9(2)) ; le cas le plus défavorable est retenu.';
+
+  @override
+  String get checkConcreteStress => 'Contrainte du béton (ELS)';
+
+  @override
+  String get checkSteelStress => 'Contrainte de l\'acier (ELS)';
+
+  @override
+  String get checkCrackWidth => 'Ouverture des fissures';
+
+  @override
+  String get diagramShear => 'Effort tranchant V';
+
+  @override
+  String get diagramMoment => 'Moment fléchissant M';
+
+  @override
+  String get slsTitle => 'État limite de service';
+
+  @override
+  String get slsCracking => 'Fissuration';
+
+  @override
+  String get slsCrackingSlight => 'Peu préjudiciable';
+
+  @override
+  String get slsCrackingHarmful => 'Préjudiciable';
+
+  @override
+  String get slsCrackingVeryHarmful => 'Très préjudiciable';
+
+  @override
+  String get slsPsi2 => 'Coefficient quasi permanent ψ2';
+
+  @override
+  String get slsCrackLimit => 'Ouverture limite wmax';
+
+  @override
+  String get slsCharMoment => 'Moment caractéristique';
+
+  @override
+  String get slsConcreteStress => 'Contrainte du béton';
+
+  @override
+  String get slsSteelStress => 'Contrainte de l\'acier';
+
+  @override
+  String get slsQpMoment => 'Moment quasi permanent';
+
+  @override
+  String get slsCrackSpacing => 'Espacement maximal des fissures';
+
+  @override
+  String get punchingTitle => 'Poinçonnement (facultatif)';
+
+  @override
+  String get punchingType => 'Type de charge';
+
+  @override
+  String get punchingColumn => 'Poteau intérieur';
+
+  @override
+  String get punchingPointLoad => 'Charge ponctuelle';
+
+  @override
+  String get punchingOptionalNote =>
+      'Laissez la charge vide pour ne pas vérifier le poinçonnement. Charge ELU sur une surface c1 × c2.';
+
+  @override
+  String get punchingLoad => 'Charge de poinçonnement VEd';
+
+  @override
+  String get punchingC1 => 'Surface chargée c1';
+
+  @override
+  String get punchingC2 => 'Surface chargée c2';
+
+  @override
+  String get punchingPerimeter => 'Contour de contrôle';
+
+  @override
+  String get punchingDemand => 'Sollicitation de poinçonnement';
+
+  @override
+  String get punchingResistance => 'Résistance sans armatures';
+
+  @override
+  String get punchingReinforcement =>
+      'Armatures de poinçonnement par contour (sr = 0,75d)';
+
+  @override
+  String get footingTypeLabel => 'Type de semelle';
+
+  @override
+  String get footingIsolatedType => 'Isolée';
+
+  @override
+  String get footingStripType => 'Filante';
+
+  @override
+  String get footingCombinedType => 'Combinée';
+
+  @override
+  String get footingWallActions => 'Efforts du mur (par mètre)';
+
+  @override
+  String get footingWallThickness => 'Épaisseur du mur';
+
+  @override
+  String get footingCol1A => 'Poteau 1, a (le long de la semelle)';
+
+  @override
+  String get footingCol1B => 'Poteau 1, b';
+
+  @override
+  String get footingCol2A => 'Poteau 2, a (le long de la semelle)';
+
+  @override
+  String get footingCol2B => 'Poteau 2, b';
+
+  @override
+  String get footingSpacingInput => 'Entraxe des poteaux';
+
+  @override
+  String get footingG1 => 'Poteau 1, G';
+
+  @override
+  String get footingQ1 => 'Poteau 1, Q';
+
+  @override
+  String get footingG2 => 'Poteau 2, G';
+
+  @override
+  String get footingQ2 => 'Poteau 2, Q';
+
+  @override
+  String get footingWidth => 'Largeur';
+
+  @override
+  String get footingTransverseBars => 'Armatures transversales';
+
+  @override
+  String get footingOverhang => 'Débord au-delà du poteau 1';
+
+  @override
+  String get footingLongBottom => 'Longitudinales, nappe inférieure';
+
+  @override
+  String get footingLongTop => 'Longitudinales, nappe supérieure';
+
+  @override
+  String footingTransverseUnder(int n) {
+    return 'Transversales sous le poteau $n';
+  }
+
+  @override
+  String get noteCombinedFooting =>
+      'Longueur choisie pour centrer la résultante de service ; calcul en poutre sur réaction linéaire du sol. Épaisseur augmentée jusqu\'à ne plus avoir besoin de cadres.';
+
+  @override
+  String get noteSoilEc7 =>
+      'Portance selon l\'EN 1997-1 Annexe D, approche de calcul 2 (γR,v = 1,4), charge verticale.';
+
+  @override
+  String get soilBearingMode => 'Vérification de portance';
+
+  @override
+  String get soilModeAllowable => 'Contrainte admissible';
+
+  @override
+  String get soilModeParameters => 'Paramètres du sol (EC7)';
+
+  @override
+  String get soilDrainage => 'Comportement du sol';
+
+  @override
+  String get soilDrained => 'Drainé (c′, φ′)';
+
+  @override
+  String get soilUndrained => 'Non drainé (cu)';
+
+  @override
+  String get soilCohesion => 'Cohésion c′';
+
+  @override
+  String get soilPhi => 'Angle de frottement φ′';
+
+  @override
+  String get soilCu => 'Cohésion non drainée cu';
+
+  @override
+  String get soilModulus => 'Module d\'Young E';
+
+  @override
+  String get soilPoisson => 'Coefficient de Poisson ν';
+
+  @override
+  String get wallBase => 'Semelle du mur';
+
+  @override
+  String get wallUlsPressure => 'Contrainte ELU, patin / talon';
+
+  @override
+  String get wallToeMoment => 'Patin, nappe inférieure';
+
+  @override
+  String get wallHeelMoment => 'Talon, nappe supérieure';
+
+  @override
+  String get wallEqu => 'Renversement EQU';
+
+  @override
+  String get wallDa2Sliding => 'Glissement DA2';
+
+  @override
+  String get noteWallEc7 =>
+      'EC7 : renversement à l\'EQU (γG,dst 1,1, γG,stb 0,9, γφ′ 1,25), glissement en DA2 (1,35 / 1,5, γR,h 1,1). Les coefficients globaux sont donnés à titre indicatif.';
+
+  @override
+  String get bearingSubtitle =>
+      'Portance EC7 et tassement d\'une fondation superficielle.';
+
+  @override
+  String get bearingWidth => 'Largeur B';
+
+  @override
+  String get bearingLength => 'Longueur L';
+
+  @override
+  String get bearingLoadNote =>
+      'Charges caractéristiques, poids de la semelle et des terres compris.';
+
+  @override
+  String get bearingResistance => 'Portance';
+
+  @override
+  String get bearingFactors => 'Facteurs de portance';
+
+  @override
+  String get bearingUltimate => 'Contrainte ultime';
+
+  @override
+  String get bearingDesignResistance => 'Résistance de calcul';
+
+  @override
+  String get bearingDesignPressure => 'Contrainte de calcul (1,35G + 1,5Q)';
+
+  @override
+  String get bearingSettlement => 'Tassement';
+
+  @override
+  String get bearingServicePressure => 'Contrainte de service';
+
+  @override
+  String get noteSettlementEstimate =>
+      'Le tassement est une estimation élastique pour une semelle rigide (cercle équivalent) ; utilisez des essais œdométriques pour les argiles.';
+
+  @override
+  String get sectionsSubtitle => 'Aire, inertie et modules de section.';
+
+  @override
+  String get sectionShape => 'Forme';
+
+  @override
+  String get sectionRect => 'Rectangle';
+
+  @override
+  String get sectionCircle => 'Cercle';
+
+  @override
+  String get sectionHollow => 'Creux';
+
+  @override
+  String get sectionI => 'I';
+
+  @override
+  String get sectionT => 'T';
+
+  @override
+  String get sectionWidth => 'Largeur b';
+
+  @override
+  String get sectionHeight => 'Hauteur h';
+
+  @override
+  String get sectionThickness => 'Épaisseur de paroi t';
+
+  @override
+  String get sectionFlange => 'Épaisseur de semelle tf';
+
+  @override
+  String get sectionWeb => 'Épaisseur d\'âme tw';
+
+  @override
+  String get sectionResults => 'Caractéristiques';
+
+  @override
+  String get sectionArea => 'Aire';
+
+  @override
+  String get sectionCentroid => 'Centre de gravité depuis le haut';
+
+  @override
+  String get sectionInertiaY => 'Inertie, axe fort';
+
+  @override
+  String get sectionInertiaZ => 'Inertie, axe faible';
+
+  @override
+  String get sectionWelTop => 'Module élastique, fibre supérieure';
+
+  @override
+  String get sectionWelBottom => 'Module élastique, fibre inférieure';
+
+  @override
+  String get sectionWpl => 'Module plastique';
+
+  @override
+  String get sectionRadii => 'Rayons de giration';
+
+  @override
+  String get noteSectionNoFillets =>
+      'Les congés de raccordement ne sont pas pris en compte ; les valeurs des catalogues de profilés sont un peu plus élevées.';
+
+  @override
+  String get quantitiesSubtitle =>
+      'Matériaux du béton, coffrage et poids d\'acier.';
+
+  @override
+  String get qtyElements => 'Éléments';
+
+  @override
+  String get qtyLength => 'Longueur';
+
+  @override
+  String get qtyWidth => 'Largeur';
+
+  @override
+  String get qtyHeight => 'Hauteur / épaisseur';
+
+  @override
+  String get qtyCount => 'Nombre';
+
+  @override
+  String get qtyFormworkType => 'Faces coffrées';
+
+  @override
+  String get qtyColumnWall => 'Poteau / voile';
+
+  @override
+  String get qtyMix => 'Dosage par m³';
+
+  @override
+  String get qtyCement => 'Ciment';
+
+  @override
+  String get qtySand => 'Sable';
+
+  @override
+  String get qtyGravel => 'Gravier';
+
+  @override
+  String get qtyWater => 'Eau';
+
+  @override
+  String get qtyWaste => 'Pertes';
+
+  @override
+  String get qtyRebar => 'Armatures';
+
+  @override
+  String get qtyBarDiameter => 'Diamètre des barres';
+
+  @override
+  String get qtyBarCount => 'Nombre de barres';
+
+  @override
+  String get qtyBarLength => 'Longueur des barres';
+
+  @override
+  String get qtyLap => 'Recouvrements et chutes';
+
+  @override
+  String get qtyConcrete => 'Béton';
+
+  @override
+  String get qtyVolume => 'Volume';
+
+  @override
+  String get qtyCementTotal => 'Ciment';
+
+  @override
+  String qtyBags(int n) {
+    return '$n sacs de 50 kg';
+  }
+
+  @override
+  String get qtySandTotal => 'Sable';
+
+  @override
+  String get qtyGravelTotal => 'Gravier';
+
+  @override
+  String get qtyWaterTotal => 'Eau';
+
+  @override
+  String get qtyFormwork => 'Surface de coffrage';
+
+  @override
+  String get qtyRebarLength => 'Longueur totale';
+
+  @override
+  String get qtyRebarMass => 'Masse';
+
+  @override
+  String get qtyStockBars => 'Barres de 12 m à commander';
+
+  @override
+  String get qtyNothing => 'Renseignez les éléments ou les armatures.';
+
+  @override
+  String get noteQuantitiesMix =>
+      'Le dosage par défaut est un dosage courant de chantier (350 kg/m³). Adaptez-le à votre formulation.';
 }

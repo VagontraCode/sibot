@@ -84,7 +84,7 @@ class WallNotifier extends DesignFormNotifier<WallDesign> {
   WallDesign compute(DesignFormState<WallDesign> s) => designWall(_input(s));
 
   @override
-  Future<String> persist(DesignFormState<WallDesign> s, WallDesign r) async {
+  Future<String> saveResult(DesignFormState<WallDesign> s, WallDesign r) async {
     final id = IdService.generateCalculationId();
     await save(
       id,

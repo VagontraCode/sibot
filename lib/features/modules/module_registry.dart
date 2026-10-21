@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sibot/l10n/l10n.dart';
 
 enum ModuleStatus {
+  /// Usable; exact formulas that need no independent verification
+  /// (geometry, quantities).
+  available,
+
   /// Usable, but calculations are not yet verified (Phase 1 rewrite pending).
   beta,
 
@@ -178,8 +182,8 @@ const modules = <EngModule>[
     id: 'bearing',
     icon: Icons.terrain_outlined,
     category: ModuleCategory.geotech,
-    status: ModuleStatus.comingSoon,
-    phase: 1,
+    route: 'bearing',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'slope',
@@ -206,15 +210,15 @@ const modules = <EngModule>[
     id: 'sections',
     icon: Icons.crop_square,
     category: ModuleCategory.tools,
-    status: ModuleStatus.comingSoon,
-    phase: 1,
+    route: 'sections',
+    status: ModuleStatus.available,
   ),
   EngModule(
     id: 'quantities',
     icon: Icons.calculate_outlined,
     category: ModuleCategory.tools,
-    status: ModuleStatus.comingSoon,
-    phase: 1,
+    route: 'quantities',
+    status: ModuleStatus.available,
   ),
   EngModule(
     id: 'pile-cap',
