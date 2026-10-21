@@ -1414,5 +1414,12 @@
         "type": "String"
       }
     }
-  }
+  },
+  "checkSteelBendingZ": "Minor-axis bending",
+  "f3dDesignStatic": "Design forces: envelope of the ULS combinations.",
+  "f3dDesignSeismic": "Design forces: seismic situation G + 0.3 Q ± E (envelope).",
+  "f3dMinorMoment": "Minor-axis moment",
+  "f3dBeamExtraForces": "Biaxial bending or axial force",
+  "f3dBeamExtraForcesMsg": "This beam also carries a significant minor-axis moment or axial force, which the beam design ignores. Design it as a column to include them.",
+  "f3dTapToDesign": "Tap a member in the view to design it."
 }

@@ -5905,6 +5905,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PS92 (NF P 06-013): aN = {an} m/s², normalised spectrum R(T) of the site, damping 5 % (ρ = 1), no topographic effect (τ = 1). Design acceleration aN·R(T)/q.'**
   String f3dPs92Note(String an);
+
+  /// No description provided for @checkSteelBendingZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor-axis bending'**
+  String get checkSteelBendingZ;
+
+  /// No description provided for @f3dDesignStatic.
+  ///
+  /// In en, this message translates to:
+  /// **'Design forces: envelope of the ULS combinations.'**
+  String get f3dDesignStatic;
+
+  /// No description provided for @f3dDesignSeismic.
+  ///
+  /// In en, this message translates to:
+  /// **'Design forces: seismic situation G + 0.3 Q ± E (envelope).'**
+  String get f3dDesignSeismic;
+
+  /// No description provided for @f3dMinorMoment.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor-axis moment'**
+  String get f3dMinorMoment;
+
+  /// No description provided for @f3dBeamExtraForces.
+  ///
+  /// In en, this message translates to:
+  /// **'Biaxial bending or axial force'**
+  String get f3dBeamExtraForces;
+
+  /// No description provided for @f3dBeamExtraForcesMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This beam also carries a significant minor-axis moment or axial force, which the beam design ignores. Design it as a column to include them.'**
+  String get f3dBeamExtraForcesMsg;
+
+  /// No description provided for @f3dTapToDesign.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a member in the view to design it.'**
+  String get f3dTapToDesign;
 }
 
 class _AppLocalizationsDelegate

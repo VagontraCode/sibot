@@ -9,6 +9,7 @@ import 'package:sibot/features/calculations/loads/presentation/seismic_provider.
 import 'package:sibot/features/calculations/shared/design_form.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
+import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -381,6 +382,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   MemberValue _colorBy = MemberValue.my;
   bool _pDelta = false;
   int _mode = 0;
+  int? _selected;
   final DesignCode _code = defaultDesignCode();
 
   // Seismic input; the analysis runs when [_spectrum] is set.
@@ -440,11 +442,15 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         model: model,
         result: spectrum.envelope,
         colorBy: _colorBy,
+        selectedMember: _selected,
+        onPick: (p) => _design(context, out, p, spectrum),
       ),
       _Tab.statics when staticResult != null => Frame3DView(
         model: model,
         result: staticResult,
         colorBy: _colorBy,
+        selectedMember: _selected,
+        onPick: (p) => _design(context, out, p, null),
       ),
       _ => Frame3DView(model: model),
     };
@@ -653,6 +659,8 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           value: _pDelta,
           onChanged: (v) => setState(() => _pDelta = v),
         ),
+      const SizedBox(height: Gap.md),
+      Text(l.f3dTapToDesign, style: context.text.bodySmall),
       const SizedBox(height: Gap.md),
       if (r == null)
         const LinearProgressIndicator()
@@ -916,6 +924,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         ],
         if (s.runs.length > 1)
           Text(l.f3dCombinedNote, style: context.text.bodySmall),
+        Text(l.f3dTapToDesign, style: context.text.bodySmall),
         const SizedBox(height: Gap.md),
         _colorChoice(context),
         const SizedBox(height: Gap.md),
@@ -971,5 +980,35 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         ],
       ),
     ];
+  }
+
+  /// Opens the design of a tapped member from the ULS envelope, or from
+  /// the seismic situations G + 0.3 Q ± E when [seismic] is given.
+  Future<void> _design(
+    BuildContext context,
+    Frame3DOutput? out,
+    Pick3D? pick,
+    SeismicOutput? seismic,
+  ) async {
+    if (out == null || pick is! MemberPick) return;
+    setState(() => _selected = pick.member);
+    final List<Frame3DResult> results;
+    if (seismic != null && out.caseResults.length >= 2) {
+      final quasi = out.caseResults[0].plus(out.caseResults[1].scaled(0.3));
+      results = seismicSituations(quasi, seismic.envelope);
+    } else {
+      results = [
+        for (var i = 0; i < out.combinations.length; i++)
+          if (out.combinations[i].kind == CombinationKind.uls) out.results[i],
+      ];
+    }
+    if (results.isEmpty) return;
+    await showMember3DDesign(
+      context,
+      model: out.model,
+      index: pick.member,
+      results: results,
+      seismic: seismic != null,
+    );
   }
 }

@@ -8,8 +8,24 @@ import 'package:sibot_engine/sibot_engine.dart';
 /// What the viewer colours the members by.
 enum MemberValue { none, my, mz, n }
 
+/// A tapped node or member.
+sealed class Pick3D {
+  const Pick3D();
+}
+
+class NodePick extends Pick3D {
+  final int node;
+  const NodePick(this.node);
+}
+
+class MemberPick extends Pick3D {
+  final int member;
+  const MemberPick(this.member);
+}
+
 /// Interactive orthographic view of a space frame: drag to orbit, pinch
-/// (or scroll) to zoom, two fingers to pan, double-tap to reset.
+/// (or scroll) to zoom, two fingers to pan, double-tap to reset, tap to
+/// pick a node or a member.
 class Frame3DView extends StatefulWidget {
   final Model3D model;
 
@@ -22,6 +38,17 @@ class Frame3DView extends StatefulWidget {
   final bool animate;
   final MemberValue colorBy;
 
+  /// Editing aids: node dots and the loads of [loadCase].
+  final bool showNodes;
+  final int? loadCase;
+
+  final int? selectedNode;
+  final int? selectedMember;
+
+  /// First node while connecting a new member.
+  final int? pendingNode;
+  final ValueChanged<Pick3D?>? onPick;
+
   const Frame3DView({
     super.key,
     required this.model,
@@ -29,10 +56,103 @@ class Frame3DView extends StatefulWidget {
     this.shape,
     this.animate = false,
     this.colorBy = MemberValue.none,
+    this.showNodes = false,
+    this.loadCase,
+    this.selectedNode,
+    this.selectedMember,
+    this.pendingNode,
+    this.onPick,
   });
 
   @override
   State<Frame3DView> createState() => _Frame3DViewState();
+}
+
+/// Orthographic camera fitted to the model.
+class _Projector {
+  final double cx, cy, cz, radius, scale;
+  final Offset centre;
+  final double cyw, syw, cp, sp;
+
+  factory _Projector(
+    Model3D m,
+    Size size,
+    double yaw,
+    double pitch,
+    double zoom,
+    Offset pan,
+  ) {
+    final (cx, cy, cz, r) = _bounds(m);
+    return _Projector._(
+      cx,
+      cy,
+      cz,
+      r,
+      math.min(size.width, size.height) / (2.3 * r) * zoom,
+      size.center(Offset.zero) + pan,
+      math.cos(yaw),
+      math.sin(yaw),
+      math.cos(pitch),
+      math.sin(pitch),
+    );
+  }
+
+  _Projector._(
+    this.cx,
+    this.cy,
+    this.cz,
+    this.radius,
+    this.scale,
+    this.centre,
+    this.cyw,
+    this.syw,
+    this.cp,
+    this.sp,
+  );
+
+  static (double, double, double, double) _bounds(Model3D m) {
+    if (m.nodes.isEmpty) return (0, 0, 0, 1);
+    var minX = double.infinity, minY = minX, minZ = minX;
+    var maxX = -double.infinity, maxY = maxX, maxZ = maxX;
+    for (final n in m.nodes) {
+      minX = math.min(minX, n.x);
+      maxX = math.max(maxX, n.x);
+      minY = math.min(minY, n.y);
+      maxY = math.max(maxY, n.y);
+      minZ = math.min(minZ, n.z);
+      maxZ = math.max(maxZ, n.z);
+    }
+    final r = math.max(
+      0.5,
+      math.sqrt(
+            math.pow(maxX - minX, 2) +
+                math.pow(maxY - minY, 2) +
+                math.pow(maxZ - minZ, 2),
+          ) /
+          2,
+    );
+    return ((minX + maxX) / 2, (minY + maxY) / 2, (minZ + maxZ) / 2, r);
+  }
+
+  /// Screen point and depth (larger = farther).
+  (Offset, double) project(double x, double y, double z) {
+    final px = x - cx, py = y - cy, pz = z - cz;
+    final x1 = px * cyw - py * syw;
+    final y1 = px * syw + py * cyw;
+    final up = pz * cp + y1 * sp;
+    final depth = y1 * cp - pz * sp;
+    return (centre + Offset(x1 * scale, -up * scale), depth);
+  }
+
+  Offset node(Node3D n) => project(n.x, n.y, n.z).$1;
+
+  /// Screen image of a global direction, [len] pixels per unit.
+  Offset direction(double x, double y, double z, double len) {
+    final x1 = x * cyw - y * syw;
+    final y1 = x * syw + y * cyw;
+    final up = z * cp + y1 * sp;
+    return Offset(x1, -up) * len;
+  }
 }
 
 class _Frame3DViewState extends State<Frame3DView>
@@ -41,6 +161,7 @@ class _Frame3DViewState extends State<Frame3DView>
   double _yaw = _yaw0, _pitch = _pitch0, _zoom = 1;
   Offset _pan = Offset.zero;
   double _scaleStart = 1;
+  Size _size = Size.zero;
   late final AnimationController _anim = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1600),
@@ -79,60 +200,114 @@ class _Frame3DViewState extends State<Frame3DView>
     _pan = Offset.zero;
   });
 
+  void _tap(Offset p) {
+    final onPick = widget.onPick;
+    if (onPick == null) return;
+    final pr = _Projector(widget.model, _size, _yaw, _pitch, _zoom, _pan);
+    final m = widget.model;
+    // Nodes first (when shown), then the nearest member.
+    if (widget.showNodes) {
+      var best = -1;
+      var bestD = 22.0;
+      for (var i = 0; i < m.nodes.length; i++) {
+        final d = (pr.node(m.nodes[i]) - p).distance;
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+      if (best >= 0) {
+        onPick(NodePick(best));
+        return;
+      }
+    }
+    var best = -1;
+    var bestD = 18.0;
+    for (var e = 0; e < m.elements.length; e++) {
+      final a = pr.node(m.nodes[m.elements[e].n1]);
+      final b = pr.node(m.nodes[m.elements[e].n2]);
+      final ab = b - a;
+      final len2 = ab.distanceSquared;
+      final ap = p - a;
+      final t = len2 == 0
+          ? 0.0
+          : ((ap.dx * ab.dx + ap.dy * ab.dy) / len2).clamp(0.0, 1.0);
+      final d = (a + ab * t - p).distance;
+      if (d < bestD) {
+        bestD = d;
+        best = e;
+      }
+    }
+    onPick(best >= 0 ? MemberPick(best) : null);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = _ViewColors(context);
-    return Listener(
-      onPointerSignal: (e) {
-        if (e is PointerScrollEvent) {
-          setState(() {
-            _zoom = (_zoom * (e.scrollDelta.dy > 0 ? 0.9 : 1.1)).clamp(0.2, 20);
-          });
-        }
-      },
-      child: GestureDetector(
-        onDoubleTap: _reset,
-        onScaleStart: (_) => _scaleStart = _zoom,
-        onScaleUpdate: (d) => setState(() {
-          if (d.pointerCount == 1) {
-            _yaw += d.focalPointDelta.dx * 0.01;
-            _pitch = (_pitch + d.focalPointDelta.dy * 0.01).clamp(-1.5, 1.5);
-          } else {
-            _zoom = (_scaleStart * d.scale).clamp(0.2, 20);
-            _pan += d.focalPointDelta;
-          }
-        }),
-        child: ClipRect(
-          child: AnimatedBuilder(
-            animation: _anim,
-            builder: (context, _) => CustomPaint(
-              size: Size.infinite,
-              painter: _FramePainter(
-                model: widget.model,
-                result: widget.result,
-                shape: widget.shape,
-                phase: widget.animate ? math.cos(_anim.value * 2 * math.pi) : 1,
-                colorBy: widget.colorBy,
-                yaw: _yaw,
-                pitch: _pitch,
-                zoom: _zoom,
-                pan: _pan,
-                c: colors,
+    return LayoutBuilder(
+      builder: (context, box) {
+        _size = box.biggest;
+        return Listener(
+          onPointerSignal: (e) {
+            if (e is PointerScrollEvent) {
+              setState(() {
+                _zoom = (_zoom * (e.scrollDelta.dy > 0 ? 0.9 : 1.1)).clamp(
+                  0.2,
+                  20,
+                );
+              });
+            }
+          },
+          child: GestureDetector(
+            onDoubleTap: _reset,
+            onTapUp: (d) => _tap(d.localPosition),
+            onScaleStart: (_) => _scaleStart = _zoom,
+            onScaleUpdate: (d) => setState(() {
+              if (d.pointerCount == 1) {
+                _yaw += d.focalPointDelta.dx * 0.01;
+                _pitch = (_pitch + d.focalPointDelta.dy * 0.01).clamp(
+                  -1.5,
+                  1.5,
+                );
+              } else {
+                _zoom = (_scaleStart * d.scale).clamp(0.2, 20);
+                _pan += d.focalPointDelta;
+              }
+            }),
+            child: ClipRect(
+              child: AnimatedBuilder(
+                animation: _anim,
+                builder: (context, _) => CustomPaint(
+                  size: Size.infinite,
+                  painter: _FramePainter(
+                    view: widget,
+                    phase: widget.animate
+                        ? math.cos(_anim.value * 2 * math.pi)
+                        : 1,
+                    yaw: _yaw,
+                    pitch: _pitch,
+                    zoom: _zoom,
+                    pan: _pan,
+                    c: colors,
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
 class _ViewColors {
-  final Color member, ghost, support, axisX, axisY, axisZ, ink;
+  final Color member, ghost, support, select, load, axisX, axisY, axisZ, ink;
   _ViewColors(BuildContext c)
     : member = c.colors.onSurface,
       ghost = c.colors.outlineVariant,
       support = c.colors.primary,
+      select = c.colors.tertiary,
+      load = c.appColors.danger,
       axisX = const Color(0xFFE5484D),
       axisY = const Color(0xFF30A46C),
       axisZ = const Color(0xFF3E63DD),
@@ -153,21 +328,15 @@ Color heat(double t) {
 }
 
 class _FramePainter extends CustomPainter {
-  final Model3D model;
-  final Frame3DResult? result;
-  final List<List<double>>? shape;
+  final Frame3DView view;
   final double phase;
-  final MemberValue colorBy;
   final double yaw, pitch, zoom;
   final Offset pan;
   final _ViewColors c;
 
   _FramePainter({
-    required this.model,
-    required this.result,
-    required this.shape,
+    required this.view,
     required this.phase,
-    required this.colorBy,
     required this.yaw,
     required this.pitch,
     required this.zoom,
@@ -177,48 +346,15 @@ class _FramePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final model = view.model;
     final nodes = model.nodes;
     if (nodes.isEmpty) return;
-    var minX = double.infinity, minY = minX, minZ = minX;
-    var maxX = -double.infinity, maxY = maxX, maxZ = maxX;
-    for (final n in nodes) {
-      minX = math.min(minX, n.x);
-      maxX = math.max(maxX, n.x);
-      minY = math.min(minY, n.y);
-      maxY = math.max(maxY, n.y);
-      minZ = math.min(minZ, n.z);
-      maxZ = math.max(maxZ, n.z);
-    }
-    final cx = (minX + maxX) / 2,
-        cy = (minY + maxY) / 2,
-        cz = (minZ + maxZ) / 2;
-    final radius = math.max(
-      0.5,
-      math.sqrt(
-            math.pow(maxX - minX, 2) +
-                math.pow(maxY - minY, 2) +
-                math.pow(maxZ - minZ, 2),
-          ) /
-          2,
-    );
-    final scale = math.min(size.width, size.height) / (2.3 * radius) * zoom;
-    final centre = size.center(Offset.zero) + pan;
-    final cyw = math.cos(yaw), syw = math.sin(yaw);
-    final cp = math.cos(pitch), sp = math.sin(pitch);
+    final pr = _Projector(model, size, yaw, pitch, zoom, pan);
+    final radius = pr.radius;
+    final r = view.result, s = view.shape;
 
-    // Returns screen point and depth (larger = farther).
-    (Offset, double) project(double x, double y, double z) {
-      final px = x - cx, py = y - cy, pz = z - cz;
-      final x1 = px * cyw - py * syw;
-      final y1 = px * syw + py * cyw;
-      final up = pz * cp + y1 * sp;
-      final depth = y1 * cp - pz * sp;
-      return (centre + Offset(x1 * scale, -up * scale), depth);
-    }
-
-    // Deformation scale: largest displacement drawn at 8 % of the size.
+    // Deformation scale: largest displacement drawn at 16 % of the radius.
     double maxDisp = 0;
-    final r = result, s = shape;
     if (r != null) {
       for (final m in r.members) {
         for (final st in m.stations) {
@@ -236,15 +372,14 @@ class _FramePainter extends CustomPainter {
     }
     final defScale = maxDisp > 0 ? 0.16 * radius / maxDisp * phase : 0.0;
 
-    // Member colouring range.
-    double value(Station3D st) => switch (colorBy) {
+    double value(Station3D st) => switch (view.colorBy) {
       MemberValue.my => st.my.abs(),
       MemberValue.mz => st.mz.abs(),
       MemberValue.n => st.n.abs(),
       MemberValue.none => 0,
     };
     var vMax = 0.0;
-    if (r != null && colorBy != MemberValue.none) {
+    if (r != null && view.colorBy != MemberValue.none) {
       for (final m in r.members) {
         for (final st in m.stations) {
           vMax = math.max(vMax, value(st));
@@ -252,53 +387,70 @@ class _FramePainter extends CustomPainter {
       }
     }
 
-    // Undeformed model as a ghost when showing deformation.
     final deformed = defScale != 0;
     final segments = <(Offset, Offset, double, Color, double)>[];
     for (var e = 0; e < model.elements.length; e++) {
       final el = model.elements[e];
       final a = nodes[el.n1], b = nodes[el.n2];
-      final (pa, da) = project(a.x, a.y, a.z);
-      final (pb, db) = project(b.x, b.y, b.z);
+      final (pa, da) = pr.project(a.x, a.y, a.z);
+      final (pb, db) = pr.project(b.x, b.y, b.z);
+      final depth = (da + db) / 2;
+      final selected = e == view.selectedMember;
       if (deformed || vMax > 0) {
-        segments.add((pa, pb, (da + db) / 2, c.ghost, 1));
+        segments.add((
+          pa,
+          pb,
+          depth,
+          selected ? c.select : c.ghost,
+          selected ? 3.0 : 1.0,
+        ));
       }
-      if (r != null && (deformed || vMax > 0)) {
+      if (r != null && e < r.members.length && (deformed || vMax > 0)) {
         final st = r.members[e].stations;
         final l = st.last.x;
         for (var k = 0; k < st.length - 1; k++) {
           Offset at(int i) {
             final t = l == 0 ? 0.0 : st[i].x / l;
-            final x = a.x + (b.x - a.x) * t + st[i].disp[0] * defScale;
-            final y = a.y + (b.y - a.y) * t + st[i].disp[1] * defScale;
-            final z = a.z + (b.z - a.z) * t + st[i].disp[2] * defScale;
-            return project(x, y, z).$1;
+            return pr
+                .project(
+                  a.x + (b.x - a.x) * t + st[i].disp[0] * defScale,
+                  a.y + (b.y - a.y) * t + st[i].disp[1] * defScale,
+                  a.z + (b.z - a.z) * t + st[i].disp[2] * defScale,
+                )
+                .$1;
           }
 
           final color = vMax > 0
               ? heat((value(st[k]) + value(st[k + 1])) / 2 / vMax)
               : c.member;
-          segments.add((at(k), at(k + 1), (da + db) / 2 - 1e-6, color, 2.4));
+          segments.add((at(k), at(k + 1), depth - 1e-6, color, 2.4));
         }
       } else if (s != null && deformed) {
-        Offset at(Node3D n, int i) => project(
-          n.x + s[i][0] * defScale,
-          n.y + s[i][1] * defScale,
-          n.z + s[i][2] * defScale,
-        ).$1;
+        Offset at(Node3D n, int i) => pr
+            .project(
+              n.x + s[i][0] * defScale,
+              n.y + s[i][1] * defScale,
+              n.z + s[i][2] * defScale,
+            )
+            .$1;
         segments.add((
           at(a, el.n1),
           at(b, el.n2),
-          (da + db) / 2 - 1e-6,
+          depth - 1e-6,
           c.support,
           2.4,
         ));
       } else {
-        segments.add((pa, pb, (da + db) / 2, c.member, 1.8));
+        segments.add((
+          pa,
+          pb,
+          depth,
+          selected ? c.select : c.member,
+          selected ? 4.0 : 1.8,
+        ));
       }
     }
 
-    // Far to near, with depth fading.
     segments.sort((p, q) => q.$3.compareTo(p.$3));
     final depthRange = radius * 2;
     for (final (p, q, depth, color, width) in segments) {
@@ -317,20 +469,93 @@ class _FramePainter extends CustomPainter {
     }
 
     // Supports.
-    final sp2 = Paint()..color = c.support;
+    final supportPaint = Paint()..color = c.support;
     for (final n in model.supports.keys) {
       if (n < 0 || n >= nodes.length) continue;
-      final (p, _) = project(nodes[n].x, nodes[n].y, nodes[n].z);
-      canvas.drawRect(Rect.fromCenter(center: p, width: 7, height: 7), sp2);
+      canvas.drawRect(
+        Rect.fromCenter(center: pr.node(nodes[n]), width: 7, height: 7),
+        supportPaint,
+      );
+    }
+
+    // Loads of the edited case: arrows for nodal forces and global
+    // member loads.
+    final lc = view.loadCase;
+    if (lc != null && lc >= 0 && lc < model.cases.length) {
+      final loadPaint = Paint()
+        ..color = c.load
+        ..strokeWidth = 1.6;
+      void arrow(Offset tip, Offset dir) {
+        canvas.drawLine(tip - dir, tip, loadPaint);
+        final len = dir.distance;
+        if (len == 0) return;
+        final n = dir / len;
+        final side = Offset(-n.dy, n.dx);
+        final b1 = tip - n * 6 + side * 3, b2 = tip - n * 6 - side * 3;
+        canvas.drawPath(
+          Path()
+            ..moveTo(tip.dx, tip.dy)
+            ..lineTo(b1.dx, b1.dy)
+            ..lineTo(b2.dx, b2.dy)
+            ..close(),
+          Paint()..color = c.load,
+        );
+      }
+
+      final c3 = model.cases[lc];
+      for (final p in c3.nodal) {
+        if (p.node < 0 || p.node >= nodes.length) continue;
+        final f = math.sqrt(p.fx * p.fx + p.fy * p.fy + p.fz * p.fz);
+        if (f == 0) continue;
+        arrow(
+          pr.node(nodes[p.node]),
+          pr.direction(p.fx / f, p.fy / f, p.fz / f, 28),
+        );
+      }
+      for (final q in c3.member) {
+        if (q.local || q.element < 0 || q.element >= model.elements.length) {
+          continue;
+        }
+        final el = model.elements[q.element];
+        final a = nodes[el.n1], b = nodes[el.n2];
+        final w = math.sqrt(q.qx * q.qx + q.qy * q.qy + q.qz * q.qz);
+        if (w == 0) continue;
+        for (final t in const [0.25, 0.5, 0.75]) {
+          final tip = pr
+              .project(
+                a.x + (b.x - a.x) * t,
+                a.y + (b.y - a.y) * t,
+                a.z + (b.z - a.z) * t,
+              )
+              .$1;
+          arrow(tip, pr.direction(q.qx / w, q.qy / w, q.qz / w, 14));
+        }
+      }
+    }
+
+    // Nodes (editing) and selection rings.
+    if (view.showNodes) {
+      final dot = Paint()..color = c.ink;
+      for (final n in nodes) {
+        canvas.drawCircle(pr.node(n), 2.6, dot);
+      }
+    }
+    for (final i in [view.selectedNode, view.pendingNode]) {
+      if (i == null || i < 0 || i >= nodes.length) continue;
+      canvas.drawCircle(
+        pr.node(nodes[i]),
+        7,
+        Paint()
+          ..color = c.select
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.4,
+      );
     }
 
     // Axis triad.
     final origin = Offset(34, size.height - 30);
     void axis(double x, double y, double z, Color color, String label) {
-      final x1 = x * cyw - y * syw;
-      final y1 = x * syw + y * cyw;
-      final up = z * cp + y1 * sp;
-      final tip = origin + Offset(x1 * 22, -up * 22);
+      final tip = origin + pr.direction(x, y, z, 22);
       canvas.drawLine(
         origin,
         tip,
@@ -357,7 +582,6 @@ class _FramePainter extends CustomPainter {
     axis(0, 1, 0, c.axisY, 'Y');
     axis(0, 0, 1, c.axisZ, 'Z');
 
-    // Colour legend.
     if (vMax > 0) {
       const w = 110.0, h = 8.0;
       final left = size.width - w - 12, top = 12.0;

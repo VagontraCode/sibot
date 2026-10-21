@@ -967,5 +967,12 @@
   "f3dPs92Zone": "Zone sismique",
   "f3dPs92Class": "Classe d'ouvrage",
   "f3dPs92Site": "Site",
-  "f3dPs92Note": "PS92 (NF P 06-013) : aN = {an} m/s², spectre normalisé R(T) du site, amortissement 5 % (ρ = 1), sans effet topographique (τ = 1). Accélération de calcul aN·R(T)/q."
+  "f3dPs92Note": "PS92 (NF P 06-013) : aN = {an} m/s², spectre normalisé R(T) du site, amortissement 5 % (ρ = 1), sans effet topographique (τ = 1). Accélération de calcul aN·R(T)/q.",
+  "checkSteelBendingZ": "Flexion d'axe faible",
+  "f3dDesignStatic": "Efforts de calcul : enveloppe des combinaisons ELU.",
+  "f3dDesignSeismic": "Efforts de calcul : situation sismique G + 0,3 Q ± E (enveloppe).",
+  "f3dMinorMoment": "Moment d'axe faible",
+  "f3dBeamExtraForces": "Flexion déviée ou effort normal",
+  "f3dBeamExtraForcesMsg": "Cette poutre reprend aussi un moment d'axe faible ou un effort normal notable, ignorés par le calcul en poutre. La calculer comme un poteau pour les prendre en compte.",
+  "f3dTapToDesign": "Touchez une barre dans la vue pour la dimensionner."
 }

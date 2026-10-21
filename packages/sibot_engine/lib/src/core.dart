@@ -44,6 +44,7 @@ enum CheckKind {
   lateralTorsional,
   bucklingInteractionY,
   bucklingInteractionZ,
+  steelBendingZ,
   combinedStress,
   deflectionInstant,
   deflectionFinal,

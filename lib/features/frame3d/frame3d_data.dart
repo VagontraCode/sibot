@@ -103,6 +103,9 @@ class Frame3DOutput {
   final Model3D model;
   final List<Combination> combinations;
   final List<Frame3DResult> results;
+
+  /// Results of the load cases themselves (G, Q).
+  final List<Frame3DResult> caseResults;
   final List<Mode> modes;
   final List<double> totalMass;
 
@@ -116,6 +119,7 @@ class Frame3DOutput {
     required this.model,
     this.combinations = const [],
     this.results = const [],
+    this.caseResults = const [],
     this.modes = const [],
     this.totalMass = const [0, 0, 0],
     this.alphaCr,
@@ -167,6 +171,7 @@ Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
       model: model,
       combinations: combos,
       results: results,
+      caseResults: cases,
       modes: modal.modes,
       totalMass: modal.totalMass,
       alphaCr: alpha,

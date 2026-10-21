@@ -3195,4 +3195,29 @@ class AppLocalizationsFr extends AppLocalizations {
   String f3dPs92Note(String an) {
     return 'PS92 (NF P 06-013) : aN = $an m/s², spectre normalisé R(T) du site, amortissement 5 % (ρ = 1), sans effet topographique (τ = 1). Accélération de calcul aN·R(T)/q.';
   }
+
+  @override
+  String get checkSteelBendingZ => 'Flexion d\'axe faible';
+
+  @override
+  String get f3dDesignStatic =>
+      'Efforts de calcul : enveloppe des combinaisons ELU.';
+
+  @override
+  String get f3dDesignSeismic =>
+      'Efforts de calcul : situation sismique G + 0,3 Q ± E (enveloppe).';
+
+  @override
+  String get f3dMinorMoment => 'Moment d\'axe faible';
+
+  @override
+  String get f3dBeamExtraForces => 'Flexion déviée ou effort normal';
+
+  @override
+  String get f3dBeamExtraForcesMsg =>
+      'Cette poutre reprend aussi un moment d\'axe faible ou un effort normal notable, ignorés par le calcul en poutre. La calculer comme un poteau pour les prendre en compte.';
+
+  @override
+  String get f3dTapToDesign =>
+      'Touchez une barre dans la vue pour la dimensionner.';
 }

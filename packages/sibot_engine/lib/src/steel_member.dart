@@ -35,6 +35,9 @@ class SteelMemberInput {
   /// Maximum major-axis moment (absolute), kN·m.
   final double myEd;
 
+  /// Maximum minor-axis moment (absolute), kN·m.
+  final double mzEd;
+
   /// Maximum shear force (absolute), kN.
   final double vEd;
 
@@ -58,6 +61,7 @@ class SteelMemberInput {
     this.grade = 'S275',
     this.nEd = 0,
     this.myEd = 0,
+    this.mzEd = 0,
     this.vEd = 0,
     this.ky = 1,
     this.kz = 1,
@@ -166,6 +170,7 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
   requirePositive(i.kLT, 'kLT');
   requireRange(i.psi, -1, 1, 'psi');
   if (i.myEd < 0) throw const InputError(InputProblem.notPositive, 'myEd');
+  if (i.mzEd < 0) throw const InputError(InputProblem.notPositive, 'mzEd');
   if (i.vEd < 0) throw const InputError(InputProblem.notPositive, 'vEd');
   final grade = steelGrades[i.grade];
   if (grade == null) throw const InputError(InputProblem.outOfRange, 'grade');
@@ -175,6 +180,7 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
   final eps = math.sqrt(235 / fy);
   final nEd = i.nEd * 1e3; // N, compression positive
   final mEd = i.myEd * 1e6; // N·mm
+  final mzEd = i.mzEd * 1e6;
   final vEd = i.vEd * 1e3;
   final compression = nEd > 0;
 
@@ -216,11 +222,13 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
   }
   final plastic = sectionClass <= 2;
   final wy = plastic ? s.wplY : s.welY;
+  final wz = plastic ? s.wplZ : s.welZ;
 
   // ── Cross-section resistances (6.2) ─────────────────────────────────
   final nRk = (compression ? aEff : s.area) * fy;
   final nPlRd = nRk / i.gammaM0;
   final mcRd = wy * fy / i.gammaM0;
+  final mczRd = wz * fy / i.gammaM0;
   final vPlRd = s.avz * fy / math.sqrt(3) / i.gammaM0;
 
   // Shear interaction (6.2.8): reduced yield strength over the web.
@@ -244,10 +252,18 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
       final a = math.min(0.5, (s.area - 2 * s.b * s.tf) / s.area);
       mNRd = math.min(mVRd, mVRd * (1 - n) / (1 - 0.5 * a));
     }
-    crossRatio = n >= 1 ? n : (mEd / math.max(mNRd, 1e-9));
+    // Minor axis (6.2.9.1(5)) and biaxial bending (6.41).
+    final a = math.min(0.5, (s.area - 2 * s.b * s.tf) / s.area);
+    final mNzRd = n <= a ? mczRd : mczRd * (1 - math.pow((n - a) / (1 - a), 2));
+    final beta = math.max(1.0, 5 * n);
+    crossRatio = n >= 1
+        ? n
+        : (math.pow(mEd / math.max(mNRd, 1e-9), 2) +
+                  math.pow(mzEd / math.max(mNzRd, 1e-9), beta))
+              .toDouble();
     crossRatio = math.max(crossRatio, n);
   } else {
-    crossRatio = n + mEd / mVRd;
+    crossRatio = n + mEd / mVRd + mzEd / mczRd;
     mNRd = mVRd * math.max(0, 1 - n);
   }
 
@@ -301,9 +317,11 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
   final nZRd = chiZ * nRk / i.gammaM1;
   final nY = compression ? nEd / nYRd : 0.0;
   final nZ = compression ? nEd / nZRd : 0.0;
-  final double kyy, kzy;
+  final double kyy, kzy, kzz, kyz;
   if (plastic) {
     kyy = cm * math.min(1 + (lambdaY - 0.2) * nY, 1 + 0.8 * nY);
+    kzz = cm * math.min(1 + (2 * lambdaZ - 0.6) * nZ, 1 + 1.4 * nZ);
+    kyz = 0.6 * kzz;
     if (lambdaZ < 0.4) {
       kzy = math.min(0.6 + lambdaZ, 1 - 0.1 * lambdaZ * nZ / (cm - 0.25));
     } else {
@@ -314,6 +332,8 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
     }
   } else {
     kyy = cm * math.min(1 + 0.6 * lambdaY * nY, 1 + 0.6 * nY);
+    kzz = cm * math.min(1 + 0.6 * lambdaZ * nZ, 1 + 0.6 * nZ);
+    kyz = kzz;
     kzy = math.max(
       1 - 0.05 * lambdaZ * nZ / (cm - 0.25),
       1 - 0.05 * nZ / (cm - 0.25),
@@ -336,6 +356,14 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
       clause: '$ref 6.2.5',
       unit: 'kN·m',
     ),
+    if (i.mzEd > 0)
+      Check(
+        kind: CheckKind.steelBendingZ,
+        demand: i.mzEd,
+        capacity: mczRd / 1e6,
+        clause: '$ref 6.2.5',
+        unit: 'kN·m',
+      ),
     Check(
       kind: CheckKind.steelShear,
       demand: i.vEd,
@@ -373,16 +401,23 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
         clause: '$ref 6.3.2.3',
         unit: 'kN·m',
       ),
-    if (compression && i.myEd > 0) ...[
+    if ((compression && (i.myEd > 0 || i.mzEd > 0)) ||
+        (i.myEd > 0 && i.mzEd > 0)) ...[
       Check(
         kind: CheckKind.bucklingInteractionY,
-        demand: nY + kyy * mEd / (mbRd),
+        demand:
+            nY +
+            kyy * mEd / mbRd +
+            kyz * mzEd / (mczRd * i.gammaM0 / i.gammaM1),
         capacity: 1,
         clause: '$ref 6.3.3 (6.61)',
       ),
       Check(
         kind: CheckKind.bucklingInteractionZ,
-        demand: nZ + kzy * mEd / (mbRd),
+        demand:
+            nZ +
+            kzy * mEd / mbRd +
+            kzz * mzEd / (mczRd * i.gammaM0 / i.gammaM1),
         capacity: 1,
         clause: '$ref 6.3.3 (6.62)',
       ),

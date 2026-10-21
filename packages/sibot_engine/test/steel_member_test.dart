@@ -1,4 +1,6 @@
 // EN 1993-1-1 member checks against hand calculations.
+import 'dart:math' as math;
+
 import 'package:sibot_engine/sibot_engine.dart';
 import 'package:test/test.dart';
 
@@ -127,6 +129,39 @@ void main() {
     );
     // Wpl,req = 100e6 / 235 = 425.5 cm³ → IPE 270 (484 cm³).
     expect(s?.name, 'IPE 270');
+  });
+
+  test('minor-axis bending: Mpl,z = Wpl,z fy and biaxial interaction', () {
+    // HEB 200 S235: Wpl,z = 306.1 cm³ → Mpl,z = 71.9 kN·m.
+    final r = designSteelMember(
+      SteelMemberInput(
+        section: heb200,
+        grade: 'S235',
+        length: 3,
+        mzEd: 30,
+        kLT: 0.01,
+      ),
+    );
+    final bz = _check(r, CheckKind.steelBendingZ);
+    expect(bz.capacity, closeTo(71.9, 0.8));
+    // Biaxial (6.41) with n = 0: (My/Mpl,y)² + Mz/Mpl,z.
+    final both = designSteelMember(
+      SteelMemberInput(
+        section: heb200,
+        grade: 'S235',
+        length: 3,
+        myEd: 80,
+        mzEd: 30,
+        kLT: 0.01,
+      ),
+    );
+    final c = _check(both, CheckKind.steelCombined);
+    final mply = heb200.wplY * 235 / 1e6;
+    expect(c.demand, closeTo(math.pow(80 / mply, 2) + 30 / bz.capacity, 1e-6));
+    expect(
+      both.checks.any((k) => k.kind == CheckKind.bucklingInteractionZ),
+      isTrue,
+    );
   });
 
   test('rejects an unknown grade', () {

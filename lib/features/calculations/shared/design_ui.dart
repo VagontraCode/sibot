@@ -55,6 +55,7 @@ String checkLabel(AppLocalizations l, CheckKind k) => switch (k) {
   CheckKind.lateralTorsional => l.checkLtb,
   CheckKind.bucklingInteractionY => l.checkInteractionY,
   CheckKind.bucklingInteractionZ => l.checkInteractionZ,
+  CheckKind.steelBendingZ => l.checkSteelBendingZ,
   CheckKind.combinedStress => l.checkCombinedStress,
   CheckKind.deflectionInstant => l.checkDeflectionInstant,
   CheckKind.deflectionFinal => l.checkDeflectionFinal,

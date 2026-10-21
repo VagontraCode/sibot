@@ -3176,4 +3176,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String f3dPs92Note(String an) {
     return 'PS92 (NF P 06-013): aN = $an m/s², normalised spectrum R(T) of the site, damping 5 % (ρ = 1), no topographic effect (τ = 1). Design acceleration aN·R(T)/q.';
   }
+
+  @override
+  String get checkSteelBendingZ => 'Minor-axis bending';
+
+  @override
+  String get f3dDesignStatic =>
+      'Design forces: envelope of the ULS combinations.';
+
+  @override
+  String get f3dDesignSeismic =>
+      'Design forces: seismic situation G + 0.3 Q ± E (envelope).';
+
+  @override
+  String get f3dMinorMoment => 'Minor-axis moment';
+
+  @override
+  String get f3dBeamExtraForces => 'Biaxial bending or axial force';
+
+  @override
+  String get f3dBeamExtraForcesMsg =>
+      'This beam also carries a significant minor-axis moment or axial force, which the beam design ignores. Design it as a column to include them.';
+
+  @override
+  String get f3dTapToDesign => 'Tap a member in the view to design it.';
 }
