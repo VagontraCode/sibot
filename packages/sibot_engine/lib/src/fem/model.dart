@@ -55,6 +55,9 @@ class Support {
 }
 
 /// Cross-section and material of a member.
+/// Material family of a section, used to offer member design.
+enum SectionMaterial { concrete, steel, timber, other }
+
 class FrameSection {
   final String name;
 
@@ -66,12 +69,26 @@ class FrameSection {
   /// Unit weight of the material (kN/m³) for self-weight.
   final double unitWeight;
 
+  final SectionMaterial material;
+
+  /// Concrete / timber rectangles: width and depth (mm) and characteristic
+  /// strength fck (MPa). Steel: [profile] names a library section.
+  final double? b;
+  final double? h;
+  final double? fck;
+  final String? profile;
+
   const FrameSection({
     required this.name,
     required this.area,
     required this.inertia,
     required this.youngModulus,
     this.unitWeight = 25,
+    this.material = SectionMaterial.other,
+    this.b,
+    this.h,
+    this.fck,
+    this.profile,
   });
 
   /// Rectangular section b × h (mm) in concrete of modulus [e] (MPa).
@@ -80,6 +97,7 @@ class FrameSection {
     double hMm, {
     double e = 31000,
     double unitWeight = 25,
+    double? fck,
   }) {
     final b = bMm / 1000, h = hMm / 1000;
     return FrameSection(
@@ -88,6 +106,10 @@ class FrameSection {
       inertia: b * h * h * h / 12,
       youngModulus: e,
       unitWeight: unitWeight,
+      material: SectionMaterial.concrete,
+      b: bMm,
+      h: hMm,
+      fck: fck,
     );
   }
 
@@ -100,6 +122,11 @@ class FrameSection {
     'inertia': inertia,
     'e': youngModulus,
     'gamma': unitWeight,
+    'material': material.name,
+    'b': b,
+    'h': h,
+    'fck': fck,
+    'profile': profile,
   };
   factory FrameSection.fromJson(Map<String, dynamic> j) => FrameSection(
     name: j['name'] as String? ?? '',
@@ -107,6 +134,13 @@ class FrameSection {
     inertia: (j['inertia'] as num).toDouble(),
     youngModulus: (j['e'] as num).toDouble(),
     unitWeight: (j['gamma'] as num?)?.toDouble() ?? 25,
+    material: SectionMaterial.values.byName(
+      j['material'] as String? ?? 'other',
+    ),
+    b: (j['b'] as num?)?.toDouble(),
+    h: (j['h'] as num?)?.toDouble(),
+    fck: (j['fck'] as num?)?.toDouble(),
+    profile: j['profile'] as String?,
   );
 }
 

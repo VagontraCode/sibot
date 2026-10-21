@@ -3811,6 +3811,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'New members use the selected section.'**
   String get frameSectionNote;
+
+  /// No description provided for @memberDesignButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Design this member'**
+  String get memberDesignButton;
+
+  /// No description provided for @memberDesignSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Designed from the ULS envelope of the frame analysis.'**
+  String get memberDesignSubtitle;
+
+  /// No description provided for @memberEnvelopeForces.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS envelope forces'**
+  String get memberEnvelopeForces;
+
+  /// No description provided for @memberCompression.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum compression'**
+  String get memberCompression;
+
+  /// No description provided for @memberTension.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum tension'**
+  String get memberTension;
+
+  /// No description provided for @memberDesignAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Design as'**
+  String get memberDesignAs;
+
+  /// No description provided for @memberBucklingFactor.
+  ///
+  /// In en, this message translates to:
+  /// **'Buckling length factor l0/L'**
+  String get memberBucklingFactor;
+
+  /// No description provided for @memberBucklingFactorHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'1.0 for a braced storey column is a safe default; use 0.7 to 0.85 if the ends are restrained by stiff beams.'**
+  String get memberBucklingFactorHelp;
+
+  /// No description provided for @memberNoEnvelope.
+  ///
+  /// In en, this message translates to:
+  /// **'No ULS combination: add a load case first.'**
+  String get memberNoEnvelope;
+
+  /// No description provided for @memberUnsupportedSection.
+  ///
+  /// In en, this message translates to:
+  /// **'This section cannot be designed here yet'**
+  String get memberUnsupportedSection;
+
+  /// No description provided for @memberUnsupportedSectionMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.'**
+  String get memberUnsupportedSectionMsg;
+
+  /// No description provided for @memberBeamNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised.'**
+  String get memberBeamNote;
 }
 
 class _AppLocalizationsDelegate

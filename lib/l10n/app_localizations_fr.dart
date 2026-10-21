@@ -2026,4 +2026,47 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get frameSectionNote =>
       'Les nouvelles barres utilisent la section sélectionnée.';
+
+  @override
+  String get memberDesignButton => 'Dimensionner cette barre';
+
+  @override
+  String get memberDesignSubtitle =>
+      'Dimensionnement à partir de l\'enveloppe ELU de l\'analyse du portique.';
+
+  @override
+  String get memberEnvelopeForces => 'Efforts de l\'enveloppe ELU';
+
+  @override
+  String get memberCompression => 'Compression maximale';
+
+  @override
+  String get memberTension => 'Traction maximale';
+
+  @override
+  String get memberDesignAs => 'Dimensionner comme';
+
+  @override
+  String get memberBucklingFactor =>
+      'Coefficient de longueur de flambement l0/L';
+
+  @override
+  String get memberBucklingFactorHelp =>
+      '1,0 pour un poteau d\'étage contreventé est une valeur sûre ; 0,7 à 0,85 si les extrémités sont tenues par des poutres raides.';
+
+  @override
+  String get memberNoEnvelope =>
+      'Aucune combinaison ELU : ajoutez d\'abord un cas de charge.';
+
+  @override
+  String get memberUnsupportedSection =>
+      'Cette section ne peut pas encore être dimensionnée ici';
+
+  @override
+  String get memberUnsupportedSectionMsg =>
+      'Les rectangles en béton sont dimensionnés ici ; les profilés en acier le seront avec le module EC3.';
+
+  @override
+  String get memberBeamNote =>
+      'Utilise les moments extrêmes de l\'enveloppe sur toute la barre ; l\'arrêt des barres le long de la portée n\'est pas optimisé.';
 }

@@ -618,5 +618,17 @@
   "frameSectionType": "Type de section",
   "frameConcreteRect": "Rectangle en béton",
   "frameProfile": "Profilé",
-  "frameSectionNote": "Les nouvelles barres utilisent la section sélectionnée."
+  "frameSectionNote": "Les nouvelles barres utilisent la section sélectionnée.",
+  "memberDesignButton": "Dimensionner cette barre",
+  "memberDesignSubtitle": "Dimensionnement à partir de l'enveloppe ELU de l'analyse du portique.",
+  "memberEnvelopeForces": "Efforts de l'enveloppe ELU",
+  "memberCompression": "Compression maximale",
+  "memberTension": "Traction maximale",
+  "memberDesignAs": "Dimensionner comme",
+  "memberBucklingFactor": "Coefficient de longueur de flambement l0/L",
+  "memberBucklingFactorHelp": "1,0 pour un poteau d'étage contreventé est une valeur sûre ; 0,7 à 0,85 si les extrémités sont tenues par des poutres raides.",
+  "memberNoEnvelope": "Aucune combinaison ELU : ajoutez d'abord un cas de charge.",
+  "memberUnsupportedSection": "Cette section ne peut pas encore être dimensionnée ici",
+  "memberUnsupportedSectionMsg": "Les rectangles en béton sont dimensionnés ici ; les profilés en acier le seront avec le module EC3.",
+  "memberBeamNote": "Utilise les moments extrêmes de l'enveloppe sur toute la barre ; l'arrêt des barres le long de la portée n'est pas optimisé."
 }

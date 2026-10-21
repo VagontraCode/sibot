@@ -479,3 +479,176 @@ BeamDesign designBeam(BeamInput i) {
     notes: notes,
   );
 }
+
+/// Design of a rectangular beam section for given ULS forces, e.g. from a
+/// frame analysis envelope: sagging moment (bottom tension), hogging
+/// moment (top tension) and shear.
+class BeamSectionInput {
+  final DesignCode code;
+  final double b;
+  final double h;
+  final double cover;
+  final int linkDiameter;
+
+  /// Magnitudes, kN·m and kN.
+  final double mSagging;
+  final double mHogging;
+  final double vEd;
+
+  final double fck;
+  final double fyk;
+
+  const BeamSectionInput({
+    required this.code,
+    required this.b,
+    required this.h,
+    required this.mSagging,
+    required this.mHogging,
+    required this.vEd,
+    required this.fck,
+    required this.fyk,
+    this.cover = 30,
+    this.linkDiameter = 8,
+  });
+}
+
+class BeamSectionDesign {
+  final BeamSectionInput input;
+  final double d;
+  final BendingDesign bottom;
+  final BendingDesign top;
+  final double asMin;
+
+  /// Required steel per face including compression steel, mm².
+  final double asBottom;
+  final double asTop;
+  final BarSet? bottomBars;
+  final BarSet? topBars;
+  final ShearDesign shear;
+  final List<Check> checks;
+
+  const BeamSectionDesign({
+    required this.input,
+    required this.d,
+    required this.bottom,
+    required this.top,
+    required this.asMin,
+    required this.asBottom,
+    required this.asTop,
+    required this.bottomBars,
+    required this.topBars,
+    required this.shear,
+    required this.checks,
+  });
+
+  bool get ok => checks.every((c) => c.ok);
+}
+
+BeamSectionDesign designBeamSection(BeamSectionInput i) {
+  requirePositive(i.b, 'b');
+  requirePositive(i.h, 'h');
+  if (i.mSagging < 0 || i.mHogging < 0 || i.vEd < 0) {
+    throw const InputError(InputProblem.outOfRange, 'mEd');
+  }
+  final concrete = Concrete(i.code, i.fck);
+  final steel = RebarSteel(i.fyk);
+  final inner = i.b - 2 * (i.cover + i.linkDiameter);
+  if (inner <= 0) {
+    throw const InputError(InputProblem.inconsistentGeometry, 'cover');
+  }
+  // Effective depth with Ø16 bars; compression steel at the other face.
+  final d = i.h - i.cover - i.linkDiameter - 8;
+  final d2 = i.cover + i.linkDiameter + 8;
+  if (d <= d2) throw const InputError(InputProblem.inconsistentGeometry, 'h');
+  BendingDesign bend(double m) => designRectangularBending(
+    code: i.code,
+    concrete: concrete,
+    steel: steel,
+    mEd: m,
+    b: i.b,
+    d: d,
+    d2: d2,
+  );
+  final bottom = bend(i.mSagging);
+  final top = bend(i.mHogging);
+  final asMin = minTensionSteel(
+    code: i.code,
+    concrete: concrete,
+    steel: steel,
+    b: i.b,
+    d: d,
+  );
+  double face(BendingDesign own, BendingDesign other) => [
+    own.asTension,
+    other.asCompression,
+    if (own.asTension > 0) asMin,
+  ].reduce(math.max);
+  final asBottom = face(bottom, top);
+  final asTop = face(top, bottom);
+  // Faces without a requirement still get constructional bars (2 Ø10).
+  BarSet? bars(double as) =>
+      as <= 0 ? const BarSet(2, 10) : chooseBars(as, inner);
+  final bottomBars = bars(asBottom);
+  final topBars = bars(asTop);
+
+  final rho = (bottomBars?.area ?? asBottom) / (i.b * d);
+  final shear = designShear(
+    code: i.code,
+    concrete: concrete,
+    steel: steel,
+    vEd: i.vEd,
+    b: i.b,
+    d: d,
+    rhoL: rho,
+  );
+
+  final checks = <Check>[
+    Check(
+      kind: CheckKind.bendingSteel,
+      demand: asBottom,
+      capacity: bottomBars?.area ?? 0,
+      clause: bendingClause(i.code),
+      unit: 'mm²',
+    ),
+    Check(
+      kind: CheckKind.bendingSteel,
+      demand: asTop,
+      capacity: topBars?.area ?? 0,
+      clause: bendingClause(i.code),
+      unit: 'mm²',
+    ),
+    Check(
+      kind: CheckKind.maxSteel,
+      demand: (bottomBars?.area ?? 0) + (topBars?.area ?? 0),
+      capacity: 0.04 * i.b * i.h,
+      clause: i.code == DesignCode.ec2
+          ? 'EN 1992-1-1 9.2.1.1(3)'
+          : 'cf. EN 1992-1-1 9.2.1.1(3)',
+      unit: 'mm²',
+    ),
+    shear.crushing,
+    Check(
+      kind: CheckKind.shearLinks,
+      demand: shear.aswPerSRequired,
+      capacity: shear.links?.aswPerS ?? 0,
+      clause: i.code == DesignCode.ec2
+          ? 'EN 1992-1-1 6.2.3, 9.2.2'
+          : 'BAEL A.5.1.23',
+      unit: 'mm²/mm',
+    ),
+  ];
+
+  return BeamSectionDesign(
+    input: i,
+    d: d,
+    bottom: bottom,
+    top: top,
+    asMin: asMin,
+    asBottom: asBottom,
+    asTop: asTop,
+    bottomBars: bottomBars,
+    topBars: topBars,
+    shear: shear,
+    checks: checks,
+  );
+}

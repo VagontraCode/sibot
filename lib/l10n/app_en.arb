@@ -847,5 +847,17 @@
   "frameSectionType": "Section type",
   "frameConcreteRect": "Concrete rectangle",
   "frameProfile": "Profile",
-  "frameSectionNote": "New members use the selected section."
+  "frameSectionNote": "New members use the selected section.",
+  "memberDesignButton": "Design this member",
+  "memberDesignSubtitle": "Designed from the ULS envelope of the frame analysis.",
+  "memberEnvelopeForces": "ULS envelope forces",
+  "memberCompression": "Maximum compression",
+  "memberTension": "Maximum tension",
+  "memberDesignAs": "Design as",
+  "memberBucklingFactor": "Buckling length factor l0/L",
+  "memberBucklingFactorHelp": "1.0 for a braced storey column is a safe default; use 0.7 to 0.85 if the ends are restrained by stiff beams.",
+  "memberNoEnvelope": "No ULS combination: add a load case first.",
+  "memberUnsupportedSection": "This section cannot be designed here yet",
+  "memberUnsupportedSectionMsg": "Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.",
+  "memberBeamNote": "Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised."
 }

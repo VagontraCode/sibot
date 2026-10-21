@@ -56,9 +56,16 @@ class DesignFormState<R> {
   }
 }
 
-DesignCode defaultDesignCode() => SettingsService.getDefaultCode() == 'bael99'
-    ? DesignCode.bael
-    : DesignCode.ec2;
+/// Default code from the settings; Eurocode when settings are unavailable.
+DesignCode defaultDesignCode() {
+  try {
+    return SettingsService.getDefaultCode() == 'bael99'
+        ? DesignCode.bael
+        : DesignCode.ec2;
+  } catch (_) {
+    return DesignCode.ec2;
+  }
+}
 
 /// Base notifier for a design module of one project.
 abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {

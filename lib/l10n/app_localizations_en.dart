@@ -2014,4 +2014,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get frameSectionNote => 'New members use the selected section.';
+
+  @override
+  String get memberDesignButton => 'Design this member';
+
+  @override
+  String get memberDesignSubtitle =>
+      'Designed from the ULS envelope of the frame analysis.';
+
+  @override
+  String get memberEnvelopeForces => 'ULS envelope forces';
+
+  @override
+  String get memberCompression => 'Maximum compression';
+
+  @override
+  String get memberTension => 'Maximum tension';
+
+  @override
+  String get memberDesignAs => 'Design as';
+
+  @override
+  String get memberBucklingFactor => 'Buckling length factor l0/L';
+
+  @override
+  String get memberBucklingFactorHelp =>
+      '1.0 for a braced storey column is a safe default; use 0.7 to 0.85 if the ends are restrained by stiff beams.';
+
+  @override
+  String get memberNoEnvelope => 'No ULS combination: add a load case first.';
+
+  @override
+  String get memberUnsupportedSection =>
+      'This section cannot be designed here yet';
+
+  @override
+  String get memberUnsupportedSectionMsg =>
+      'Concrete rectangles are designed here; steel profiles will be designed with the EC3 module.';
+
+  @override
+  String get memberBeamNote =>
+      'Uses the extreme envelope moments of the whole member; curtailment of bars along the span is not optimised.';
 }

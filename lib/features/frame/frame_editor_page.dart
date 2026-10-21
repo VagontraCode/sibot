@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/calculations/shared/diagrams.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
+import 'package:sibot/features/frame/frame_member_design.dart';
 import 'package:sibot/features/frame/frame_providers.dart';
 import 'package:sibot/features/frame/section_library.dart';
 import 'package:sibot/l10n/l10n.dart';
@@ -333,6 +334,7 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
                 model: s.model,
                 result: result,
                 envelope: _source == 'env' ? out : null,
+                output: out,
               );
         if (wide) {
           return Row(
@@ -861,6 +863,9 @@ class _MemberResultPanel extends StatelessWidget {
   final Model2D model;
   final FrameResult result;
 
+  /// Full analysis output (for member design).
+  final FrameAnalysisOutput output;
+
   /// Present when the ULS envelope is shown.
   final FrameAnalysisOutput? envelope;
 
@@ -868,11 +873,30 @@ class _MemberResultPanel extends StatelessWidget {
     required this.index,
     required this.model,
     required this.result,
+    required this.output,
     this.envelope,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _content(context),
+      const SizedBox(height: Gap.md),
+      FilledButton.icon(
+        onPressed: () => showMemberDesign(
+          context,
+          model: model,
+          output: output,
+          index: index,
+        ),
+        icon: const Icon(Icons.architecture_rounded),
+        label: Text(context.l10n.memberDesignButton),
+      ),
+    ],
+  );
+
+  Widget _content(BuildContext context) {
     final l = context.l10n;
     final mem = result.members[index];
     final env = envelope;
