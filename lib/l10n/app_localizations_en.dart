@@ -2674,4 +2674,71 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get seismicNoteScope =>
       'Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q.';
+
+  @override
+  String get slopeSubtitle =>
+      'Bishop\'s simplified method · automatic critical circle search';
+
+  @override
+  String get slopeGeometry => 'Slope geometry';
+
+  @override
+  String get slopeHeight => 'Height H';
+
+  @override
+  String get slopeAngle => 'Face angle β';
+
+  @override
+  String get slopeSurcharge => 'Crest surcharge q';
+
+  @override
+  String get slopeMaxDepth => 'Max. depth below toe';
+
+  @override
+  String get slopeGeometryNote =>
+      'Simple slope from a horizontal crest to a horizontal toe, β ≤ 75°. Max. depth limits deep circles (empty = H).';
+
+  @override
+  String get slopeSoil => 'Soil (effective parameters)';
+
+  @override
+  String get slopeGamma => 'Unit weight γ';
+
+  @override
+  String get slopeCohesion => 'Cohesion c\'';
+
+  @override
+  String get slopePhi => 'Friction angle φ\'';
+
+  @override
+  String get slopeSoilNote =>
+      'Homogeneous soil. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.';
+
+  @override
+  String get slopeCritical => 'Critical slip circle';
+
+  @override
+  String get slopeFactor => 'Factor of safety';
+
+  @override
+  String get slopeFactorEc7 => 'With EC7 DA3 parameters';
+
+  @override
+  String get slopeCentre => 'Centre';
+
+  @override
+  String get slopeRadius => 'Radius';
+
+  @override
+  String get slopeCircles => 'Circles analysed';
+
+  @override
+  String get slopeNoteScope =>
+      'Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.';
+
+  @override
+  String get checkSlopeGlobal => 'Global factor of safety';
+
+  @override
+  String get checkSlopeEc7 => 'Overall stability (EC7)';
 }

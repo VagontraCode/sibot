@@ -49,6 +49,8 @@ enum CheckKind {
   deflectionFinal,
   wallEnd,
   wallMid,
+  slopeGlobal,
+  slopeEc7,
 }
 
 /// One design check: [demand] must not exceed [capacity].

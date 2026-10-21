@@ -189,8 +189,8 @@ const modules = <EngModule>[
     id: 'slope',
     icon: Icons.landscape_outlined,
     category: ModuleCategory.geotech,
-    status: ModuleStatus.comingSoon,
-    phase: 3,
+    route: 'slope',
+    status: ModuleStatus.beta,
   ),
   EngModule(
     id: 'wind-snow',

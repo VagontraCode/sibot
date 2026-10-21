@@ -17,6 +17,7 @@ import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/calculations/beams/presentation/beams_provider.dart';
 import 'package:sibot/features/calculations/columns/presentation/columns_provider.dart';
+import 'package:sibot/features/calculations/geotech/presentation/slope_provider.dart';
 import 'package:sibot/features/calculations/loads/presentation/seismic_provider.dart';
 import 'package:sibot/features/calculations/loads/presentation/wind_snow_provider.dart';
 import 'package:sibot/features/calculations/masonry/presentation/masonry_wall_provider.dart';
@@ -205,6 +206,15 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             ..setOption('ground', 'c')
             ..setAll({'storeys': 4, 'mass': 300}))
           .calculate(),
+  'slope': (c) =>
+      (c.read(slopeStateProvider('PRJ_1').notifier)..setAll({
+            'height': 8,
+            'angle': 33.7,
+            'cohesion': 10,
+            'phi': 28,
+            'surcharge': 10,
+          }))
+          .calculate(),
   'slab': (c) =>
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
@@ -282,6 +292,7 @@ void main() {
     'column': '/projects/PRJ_1/column',
     'column_circular': '/projects/PRJ_1/column',
     'slab': '/projects/PRJ_1/slab',
+    'slope': '/projects/PRJ_1/slope',
     'seismic': '/projects/PRJ_1/seismic',
     'wind_snow': '/projects/PRJ_1/wind-snow',
     'masonry_wall': '/projects/PRJ_1/masonry-wall',

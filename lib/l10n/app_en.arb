@@ -1143,5 +1143,26 @@
       }
     }
   },
-  "seismicNoteScope": "Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q."
+  "seismicNoteScope": "Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q.",
+  "slopeSubtitle": "Bishop's simplified method · automatic critical circle search",
+  "slopeGeometry": "Slope geometry",
+  "slopeHeight": "Height H",
+  "slopeAngle": "Face angle β",
+  "slopeSurcharge": "Crest surcharge q",
+  "slopeMaxDepth": "Max. depth below toe",
+  "slopeGeometryNote": "Simple slope from a horizontal crest to a horizontal toe, β ≤ 75°. Max. depth limits deep circles (empty = H).",
+  "slopeSoil": "Soil (effective parameters)",
+  "slopeGamma": "Unit weight γ",
+  "slopeCohesion": "Cohesion c'",
+  "slopePhi": "Friction angle φ'",
+  "slopeSoilNote": "Homogeneous soil. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.",
+  "slopeCritical": "Critical slip circle",
+  "slopeFactor": "Factor of safety",
+  "slopeFactorEc7": "With EC7 DA3 parameters",
+  "slopeCentre": "Centre",
+  "slopeRadius": "Radius",
+  "slopeCircles": "Circles analysed",
+  "slopeNoteScope": "Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ' and c' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.",
+  "checkSlopeGlobal": "Global factor of safety",
+  "checkSlopeEc7": "Overall stability (EC7)"
 }

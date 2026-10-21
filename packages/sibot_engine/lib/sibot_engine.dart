@@ -30,6 +30,7 @@ export 'src/retaining_wall.dart';
 export 'src/seismic.dart';
 export 'src/section_properties.dart';
 export 'src/slab.dart';
+export 'src/slope.dart';
 export 'src/steel_member.dart';
 export 'src/steel_sections.dart';
 export 'src/timber.dart';

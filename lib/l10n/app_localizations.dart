@@ -5029,6 +5029,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Regular building in elevation, one horizontal direction. Floor forces proportional to height × mass (4.11). Accidental torsion, the vertical component, second-order effects and PS92 are not covered yet. Seismic mass = G + ψE,i Q.'**
   String get seismicNoteScope;
+
+  /// No description provided for @slopeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bishop\'s simplified method · automatic critical circle search'**
+  String get slopeSubtitle;
+
+  /// No description provided for @slopeGeometry.
+  ///
+  /// In en, this message translates to:
+  /// **'Slope geometry'**
+  String get slopeGeometry;
+
+  /// No description provided for @slopeHeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Height H'**
+  String get slopeHeight;
+
+  /// No description provided for @slopeAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Face angle β'**
+  String get slopeAngle;
+
+  /// No description provided for @slopeSurcharge.
+  ///
+  /// In en, this message translates to:
+  /// **'Crest surcharge q'**
+  String get slopeSurcharge;
+
+  /// No description provided for @slopeMaxDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. depth below toe'**
+  String get slopeMaxDepth;
+
+  /// No description provided for @slopeGeometryNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple slope from a horizontal crest to a horizontal toe, β ≤ 75°. Max. depth limits deep circles (empty = H).'**
+  String get slopeGeometryNote;
+
+  /// No description provided for @slopeSoil.
+  ///
+  /// In en, this message translates to:
+  /// **'Soil (effective parameters)'**
+  String get slopeSoil;
+
+  /// No description provided for @slopeGamma.
+  ///
+  /// In en, this message translates to:
+  /// **'Unit weight γ'**
+  String get slopeGamma;
+
+  /// No description provided for @slopeCohesion.
+  ///
+  /// In en, this message translates to:
+  /// **'Cohesion c\''**
+  String get slopeCohesion;
+
+  /// No description provided for @slopePhi.
+  ///
+  /// In en, this message translates to:
+  /// **'Friction angle φ\''**
+  String get slopePhi;
+
+  /// No description provided for @slopeSoilNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Homogeneous soil. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.'**
+  String get slopeSoilNote;
+
+  /// No description provided for @slopeCritical.
+  ///
+  /// In en, this message translates to:
+  /// **'Critical slip circle'**
+  String get slopeCritical;
+
+  /// No description provided for @slopeFactor.
+  ///
+  /// In en, this message translates to:
+  /// **'Factor of safety'**
+  String get slopeFactor;
+
+  /// No description provided for @slopeFactorEc7.
+  ///
+  /// In en, this message translates to:
+  /// **'With EC7 DA3 parameters'**
+  String get slopeFactorEc7;
+
+  /// No description provided for @slopeCentre.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre'**
+  String get slopeCentre;
+
+  /// No description provided for @slopeRadius.
+  ///
+  /// In en, this message translates to:
+  /// **'Radius'**
+  String get slopeRadius;
+
+  /// No description provided for @slopeCircles.
+  ///
+  /// In en, this message translates to:
+  /// **'Circles analysed'**
+  String get slopeCircles;
+
+  /// No description provided for @slopeNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.'**
+  String get slopeNoteScope;
+
+  /// No description provided for @checkSlopeGlobal.
+  ///
+  /// In en, this message translates to:
+  /// **'Global factor of safety'**
+  String get checkSlopeGlobal;
+
+  /// No description provided for @checkSlopeEc7.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall stability (EC7)'**
+  String get checkSlopeEc7;
 }
 
 class _AppLocalizationsDelegate

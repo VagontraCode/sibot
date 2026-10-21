@@ -60,6 +60,8 @@ String checkLabel(AppLocalizations l, CheckKind k) => switch (k) {
   CheckKind.deflectionFinal => l.checkDeflectionFinal,
   CheckKind.wallEnd => l.checkWallEnd,
   CheckKind.wallMid => l.checkWallMid,
+  CheckKind.slopeGlobal => l.checkSlopeGlobal,
+  CheckKind.slopeEc7 => l.checkSlopeEc7,
 };
 
 /// Message for an input problem, using the page's field labels.

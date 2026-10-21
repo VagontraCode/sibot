@@ -156,6 +156,10 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] EC8 lateral force method (Beta): design spectrum types 1/2, ground A–E, γI, Ct period, λ, height-proportional storey forces, French zone presets
 - [ ] PS92 equivalent static method; accidental torsion
 
+- [x] Slope stability (Beta): Bishop simplified, grid + pattern search of the critical circle, ru, crest surcharge, EC7 DA3 factor; checked against Taylor (φ = 0) and the infinite slope (c = 0)
+- [ ] Slopes: layered soils, water table, non-circular surfaces, faces steeper than 75°
+- [ ] Pile cap (strut-and-tie), septic tank sizing
+
 ### Phase 4 — 3D frames and dynamics
 - [ ] 3D frame element (6 DOF), rigid diaphragms, 3D viewer (orbit, pan, zoom)
 - [ ] Modal analysis, then response spectrum (EC8 / PS92) with CQC combination

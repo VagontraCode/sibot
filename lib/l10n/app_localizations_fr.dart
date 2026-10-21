@@ -2690,4 +2690,71 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get seismicNoteScope =>
       'Bâtiment régulier en élévation, une direction horizontale. Forces d\'étage proportionnelles à hauteur × masse (4.11). La torsion accidentelle, la composante verticale, les effets du second ordre et le PS92 ne sont pas encore traités. Masse sismique = G + ψE,i Q.';
+
+  @override
+  String get slopeSubtitle =>
+      'Méthode de Bishop simplifiée · recherche automatique du cercle critique';
+
+  @override
+  String get slopeGeometry => 'Géométrie du talus';
+
+  @override
+  String get slopeHeight => 'Hauteur H';
+
+  @override
+  String get slopeAngle => 'Pente β';
+
+  @override
+  String get slopeSurcharge => 'Surcharge en crête q';
+
+  @override
+  String get slopeMaxDepth => 'Profondeur max. sous le pied';
+
+  @override
+  String get slopeGeometryNote =>
+      'Talus simple entre une crête et un pied horizontaux, β ≤ 75°. La profondeur max. limite les cercles profonds (vide = H).';
+
+  @override
+  String get slopeSoil => 'Sol (paramètres effectifs)';
+
+  @override
+  String get slopeGamma => 'Poids volumique γ';
+
+  @override
+  String get slopeCohesion => 'Cohésion c\'';
+
+  @override
+  String get slopePhi => 'Angle de frottement φ\'';
+
+  @override
+  String get slopeSoilNote =>
+      'Sol homogène. Coefficient de pression interstitielle ru = u / (γ h) : 0 sec, environ 0,3 à 0,5 avec une nappe haute. Pour une argile non drainée, saisir c = cu et φ = 0.';
+
+  @override
+  String get slopeCritical => 'Cercle de glissement critique';
+
+  @override
+  String get slopeFactor => 'Coefficient de sécurité';
+
+  @override
+  String get slopeFactorEc7 => 'Avec les paramètres EC7 AC3';
+
+  @override
+  String get slopeCentre => 'Centre';
+
+  @override
+  String get slopeRadius => 'Rayon';
+
+  @override
+  String get slopeCircles => 'Cercles analysés';
+
+  @override
+  String get slopeNoteScope =>
+      'Surfaces de rupture circulaires uniquement, origine au bord de la crête (x vers la droite, y vers le haut). F ≥ 1,5 requis (approche traditionnelle) et Fd ≥ 1,0 avec tan φ\' et c\' divisés par 1,25 et la surcharge × 1,3 (EN 1997-1 AC3). Les sols stratifiés, les nappes et les surfaces non circulaires ne sont pas traités.';
+
+  @override
+  String get checkSlopeGlobal => 'Coefficient de sécurité global';
+
+  @override
+  String get checkSlopeEc7 => 'Stabilité générale (EC7)';
 }
