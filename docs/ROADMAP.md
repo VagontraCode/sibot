@@ -168,7 +168,8 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Building generator (grid, storeys, concrete or steel sections, floor loads by 45° lines)
 - [x] Modal analysis (subspace iteration), mass ratios; EC8 response spectrum with CQC
 - [x] P-Δ (geometric stiffness iteration) and elastic critical factor αcr
-- [ ] Rigid floor diaphragms, accidental torsion, E + 0.3 E directional combination, PS92 spectrum
+- [x] Rigid floor diaphragms (master–slave), accidental torsion (±5 %), EX + 0.3 EY combination, tributary-area seismic masses
+- [ ] PS92 spectrum
 - [ ] Free 3D editing (nodes, members, loads) and member design from 3D results
 
 ### Phase 5 — Plates, polish and performance

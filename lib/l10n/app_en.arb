@@ -1314,7 +1314,7 @@
   "f3dFootprint": "Size L × W × H",
   "f3dNodesMembers": "Nodes / members",
   "f3dSeismicMass": "Seismic mass",
-  "f3dModelNote": "Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.",
+  "f3dModelNote": "Fixed column bases, rigid joints; slabs act as rigid diaphragms when selected and are otherwise not modelled (beams carry the floor loads). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.",
   "f3dCombination": "Combination",
   "f3dColourBy": "Show",
   "f3dDeformed": "Shape",
@@ -1358,7 +1358,7 @@
       }
     }
   },
-  "f3dSpectrumNote": "Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.",
+  "f3dSpectrumNote": "Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values).",
   "f3dNoBuckling": "No member is in compression: no buckling factor.",
   "f3dAlphaCr": "αcr = {a}",
   "@f3dAlphaCr": {
@@ -1378,5 +1378,30 @@
         "type": "String"
       }
     }
-  }
+  },
+  "f3dBothDirections": "X + Y",
+  "f3dAccidentalTorsion": "Accidental torsion",
+  "f3dAccidentalTorsionHelp": "±5 % eccentricity of the floor forces (EN 1998-1 4.3.2), added to the modal response.",
+  "f3dBaseShearDir": "Base shear {dir}: {fb} kN",
+  "@f3dBaseShearDir": {
+    "placeholders": {
+      "dir": {
+        "type": "String"
+      },
+      "fb": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dTorsionApplied": "Accidental torsion: Σ Mai = {m} kN·m.",
+  "@f3dTorsionApplied": {
+    "placeholders": {
+      "m": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dCombinedNote": "Forces shown: the larger of EX + 0.3 EY and 0.3 EX + EY (EN 1998-1 4.3.3.5.1).",
+  "f3dRigidFloors": "Rigid floors (diaphragms)",
+  "f3dRigidFloorsHelp": "Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes."
 }

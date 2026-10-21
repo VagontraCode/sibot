@@ -21,6 +21,9 @@ class BuildingParams {
   /// Facade line load on perimeter beams, kN/m (permanent).
   final double facade;
 
+  /// Floors act as rigid diaphragms in their plane.
+  final bool rigidFloors;
+
   const BuildingParams({
     required this.spansX,
     required this.spansY,
@@ -30,6 +33,7 @@ class BuildingParams {
     this.g = 5,
     this.q = 2.5,
     this.facade = 0,
+    this.rigidFloors = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -41,6 +45,7 @@ class BuildingParams {
     'g': g,
     'q': q,
     'facade': facade,
+    'rigid': rigidFloors,
   };
   factory BuildingParams.fromJson(Map<String, dynamic> j) {
     List<double> list(String k) =>
@@ -54,6 +59,7 @@ class BuildingParams {
       g: (j['g'] as num).toDouble(),
       q: (j['q'] as num).toDouble(),
       facade: (j['facade'] as num?)?.toDouble() ?? 0,
+      rigidFloors: j['rigid'] as bool? ?? true,
     );
   }
 }
@@ -146,6 +152,15 @@ Model3D buildingFrame(BuildingParams p) {
       LoadCase3D(name: 'G', selfWeight: true, member: gLoads),
       LoadCase3D(name: 'Q', type: LoadType.imposed, member: qLoads),
     ],
+    diaphragms: p.rigidFloors
+        ? [
+            for (var k = 1; k < zs.length; k++)
+              [
+                for (var j = 0; j < ny; j++)
+                  for (var i = 0; i < nx; i++) node(i, j, k),
+              ],
+          ]
+        : const [],
   );
 }
 
@@ -204,4 +219,50 @@ Model3D withCase(Model3D m, LoadCase3D extra) => Model3D(
   sections: m.sections,
   elements: m.elements,
   cases: [...m.cases, extra],
+  diaphragms: m.diaphragms,
 );
+
+/// Lumped seismic masses (t) of a generated building: tributary floor
+/// area × (g + ψ·q), facade and member self-weight, half to each end.
+/// Unlike the moment-equivalent beam loads, these conserve the true
+/// floor load.
+List<double> buildingNodeMasses(
+  BuildingParams p,
+  Model3D m, {
+  double psi = 0.3,
+  double gravity = 9.81,
+}) {
+  final nx = p.spansX.length + 1, ny = p.spansY.length + 1;
+  final mass = List.filled(m.nodes.length, 0.0);
+  double half(List<double> spans, int i) =>
+      (i > 0 ? spans[i - 1] / 2 : 0) + (i < spans.length ? spans[i] / 2 : 0);
+  for (var k = 1; k <= p.storeyHeights.length; k++) {
+    for (var j = 0; j < ny; j++) {
+      for (var i = 0; i < nx; i++) {
+        final area = half(p.spansX, i) * half(p.spansY, j);
+        mass[k * nx * ny + j * nx + i] += (p.g + psi * p.q) * area / gravity;
+      }
+    }
+  }
+  for (final e in m.elements) {
+    final a = m.nodes[e.n1], b = m.nodes[e.n2];
+    final l = math.sqrt(
+      math.pow(b.x - a.x, 2) + math.pow(b.y - a.y, 2) + math.pow(b.z - a.z, 2),
+    );
+    final s = m.sections[e.section];
+    var w = s.unitWeight * s.area * l;
+    // Facade on perimeter beams.
+    if (e.section == 1 && p.facade > 0) {
+      final xMax = p.spansX.fold(0.0, (s, v) => s + v);
+      final yMax = p.spansY.fold(0.0, (s, v) => s + v);
+      final alongX = (a.y - b.y).abs() < 1e-9;
+      final edge = alongX
+          ? (a.y.abs() < 1e-9 || (a.y - yMax).abs() < 1e-9)
+          : (a.x.abs() < 1e-9 || (a.x - xMax).abs() < 1e-9);
+      if (edge) w += p.facade * l;
+    }
+    mass[e.n1] += w / 2 / gravity;
+    mass[e.n2] += w / 2 / gravity;
+  }
+  return mass;
+}

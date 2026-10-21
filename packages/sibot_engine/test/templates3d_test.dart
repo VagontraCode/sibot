@@ -69,6 +69,26 @@ void main() {
     );
   });
 
+  test('seismic masses conserve the floor load and self-weight', () {
+    final m = buildingFrame(params);
+    final masses = buildingNodeMasses(params, m);
+    final total = masses.reduce((a, b) => a + b);
+    final floor = (5 + 0.3 * 2.5) * 16 * 8 * 3 / 9.81;
+    var sw = 0.0;
+    final lengths = Frame3DAnalysis(m).lengths;
+    for (var i = 0; i < m.elements.length; i++) {
+      final s = m.sections[m.elements[i].section];
+      sw += s.unitWeight * s.area * lengths[i] / 9.81;
+    }
+    expect(total, closeTo(floor + sw, 1e-9));
+    final modal = modalAnalysis(
+      m,
+      options: ModalOptions(modes: 3, nodeMasses: masses),
+    );
+    // Masses at the supports do not vibrate.
+    expect(modal.totalMass[0], lessThan(total));
+  });
+
   test('params survive JSON', () {
     final back = BuildingParams.fromJson(params.toJson());
     expect(back.spansX, params.spansX);

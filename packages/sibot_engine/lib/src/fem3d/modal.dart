@@ -16,7 +16,14 @@ class ModalOptions {
   /// divided by g. When empty, the members' self-weight is used.
   final Map<int, double> massCases;
 
-  const ModalOptions({this.modes = 6, this.massCases = const {}});
+  /// Lumped masses per node (t), overriding [massCases] when given.
+  final List<double>? nodeMasses;
+
+  const ModalOptions({
+    this.modes = 6,
+    this.massCases = const {},
+    this.nodeMasses,
+  });
 }
 
 class Mode {
@@ -83,6 +90,10 @@ List<double> lumpedMasses(
   Frame3DAnalysis analysis,
   ModalOptions o,
 ) {
+  final given = o.nodeMasses;
+  if (given != null && given.length == model.nodes.length) {
+    return List.of(given);
+  }
   final m = List.filled(model.nodes.length, 0.0);
   final lengths = analysis.lengths;
   void selfWeight(double factor) {
@@ -131,18 +142,62 @@ ModalResult modalAnalysis(
   final n = an.equations;
   final nodeMass = lumpedMasses(model, an, options);
 
-  // Diagonal mass over the equations.
+  // Mass over the equations: a diagonal plus couplings from rigid floors
+  // (a slave mass acts on the master translations and rotation).
   final mDiag = Float64List(n);
-  final totalMass = [0.0, 0.0, 0.0];
+  final off = <int, Map<int, double>>{};
   for (var node = 0; node < model.nodes.length; node++) {
+    final m = nodeMass[node];
+    if (m == 0) continue;
     for (var d = 0; d < 3; d++) {
-      final eq = an.equationOf(node, d);
-      if (eq >= 0) {
-        mDiag[eq] = nodeMass[node];
-        totalMass[d] += nodeMass[node];
+      final terms = an.termsOf(node, d);
+      for (final (a, ca) in terms) {
+        for (final (b, cb) in terms) {
+          if (a == b) {
+            mDiag[a] += m * ca * cb;
+          } else if (a < b) {
+            final row = off.putIfAbsent(a, () => {});
+            row[b] = (row[b] ?? 0) + m * ca * cb;
+          }
+        }
       }
     }
   }
+  Float64List mul(Float64List v) {
+    final y = Float64List(n);
+    for (var i = 0; i < n; i++) {
+      y[i] = mDiag[i] * v[i];
+    }
+    for (final row in off.entries) {
+      for (final e in row.value.entries) {
+        y[row.key] += e.value * v[e.key];
+        y[e.key] += e.value * v[row.key];
+      }
+    }
+    return y;
+  }
+
+  // Rigid-body translation vectors and the total mass per direction.
+  final rigid = [
+    for (var d = 0; d < 3; d++)
+      () {
+        final r = Float64List(n);
+        for (var node = 0; node < model.nodes.length; node++) {
+          final eq = an.equationOf(node, d);
+          if (eq >= 0) r[eq] = 1;
+        }
+        return r;
+      }(),
+  ];
+  double dot(Float64List a, Float64List b) {
+    var s = 0.0;
+    for (var i = 0; i < n; i++) {
+      s += a[i] * b[i];
+    }
+    return s;
+  }
+
+  final totalMass = [for (final r in rigid) dot(r, mul(r))];
   final massDofs = [
     for (var i = 0; i < n; i++)
       if (mDiag[i] > 0) i,
@@ -165,19 +220,17 @@ ModalResult modalAnalysis(
   var iterations = 0;
   for (var it = 0; it < 200; it++) {
     iterations = it + 1;
-    final y = [
-      for (final v in x)
-        Float64List.fromList([for (var i = 0; i < n; i++) mDiag[i] * v[i]]),
-    ];
+    final y = [for (final v in x) mul(v)];
     final xb = [for (final v in y) an.solveVector(v)];
     final kr = List.generate(q, (_) => Float64List(q));
     final mr = List.generate(q, (_) => Float64List(q));
+    final mxb = [for (final v in xb) mul(v)];
     for (var a = 0; a < q; a++) {
       for (var b = a; b < q; b++) {
         var sk = 0.0, sm = 0.0;
         for (var i = 0; i < n; i++) {
           sk += xb[a][i] * y[b][i];
-          sm += xb[a][i] * mDiag[i] * xb[b][i];
+          sm += xb[a][i] * mxb[b][i];
         }
         kr[a][b] = kr[b][a] = sk;
         mr[a][b] = mr[b][a] = sm;
@@ -214,8 +267,9 @@ ModalResult modalAnalysis(
     var maxT = 0.0;
     for (var node = 0; node < model.nodes.length; node++) {
       for (var d = 0; d < 6; d++) {
-        final eq = an.equationOf(node, d);
-        if (eq >= 0) shape[node][d] = v[eq];
+        for (final (eq, c) in an.termsOf(node, d)) {
+          shape[node][d] += c * v[eq];
+        }
         if (d < 3) maxT = math.max(maxT, shape[node][d].abs());
       }
     }
@@ -227,13 +281,8 @@ ModalResult modalAnalysis(
       }
     }
     // Γ = φᵀ M r (φ mass-normalised): effective mass Γ².
-    final gamma = [0.0, 0.0, 0.0];
-    for (var node = 0; node < model.nodes.length; node++) {
-      for (var d = 0; d < 3; d++) {
-        final eq = an.equationOf(node, d);
-        if (eq >= 0) gamma[d] += mDiag[eq] * v[eq];
-      }
-    }
+    final mv = mul(v);
+    final gamma = [for (final r in rigid) dot(r, mv)];
     modes.add(
       Mode(
         omega: math.sqrt(math.max(lambda[j], 0)),

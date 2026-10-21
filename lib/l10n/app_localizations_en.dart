@@ -3035,7 +3035,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get f3dModelNote =>
-      'Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.';
+      'Fixed column bases, rigid joints; slabs act as rigid diaphragms when selected and are otherwise not modelled (beams carry the floor loads). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.';
 
   @override
   String get f3dCombination => 'Combination';
@@ -3104,7 +3104,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get f3dSpectrumNote =>
-      'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.';
+      'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values).';
 
   @override
   String get f3dNoBuckling =>
@@ -3131,4 +3131,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String f3dBucklingNote(String combo) {
     return 'Elastic critical load factor of the combination $combo: the loads multiplied by αcr would make the frame buckle. The buckled shape is shown.';
   }
+
+  @override
+  String get f3dBothDirections => 'X + Y';
+
+  @override
+  String get f3dAccidentalTorsion => 'Accidental torsion';
+
+  @override
+  String get f3dAccidentalTorsionHelp =>
+      '±5 % eccentricity of the floor forces (EN 1998-1 4.3.2), added to the modal response.';
+
+  @override
+  String f3dBaseShearDir(String dir, String fb) {
+    return 'Base shear $dir: $fb kN';
+  }
+
+  @override
+  String f3dTorsionApplied(String m) {
+    return 'Accidental torsion: Σ Mai = $m kN·m.';
+  }
+
+  @override
+  String get f3dCombinedNote =>
+      'Forces shown: the larger of EX + 0.3 EY and 0.3 EX + EY (EN 1998-1 4.3.3.5.1).';
+
+  @override
+  String get f3dRigidFloors => 'Rigid floors (diaphragms)';
+
+  @override
+  String get f3dRigidFloorsHelp =>
+      'Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes.';
 }

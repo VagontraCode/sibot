@@ -273,6 +273,13 @@ class Frame3DAnalysis {
     }
   }
 
+  /// Rigid diaphragm slaves: node → (master, dx, dy) with dx, dy the
+  /// slave's offset from the master in plan.
+  final Map<int, (int, double, double)> _slaves = {};
+
+  /// Per node and DOF: equation terms (equation, coefficient).
+  late final List<List<List<(int, double)>>> _map;
+
   void _number() {
     final n = model.nodes.length;
     final used = List.filled(n, false);
@@ -280,8 +287,32 @@ class Frame3DAnalysis {
       used[el.e.n1] = true;
       used[el.e.n2] = true;
     }
+    // Rigid floors: the first node free in ux, uy, rz is the master; the
+    // others follow its in-plane motion (nodes supported in those DOFs
+    // stay independent).
+    for (final group in model.diaphragms) {
+      bool free(int i) {
+        final s = model.supports[i];
+        return s == null || !(s.ux || s.uy || s.rz);
+      }
+
+      final members = [
+        for (final i in group)
+          if (i >= 0 && i < n && used[i] && free(i)) i,
+      ];
+      if (members.length < 2) continue;
+      final m = members.first;
+      for (final s in members.skip(1)) {
+        _slaves[s] = (
+          m,
+          model.nodes[s].x - model.nodes[m].x,
+          model.nodes[s].y - model.nodes[m].y,
+        );
+      }
+    }
     final order = reverseCuthillMcKee(n, [
       for (final el in _elems) (el.e.n1, el.e.n2),
+      for (final e in _slaves.entries) (e.key, e.value.$1),
     ]);
     final byNew = List.filled(n, 0);
     for (var i = 0; i < n; i++) {
@@ -293,14 +324,63 @@ class Frame3DAnalysis {
       final node = byNew[k];
       if (!used[node]) continue;
       final fixed = (model.supports[node] ?? const Support3D()).dofs;
+      final slave = _slaves.containsKey(node);
       for (var d = 0; d < 6; d++) {
+        if (slave && (d == 0 || d == 1 || d == 5)) continue;
         if (!fixed[d]) _eq[node][d] = next++;
       }
     }
     _neq = next;
+    _map = [
+      for (var node = 0; node < n; node++)
+        [for (var d = 0; d < 6; d++) _termsFor(node, d)],
+    ];
   }
 
-  List<int> _dofs(Element3D e) => [..._eq[e.n1], ..._eq[e.n2]];
+  List<(int, double)> _termsFor(int node, int d) {
+    final s = _slaves[node];
+    if (s == null || d == 2 || d == 3 || d == 4) {
+      final eq = _eq[node][d];
+      return eq >= 0 ? [(eq, 1.0)] : const [];
+    }
+    final (m, dx, dy) = s;
+    final rz = _eq[m][5];
+    final out = <(int, double)>[];
+    void add(int eq, double c) {
+      if (eq >= 0 && c != 0) out.add((eq, c));
+    }
+
+    switch (d) {
+      case 0:
+        add(_eq[m][0], 1);
+        add(rz, -dy);
+      case 1:
+        add(_eq[m][1], 1);
+        add(rz, dx);
+      default:
+        add(rz, 1);
+    }
+    return out;
+  }
+
+  /// Equation terms (equation, coefficient) of a node DOF: one term for
+  /// a free DOF, none when restrained, the master's terms on a rigid
+  /// floor.
+  List<(int, double)> termsOf(int node, int dof) => _map[node][dof];
+
+  /// Displacement of a node DOF from the equation vector.
+  double _value(Float64List x, int node, int d) {
+    var s = 0.0;
+    for (final (eq, c) in _map[node][d]) {
+      s += c * x[eq];
+    }
+    return s;
+  }
+
+  List<List<(int, double)>> _dofs(Element3D e) => [
+    ..._map[e.n1],
+    ..._map[e.n2],
+  ];
 
   /// Global form Tᵀ k T of a local element matrix.
   List<double> _globalOf(_Elem3 el, Float64List k) {
@@ -336,7 +416,10 @@ class Frame3DAnalysis {
   BandedMatrix _build(List<Float64List>? extra, {bool keepDiagonal = false}) {
     var band = 0;
     for (final el in _elems) {
-      final d = _dofs(el.e).where((x) => x >= 0).toList();
+      final d = [
+        for (final t in _dofs(el.e))
+          for (final (eq, _) in t) eq,
+      ];
       if (d.isEmpty) continue;
       band = math.max(band, d.reduce(math.max) - d.reduce(math.min));
     }
@@ -350,14 +433,18 @@ class Frame3DAnalysis {
             ]);
       final g = _globalOf(el, local);
       final d = _dofs(el.e);
+      // K_ab = Σ_ij c_ia c_jb g_ij over the constraint terms; each pair
+      // of equations is stored once in the upper triangle.
       for (var i = 0; i < 12; i++) {
-        if (d[i] < 0) continue;
-        for (var j = i; j < 12; j++) {
-          if (d[j] < 0) continue;
-          if (d[j] >= d[i]) {
-            k.add(d[i], d[j], g[i * 12 + j]);
-          } else if (i != j) {
-            k.add(d[j], d[i], g[i * 12 + j]);
+        if (d[i].isEmpty) continue;
+        for (var j = 0; j < 12; j++) {
+          if (d[j].isEmpty) continue;
+          final gij = g[i * 12 + j];
+          if (gij == 0) continue;
+          for (final (a, ca) in d[i]) {
+            for (final (b, cb) in d[j]) {
+              if (b >= a) k.add(a, b, ca * cb * gij);
+            }
           }
         }
       }
@@ -464,8 +551,9 @@ class Frame3DAnalysis {
       final v = p.vector;
       for (var d = 0; d < 6; d++) {
         applied[p.node][d] += v[d];
-        final eq = _eq[p.node][d];
-        if (eq >= 0) f[eq] += v[d];
+        for (final (eq, c) in _map[p.node][d]) {
+          f[eq] += c * v[d];
+        }
       }
     }
     final q = _memberLoads(c);
@@ -477,10 +565,38 @@ class Frame3DAnalysis {
       final g = _toGlobal(el, loc);
       final d = _dofs(el.e);
       for (var k = 0; k < 12; k++) {
-        if (d[k] >= 0) f[d[k]] += g[k];
+        for (final (eq, c) in d[k]) {
+          f[eq] += c * g[k];
+        }
       }
     }
     return (f, applied, feq, q);
+  }
+
+  /// Static solution for nodal loads only (no load case).
+  Frame3DResult solveNodal(List<NodalLoad3D> loads) {
+    final f = Float64List(math.max(_neq, 1));
+    final applied = List.generate(
+      model.nodes.length,
+      (_) => List.filled(6, 0.0),
+    );
+    for (final p in loads) {
+      if (p.node < 0 || p.node >= model.nodes.length) continue;
+      final v = p.vector;
+      for (var d = 0; d < 6; d++) {
+        applied[p.node][d] += v[d];
+        for (final (eq, c) in _map[p.node][d]) {
+          f[eq] += c * v[d];
+        }
+      }
+    }
+    final x = _neq == 0 ? Float64List(1) : _k.solve(f);
+    return _result(
+      x,
+      applied,
+      List.generate(_elems.length, (_) => List.filled(12, 0.0)),
+      List.generate(_elems.length, (_) => [0.0, 0.0, 0.0]),
+    );
   }
 
   /// Member forces and reactions from a displacement vector over the
@@ -501,7 +617,7 @@ class Frame3DAnalysis {
   }) {
     final disp = [
       for (var n = 0; n < model.nodes.length; n++)
-        [for (var d = 0; d < 6; d++) _eq[n][d] >= 0 ? x[_eq[n][d]] : 0.0],
+        [for (var d = 0; d < 6; d++) _value(x, n, d)],
     ];
 
     final members = <Member3DResult>[];
@@ -667,7 +783,9 @@ class Frame3DAnalysis {
       for (var e = 0; e < _elems.length; e++) {
         final el = _elems[e];
         final d = _dofs(el.e);
-        final ug = [for (final i in d) i >= 0 ? x[i] : 0.0];
+        final ug = [
+          for (final t in d) t.fold(0.0, (s, term) => s + term.$2 * x[term.$1]),
+        ];
         final ul = _toLocal(el, ug);
         final fl = [
           for (var a = 0; a < 12; a++)
@@ -681,7 +799,9 @@ class Frame3DAnalysis {
         ];
         final fg = _toGlobal(el, fl);
         for (var k = 0; k < 12; k++) {
-          if (d[k] >= 0) y[d[k]] += fg[k];
+          for (final (eq, c) in d[k]) {
+            y[eq] += c * fg[k];
+          }
         }
       }
       return y;
@@ -715,7 +835,7 @@ class Frame3DAnalysis {
     if (mu <= 0) return null;
     final shape = [
       for (var node = 0; node < model.nodes.length; node++)
-        [for (var d = 0; d < 6; d++) _eq[node][d] >= 0 ? x[_eq[node][d]] : 0.0],
+        [for (var d = 0; d < 6; d++) _value(x, node, d)],
     ];
     var maxT = 0.0;
     for (final s in shape) {

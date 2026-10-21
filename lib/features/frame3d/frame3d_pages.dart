@@ -130,6 +130,7 @@ class _BuildingWizardState extends State<_BuildingWizard> {
   double? _colB = 300, _colH = 300, _beamB = 250, _beamH = 500;
   double? _g = 5, _q = 2.5, _facade = 0;
   bool _steel = false;
+  bool _rigid = true;
   String _colProfile = 'HEB 240', _beamProfile = 'IPE 300';
   String? _error;
 
@@ -151,6 +152,7 @@ class _BuildingWizardState extends State<_BuildingWizard> {
       _q = p.q;
       _facade = p.facade;
       _steel = p.column.profile != null;
+      _rigid = p.rigidFloors;
       if (_steel) {
         _colProfile = p.column.profile!;
         _beamProfile = p.beam.profile ?? _beamProfile;
@@ -204,6 +206,7 @@ class _BuildingWizardState extends State<_BuildingWizard> {
       g: _g!,
       q: _q!,
       facade: _facade!,
+      rigidFloors: _rigid,
     );
     final name = _name.text.trim().isEmpty
         ? l.f3dDefaultName(bx, by, ns)
@@ -330,6 +333,13 @@ class _BuildingWizardState extends State<_BuildingWizard> {
             ),
             const SizedBox(height: Gap.md),
             num(l.f3dFacade, _facade, (v) => _facade = v, 'kN/m'),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.f3dRigidFloors),
+              subtitle: Text(l.f3dRigidFloorsHelp),
+              value: _rigid,
+              onChanged: (v) => setState(() => _rigid = v),
+            ),
             const SizedBox(height: Gap.sm),
             Text(l.f3dLoadsNote, style: context.text.bodySmall),
             if (_error != null) ...[
@@ -379,7 +389,8 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   int _importance = 2;
   GroundType _ground = GroundType.b;
   double? _q = 1.5;
-  int _direction = 0;
+  int _direction = 2;
+  bool _torsion = true;
   SpectrumRequest? _spectrum;
 
   @override
@@ -406,7 +417,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           ? ref.watch(frame3dPDeltaProvider((key, c, _code))).value
           : out.results[c];
     }
-    SpectrumResult? spectrum;
+    SeismicOutput? spectrum;
     if (_spectrum != null) {
       spectrum = ref.watch(frame3dSpectrumProvider((key, _spectrum!))).value;
     }
@@ -423,7 +434,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       ),
       _Tab.seismic when spectrum != null => Frame3DView(
         model: model,
-        result: spectrum.combined,
+        result: spectrum.envelope,
         colorBy: _colorBy,
       ),
       _Tab.statics when staticResult != null => Frame3DView(
@@ -748,7 +759,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     ];
   }
 
-  List<Widget> _seismicPanel(BuildContext context, SpectrumResult? s) {
+  List<Widget> _seismicPanel(BuildContext context, SeismicOutput? s) {
     final l = context.l10n;
     return [
       PickerField<String>(
@@ -797,10 +808,17 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       ChoiceField<int>(
         label: l.f3dDirection,
         value: _direction,
-        options: const {0: 'X', 1: 'Y'},
+        options: {0: 'X', 1: 'Y', 2: l.f3dBothDirections},
         onChanged: (v) => setState(() => _direction = v),
       ),
-      const SizedBox(height: Gap.md),
+      SwitchListTile(
+        contentPadding: EdgeInsets.zero,
+        title: Text(l.f3dAccidentalTorsion),
+        subtitle: Text(l.f3dAccidentalTorsionHelp),
+        value: _torsion,
+        onChanged: (v) => setState(() => _torsion = v),
+      ),
+      const SizedBox(height: Gap.sm),
       FilledButton.icon(
         onPressed: () {
           if ((_agR ?? 0) <= 0 || (_q ?? 0) < 1) return;
@@ -812,6 +830,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
               type1: _zone == '5',
               q: _q!,
               direction: _direction,
+              torsion: _torsion,
             ),
           );
         },
@@ -821,30 +840,48 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       const SizedBox(height: Gap.md),
       if (_spectrum != null && s == null) const LinearProgressIndicator(),
       if (s != null) ...[
-        StatusBanner(
-          tone: s.enoughModes ? Tone.success : Tone.warning,
-          title: l.seismicBaseShear(fmt(context, s.baseShear, 0)),
-          message: l.f3dSpectrumMass(fmt(context, s.massRatio * 100, 1)),
-        ),
+        for (final run in s.runs) ...[
+          StatusBanner(
+            tone: run.enoughModes ? Tone.success : Tone.warning,
+            title: l.f3dBaseShearDir(
+              run.direction == 0 ? 'X' : 'Y',
+              fmt(context, run.baseShear, 0),
+            ),
+            message: [
+              l.f3dSpectrumMass(fmt(context, run.massRatio * 100, 1)),
+              if (run.torsionMoments.isNotEmpty)
+                l.f3dTorsionApplied(
+                  fmt(context, run.torsionMoments.reduce((a, b) => a + b), 0),
+                ),
+            ].join(' '),
+          ),
+          const SizedBox(height: Gap.sm),
+        ],
+        if (s.runs.length > 1)
+          Text(l.f3dCombinedNote, style: context.text.bodySmall),
         const SizedBox(height: Gap.md),
         _colorChoice(context),
         const SizedBox(height: Gap.md),
-        ResultCard(
-          title: l.f3dModalContributions,
-          icon: Icons.stacked_bar_chart_rounded,
-          rows: [
-            for (final m in s.modal.where(
-              (m) => m.baseShear > 0.005 * s.baseShear,
-            ))
-              ResultRow(
-                label: l.f3dModeN(m.mode + 1),
-                symbol:
-                    'T ${fmt(context, m.period, 3)} s · Sd ${fmt(context, m.sd, 2)}',
-                value: fmt(context, m.baseShear, 0),
-                unit: 'kN',
-              ),
-          ],
-        ),
+        for (final run in s.runs) ...[
+          ResultCard(
+            title:
+                '${l.f3dModalContributions} (${run.direction == 0 ? 'X' : 'Y'})',
+            icon: Icons.stacked_bar_chart_rounded,
+            rows: [
+              for (final m in run.modal.where(
+                (m) => m.baseShear > 0.005 * run.baseShear,
+              ))
+                ResultRow(
+                  label: l.f3dModeN(m.mode + 1),
+                  symbol:
+                      'T ${fmt(context, m.period, 3)} s · Sd ${fmt(context, m.sd, 2)}',
+                  value: fmt(context, m.baseShear, 0),
+                  unit: 'kN',
+                ),
+            ],
+          ),
+          const SizedBox(height: Gap.md),
+        ],
         const SizedBox(height: Gap.md),
         NotesCard(notes: [l.f3dSpectrumNote]),
       ],

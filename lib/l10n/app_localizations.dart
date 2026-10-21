@@ -5675,7 +5675,7 @@ abstract class AppLocalizations {
   /// No description provided for @f3dModelNote.
   ///
   /// In en, this message translates to:
-  /// **'Fixed column bases, rigid joints, no slab diaphragm (beams carry the floor in bending). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.'**
+  /// **'Fixed column bases, rigid joints; slabs act as rigid diaphragms when selected and are otherwise not modelled (beams carry the floor loads). Drag to orbit, pinch to zoom, two fingers to pan, double-tap to reset the view.'**
   String get f3dModelNote;
 
   /// No description provided for @f3dCombination.
@@ -5795,7 +5795,7 @@ abstract class AppLocalizations {
   /// No description provided for @f3dSpectrumNote.
   ///
   /// In en, this message translates to:
-  /// **'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values). Accidental torsion and the combination of directions (E + 0.3 E) are not included yet.'**
+  /// **'Design spectrum of EN 1998-1 (recommended parameters), 5 % damping, CQC combination of 12 modes. Results are envelopes (absolute values).'**
   String get f3dSpectrumNote;
 
   /// No description provided for @f3dNoBuckling.
@@ -5833,6 +5833,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Elastic critical load factor of the combination {combo}: the loads multiplied by αcr would make the frame buckle. The buckled shape is shown.'**
   String f3dBucklingNote(String combo);
+
+  /// No description provided for @f3dBothDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'X + Y'**
+  String get f3dBothDirections;
+
+  /// No description provided for @f3dAccidentalTorsion.
+  ///
+  /// In en, this message translates to:
+  /// **'Accidental torsion'**
+  String get f3dAccidentalTorsion;
+
+  /// No description provided for @f3dAccidentalTorsionHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'±5 % eccentricity of the floor forces (EN 1998-1 4.3.2), added to the modal response.'**
+  String get f3dAccidentalTorsionHelp;
+
+  /// No description provided for @f3dBaseShearDir.
+  ///
+  /// In en, this message translates to:
+  /// **'Base shear {dir}: {fb} kN'**
+  String f3dBaseShearDir(String dir, String fb);
+
+  /// No description provided for @f3dTorsionApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Accidental torsion: Σ Mai = {m} kN·m.'**
+  String f3dTorsionApplied(String m);
+
+  /// No description provided for @f3dCombinedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Forces shown: the larger of EX + 0.3 EY and 0.3 EX + EY (EN 1998-1 4.3.3.5.1).'**
+  String get f3dCombinedNote;
+
+  /// No description provided for @f3dRigidFloors.
+  ///
+  /// In en, this message translates to:
+  /// **'Rigid floors (diaphragms)'**
+  String get f3dRigidFloors;
+
+  /// No description provided for @f3dRigidFloorsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Slabs tie each floor in its plane: needed for accidental torsion and realistic seismic modes.'**
+  String get f3dRigidFloorsHelp;
 }
 
 class _AppLocalizationsDelegate

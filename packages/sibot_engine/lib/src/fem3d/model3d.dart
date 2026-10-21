@@ -293,12 +293,17 @@ class Model3D {
   final List<Element3D> elements;
   final List<LoadCase3D> cases;
 
+  /// Rigid floor diaphragms: groups of nodes moving together in plan
+  /// (ux, uy, rz).
+  final List<List<int>> diaphragms;
+
   const Model3D({
     required this.nodes,
     required this.supports,
     required this.sections,
     required this.elements,
     this.cases = const [],
+    this.diaphragms = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -310,6 +315,7 @@ class Model3D {
     'sections': [for (final s in sections) s.toJson()],
     'elements': [for (final e in elements) e.toJson()],
     'cases': [for (final c in cases) c.toJson()],
+    'diaphragms': diaphragms,
   };
 
   factory Model3D.fromJson(Map<String, dynamic> j) => Model3D(
@@ -334,6 +340,10 @@ class Model3D {
     cases: [
       for (final c in (j['cases'] as List? ?? const []))
         LoadCase3D.fromJson(Map<String, dynamic>.from(c as Map)),
+    ],
+    diaphragms: [
+      for (final g in (j['diaphragms'] as List? ?? const []))
+        (g as List).cast<int>(),
     ],
   );
 }

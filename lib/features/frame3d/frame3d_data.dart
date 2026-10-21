@@ -131,8 +131,8 @@ class Frame3DOutput {
   }
 }
 
-/// Mass source for modes: G + ψ2·Q (EN 1998-1 3.2.4 with φ = 1).
-const _massFactors = {0: 1.0, 1: 0.3};
+// Modal masses: tributary floor areas × (g + 0.3 q) plus self-weight
+// (EN 1998-1 3.2.4 with ψE = 0.3).
 
 Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
   final model = buildingFrame(params);
@@ -150,7 +150,10 @@ Frame3DOutput runFrame3d(BuildingParams params, DesignCode code) {
     ];
     final modal = modalAnalysis(
       model,
-      options: const ModalOptions(modes: 12, massCases: _massFactors),
+      options: ModalOptions(
+        modes: 12,
+        nodeMasses: buildingNodeMasses(params, model),
+      ),
     );
     double? alpha;
     List<List<double>>? shape;
@@ -207,7 +210,10 @@ class SpectrumRequest {
   final GroundType ground;
   final bool type1;
   final double q;
+
+  /// 0 = X, 1 = Y, 2 = both combined as E + 0.3 E.
   final int direction;
+  final bool torsion;
 
   const SpectrumRequest({
     required this.agR,
@@ -216,6 +222,7 @@ class SpectrumRequest {
     this.type1 = false,
     this.q = 1.5,
     this.direction = 0,
+    this.torsion = true,
   });
 
   @override
@@ -226,32 +233,48 @@ class SpectrumRequest {
       other.ground == ground &&
       other.type1 == type1 &&
       other.q == q &&
-      other.direction == direction;
+      other.direction == direction &&
+      other.torsion == torsion;
 
   @override
-  int get hashCode => Object.hash(agR, importance, ground, type1, q, direction);
+  int get hashCode =>
+      Object.hash(agR, importance, ground, type1, q, direction, torsion);
 }
 
-SpectrumResult runSpectrum(BuildingParams params, SpectrumRequest r) {
+/// Spectrum runs (one per direction) and the response to display.
+class SeismicOutput {
+  final List<SpectrumResult> runs;
+  final Frame3DResult envelope;
+  const SeismicOutput(this.runs, this.envelope);
+}
+
+SeismicOutput runSpectrum(BuildingParams params, SpectrumRequest r) {
   final model = buildingFrame(params);
   final modal = modalAnalysis(
     model,
-    options: const ModalOptions(modes: 12, massCases: _massFactors),
+    options: ModalOptions(
+      modes: 12,
+      nodeMasses: buildingNodeMasses(params, model),
+    ),
   );
-  return responseSpectrum(
+  SpectrumResult run(int d) => responseSpectrum(
     modal,
-    direction: r.direction,
+    direction: d,
     ag: r.agR * importanceFactors[r.importance]!,
     spectrum: spectrumParams(r.ground, type1: r.type1),
     q: r.q,
+    accidentalTorsion: r.torsion,
   );
+  if (r.direction == 2) {
+    final x = run(0), y = run(1);
+    return SeismicOutput([x, y], combineDirections(x.combined, y.combined));
+  }
+  final s = run(r.direction);
+  return SeismicOutput([s], s.combined);
 }
 
 final frame3dSpectrumProvider =
-    FutureProvider.family<SpectrumResult, (String, SpectrumRequest)>((
-      ref,
-      key,
-    ) {
+    FutureProvider.family<SeismicOutput, (String, SpectrumRequest)>((ref, key) {
       final (json, request) = key;
       return Isolate.run(() => runSpectrum(_decode(json), request));
     });

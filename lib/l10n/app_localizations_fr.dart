@@ -3052,7 +3052,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get f3dModelNote =>
-      'Pieds de poteaux encastrés, nœuds rigides, pas de diaphragme de dalle (les poutres portent le plancher en flexion). Glisser pour tourner, pincer pour zoomer, deux doigts pour déplacer, double tap pour réinitialiser la vue.';
+      'Pieds de poteaux encastrés, nœuds rigides ; les dalles agissent comme diaphragmes rigides si l\'option est choisie et ne sont pas modélisées autrement (les poutres portent les charges de plancher). Glisser pour tourner, pincer pour zoomer, deux doigts pour déplacer, double tap pour réinitialiser la vue.';
 
   @override
   String get f3dCombination => 'Combinaison';
@@ -3123,7 +3123,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get f3dSpectrumNote =>
-      'Spectre de calcul de l\'EN 1998-1 (paramètres recommandés), amortissement 5 %, combinaison CQC de 12 modes. Les résultats sont des enveloppes (valeurs absolues). La torsion accidentelle et la combinaison des directions (E + 0,3 E) ne sont pas encore prises en compte.';
+      'Spectre de calcul de l\'EN 1998-1 (paramètres recommandés), amortissement 5 %, combinaison CQC de 12 modes. Les résultats sont des enveloppes (valeurs absolues).';
 
   @override
   String get f3dNoBuckling =>
@@ -3150,4 +3150,35 @@ class AppLocalizationsFr extends AppLocalizations {
   String f3dBucklingNote(String combo) {
     return 'Coefficient critique élastique de la combinaison $combo : les charges multipliées par αcr feraient flamber l\'ossature. La déformée de flambement est affichée.';
   }
+
+  @override
+  String get f3dBothDirections => 'X + Y';
+
+  @override
+  String get f3dAccidentalTorsion => 'Torsion accidentelle';
+
+  @override
+  String get f3dAccidentalTorsionHelp =>
+      'Excentricité de ±5 % des forces d\'étage (EN 1998-1 4.3.2), ajoutée à la réponse modale.';
+
+  @override
+  String f3dBaseShearDir(String dir, String fb) {
+    return 'Effort tranchant à la base $dir : $fb kN';
+  }
+
+  @override
+  String f3dTorsionApplied(String m) {
+    return 'Torsion accidentelle : Σ Mai = $m kN·m.';
+  }
+
+  @override
+  String get f3dCombinedNote =>
+      'Efforts affichés : le plus grand de EX + 0,3 EY et 0,3 EX + EY (EN 1998-1 4.3.3.5.1).';
+
+  @override
+  String get f3dRigidFloors => 'Planchers rigides (diaphragmes)';
+
+  @override
+  String get f3dRigidFloorsHelp =>
+      'Les dalles solidarisent chaque niveau dans son plan : nécessaire pour la torsion accidentelle et des modes sismiques réalistes.';
 }

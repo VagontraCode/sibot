@@ -342,6 +342,7 @@ void main() {
     'frame3d_list': '/projects/PRJ_1/frame3d',
     'frame3d_static': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_modes': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_seismic': '/projects/PRJ_1/frame3d/F3_1',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
     'punch_list': '/field/punch-list/PRJ_1',
@@ -414,6 +415,24 @@ void main() {
               }
               if (s.key == 'frame3d_modes') {
                 await tester.tap(find.byType(ChoiceChip).at(2));
+              }
+              if (s.key == 'frame3d_seismic') {
+                await tester.tap(find.byType(ChoiceChip).at(3));
+                await tester.pump();
+                final run = find.byIcon(Icons.play_arrow_rounded);
+                await tester.ensureVisible(run);
+                await tester.tap(run);
+                for (var i = 0; i < 60; i++) {
+                  await tester.runAsync(
+                    () =>
+                        Future<void>.delayed(const Duration(milliseconds: 250)),
+                  );
+                  await tester.pump();
+                  if (find.byType(LinearProgressIndicator).evaluate().isEmpty) {
+                    break;
+                  }
+                }
+                expect(find.textContaining('kN'), findsWidgets);
               }
               await tester.pump(const Duration(milliseconds: 400));
               expect(find.byType(Frame3DView), findsOneWidget);

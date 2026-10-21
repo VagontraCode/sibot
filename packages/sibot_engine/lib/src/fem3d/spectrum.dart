@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import '../seismic.dart';
 import 'analysis3d.dart';
 import 'modal.dart';
+import 'model3d.dart';
 
 /// One mode's contribution to a response spectrum analysis.
 class ModalResponse {
@@ -38,12 +39,19 @@ class SpectrumResult {
   /// Mass ratio of the modes used, in the excitation direction.
   final double massRatio;
 
+  /// Accidental torsional moments per rigid floor, kN·m (empty when not
+  /// applied), and their static effects (included in [combined]).
+  final List<double> torsionMoments;
+  final Frame3DResult? torsion;
+
   const SpectrumResult({
     required this.direction,
     required this.modal,
     required this.combined,
     required this.baseShear,
     required this.massRatio,
+    this.torsionMoments = const [],
+    this.torsion,
   });
 
   /// EN 1998-1 4.3.3.3.1: modes taken into account should reach 90 % of
@@ -69,6 +77,7 @@ SpectrumResult responseSpectrum(
   required SpectrumParams spectrum,
   required double q,
   double zeta = 0.05,
+  bool accidentalTorsion = false,
 }) {
   final an = modal.analysis;
   final responses = <ModalResponse>[];
@@ -144,6 +153,48 @@ SpectrumResult responseSpectrum(
   final vb = cqc(
     (r) => r.reactions.values.fold(0.0, (s, v) => s + v[direction]),
   );
+
+  // Accidental torsion (EN 1998-1 4.3.2, 4.3.3.3.3): Mai = ±0.05 Li Fi
+  // at each rigid floor, Fi distributing the base shear by height × mass
+  // (4.11); its effects are added to the modal response.
+  final model = an.model;
+  if (accidentalTorsion && model.diaphragms.isNotEmpty) {
+    final floors = <(List<int>, double, double, double)>[]; // nodes, z, m, L
+    for (final g in model.diaphragms) {
+      final nodes = [
+        for (final i in g)
+          if (i >= 0 && i < model.nodes.length) i,
+      ];
+      if (nodes.isEmpty) continue;
+      var m = 0.0, lo = double.infinity, hi = -double.infinity;
+      for (final i in nodes) {
+        m += modal.nodeMass[i];
+        final c = direction == 0 ? model.nodes[i].y : model.nodes[i].x;
+        lo = math.min(lo, c);
+        hi = math.max(hi, c);
+      }
+      floors.add((nodes, model.nodes[nodes.first].z, m, hi - lo));
+    }
+    final sumZm = floors.fold(0.0, (s, f) => s + f.$2 * f.$3);
+    if (sumZm > 0) {
+      final moments = [
+        for (final f in floors) 0.05 * f.$4 * vb * f.$2 * f.$3 / sumZm,
+      ];
+      final torsion = an.solveNodal([
+        for (var k = 0; k < floors.length; k++)
+          NodalLoad3D(floors[k].$1.first, mz: moments[k]),
+      ]);
+      return SpectrumResult(
+        direction: direction,
+        modal: responses,
+        combined: mapResults(combined, torsion, (a, b) => a.abs() + b.abs()),
+        baseShear: vb,
+        massRatio: ratio,
+        torsionMoments: moments,
+        torsion: torsion,
+      );
+    }
+  }
   return SpectrumResult(
     direction: direction,
     modal: responses,
@@ -152,3 +203,58 @@ SpectrumResult responseSpectrum(
     massRatio: ratio,
   );
 }
+
+/// Applies [f] value by value to two results of the same model.
+Frame3DResult mapResults(
+  Frame3DResult a,
+  Frame3DResult b,
+  double Function(double, double) f,
+) => Frame3DResult(
+  [
+    for (var n = 0; n < a.displacements.length; n++)
+      [
+        for (var d = 0; d < 6; d++)
+          f(a.displacements[n][d], b.displacements[n][d]),
+      ],
+  ],
+  {
+    for (final k in a.reactions.keys)
+      k: [
+        for (var d = 0; d < 6; d++) f(a.reactions[k]![d], b.reactions[k]![d]),
+      ],
+  },
+  [
+    for (var e = 0; e < a.members.length; e++)
+      Member3DResult(
+        [
+          for (var k = 0; k < 12; k++)
+            f(a.members[e].endForces[k], b.members[e].endForces[k]),
+        ],
+        [
+          for (var s = 0; s < a.members[e].stations.length; s++)
+            () {
+              final p = a.members[e].stations[s], q = b.members[e].stations[s];
+              return Station3D(
+                p.x,
+                f(p.n, q.n),
+                f(p.vy, q.vy),
+                f(p.vz, q.vz),
+                f(p.t, q.t),
+                f(p.my, q.my),
+                f(p.mz, q.mz),
+                [for (var d = 0; d < 3; d++) f(p.disp[d], q.disp[d])],
+              );
+            }(),
+        ],
+      ),
+  ],
+);
+
+/// EN 1998-1 4.3.3.5.1 (4.18, 4.19): the larger of EX + 0.3 EY and
+/// 0.3 EX + EY, value by value (absolute values).
+Frame3DResult combineDirections(Frame3DResult ex, Frame3DResult ey) =>
+    mapResults(
+      ex,
+      ey,
+      (a, b) => math.max(a.abs() + 0.3 * b.abs(), 0.3 * a.abs() + b.abs()),
+    );
