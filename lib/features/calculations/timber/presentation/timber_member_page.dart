@@ -31,6 +31,10 @@ class TimberMemberPage extends ConsumerWidget {
       'qk': l.timberQk,
       'psi2': 'ψ2',
       'serviceClass': l.timberServiceClass,
+      'bearingLength': l.timberBearingLength,
+      'reaction': l.timberReaction,
+      'notchDepth': l.timberNotchDepth,
+      'notchX': l.timberNotchX,
     };
     Widget field(
       String key,
@@ -109,6 +113,19 @@ class TimberMemberPage extends ConsumerWidget {
               children: [field('ky', ''), field('kz', ''), field('kLT', '')],
             ),
             Text(l.timberBucklingNote, style: context.text.bodySmall),
+          ],
+        ),
+        FormSection(
+          title: l.timberSupportTitle,
+          icon: Icons.vertical_align_bottom_rounded,
+          children: [
+            FieldRow(
+              children: [field('bearingLength', 'mm'), field('reaction', 'kN')],
+            ),
+            FieldRow(
+              children: [field('notchDepth', 'mm'), field('notchX', 'mm')],
+            ),
+            Text(l.timberSupportNote, style: context.text.bodySmall),
           ],
         ),
         FormSection(

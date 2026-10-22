@@ -26,6 +26,8 @@ class SeismicNotifier extends DesignFormNotifier<SeismicResult> {
     'mass': null,
     'roofMass': null,
     'period': null,
+    'le': null,
+    'xe': null,
   };
 
   @override
@@ -35,11 +37,24 @@ class SeismicNotifier extends DesignFormNotifier<SeismicResult> {
     'ground': GroundType.b.name,
     'type': '2',
     'system': PeriodSystem.concreteFrame.name,
+    'regulation': 'ec8',
+    'ps92Zone': Ps92Zone.ib.name,
+    'ps92Class': 'C',
+    'ps92Site': Ps92Site.s1.name,
   };
+
+  bool get ps92 => state.options['regulation'] == 'ps92';
+
+  /// PS92 nominal acceleration from the zone and the building class.
+  double ps92Acceleration(DesignFormState<SeismicResult> s) =>
+      ps92NominalAcceleration(
+        Ps92Zone.values.byName(s.options['ps92Zone']!),
+        s.options['ps92Class']!,
+      );
 
   @override
   List<String> get requiredKeys => [
-    'agR',
+    if (!ps92) 'agR',
     'q',
     'storeys',
     'storeyHeight',
@@ -66,9 +81,14 @@ class SeismicNotifier extends DesignFormNotifier<SeismicResult> {
     requirePositive(h, 'storeyHeight');
     final mass = s['mass']!;
     final roof = s['roofMass'] ?? mass;
+    final usePs92 = s.options['regulation'] == 'ps92';
+    final aN = usePs92 ? ps92Acceleration(s) : 0.0;
+    final site = Ps92Site.values.byName(s.options['ps92Site']!);
+    final q = s['q']!;
     return lateralForceMethod(
+      design: usePs92 ? (t) => ps92Spectrum(t, aN, site, q) : null,
       SeismicInput(
-        agR: s['agR']!,
+        agR: usePs92 ? aN : s['agR']!,
         importanceClass: int.parse(s.options['importance']!),
         ground: GroundType.values.byName(s.options['ground']!),
         type1: s.options['type'] == '1',

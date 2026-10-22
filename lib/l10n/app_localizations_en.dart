@@ -1357,7 +1357,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get punchingOptionalNote =>
-      'Leave the load empty to skip punching. ULS load on a c1 × c2 area.';
+      'Leave the load empty to skip punching. ULS load on a c1 × c2 area; for an edge column c1 is perpendicular to the free edge.';
 
   @override
   String get punchingLoad => 'Punching load VEd';
@@ -2548,7 +2548,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get windPitchedNote =>
-      'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.';
+      'Wind pressure coefficients for monopitch roofs (EN 1991-1-4 7.2.4) are not computed; wall zones and qp still apply.';
 
   @override
   String get seismicSubtitle => 'EN 1998-1 · lateral force method (4.3.3.2)';
@@ -2771,7 +2771,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pileCapGeometryNote =>
-      'Centred square column, piles equally spaced (≥ 2 diameters): in line, triangle or square. Cover measured to the tie bars over the pile heads. Cap self-weight × 1.35 is added.';
+      'Square or rectangular column centred on the pile group (2 piles: column side a along the pile line). Moments are at the underside of the cap; Mx needs at least 3 piles. Leave the pile resistance empty to skip that check.';
 
   @override
   String pileCapDepthRange(String min, String max) {
@@ -3579,4 +3579,289 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get checkConcentratedLoad => 'Concentrated load';
+
+  @override
+  String get modTimberConnection => 'Timber connection';
+
+  @override
+  String get modTimberConnectionSub => 'Bolts and dowels, EC5 Johansen modes';
+
+  @override
+  String get modContinuousBeam => 'Continuous beam';
+
+  @override
+  String get modContinuousBeamSub =>
+      'RC beam over several spans, pattern loading';
+
+  @override
+  String get connSubtitle =>
+      'Bolted or dowelled timber-to-timber joint in single shear · EN 1995-1-1 8.2.2';
+
+  @override
+  String get connFastenersTitle => 'Fasteners and members';
+
+  @override
+  String get connGrade => 'Bolt grade';
+
+  @override
+  String get connDiameter => 'Diameter d';
+
+  @override
+  String get connLoad => 'Design load FEd';
+
+  @override
+  String get connT1 => 'Member 1 thickness t1';
+
+  @override
+  String get connT2 => 'Member 2 thickness t2';
+
+  @override
+  String get connAngle => 'Load-to-grain angle, member 2';
+
+  @override
+  String get connPerRow => 'Per row n';
+
+  @override
+  String get connRows => 'Rows';
+
+  @override
+  String get connSpacing => 'Spacing a1';
+
+  @override
+  String get connNote =>
+      'Member 1 is loaded along the grain. n fasteners per row along the grain at spacing a1 (only used when n > 1).';
+
+  @override
+  String get connResults => 'Connection capacity';
+
+  @override
+  String get connCapacity => 'Design capacity';
+
+  @override
+  String get connPerFastener => 'Per fastener and shear plane';
+
+  @override
+  String get connMode => 'Governing failure mode';
+
+  @override
+  String get connNef => 'Effective number per row';
+
+  @override
+  String get connEmbedment => 'Embedment strengths';
+
+  @override
+  String get connYield => 'Fastener yield moment';
+
+  @override
+  String get connModes => 'Johansen failure modes (characteristic)';
+
+  @override
+  String get connNoteScope =>
+      'Single shear, timber to timber, Johansen equations of EN 1995-1-1 (8.6) with the rope effect neglected (conservative); nef (8.34) for loads along the grain. Spacing, end and edge distances (Table 8.4, only a1 ≥ 4d is enforced), splitting (8.1.4) and block shear are not checked.';
+
+  @override
+  String get contSubtitle =>
+      'Elastic analysis of every load arrangement · EC2 5.1.3 · design of each span';
+
+  @override
+  String get contSpans => 'Spans';
+
+  @override
+  String get contSpan => 'Span';
+
+  @override
+  String get contSpansNote =>
+      'Spans are read from left to right up to the first empty field (1 to 6 spans). Line supports; no moment redistribution.';
+
+  @override
+  String get contEnds => 'End supports';
+
+  @override
+  String get contEndsPinned => 'Both pinned';
+
+  @override
+  String get contEndsFixedLeft => 'Left fixed';
+
+  @override
+  String get contEndsFixed => 'Both fixed';
+
+  @override
+  String get contSelfWeight => 'Add self-weight';
+
+  @override
+  String get contYes => 'Yes';
+
+  @override
+  String get contNo => 'No';
+
+  @override
+  String get contLoads => 'Loads and supports';
+
+  @override
+  String get contDesignLoads => 'Design loads';
+
+  @override
+  String get contArrangements => 'Load arrangements analysed';
+
+  @override
+  String get contSupport => 'Support';
+
+  @override
+  String get contEnvelope => 'Bending moment envelope (ULS)';
+
+  @override
+  String get contSagging => 'Max. sagging moment';
+
+  @override
+  String get contHogging => 'Max. hogging moment';
+
+  @override
+  String get contShear => 'Max. shear';
+
+  @override
+  String get contBottomBars => 'Bottom bars';
+
+  @override
+  String get contTopBars => 'Top bars (over the supports)';
+
+  @override
+  String get contLinks => 'Links';
+
+  @override
+  String get contNoteScope =>
+      'Uniform loads on every span, 1.35 G everywhere and 1.5 Q on the spans of each arrangement: all spans, alternate spans and each pair of adjacent spans (EN 1992-1-1 5.1.3, recommended). One section design per span for its worst sagging, hogging and shear; curtail the top bars beyond the points of contraflexure. Deflection, crack widths and anchorage are not checked here: use the beam module for each span.';
+
+  @override
+  String get timberSupportTitle => 'End support and notch (optional)';
+
+  @override
+  String get timberBearingLength => 'Bearing length';
+
+  @override
+  String get timberReaction => 'Support reaction';
+
+  @override
+  String get timberNotchDepth => 'Depth at the notch hef';
+
+  @override
+  String get timberNotchX => 'Notch distance x';
+
+  @override
+  String get timberSupportNote =>
+      'Bearing length 0 = no check; the effective length adds 30 mm (6.1.5), empty reaction = VEd. Notch on the bottom face at the support: hef = remaining depth (0 = no notch), x = distance from the reaction to the notch corner (6.5.2).';
+
+  @override
+  String get masonryExtraTitle =>
+      'Cavity, wind and concentrated load (optional)';
+
+  @override
+  String get masonryOtherLeaf => 'Other leaf thickness';
+
+  @override
+  String get masonryLateral => 'Wind on the wall';
+
+  @override
+  String get masonryConcentrated => 'Concentrated load NEdc';
+
+  @override
+  String get masonryBearingLength => 'Bearing length';
+
+  @override
+  String get masonryBearingWidth => 'Bearing width';
+
+  @override
+  String get masonryEdgeDistance => 'Distance to the wall end a1';
+
+  @override
+  String get masonryExtraNote =>
+      'Cavity wall: the loaded leaf is t, the other leaf only stiffens it (tef 5.5.1.3). Wind spans vertically over the storey height and adds M/N at mid-height. Concentrated load on a bearing at a1 from the end of the wall (6.1.3).';
+
+  @override
+  String get pileCapColumnB => 'Column side across b';
+
+  @override
+  String get pileCapMx => 'Moment Mx';
+
+  @override
+  String get pileCapMy => 'Moment My';
+
+  @override
+  String get pileCapCapacity => 'Pile design resistance';
+
+  @override
+  String get pileCapReactionRange => 'Extreme pile reactions';
+
+  @override
+  String get pileCapTension => 'A pile is in tension';
+
+  @override
+  String get seismicRegulation => 'Rules';
+
+  @override
+  String get seismicPs92Class => 'Building class';
+
+  @override
+  String get seismicPs92Site => 'Site class';
+
+  @override
+  String get seismicLe => 'Floor width Le';
+
+  @override
+  String get seismicXe => 'Element distance from centre x';
+
+  @override
+  String get seismicTorsionNote =>
+      'Optional: accidental torsion factor δ for an element at x from the centre of a floor of width Le perpendicular to the action (EN 1998-1 4.3.3.2.4).';
+
+  @override
+  String get seismicTorsion => 'Accidental torsion factor';
+
+  @override
+  String get windRegion => 'Wind region (France)';
+
+  @override
+  String get regionCustom => 'Other (enter the value)';
+
+  @override
+  String get windCoHelp =>
+      'Orography factor (1 on flat ground, EN 1991-1-4 Annex A)';
+
+  @override
+  String get windDuopitchNote =>
+      'Duopitch roof: zones F to J of EN 1991-1-4 Table 7.4a for the wind normal to the ridge, pitch of the first slope; each row gives the suction / pressure cases (cpe,10 and pressure).';
+
+  @override
+  String get snowRegion => 'Snow region (France)';
+
+  @override
+  String get snowAltitude => 'Altitude';
+
+  @override
+  String get snowAltitudeHelp => 'sk from NF EN 1991-1-3/NA at this altitude';
+
+  @override
+  String get snowSkUsed => 'Ground snow load';
+
+  @override
+  String get footingOptimise => 'Optimise the width';
+
+  @override
+  String pileCapTensionMsg(String r) {
+    return 'The smallest pile reaction is $r kN: piles and their anchorage into the cap must be designed for tension.';
+  }
+
+  @override
+  String seismicPs92Note(String a) {
+    return 'PS92 spectrum aN · R(T) / q with aN = $a m/s², λ = 1, τ = 1 (flat site).';
+  }
+
+  @override
+  String windDuopitchTitle(String pitch) {
+    return 'Duopitch roof, α = $pitch°';
+  }
+
+  @override
+  String windRegionN(String n, String v) {
+    return 'Region $n (vb,0 = $v m/s)';
+  }
 }

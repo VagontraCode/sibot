@@ -3,6 +3,9 @@
 //
 // Set SIBOT_SHOTS=<dir> to also save PNG screenshots for visual review:
 //   SIBOT_SHOTS=build/shots flutter test test/screens_smoke_test.dart
+//
+// SIBOT_ONLY=<screen key> renders a single screen; SIBOT_DEBUG=1 leaves
+// layout errors uncaught so the full report (widget and file) is printed.
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -25,6 +28,8 @@ import 'package:sibot/features/calculations/loads/presentation/wind_snow_provide
 import 'package:sibot/features/calculations/masonry/presentation/masonry_wall_provider.dart';
 import 'package:sibot/features/calculations/steel/presentation/steel_member_provider.dart';
 import 'package:sibot/features/calculations/timber/presentation/timber_member_provider.dart';
+import 'package:sibot/features/calculations/timber/presentation/timber_connection_provider.dart';
+import 'package:sibot/features/calculations/beams/presentation/continuous_beam_provider.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
@@ -203,20 +208,58 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             'vEd': 6,
             'gk': 1,
             'qk': 1.5,
+            'bearingLength': 60,
+            'notchDepth': 150,
+            'notchX': 50,
           }))
           .calculate(),
-  'masonry_wall': (c) => (c.read(
-    masonryWallStateProvider('PRJ_1').notifier,
-  )..setAll({'t': 200, 'height': 2.7, 'nEd': 300, 'eTop': 20})).calculate(),
+  'timber_connection': (c) =>
+      (c.read(timberConnectionStateProvider('PRJ_1').notifier)..setAll({
+            'd': 12,
+            't1': 45,
+            't2': 45,
+            'fEd': 15,
+            'perRow': 4,
+            'a1': 84,
+          }))
+          .calculate(),
+  'continuous_beam': (c) =>
+      (c.read(continuousBeamStateProvider('PRJ_1').notifier)..setAll({
+            'span1': 5,
+            'span2': 6,
+            'span3': 5,
+            'b': 300,
+            'h': 500,
+            'g': 15,
+            'q': 10,
+          }))
+          .calculate(),
+  'masonry_wall': (c) =>
+      (c.read(masonryWallStateProvider('PRJ_1').notifier)..setAll({
+            't': 200,
+            'height': 2.7,
+            'nEd': 300,
+            'eTop': 20,
+            'otherLeaf': 100,
+            'lateralLoad': 0.8,
+            'concentratedLoad': 100,
+            'bearingLength': 200,
+            'bearingWidth': 150,
+            'edgeDistance': 400,
+          }))
+          .calculate(),
   'wind_snow': (c) =>
       (c.read(windSnowStateProvider('PRJ_1').notifier)
             ..setOption('roof', 'duopitch')
+            ..setOption('windRegion', '3')
+            ..setOption('snowRegion', 'C1')
             ..setAll({
               'vb': 26,
               'h': 8,
               'b': 20,
               'd': 12,
-              'sk': 0.65,
+              'altitude': 400,
+              'co': 1.1,
               'alpha1': 35,
               'alpha2': 20,
             }))
@@ -226,6 +269,26 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             ..setZone('4')
             ..setOption('ground', 'c')
             ..setAll({'storeys': 4, 'mass': 300}))
+          .calculate(),
+  'seismic_ps92': (c) =>
+      (c.read(seismicStateProvider('PRJ_1').notifier)
+            ..setOption('regulation', 'ps92')
+            ..setOption('ps92Zone', 'ii')
+            ..setAll({'storeys': 4, 'mass': 300, 'le': 20, 'xe': 8}))
+          .calculate(),
+  'slope_janbu': (c) =>
+      (c.read(slopeStateProvider('PRJ_1').notifier)
+            ..setOption('method', 'janbu')
+            ..setAll({
+              'height': 6,
+              'angle': 70,
+              'cohesion': 25,
+              'phi': 20,
+              'waterLevel': 1,
+              'l1Top': 1.5,
+              'l1C': 5,
+              'l1Phi': 15,
+            }))
           .calculate(),
   'slope': (c) =>
       (c.read(slopeStateProvider('PRJ_1').notifier)..setAll({
@@ -242,7 +305,11 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             'spacing': 1.5,
             'pileDiameter': 500,
             'column': 450,
+            'columnB': 600,
             'h': 700,
+            'mx': 150,
+            'my': 300,
+            'pileCapacity': 900,
           }))
           .calculate(),
   'septic': (c) => (c.read(
@@ -263,6 +330,7 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
       (c.read(slabStateProvider('PRJ_1').notifier)
             ..setOption('type', 'twoWay')
             ..setOption('support', 'continuous')
+            ..setOption('punchType', 'edge')
             ..setAll({
               'lx': 4,
               'ly': 5,
@@ -279,6 +347,7 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
       (c.read(footingStateProvider('PRJ_1').notifier)
             ..setOption('type', 'combined')
             ..setOption('bearing', 'soil')
+            ..setOption('optimise', 'yes')
             ..setAll({
               'a1': 300,
               'b1': 300,
@@ -328,7 +397,7 @@ void main() {
 
   const sizes = {'phone': Size(390, 844), 'tablet': Size(1194, 834)};
 
-  const screens = {
+  final screens = {
     'dashboard': '/dashboard',
     'projects': '/projects',
     'project': '/projects/PRJ_1',
@@ -345,6 +414,10 @@ void main() {
     'wind_snow': '/projects/PRJ_1/wind-snow',
     'masonry_wall': '/projects/PRJ_1/masonry-wall',
     'timber_member': '/projects/PRJ_1/timber-member',
+    'timber_connection': '/projects/PRJ_1/timber-connection',
+    'continuous_beam': '/projects/PRJ_1/continuous-beam',
+    'seismic_ps92': '/projects/PRJ_1/seismic',
+    'slope_janbu': '/projects/PRJ_1/slope',
     'steel_member': '/projects/PRJ_1/steel-member',
     'footing': '/projects/PRJ_1/footing',
     'footing_combined': '/projects/PRJ_1/footing',
@@ -367,6 +440,8 @@ void main() {
     'settings': '/dashboard/settings',
   };
 
+  final only = Platform.environment['SIBOT_ONLY'];
+  if (only != null) screens.removeWhere((k, _) => k != only);
   for (final size in sizes.entries) {
     for (final lang in ['en', 'fr']) {
       for (final dark in [false, true]) {
@@ -487,7 +562,9 @@ void main() {
                 reason: s.key,
               );
             }
-            expect(tester.takeException(), isNull, reason: s.key);
+            if (Platform.environment['SIBOT_DEBUG'] == null) {
+              expect(tester.takeException(), isNull, reason: s.key);
+            }
 
             if (_shotsDir != null) {
               final boundary =

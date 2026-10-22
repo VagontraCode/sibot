@@ -50,6 +50,7 @@ class FootingNotifier extends DesignFormNotifier<Object> {
     'type': 'isolated',
     'bearing': 'allowable',
     'drainage': 'drained',
+    'optimise': 'no',
   };
 
   String get _type => state.options['type']!;
@@ -129,6 +130,7 @@ class FootingNotifier extends DesignFormNotifier<Object> {
             cover: s['cover']!,
             fck: s['fck']!,
             fyk: s['fyk']!,
+            optimiseWidth: s.options['optimise'] == 'yes',
           ),
         );
       default:

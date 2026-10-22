@@ -28,6 +28,10 @@ class TimberMemberNotifier extends DesignFormNotifier<TimberMemberResult> {
     'gk': 0,
     'qk': 0,
     'psi2': 0.3,
+    'bearingLength': 0,
+    'reaction': null,
+    'notchDepth': 0,
+    'notchX': 0,
   };
 
   @override
@@ -72,6 +76,10 @@ class TimberMemberNotifier extends DesignFormNotifier<TimberMemberResult> {
           gk: s['gk']!,
           qk: s['qk']!,
           psi2: s['psi2']!,
+          bearingLength: s['bearingLength'] ?? 0,
+          reaction: s['reaction'],
+          notchDepth: s['notchDepth'] ?? 0,
+          notchX: s['notchX'] ?? 0,
         ),
       );
 

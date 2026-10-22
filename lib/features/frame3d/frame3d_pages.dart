@@ -425,9 +425,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
             vEd: f.vzMax,
           ),
         );
-        values.add(
-          r.checks.map((c) => c.ratio).fold<double>(0, math.max),
-        );
+        values.add(r.checks.map((c) => c.ratio).fold<double>(0, math.max));
       } on InputError {
         values.add(null);
       }

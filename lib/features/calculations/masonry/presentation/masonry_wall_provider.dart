@@ -24,6 +24,12 @@ class MasonryWallNotifier extends DesignFormNotifier<MasonryWallResult> {
     'eTop': 0,
     'eBottom': 0,
     'gammaM': 2.5,
+    'otherLeaf': 0,
+    'lateralLoad': 0,
+    'concentratedLoad': 0,
+    'bearingLength': 0,
+    'bearingWidth': 0,
+    'edgeDistance': 0,
   };
 
   @override
@@ -58,6 +64,12 @@ class MasonryWallNotifier extends DesignFormNotifier<MasonryWallResult> {
           eTop: s['eTop']!,
           eBottom: s['eBottom']!,
           gammaM: s['gammaM']!,
+          otherLeaf: s['otherLeaf'] ?? 0,
+          lateralLoad: s['lateralLoad'] ?? 0,
+          concentratedLoad: s['concentratedLoad'] ?? 0,
+          bearingLength: s['bearingLength'] ?? 0,
+          bearingWidth: s['bearingWidth'] ?? 0,
+          edgeDistance: s['edgeDistance'] ?? 0,
         ),
       );
 

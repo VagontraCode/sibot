@@ -109,6 +109,12 @@ class FootingPage extends ConsumerWidget {
                 children: [field('g2', 'kN', '600'), field('q2', 'kN', '200')],
               ),
               field('spacing', 'm', '3.5'),
+              ChoiceField<String>(
+                label: l.footingOptimise,
+                value: s.options['optimise']!,
+                options: {'no': l.contNo, 'yes': l.contYes},
+                onChanged: (v) => n.setOption('optimise', v),
+              ),
             ] else ...[
               if (type == 'strip')
                 field('a', 'mm', '200')

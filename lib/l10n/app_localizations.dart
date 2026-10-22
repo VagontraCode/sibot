@@ -2573,7 +2573,7 @@ abstract class AppLocalizations {
   /// No description provided for @punchingOptionalNote.
   ///
   /// In en, this message translates to:
-  /// **'Leave the load empty to skip punching. ULS load on a c1 × c2 area.'**
+  /// **'Leave the load empty to skip punching. ULS load on a c1 × c2 area; for an edge column c1 is perpendicular to the free edge.'**
   String get punchingOptionalNote;
 
   /// No description provided for @punchingLoad.
@@ -4799,7 +4799,7 @@ abstract class AppLocalizations {
   /// No description provided for @windPitchedNote.
   ///
   /// In en, this message translates to:
-  /// **'Wind pressure coefficients for pitched roofs (EN 1991-1-4 7.2.4, 7.2.5) are not computed yet; wall zones and qp still apply.'**
+  /// **'Wind pressure coefficients for monopitch roofs (EN 1991-1-4 7.2.4) are not computed; wall zones and qp still apply.'**
   String get windPitchedNote;
 
   /// No description provided for @seismicSubtitle.
@@ -5213,7 +5213,7 @@ abstract class AppLocalizations {
   /// No description provided for @pileCapGeometryNote.
   ///
   /// In en, this message translates to:
-  /// **'Centred square column, piles equally spaced (≥ 2 diameters): in line, triangle or square. Cover measured to the tie bars over the pile heads. Cap self-weight × 1.35 is added.'**
+  /// **'Square or rectangular column centred on the pile group (2 piles: column side a along the pile line). Moments are at the underside of the cap; Mx needs at least 3 piles. Leave the pile resistance empty to skip that check.'**
   String get pileCapGeometryNote;
 
   /// No description provided for @pileCapDepthRange.
@@ -6643,6 +6643,534 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Concentrated load'**
   String get checkConcentratedLoad;
+
+  /// No description provided for @modTimberConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Timber connection'**
+  String get modTimberConnection;
+
+  /// No description provided for @modTimberConnectionSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Bolts and dowels, EC5 Johansen modes'**
+  String get modTimberConnectionSub;
+
+  /// No description provided for @modContinuousBeam.
+  ///
+  /// In en, this message translates to:
+  /// **'Continuous beam'**
+  String get modContinuousBeam;
+
+  /// No description provided for @modContinuousBeamSub.
+  ///
+  /// In en, this message translates to:
+  /// **'RC beam over several spans, pattern loading'**
+  String get modContinuousBeamSub;
+
+  /// No description provided for @connSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bolted or dowelled timber-to-timber joint in single shear · EN 1995-1-1 8.2.2'**
+  String get connSubtitle;
+
+  /// No description provided for @connFastenersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fasteners and members'**
+  String get connFastenersTitle;
+
+  /// No description provided for @connGrade.
+  ///
+  /// In en, this message translates to:
+  /// **'Bolt grade'**
+  String get connGrade;
+
+  /// No description provided for @connDiameter.
+  ///
+  /// In en, this message translates to:
+  /// **'Diameter d'**
+  String get connDiameter;
+
+  /// No description provided for @connLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Design load FEd'**
+  String get connLoad;
+
+  /// No description provided for @connT1.
+  ///
+  /// In en, this message translates to:
+  /// **'Member 1 thickness t1'**
+  String get connT1;
+
+  /// No description provided for @connT2.
+  ///
+  /// In en, this message translates to:
+  /// **'Member 2 thickness t2'**
+  String get connT2;
+
+  /// No description provided for @connAngle.
+  ///
+  /// In en, this message translates to:
+  /// **'Load-to-grain angle, member 2'**
+  String get connAngle;
+
+  /// No description provided for @connPerRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Per row n'**
+  String get connPerRow;
+
+  /// No description provided for @connRows.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows'**
+  String get connRows;
+
+  /// No description provided for @connSpacing.
+  ///
+  /// In en, this message translates to:
+  /// **'Spacing a1'**
+  String get connSpacing;
+
+  /// No description provided for @connNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Member 1 is loaded along the grain. n fasteners per row along the grain at spacing a1 (only used when n > 1).'**
+  String get connNote;
+
+  /// No description provided for @connResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection capacity'**
+  String get connResults;
+
+  /// No description provided for @connCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Design capacity'**
+  String get connCapacity;
+
+  /// No description provided for @connPerFastener.
+  ///
+  /// In en, this message translates to:
+  /// **'Per fastener and shear plane'**
+  String get connPerFastener;
+
+  /// No description provided for @connMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Governing failure mode'**
+  String get connMode;
+
+  /// No description provided for @connNef.
+  ///
+  /// In en, this message translates to:
+  /// **'Effective number per row'**
+  String get connNef;
+
+  /// No description provided for @connEmbedment.
+  ///
+  /// In en, this message translates to:
+  /// **'Embedment strengths'**
+  String get connEmbedment;
+
+  /// No description provided for @connYield.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastener yield moment'**
+  String get connYield;
+
+  /// No description provided for @connModes.
+  ///
+  /// In en, this message translates to:
+  /// **'Johansen failure modes (characteristic)'**
+  String get connModes;
+
+  /// No description provided for @connNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Single shear, timber to timber, Johansen equations of EN 1995-1-1 (8.6) with the rope effect neglected (conservative); nef (8.34) for loads along the grain. Spacing, end and edge distances (Table 8.4, only a1 ≥ 4d is enforced), splitting (8.1.4) and block shear are not checked.'**
+  String get connNoteScope;
+
+  /// No description provided for @contSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Elastic analysis of every load arrangement · EC2 5.1.3 · design of each span'**
+  String get contSubtitle;
+
+  /// No description provided for @contSpans.
+  ///
+  /// In en, this message translates to:
+  /// **'Spans'**
+  String get contSpans;
+
+  /// No description provided for @contSpan.
+  ///
+  /// In en, this message translates to:
+  /// **'Span'**
+  String get contSpan;
+
+  /// No description provided for @contSpansNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Spans are read from left to right up to the first empty field (1 to 6 spans). Line supports; no moment redistribution.'**
+  String get contSpansNote;
+
+  /// No description provided for @contEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'End supports'**
+  String get contEnds;
+
+  /// No description provided for @contEndsPinned.
+  ///
+  /// In en, this message translates to:
+  /// **'Both pinned'**
+  String get contEndsPinned;
+
+  /// No description provided for @contEndsFixedLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Left fixed'**
+  String get contEndsFixedLeft;
+
+  /// No description provided for @contEndsFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Both fixed'**
+  String get contEndsFixed;
+
+  /// No description provided for @contSelfWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Add self-weight'**
+  String get contSelfWeight;
+
+  /// No description provided for @contYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get contYes;
+
+  /// No description provided for @contNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get contNo;
+
+  /// No description provided for @contLoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Loads and supports'**
+  String get contLoads;
+
+  /// No description provided for @contDesignLoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Design loads'**
+  String get contDesignLoads;
+
+  /// No description provided for @contArrangements.
+  ///
+  /// In en, this message translates to:
+  /// **'Load arrangements analysed'**
+  String get contArrangements;
+
+  /// No description provided for @contSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get contSupport;
+
+  /// No description provided for @contEnvelope.
+  ///
+  /// In en, this message translates to:
+  /// **'Bending moment envelope (ULS)'**
+  String get contEnvelope;
+
+  /// No description provided for @contSagging.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. sagging moment'**
+  String get contSagging;
+
+  /// No description provided for @contHogging.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. hogging moment'**
+  String get contHogging;
+
+  /// No description provided for @contShear.
+  ///
+  /// In en, this message translates to:
+  /// **'Max. shear'**
+  String get contShear;
+
+  /// No description provided for @contBottomBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottom bars'**
+  String get contBottomBars;
+
+  /// No description provided for @contTopBars.
+  ///
+  /// In en, this message translates to:
+  /// **'Top bars (over the supports)'**
+  String get contTopBars;
+
+  /// No description provided for @contLinks.
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get contLinks;
+
+  /// No description provided for @contNoteScope.
+  ///
+  /// In en, this message translates to:
+  /// **'Uniform loads on every span, 1.35 G everywhere and 1.5 Q on the spans of each arrangement: all spans, alternate spans and each pair of adjacent spans (EN 1992-1-1 5.1.3, recommended). One section design per span for its worst sagging, hogging and shear; curtail the top bars beyond the points of contraflexure. Deflection, crack widths and anchorage are not checked here: use the beam module for each span.'**
+  String get contNoteScope;
+
+  /// No description provided for @timberSupportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'End support and notch (optional)'**
+  String get timberSupportTitle;
+
+  /// No description provided for @timberBearingLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing length'**
+  String get timberBearingLength;
+
+  /// No description provided for @timberReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Support reaction'**
+  String get timberReaction;
+
+  /// No description provided for @timberNotchDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Depth at the notch hef'**
+  String get timberNotchDepth;
+
+  /// No description provided for @timberNotchX.
+  ///
+  /// In en, this message translates to:
+  /// **'Notch distance x'**
+  String get timberNotchX;
+
+  /// No description provided for @timberSupportNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing length 0 = no check; the effective length adds 30 mm (6.1.5), empty reaction = VEd. Notch on the bottom face at the support: hef = remaining depth (0 = no notch), x = distance from the reaction to the notch corner (6.5.2).'**
+  String get timberSupportNote;
+
+  /// No description provided for @masonryExtraTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cavity, wind and concentrated load (optional)'**
+  String get masonryExtraTitle;
+
+  /// No description provided for @masonryOtherLeaf.
+  ///
+  /// In en, this message translates to:
+  /// **'Other leaf thickness'**
+  String get masonryOtherLeaf;
+
+  /// No description provided for @masonryLateral.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind on the wall'**
+  String get masonryLateral;
+
+  /// No description provided for @masonryConcentrated.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentrated load NEdc'**
+  String get masonryConcentrated;
+
+  /// No description provided for @masonryBearingLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing length'**
+  String get masonryBearingLength;
+
+  /// No description provided for @masonryBearingWidth.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing width'**
+  String get masonryBearingWidth;
+
+  /// No description provided for @masonryEdgeDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance to the wall end a1'**
+  String get masonryEdgeDistance;
+
+  /// No description provided for @masonryExtraNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Cavity wall: the loaded leaf is t, the other leaf only stiffens it (tef 5.5.1.3). Wind spans vertically over the storey height and adds M/N at mid-height. Concentrated load on a bearing at a1 from the end of the wall (6.1.3).'**
+  String get masonryExtraNote;
+
+  /// No description provided for @pileCapColumnB.
+  ///
+  /// In en, this message translates to:
+  /// **'Column side across b'**
+  String get pileCapColumnB;
+
+  /// No description provided for @pileCapMx.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment Mx'**
+  String get pileCapMx;
+
+  /// No description provided for @pileCapMy.
+  ///
+  /// In en, this message translates to:
+  /// **'Moment My'**
+  String get pileCapMy;
+
+  /// No description provided for @pileCapCapacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Pile design resistance'**
+  String get pileCapCapacity;
+
+  /// No description provided for @pileCapReactionRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Extreme pile reactions'**
+  String get pileCapReactionRange;
+
+  /// No description provided for @pileCapTension.
+  ///
+  /// In en, this message translates to:
+  /// **'A pile is in tension'**
+  String get pileCapTension;
+
+  /// No description provided for @seismicRegulation.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules'**
+  String get seismicRegulation;
+
+  /// No description provided for @seismicPs92Class.
+  ///
+  /// In en, this message translates to:
+  /// **'Building class'**
+  String get seismicPs92Class;
+
+  /// No description provided for @seismicPs92Site.
+  ///
+  /// In en, this message translates to:
+  /// **'Site class'**
+  String get seismicPs92Site;
+
+  /// No description provided for @seismicLe.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor width Le'**
+  String get seismicLe;
+
+  /// No description provided for @seismicXe.
+  ///
+  /// In en, this message translates to:
+  /// **'Element distance from centre x'**
+  String get seismicXe;
+
+  /// No description provided for @seismicTorsionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional: accidental torsion factor δ for an element at x from the centre of a floor of width Le perpendicular to the action (EN 1998-1 4.3.3.2.4).'**
+  String get seismicTorsionNote;
+
+  /// No description provided for @seismicTorsion.
+  ///
+  /// In en, this message translates to:
+  /// **'Accidental torsion factor'**
+  String get seismicTorsion;
+
+  /// No description provided for @windRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Wind region (France)'**
+  String get windRegion;
+
+  /// No description provided for @regionCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Other (enter the value)'**
+  String get regionCustom;
+
+  /// No description provided for @windCoHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Orography factor (1 on flat ground, EN 1991-1-4 Annex A)'**
+  String get windCoHelp;
+
+  /// No description provided for @windDuopitchNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Duopitch roof: zones F to J of EN 1991-1-4 Table 7.4a for the wind normal to the ridge, pitch of the first slope; each row gives the suction / pressure cases (cpe,10 and pressure).'**
+  String get windDuopitchNote;
+
+  /// No description provided for @snowRegion.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow region (France)'**
+  String get snowRegion;
+
+  /// No description provided for @snowAltitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Altitude'**
+  String get snowAltitude;
+
+  /// No description provided for @snowAltitudeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'sk from NF EN 1991-1-3/NA at this altitude'**
+  String get snowAltitudeHelp;
+
+  /// No description provided for @snowSkUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ground snow load'**
+  String get snowSkUsed;
+
+  /// No description provided for @footingOptimise.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimise the width'**
+  String get footingOptimise;
+
+  /// No description provided for @pileCapTensionMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'The smallest pile reaction is {r} kN: piles and their anchorage into the cap must be designed for tension.'**
+  String pileCapTensionMsg(String r);
+
+  /// No description provided for @seismicPs92Note.
+  ///
+  /// In en, this message translates to:
+  /// **'PS92 spectrum aN · R(T) / q with aN = {a} m/s², λ = 1, τ = 1 (flat site).'**
+  String seismicPs92Note(String a);
+
+  /// No description provided for @windDuopitchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duopitch roof, α = {pitch}°'**
+  String windDuopitchTitle(String pitch);
+
+  /// No description provided for @windRegionN.
+  ///
+  /// In en, this message translates to:
+  /// **'Region {n} (vb,0 = {v} m/s)'**
+  String windRegionN(String n, String v);
 }
 
 class _AppLocalizationsDelegate

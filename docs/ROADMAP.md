@@ -126,7 +126,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Retaining wall: EC7 EQU overturning and DA2 sliding (EC2 code) or global FS 1.5 (BAEL); stem, toe and heel design; iterative pre-design
 - [x] Tools: bearing & settlement (EC7), section properties (rect, circle, hollow, I, T), quantities (concrete, formwork, rebar)
 - [ ] Each module checked against at least 2 published worked examples per code (and the user's RSA models) → then remove the Beta banner
-- [ ] Later: continuous beams (with Phase 2 analysis), edge/corner punching, combined footing widening optimisation
+- [x] Continuous beams (pattern loading with the 2D analysis), edge/corner punching, combined footing width optimisation
 
 ### Phase 2 — 2D FEM analysis (core RSA feature) ✅ (Beta)
 - [x] Engine: 2D beam and truss elements, hinges (static condensation), supports and springs, banded Cholesky with RCM renumbering; analysis in a background isolate
@@ -147,20 +147,20 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Steel EC3 (Beta): classification, resistances with M+V+N, flexural buckling, LTB (6.3.2.3), Annex B interaction, lightest-section search
 - [x] Steel EC3: minor-axis bending (6.41, Annex B kyz/kzz), utilisation colour map on the 3D frame
 - [x] Timber EC5 (Beta): C16–C30 and GL24h–GL32h, kmod/kh/kdef, bending with kcrit, shear, column buckling, 6.23/6.24/6.35 interaction, deflection with creep
-- [ ] Timber EC5: bearing perpendicular to grain, notches, connections
+- [x] Timber EC5: bearing perpendicular to grain, notches, connections
 - [x] Masonry EC6 (Beta): fk = K fb^0.7 fm^0.3, effective height, slenderness ≤ 27, end and mid-height reduction (Annex G) with creep
-- [ ] Masonry EC6: lateral load, concentrated loads, cavity walls
+- [x] Masonry EC6: lateral load, concentrated loads, cavity walls
 - [x] EC1 wind (Beta): qp(z) by terrain category, wall zones A–E (Table 7.1) with lack of correlation, flat-roof zones F–I
 - [x] EC1 snow (Beta): μ1 for flat, monopitch and duopitch roofs with drifted arrangements, Ce
-- [ ] Wind on pitched roofs, orography, French NA maps (vb,0 and sk by department and altitude)
+- [x] Wind on duopitch roofs, orography, French NA regions (vb,0 by wind region, sk by snow region and altitude; the department-to-region lookup is left to the user)
 - [x] EC8 lateral force method (Beta): design spectrum types 1/2, ground A–E, γI, Ct period, λ, height-proportional storey forces, French zone presets
-- [ ] PS92 equivalent static method; accidental torsion
+- [x] PS92 equivalent static method; accidental torsion
 
 - [x] Slope stability (Beta): Bishop simplified, grid + pattern search of the critical circle, ru, crest surcharge, EC7 DA3 factor; checked against Taylor (φ = 0) and the infinite slope (c = 0)
-- [ ] Slopes: layered soils, water table, non-circular surfaces, faces steeper than 75°
+- [x] Slopes: layered soils, water table, non-circular surfaces (Janbu), faces up to 90°
 - [x] Pile cap (Beta): Blévot strut-and-tie for 2, 3, 4 piles, strut angle 45–55° with depth suggestion, ties, EC2 node stresses
 - [x] Septic tank (Beta): flow × retention + sludge, DTU 64.1 minimum, two-compartment layout
-- [ ] Pile cap: eccentric loads and moments, pile capacity, rectangular columns
+- [x] Pile cap: eccentric loads and moments, pile capacity, rectangular columns
 
 ### Phase 4 — 3D frames and dynamics ✅ (Beta)
 - [x] 3D frame element (6 DOF), verified against closed forms and the 2D solver

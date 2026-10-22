@@ -143,7 +143,7 @@ class FormSection extends StatelessWidget {
                 Icon(icon, size: 18, color: context.colors.primary),
                 const SizedBox(width: Gap.sm),
               ],
-              Text(title, style: context.text.titleMedium),
+              Flexible(child: Text(title, style: context.text.titleMedium)),
             ],
           ),
           const SizedBox(height: Gap.lg),

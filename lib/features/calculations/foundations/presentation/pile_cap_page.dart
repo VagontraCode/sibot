@@ -30,14 +30,24 @@ class PileCapPage extends ConsumerWidget {
       'fck': l.calcConcreteFck,
       'fyk': l.calcSteelFyk,
       'piles': l.pileCapPiles,
+      'columnB': l.pileCapColumnB,
+      'mx': l.pileCapMx,
+      'my': l.pileCapMy,
+      'pileCapacity': l.pileCapCapacity,
     };
-    Widget field(String key, String unit, {String? hint}) => FormNumber(
+    Widget field(
+      String key,
+      String unit, {
+      String? hint,
+      bool negative = false,
+    }) => FormNumber(
       state: s,
       notifier: n,
       field: key,
       label: labels[key]!,
       unit: unit,
       hint: hint,
+      allowNegative: negative,
     );
 
     return CalculatorScaffold(
@@ -79,6 +89,14 @@ class PileCapPage extends ConsumerWidget {
               ],
             ),
             FieldRow(children: [field('cover', 'mm'), field('edge', 'mm')]),
+            field('columnB', 'mm'),
+            FieldRow(
+              children: [
+                field('mx', 'kN·m', negative: true),
+                field('my', 'kN·m', negative: true),
+              ],
+            ),
+            field('pileCapacity', 'kN'),
             Text(l.pileCapGeometryNote, style: context.text.bodySmall),
           ],
         ),
@@ -103,6 +121,12 @@ class PileCapPage extends ConsumerWidget {
     final angleOk = r.theta >= 45 && r.theta <= 55;
     return [
       VerdictBanner(checks: r.checks),
+      if (r.tension)
+        StatusBanner(
+          tone: Tone.warning,
+          title: l.pileCapTension,
+          message: l.pileCapTensionMsg(fmt(context, r.minReaction, 0)),
+        ),
       if (!angleOk)
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -148,6 +172,14 @@ class PileCapPage extends ConsumerWidget {
             unit: 'kN',
             emphasize: true,
           ),
+          if (r.maxReaction - r.minReaction > 1e-6)
+            ResultRow(
+              label: l.pileCapReactionRange,
+              symbol: 'Rmax / Rmin',
+              value:
+                  '${fmt(context, r.maxReaction, 0)} / ${fmt(context, r.minReaction, 0)}',
+              unit: 'kN',
+            ),
           ResultRow(
             label: l.pileCapAngle,
             symbol: 'θ',

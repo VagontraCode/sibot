@@ -9,6 +9,12 @@ import 'package:sibot/ui/ui.dart';
 import 'package:sibot_engine/sibot_engine.dart';
 import 'seismic_provider.dart';
 
+/// Accidental torsion factor, or null when the inputs are missing.
+double? _torsion(double? le, double? x) {
+  if (le == null || x == null || le <= 0 || x < 0 || x > le / 2) return null;
+  return accidentalTorsionFactor(x, le);
+}
+
 class SeismicPage extends ConsumerWidget {
   final String projectId;
   const SeismicPage({super.key, required this.projectId});
@@ -28,6 +34,9 @@ class SeismicPage extends ConsumerWidget {
       'roofMass': l.seismicRoofMass,
       'period': l.seismicPeriodOverride,
       'height': l.seismicStoreyHeight,
+      'le': l.seismicLe,
+      'xe': l.seismicXe,
+      'x': l.seismicXe,
     };
     Widget field(String key, String unit, {String? hint, String? helper}) =>
         FormNumber(
@@ -52,39 +61,78 @@ class SeismicPage extends ConsumerWidget {
           title: l.seismicHazard,
           icon: Icons.waves_outlined,
           children: [
-            PickerField<String>(
-              key: ValueKey('zone-${s.options['zone']}'),
-              label: l.seismicZone,
-              value: s.options['zone']!,
-              options: {
-                'custom': l.seismicZoneCustom,
-                for (final z in frenchZones.entries)
-                  '${z.key}': l.seismicZoneN(z.key, fmt(context, z.value, 1)),
-              },
-              onChanged: n.setZone,
-            ),
-            field('agR', 'm/s²', hint: '1.6'),
             ChoiceField<String>(
-              label: l.seismicImportance,
-              value: s.options['importance']!,
-              options: const {'1': 'I', '2': 'II', '3': 'III', '4': 'IV'},
-              onChanged: (v) => n.setOption('importance', v),
+              label: l.seismicRegulation,
+              value: s.options['regulation']!,
+              options: const {'ec8': 'EN 1998-1', 'ps92': 'PS92'},
+              onChanged: (v) => n.setOption('regulation', v),
             ),
-            ChoiceField<String>(
-              label: l.seismicGround,
-              value: s.options['ground']!,
-              options: {
-                for (final g in GroundType.values) g.name: g.name.toUpperCase(),
-              },
-              onChanged: (v) => n.setOption('ground', v),
-            ),
-            ChoiceField<String>(
-              label: l.seismicSpectrumType,
-              value: s.options['type']!,
-              options: const {'1': 'Type 1', '2': 'Type 2'},
-              onChanged: (v) => n.setOption('type', v),
-            ),
-            Text(l.seismicHazardNote, style: context.text.bodySmall),
+            if (n.ps92) ...[
+              ChoiceField<String>(
+                label: l.seismicZone,
+                value: s.options['ps92Zone']!,
+                options: const {
+                  'ia': 'Ia',
+                  'ib': 'Ib',
+                  'ii': 'II',
+                  'iii': 'III',
+                },
+                onChanged: (v) => n.setOption('ps92Zone', v),
+              ),
+              ChoiceField<String>(
+                label: l.seismicPs92Class,
+                value: s.options['ps92Class']!,
+                options: const {'B': 'B', 'C': 'C', 'D': 'D'},
+                onChanged: (v) => n.setOption('ps92Class', v),
+              ),
+              ChoiceField<String>(
+                label: l.seismicPs92Site,
+                value: s.options['ps92Site']!,
+                options: {
+                  for (final v in Ps92Site.values) v.name: v.name.toUpperCase(),
+                },
+                onChanged: (v) => n.setOption('ps92Site', v),
+              ),
+              Text(
+                l.seismicPs92Note(fmt(context, n.ps92Acceleration(s), 1)),
+                style: context.text.bodySmall,
+              ),
+            ] else ...[
+              PickerField<String>(
+                key: ValueKey('zone-${s.options['zone']}'),
+                label: l.seismicZone,
+                value: s.options['zone']!,
+                options: {
+                  'custom': l.seismicZoneCustom,
+                  for (final z in frenchZones.entries)
+                    '${z.key}': l.seismicZoneN(z.key, fmt(context, z.value, 1)),
+                },
+                onChanged: n.setZone,
+              ),
+              field('agR', 'm/s²', hint: '1.6'),
+              ChoiceField<String>(
+                label: l.seismicImportance,
+                value: s.options['importance']!,
+                options: const {'1': 'I', '2': 'II', '3': 'III', '4': 'IV'},
+                onChanged: (v) => n.setOption('importance', v),
+              ),
+              ChoiceField<String>(
+                label: l.seismicGround,
+                value: s.options['ground']!,
+                options: {
+                  for (final g in GroundType.values)
+                    g.name: g.name.toUpperCase(),
+                },
+                onChanged: (v) => n.setOption('ground', v),
+              ),
+              ChoiceField<String>(
+                label: l.seismicSpectrumType,
+                value: s.options['type']!,
+                options: const {'1': 'Type 1', '2': 'Type 2'},
+                onChanged: (v) => n.setOption('type', v),
+              ),
+              Text(l.seismicHazardNote, style: context.text.bodySmall),
+            ],
           ],
         ),
         FormSection(
@@ -114,6 +162,8 @@ class SeismicPage extends ConsumerWidget {
               ],
             ),
             FieldRow(children: [field('q', ''), field('period', 's')]),
+            FieldRow(children: [field('le', 'm'), field('xe', 'm')]),
+            Text(l.seismicTorsionNote, style: context.text.bodySmall),
             Text(
               '${l.seismicRoofHelp} · ${l.seismicQHelp} · ${l.seismicPeriodHelp}',
               style: context.text.bodySmall,
@@ -121,11 +171,23 @@ class SeismicPage extends ConsumerWidget {
           ],
         ),
       ],
-      results: s.result == null ? null : _results(context, s.result!),
+      results: s.result == null
+          ? null
+          : _results(
+              context,
+              s.result!,
+              ps92: s.options['regulation'] == 'ps92',
+              torsion: _torsion(s['le'], s['xe']),
+            ),
     );
   }
 
-  List<Widget> _results(BuildContext context, SeismicResult r) {
+  List<Widget> _results(
+    BuildContext context,
+    SeismicResult r, {
+    required bool ps92,
+    double? torsion,
+  }) {
     final l = context.l10n;
     String f3(double v) => fmt(context, v, 3);
     return [
@@ -142,18 +204,20 @@ class SeismicPage extends ConsumerWidget {
         title: l.seismicSpectrumTitle,
         icon: Icons.show_chart_rounded,
         rows: [
-          ResultRow(
-            label: l.seismicDesignAg,
-            symbol: 'ag = γI · agR',
-            value: fmt(context, r.ag, 2),
-            unit: 'm/s²',
-          ),
-          ResultRow(
-            label: l.seismicSpectrumParams,
-            symbol: 'S / TB / TC / TD',
-            value:
-                '${fmt(context, r.spectrum.s, 2)} / ${fmt(context, r.spectrum.tb, 2)} / ${fmt(context, r.spectrum.tc, 2)} / ${fmt(context, r.spectrum.td, 2)}',
-          ),
+          if (!ps92)
+            ResultRow(
+              label: l.seismicDesignAg,
+              symbol: 'ag = γI · agR',
+              value: fmt(context, r.ag, 2),
+              unit: 'm/s²',
+            ),
+          if (!ps92)
+            ResultRow(
+              label: l.seismicSpectrumParams,
+              symbol: 'S / TB / TC / TD',
+              value:
+                  '${fmt(context, r.spectrum.s, 2)} / ${fmt(context, r.spectrum.tb, 2)} / ${fmt(context, r.spectrum.tc, 2)} / ${fmt(context, r.spectrum.td, 2)}',
+            ),
           ResultRow(
             label: l.seismicPeriod,
             symbol: 'T1',
@@ -178,6 +242,12 @@ class SeismicPage extends ConsumerWidget {
             value: fmt(context, r.totalMass, 0),
             unit: 't',
           ),
+          if (torsion != null)
+            ResultRow(
+              label: l.seismicTorsion,
+              symbol: 'δ = 1 + 0.6 x / Le',
+              value: fmt(context, torsion, 3),
+            ),
           ResultRow(
             label: l.seismicOverturning,
             symbol: 'M0',

@@ -10,7 +10,24 @@ class ClimateResult {
 
   /// Wind roof zones are given for flat roofs only.
   final bool flatRoof;
-  const ClimateResult(this.wind, this.snow, {required this.flatRoof});
+
+  /// Duopitch roofs: external pressure coefficients of zones F–J for
+  /// the suction and the pressure cases (EN 1991-1-4 Table 7.4a), at the
+  /// pitch [pitch].
+  final (List<double>, List<double>)? duopitch;
+  final double pitch;
+
+  /// Ground snow load used, kN/m² (from the French region when chosen).
+  final double sk;
+
+  const ClimateResult(
+    this.wind,
+    this.snow, {
+    required this.flatRoof,
+    required this.sk,
+    this.duopitch,
+    this.pitch = 0,
+  });
 }
 
 final windSnowStateProvider =
@@ -33,12 +50,16 @@ class WindSnowNotifier extends DesignFormNotifier<ClimateResult> {
     'alpha1': 0,
     'alpha2': 0,
     'ce': 1.0,
+    'co': 1.0,
+    'altitude': null,
   };
 
   @override
   Map<String, String> get initialOptions => {
     'terrain': TerrainCategory.catIII.name,
     'roof': RoofShape.flat.name,
+    'windRegion': 'custom',
+    'snowRegion': 'custom',
   };
 
   @override
@@ -47,15 +68,21 @@ class WindSnowNotifier extends DesignFormNotifier<ClimateResult> {
     'h',
     'b',
     'd',
-    'sk',
+    if (state.options['snowRegion'] == 'custom') 'sk' else 'altitude',
     if (state.options['roof'] != RoofShape.flat.name) 'alpha1',
     if (state.options['roof'] == RoofShape.duopitch.name) 'alpha2',
     'ce',
+    'co',
   ];
 
   @override
   ClimateResult compute(DesignFormState<ClimateResult> s) {
     final shape = RoofShape.values.byName(s.options['roof']!);
+    final region = s.options['snowRegion']!;
+    final sk = region == 'custom'
+        ? s['sk']!
+        : frenchSnowLoad(region, s['altitude']!);
+    final pitch = shape == RoofShape.duopitch ? s['alpha1']! : 0.0;
     return ClimateResult(
       designWind(
         vb: s['vb']!,
@@ -63,15 +90,19 @@ class WindSnowNotifier extends DesignFormNotifier<ClimateResult> {
         h: s['h']!,
         b: s['b']!,
         d: s['d']!,
+        co: s['co']!,
       ),
       designSnow(
-        sk: s['sk']!,
+        sk: sk,
         shape: shape,
         alpha1: shape == RoofShape.flat ? 0 : s['alpha1']!,
         alpha2: shape == RoofShape.duopitch ? s['alpha2']! : 0,
         ce: s['ce']!,
       ),
       flatRoof: shape == RoofShape.flat,
+      sk: sk,
+      pitch: pitch,
+      duopitch: pitch >= 5 && pitch <= 75 ? duopitchCpe(pitch) : null,
     );
   }
 
@@ -96,6 +127,7 @@ class WindSnowNotifier extends DesignFormNotifier<ClimateResult> {
           'ce': r.wind.peak.ce,
           'netWall': r.wind.netWall,
           'snowMax': r.snow.max,
+          'sk': r.sk,
         }),
       ),
     );

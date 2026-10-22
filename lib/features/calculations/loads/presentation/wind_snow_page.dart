@@ -28,6 +28,9 @@ class WindSnowPage extends ConsumerWidget {
       'alpha1': roof == RoofShape.duopitch ? l.snowPitch1 : l.snowPitch,
       'alpha2': l.snowPitch2,
       'ce': 'Ce',
+      'co': 'co',
+      'altitude': l.snowAltitude,
+      'pitch': l.snowPitch1,
     };
     Widget field(String key, String unit, {String? hint, String? helper}) =>
         FormNumber(
@@ -52,6 +55,23 @@ class WindSnowPage extends ConsumerWidget {
           title: l.windTitle,
           icon: Icons.air_rounded,
           children: [
+            PickerField<String>(
+              label: l.windRegion,
+              value: s.options['windRegion']!,
+              options: {
+                'custom': l.regionCustom,
+                for (final e in frenchWindRegions.entries)
+                  '${e.key}': l.windRegionN(
+                    '${e.key}',
+                    fmt(context, e.value, 0),
+                  ),
+              },
+              onChanged: (v) {
+                n.setOption('windRegion', v);
+                final vb = frenchWindRegions[int.tryParse(v)];
+                if (vb != null) n.set('vb', vb);
+              },
+            ),
             field('vb', 'm/s', hint: '24', helper: l.windVbHelp),
             PickerField<String>(
               label: l.windTerrain,
@@ -72,6 +92,7 @@ class WindSnowPage extends ConsumerWidget {
                 field('d', 'm', hint: '10'),
               ],
             ),
+            field('co', '', helper: l.windCoHelp),
             Text(l.windGeometryNote, style: context.text.bodySmall),
           ],
         ),
@@ -79,7 +100,19 @@ class WindSnowPage extends ConsumerWidget {
           title: l.snowTitle,
           icon: Icons.ac_unit_rounded,
           children: [
-            field('sk', 'kN/m²', hint: '0.45', helper: l.snowSkHelp),
+            PickerField<String>(
+              label: l.snowRegion,
+              value: s.options['snowRegion']!,
+              options: {
+                'custom': l.regionCustom,
+                for (final r in frenchSnowRegions.keys) r: r,
+              },
+              onChanged: (v) => n.setOption('snowRegion', v),
+            ),
+            if (s.options['snowRegion'] == 'custom')
+              field('sk', 'kN/m²', hint: '0.45', helper: l.snowSkHelp)
+            else
+              field('altitude', 'm', hint: '200', helper: l.snowAltitudeHelp),
             ChoiceField<String>(
               label: l.snowRoof,
               value: roof.name,
@@ -155,10 +188,30 @@ class WindSnowPage extends ConsumerWidget {
           icon: Icons.roofing_rounded,
           rows: r.wind.roof.map(zone).toList(),
         ),
+      if (r.duopitch case (final suction, final pressure))
+        ResultCard(
+          title: l.windDuopitchTitle(fmt(context, r.pitch, 1)),
+          icon: Icons.roofing_rounded,
+          rows: [
+            for (var k = 0; k < 5; k++)
+              ResultRow(
+                label: l.windZone(const ['F', 'G', 'H', 'I', 'J'][k]),
+                symbol: '${f2(suction[k])} / ${f2(pressure[k])}',
+                value: '${f2(suction[k] * p.qp)} / ${f2(pressure[k] * p.qp)}',
+                unit: 'kPa',
+              ),
+          ],
+        ),
       ResultCard(
         title: l.snowResultTitle,
         icon: Icons.ac_unit_rounded,
         rows: [
+          ResultRow(
+            label: l.snowSkUsed,
+            symbol: 'sk',
+            value: f2(r.sk),
+            unit: 'kN/m²',
+          ),
           ResultRow(
             label: l.snowShape,
             symbol: 'μ1',
@@ -181,7 +234,8 @@ class WindSnowPage extends ConsumerWidget {
       NotesCard(
         notes: [
           l.windNoteScope,
-          if (!r.flatRoof) l.windPitchedNote,
+          if (!r.flatRoof && r.duopitch == null) l.windPitchedNote,
+          if (r.duopitch != null) l.windDuopitchNote,
           l.snowNoteScope,
         ],
       ),

@@ -25,6 +25,10 @@ class PileCapNotifier extends DesignFormNotifier<PileCapResult> {
     'edge': 150,
     'fck': 25,
     'fyk': 500,
+    'columnB': null,
+    'mx': 0,
+    'my': 0,
+    'pileCapacity': null,
   };
 
   @override
@@ -60,6 +64,10 @@ class PileCapNotifier extends DesignFormNotifier<PileCapResult> {
       spacing: s['spacing']!,
       pileDiameter: s['pileDiameter']!,
       column: s['column']!,
+      columnB: s['columnB'],
+      mx: s['mx'] ?? 0,
+      my: s['my'] ?? 0,
+      pileCapacity: s['pileCapacity'],
       h: s['h']!,
       cover: s['cover']!,
       edge: s['edge']!,

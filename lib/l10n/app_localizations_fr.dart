@@ -1367,7 +1367,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get punchingOptionalNote =>
-      'Laissez la charge vide pour ne pas vérifier le poinçonnement. Charge ELU sur une surface c1 × c2.';
+      'Laissez la charge vide pour ne pas vérifier le poinçonnement. Charge ELU sur une surface c1 × c2 ; pour un poteau de rive, c1 est perpendiculaire au bord libre.';
 
   @override
   String get punchingLoad => 'Charge de poinçonnement VEd';
@@ -2563,7 +2563,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get windPitchedNote =>
-      'Les coefficients de pression du vent pour les toitures à versants (EN 1991-1-4 7.2.4, 7.2.5) ne sont pas encore calculés ; les zones de parois et qp restent valables.';
+      'Les coefficients de pression du vent pour les toitures à un versant (EN 1991-1-4 7.2.4) ne sont pas calculés ; les zones des murs et qp restent valables.';
 
   @override
   String get seismicSubtitle =>
@@ -2787,7 +2787,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pileCapGeometryNote =>
-      'Poteau carré centré, pieux à entraxes égaux (≥ 2 diamètres) : en ligne, en triangle ou en carré. Enrobage mesuré aux tirants au-dessus des têtes de pieux. Le poids propre de la semelle × 1,35 est ajouté.';
+      'Poteau carré ou rectangulaire centré sur le groupe de pieux (2 pieux : côté a du poteau selon la ligne des pieux). Les moments sont en sous-face de la semelle ; Mx nécessite au moins 3 pieux. Laissez la résistance du pieu vide pour ne pas la vérifier.';
 
   @override
   String pileCapDepthRange(String min, String max) {
@@ -3599,4 +3599,291 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get checkConcentratedLoad => 'Charge concentrée';
+
+  @override
+  String get modTimberConnection => 'Assemblage bois';
+
+  @override
+  String get modTimberConnectionSub =>
+      'Boulons et broches, modes de Johansen EC5';
+
+  @override
+  String get modContinuousBeam => 'Poutre continue';
+
+  @override
+  String get modContinuousBeamSub =>
+      'Poutre BA sur plusieurs travées, chargement alterné';
+
+  @override
+  String get connSubtitle =>
+      'Assemblage bois-bois boulonné ou broché en simple cisaillement · EN 1995-1-1 8.2.2';
+
+  @override
+  String get connFastenersTitle => 'Organes et pièces';
+
+  @override
+  String get connGrade => 'Classe des boulons';
+
+  @override
+  String get connDiameter => 'Diamètre d';
+
+  @override
+  String get connLoad => 'Effort de calcul FEd';
+
+  @override
+  String get connT1 => 'Épaisseur de la pièce 1 t1';
+
+  @override
+  String get connT2 => 'Épaisseur de la pièce 2 t2';
+
+  @override
+  String get connAngle => 'Angle effort-fil, pièce 2';
+
+  @override
+  String get connPerRow => 'Par file n';
+
+  @override
+  String get connRows => 'Files';
+
+  @override
+  String get connSpacing => 'Entraxe a1';
+
+  @override
+  String get connNote =>
+      'La pièce 1 est sollicitée dans le sens du fil. n organes par file dans le sens du fil, à l’entraxe a1 (utilisé seulement si n > 1).';
+
+  @override
+  String get connResults => 'Résistance de l’assemblage';
+
+  @override
+  String get connCapacity => 'Résistance de calcul';
+
+  @override
+  String get connPerFastener => 'Par organe et par plan de cisaillement';
+
+  @override
+  String get connMode => 'Mode de rupture déterminant';
+
+  @override
+  String get connNef => 'Nombre efficace par file';
+
+  @override
+  String get connEmbedment => 'Portances locales';
+
+  @override
+  String get connYield => 'Moment d’écoulement de l’organe';
+
+  @override
+  String get connModes => 'Modes de rupture de Johansen (caractéristiques)';
+
+  @override
+  String get connNoteScope =>
+      'Simple cisaillement bois-bois, équations de Johansen de l’EN 1995-1-1 (8.6) sans effet de corde (sécuritaire) ; nef (8.34) pour un effort dans le sens du fil. Les pinces et entraxes (tableau 8.4, seul a1 ≥ 4d est imposé), le fendage (8.1.4) et la rupture de bloc ne sont pas vérifiés.';
+
+  @override
+  String get contSubtitle =>
+      'Analyse élastique de chaque cas de chargement · EC2 5.1.3 · calcul de chaque travée';
+
+  @override
+  String get contSpans => 'Travées';
+
+  @override
+  String get contSpan => 'Travée';
+
+  @override
+  String get contSpansNote =>
+      'Les travées sont lues de gauche à droite jusqu’au premier champ vide (1 à 6 travées). Appuis linéaires ; pas de redistribution des moments.';
+
+  @override
+  String get contEnds => 'Appuis d’extrémité';
+
+  @override
+  String get contEndsPinned => 'Deux articulations';
+
+  @override
+  String get contEndsFixedLeft => 'Encastré à gauche';
+
+  @override
+  String get contEndsFixed => 'Deux encastrements';
+
+  @override
+  String get contSelfWeight => 'Ajouter le poids propre';
+
+  @override
+  String get contYes => 'Oui';
+
+  @override
+  String get contNo => 'Non';
+
+  @override
+  String get contLoads => 'Charges et appuis';
+
+  @override
+  String get contDesignLoads => 'Charges de calcul';
+
+  @override
+  String get contArrangements => 'Cas de chargement analysés';
+
+  @override
+  String get contSupport => 'Appui';
+
+  @override
+  String get contEnvelope => 'Enveloppe des moments fléchissants (ELU)';
+
+  @override
+  String get contSagging => 'Moment positif max.';
+
+  @override
+  String get contHogging => 'Moment négatif max.';
+
+  @override
+  String get contShear => 'Effort tranchant max.';
+
+  @override
+  String get contBottomBars => 'Aciers inférieurs';
+
+  @override
+  String get contTopBars => 'Aciers supérieurs (sur appuis)';
+
+  @override
+  String get contLinks => 'Cadres';
+
+  @override
+  String get contNoteScope =>
+      'Charges uniformes sur chaque travée, 1,35 G partout et 1,5 Q sur les travées de chaque cas : toutes les travées, une travée sur deux et chaque paire de travées adjacentes (EN 1992-1-1 5.1.3, valeurs recommandées). Un calcul de section par travée pour ses moments positif et négatif et son effort tranchant les plus défavorables ; arrêter les aciers supérieurs au-delà des points de moment nul. La flèche, l’ouverture des fissures et les ancrages ne sont pas vérifiés ici : utilisez le module poutre pour chaque travée.';
+
+  @override
+  String get timberSupportTitle => 'Appui et entaille (facultatif)';
+
+  @override
+  String get timberBearingLength => 'Longueur d’appui';
+
+  @override
+  String get timberReaction => 'Réaction d’appui';
+
+  @override
+  String get timberNotchDepth => 'Hauteur à l’entaille hef';
+
+  @override
+  String get timberNotchX => 'Distance de l’entaille x';
+
+  @override
+  String get timberSupportNote =>
+      'Longueur d’appui 0 = pas de vérification ; la longueur efficace ajoute 30 mm (6.1.5), réaction vide = VEd. Entaille en face inférieure sur appui : hef = hauteur restante (0 = pas d’entaille), x = distance de la réaction à l’angle de l’entaille (6.5.2).';
+
+  @override
+  String get masonryExtraTitle =>
+      'Double paroi, vent et charge concentrée (facultatif)';
+
+  @override
+  String get masonryOtherLeaf => 'Épaisseur de l’autre paroi';
+
+  @override
+  String get masonryLateral => 'Vent sur le mur';
+
+  @override
+  String get masonryConcentrated => 'Charge concentrée NEdc';
+
+  @override
+  String get masonryBearingLength => 'Longueur d’appui';
+
+  @override
+  String get masonryBearingWidth => 'Largeur d’appui';
+
+  @override
+  String get masonryEdgeDistance => 'Distance à l’extrémité du mur a1';
+
+  @override
+  String get masonryExtraNote =>
+      'Mur à double paroi : la paroi chargée est t, l’autre paroi ne fait que la raidir (tef 5.5.1.3). Le vent porte verticalement sur la hauteur d’étage et ajoute M/N à mi-hauteur. Charge concentrée sur un appui à a1 de l’extrémité du mur (6.1.3).';
+
+  @override
+  String get pileCapColumnB => 'Côté du poteau en travers b';
+
+  @override
+  String get pileCapMx => 'Moment Mx';
+
+  @override
+  String get pileCapMy => 'Moment My';
+
+  @override
+  String get pileCapCapacity => 'Résistance de calcul d’un pieu';
+
+  @override
+  String get pileCapReactionRange => 'Réactions extrêmes des pieux';
+
+  @override
+  String get pileCapTension => 'Un pieu est tendu';
+
+  @override
+  String get seismicRegulation => 'Règles';
+
+  @override
+  String get seismicPs92Class => 'Classe de bâtiment';
+
+  @override
+  String get seismicPs92Site => 'Classe de site';
+
+  @override
+  String get seismicLe => 'Largeur du plancher Le';
+
+  @override
+  String get seismicXe => 'Distance de l’élément au centre x';
+
+  @override
+  String get seismicTorsionNote =>
+      'Facultatif : coefficient de torsion accidentelle δ pour un élément à x du centre d’un plancher de largeur Le perpendiculaire à l’action (EN 1998-1 4.3.3.2.4).';
+
+  @override
+  String get seismicTorsion => 'Coefficient de torsion accidentelle';
+
+  @override
+  String get windRegion => 'Région de vent (France)';
+
+  @override
+  String get regionCustom => 'Autre (saisir la valeur)';
+
+  @override
+  String get windCoHelp =>
+      'Coefficient d’orographie (1 en terrain plat, EN 1991-1-4 annexe A)';
+
+  @override
+  String get windDuopitchNote =>
+      'Toiture à deux versants : zones F à J du tableau 7.4a de l’EN 1991-1-4 pour un vent perpendiculaire au faîtage, pente du premier versant ; chaque ligne donne les cas dépression / pression (cpe,10 et pression).';
+
+  @override
+  String get snowRegion => 'Région de neige (France)';
+
+  @override
+  String get snowAltitude => 'Altitude';
+
+  @override
+  String get snowAltitudeHelp =>
+      'sk selon la NF EN 1991-1-3/NA à cette altitude';
+
+  @override
+  String get snowSkUsed => 'Charge de neige au sol';
+
+  @override
+  String get footingOptimise => 'Optimiser la largeur';
+
+  @override
+  String pileCapTensionMsg(String r) {
+    return 'La plus petite réaction de pieu vaut $r kN : les pieux et leur ancrage dans la semelle doivent être dimensionnés en traction.';
+  }
+
+  @override
+  String seismicPs92Note(String a) {
+    return 'Spectre PS92 aN · R(T) / q avec aN = $a m/s², λ = 1, τ = 1 (site plat).';
+  }
+
+  @override
+  String windDuopitchTitle(String pitch) {
+    return 'Toiture 2 versants, α = $pitch°';
+  }
+
+  @override
+  String windRegionN(String n, String v) {
+    return 'Région $n (vb,0 = $v m/s)';
+  }
 }

@@ -40,6 +40,12 @@ class MasonryWallPage extends ConsumerWidget {
       'eTop': l.masonryETop,
       'eBottom': l.masonryEBottom,
       'gammaM': 'γM',
+      'otherLeaf': l.masonryOtherLeaf,
+      'lateralLoad': l.masonryLateral,
+      'concentratedLoad': l.masonryConcentrated,
+      'bearingLength': l.masonryBearingLength,
+      'bearingWidth': l.masonryBearingWidth,
+      'edgeDistance': l.masonryEdgeDistance,
       'rhoN': 'ρn',
     };
     Widget field(
@@ -108,6 +114,28 @@ class MasonryWallPage extends ConsumerWidget {
               ],
             ),
             Text(l.masonryEccNote, style: context.text.bodySmall),
+          ],
+        ),
+        FormSection(
+          title: l.masonryExtraTitle,
+          icon: Icons.add_box_outlined,
+          children: [
+            FieldRow(
+              children: [field('otherLeaf', 'mm'), field('lateralLoad', 'kPa')],
+            ),
+            FieldRow(
+              children: [
+                field('concentratedLoad', 'kN'),
+                field('edgeDistance', 'mm'),
+              ],
+            ),
+            FieldRow(
+              children: [
+                field('bearingLength', 'mm'),
+                field('bearingWidth', 'mm'),
+              ],
+            ),
+            Text(l.masonryExtraNote, style: context.text.bodySmall),
           ],
         ),
       ],

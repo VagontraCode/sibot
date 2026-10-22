@@ -12,6 +12,8 @@ import 'package:sibot/features/calculations/retaining_walls/presentation/retaini
 import 'package:sibot/features/calculations/slabs/presentation/slabs_page.dart';
 import 'package:sibot/features/calculations/steel/presentation/steel_member_page.dart';
 import 'package:sibot/features/calculations/timber/presentation/timber_member_page.dart';
+import 'package:sibot/features/calculations/timber/presentation/timber_connection_page.dart';
+import 'package:sibot/features/calculations/beams/presentation/continuous_beam_page.dart';
 import 'package:sibot/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sibot/features/field/presentation/pages/field.dart';
 import 'package:sibot/features/field/presentation/pages/field_hub.dart';
@@ -119,6 +121,18 @@ final GoRouter appRouter = GoRouter(
                       name: 'timber-member',
                       builder: (context, state) =>
                           TimberMemberPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'timber-connection',
+                      name: 'timber-connection',
+                      builder: (context, state) =>
+                          TimberConnectionPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'continuous-beam',
+                      name: 'continuous-beam',
+                      builder: (context, state) =>
+                          ContinuousBeamPage(projectId: _pid(state)),
                     ),
                     GoRoute(
                       path: 'masonry-wall',
