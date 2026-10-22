@@ -316,6 +316,10 @@ class CombinedFootingInput {
   final double fyk;
   final double cover;
 
+  /// Try wider (and so thinner) footings and keep the one with the least
+  /// concrete and steel, instead of the narrowest one.
+  final bool optimiseWidth;
+
   const CombinedFootingInput({
     required this.code,
     required this.a1,
@@ -329,11 +333,34 @@ class CombinedFootingInput {
     required this.q2,
     required this.fck,
     required this.fyk,
+    this.optimiseWidth = false,
     this.qAllowable = 0,
     this.soil,
     this.depth = 1.0,
     this.soilWeight = 18,
     this.cover = 50,
+  });
+}
+
+class _CombinedTrial {
+  final double width, h, pressure, limit, d, asB, asT;
+  final BarSpacing? barsB, barsT;
+  final List<Check> structural;
+  final List<double> asTr;
+  final List<BarSpacing?> barsTr;
+  const _CombinedTrial({
+    required this.width,
+    required this.h,
+    required this.pressure,
+    required this.limit,
+    required this.d,
+    required this.asB,
+    required this.asT,
+    required this.barsB,
+    required this.barsT,
+    required this.structural,
+    required this.asTr,
+    required this.barsTr,
   });
 }
 
@@ -473,131 +500,182 @@ CombinedFootingDesign designCombinedFooting(CombinedFootingInput i) {
   final mBottom = diagram.map((p) => p.m).reduce(math.max);
   final mTop = -diagram.map((p) => p.m).reduce(math.min);
 
-  // Width and thickness.
-  var hMm = 400.0;
-  late double width, pressure, limit, d, asB, asT;
-  BarSpacing? barsB, barsT;
-  late List<Check> structural;
-  late List<double> asTr;
-  late List<BarSpacing?> barsTr;
-  for (var pass = 0; pass < 40; pass++) {
-    width = _ceil50m(math.max(i.b1, i.b2) / 1000 + 0.2);
-    while (true) {
-      final w =
-          width *
-          length *
-          ((hMm / 1000) * reinforcedConcreteWeight +
-              math.max(i.depth - hMm / 1000, 0) * i.soilWeight);
-      final vd = 1.35 * (i.g1 + i.g2 + w) + 1.5 * (i.q1 + i.q2);
-      (pressure, limit) = _bearing(
-        code: i.code,
-        soil: i.soil,
-        qAllowable: i.qAllowable,
-        depth: i.depth,
-        bM: length,
-        lM: width,
-        nSer: n1 + n2 + w,
-        e: 0,
-        vd: vd,
-        ed: (xr - length / 2).abs(),
-      );
-      if (pressure <= limit || width >= 10) break;
-      width = _ceil50m(width + 0.05);
-    }
-
-    d = hMm - i.cover - 10;
-    final bMm = width * 1000;
-    BendingDesign bend(double m) => designRectangularBending(
-      code: i.code,
-      concrete: concrete,
-      steel: steel,
-      mEd: math.max(m, 0),
-      b: bMm,
-      d: d,
-    );
-    final asMin = minTensionSteel(
-      code: i.code,
-      concrete: concrete,
-      steel: steel,
-      b: bMm,
-      d: d,
-    );
-    asB = math.max(bend(mBottom).asTension, asMin);
-    asT = math.max(bend(mTop).asTension, asMin);
-    const dias = [12, 14, 16, 20, 25];
-    barsB = chooseSpacing(asB / width, 250, diameters: dias);
-    barsT = chooseSpacing(asT / width, 250, diameters: dias);
-
-    // Longitudinal shear at d from the column faces, without links.
-    final rhoT = (barsT?.areaPerMetre ?? asT / width) / (1000 * d);
-    final vCap = _shearNoLinks(i.code, i.fck, d, rhoT) * width;
-    var vMax = 0.0;
-    for (final (xc, a) in [(x1, i.a1), (x2, i.a2)]) {
-      for (final s in [-1.0, 1.0]) {
-        final x = xc + s * (a / 2 + d) / 1000;
-        if (x > 0 && x < length) vMax = math.max(vMax, shearAt(x).abs());
+  // Width and thickness for a starting width: widened until the bearing
+  // pressure is acceptable, then thickened until no links are needed.
+  _CombinedTrial trial(double wStart) {
+    var hMm = 400.0;
+    late double width, pressure, limit, d, asB, asT;
+    BarSpacing? barsB, barsT;
+    late List<Check> structural;
+    late List<double> asTr;
+    late List<BarSpacing?> barsTr;
+    for (var pass = 0; pass < 40; pass++) {
+      width = wStart;
+      while (true) {
+        final w =
+            width *
+            length *
+            ((hMm / 1000) * reinforcedConcreteWeight +
+                math.max(i.depth - hMm / 1000, 0) * i.soilWeight);
+        final vd = 1.35 * (i.g1 + i.g2 + w) + 1.5 * (i.q1 + i.q2);
+        (pressure, limit) = _bearing(
+          code: i.code,
+          soil: i.soil,
+          qAllowable: i.qAllowable,
+          depth: i.depth,
+          bM: length,
+          lM: width,
+          nSer: n1 + n2 + w,
+          e: 0,
+          vd: vd,
+          ed: (xr - length / 2).abs(),
+        );
+        if (pressure <= limit || width >= 10) break;
+        width = _ceil50m(width + 0.05);
       }
-    }
 
-    // Transverse steel under each column on a band a + 2d.
-    asTr = [];
-    barsTr = [];
-    for (final (p, a, b) in [(p1, i.a1, i.b1), (p2, i.a2, i.b2)]) {
-      final band = math.min(a + 2 * d, length * 1000);
-      final cant = (bMm - b) / 2;
-      final double as = switch (i.code) {
-        DesignCode.bael => p * 1e3 * (bMm - b) / (8 * (d - 12) * steel.fyd),
-        DesignCode.ec2 => designRectangularBending(
-          code: i.code,
-          concrete: concrete,
-          steel: steel,
-          mEd: p / width * math.pow((cant + 0.15 * b) / 1000, 2) / 2,
-          b: band,
-          d: d - 12,
-        ).asTension,
-      };
-      final asReq = math.max(
-        as,
-        minTensionSteel(
-          code: i.code,
-          concrete: concrete,
-          steel: steel,
-          b: band,
-          d: d - 12,
-        ),
+      d = hMm - i.cover - 10;
+      final bMm = width * 1000;
+      BendingDesign bend(double m) => designRectangularBending(
+        code: i.code,
+        concrete: concrete,
+        steel: steel,
+        mEd: math.max(m, 0),
+        b: bMm,
+        d: d,
       );
-      asTr.add(asReq);
-      barsTr.add(chooseSpacing(asReq / (band / 1000), 250, diameters: dias));
+      final asMin = minTensionSteel(
+        code: i.code,
+        concrete: concrete,
+        steel: steel,
+        b: bMm,
+        d: d,
+      );
+      asB = math.max(bend(mBottom).asTension, asMin);
+      asT = math.max(bend(mTop).asTension, asMin);
+      const dias = [12, 14, 16, 20, 25];
+      barsB = chooseSpacing(asB / width, 250, diameters: dias);
+      barsT = chooseSpacing(asT / width, 250, diameters: dias);
+
+      // Longitudinal shear at d from the column faces, without links.
+      final rhoT = (barsT?.areaPerMetre ?? asT / width) / (1000 * d);
+      final vCap = _shearNoLinks(i.code, i.fck, d, rhoT) * width;
+      var vMax = 0.0;
+      for (final (xc, a) in [(x1, i.a1), (x2, i.a2)]) {
+        for (final s in [-1.0, 1.0]) {
+          final x = xc + s * (a / 2 + d) / 1000;
+          if (x > 0 && x < length) vMax = math.max(vMax, shearAt(x).abs());
+        }
+      }
+
+      // Transverse steel under each column on a band a + 2d.
+      asTr = [];
+      barsTr = [];
+      for (final (p, a, b) in [(p1, i.a1, i.b1), (p2, i.a2, i.b2)]) {
+        final band = math.min(a + 2 * d, length * 1000);
+        final cant = (bMm - b) / 2;
+        final double as = switch (i.code) {
+          DesignCode.bael => p * 1e3 * (bMm - b) / (8 * (d - 12) * steel.fyd),
+          DesignCode.ec2 => designRectangularBending(
+            code: i.code,
+            concrete: concrete,
+            steel: steel,
+            mEd: p / width * math.pow((cant + 0.15 * b) / 1000, 2) / 2,
+            b: band,
+            d: d - 12,
+          ).asTension,
+        };
+        final asReq = math.max(
+          as,
+          minTensionSteel(
+            code: i.code,
+            concrete: concrete,
+            steel: steel,
+            b: band,
+            d: d - 12,
+          ),
+        );
+        asTr.add(asReq);
+        barsTr.add(chooseSpacing(asReq / (band / 1000), 250, diameters: dias));
+      }
+
+      final sigmaNet = r / (length * width);
+      final rhoAvg = math.sqrt(
+        rhoT * (barsTr[0]?.areaPerMetre ?? 500) / (1000 * d),
+      );
+      structural = [
+        Check(
+          kind: CheckKind.shearCrushing,
+          demand: vMax,
+          capacity: vCap,
+          clause: _shearClause(i.code),
+          unit: 'kN',
+        ),
+        for (final (p, a, b) in [(p1, i.a1, i.b1), (p2, i.a2, i.b2)])
+          footingPunching(
+            code: i.code,
+            c1: a,
+            c2: b,
+            nEd: p,
+            sigma: sigmaNet,
+            d: d,
+            h: hMm,
+            rhoL: rhoAvg,
+            fck: i.fck,
+          ),
+      ];
+      if (structural.every((c) => c.ok) || hMm >= 2000) break;
+      hMm += 50;
+    }
+    return _CombinedTrial(
+      width: width,
+      h: hMm,
+      pressure: pressure,
+      limit: limit,
+      d: d,
+      asB: asB,
+      asT: asT,
+      barsB: barsB,
+      barsT: barsT,
+      structural: structural,
+      asTr: asTr,
+      barsTr: barsTr,
+    );
+  }
+
+  final wMin = _ceil50m(math.max(i.b1, i.b2) / 1000 + 0.2);
+  var best = trial(wMin);
+  if (i.optimiseWidth) {
+    // Concrete volume plus steel at 75 times its price by volume.
+    double cost(_CombinedTrial t) {
+      final steelMm2 =
+          (t.asB + t.asT) * length * 1000 +
+          t.asTr.fold<double>(0, (s, a) => s + a) * t.width * 1000;
+      return t.width * length * t.h / 1000 + 75 * steelMm2 * 1e-9;
     }
 
-    final sigmaNet = r / (length * width);
-    final rhoAvg = math.sqrt(
-      rhoT * (barsTr[0]?.areaPerMetre ?? 500) / (1000 * d),
-    );
-    structural = [
-      Check(
-        kind: CheckKind.shearCrushing,
-        demand: vMax,
-        capacity: vCap,
-        clause: _shearClause(i.code),
-        unit: 'kN',
-      ),
-      for (final (p, a, b) in [(p1, i.a1, i.b1), (p2, i.a2, i.b2)])
-        footingPunching(
-          code: i.code,
-          c1: a,
-          c2: b,
-          nEd: p,
-          sigma: sigmaNet,
-          d: d,
-          h: hMm,
-          rhoL: rhoAvg,
-          fck: i.fck,
-        ),
-    ];
-    if (structural.every((c) => c.ok) || hMm >= 2000) break;
-    hMm += 50;
+    bool passes(_CombinedTrial t) =>
+        t.pressure <= t.limit && t.structural.every((c) => c.ok);
+    for (var k = 1; k <= 20; k++) {
+      final t = trial(_ceil50m(wMin + 0.1 * k));
+      if (passes(t) && (!passes(best) || cost(t) < cost(best))) best = t;
+    }
   }
+  final _CombinedTrial(
+    :width,
+    :h,
+    :pressure,
+    :limit,
+    :d,
+    :asB,
+    :asT,
+    :barsB,
+    :barsT,
+    :structural,
+    :asTr,
+    :barsTr,
+  ) = best;
+  final hMm = h;
 
   final checks = <Check>[
     Check(

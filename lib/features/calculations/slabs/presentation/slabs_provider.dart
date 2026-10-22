@@ -64,7 +64,12 @@ class SlabNotifier extends DesignFormNotifier<SlabDesign> {
       punchLoad: s['punchLoad'],
       punchC1: s['punchC1'] ?? 300,
       punchC2: s['punchC2'] ?? 300,
-      punchBeta: s.options['punchType'] == 'load' ? 1.0 : 1.15,
+      punchBeta: s.options['punchType'] == 'load' ? 1.0 : null,
+      punchPosition: switch (s.options['punchType']) {
+        'edge' => PunchingPosition.edge,
+        'corner' => PunchingPosition.corner,
+        _ => PunchingPosition.interior,
+      },
     ),
   );
 

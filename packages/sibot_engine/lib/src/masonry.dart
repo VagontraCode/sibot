@@ -51,6 +51,21 @@ class MasonryWallInput {
 
   final double gammaM;
 
+  /// Cavity wall: thickness of the other (unloaded) leaf, mm (0 = single
+  /// leaf). The loaded leaf is [t].
+  final double otherLeaf;
+
+  /// Lateral (wind) load on the wall, kPa, spanning vertically over the
+  /// storey height.
+  final double lateralLoad;
+
+  /// Concentrated load (kN) on a bearing [bearingLength] × [bearingWidth]
+  /// (mm) at [edgeDistance] (mm) from the end of the wall; 0 = none.
+  final double concentratedLoad;
+  final double bearingLength;
+  final double bearingWidth;
+  final double edgeDistance;
+
   const MasonryWallInput({
     required this.unit,
     required this.fb,
@@ -62,6 +77,12 @@ class MasonryWallInput {
     this.eTop = 0,
     this.eBottom = 0,
     this.gammaM = 2.5,
+    this.otherLeaf = 0,
+    this.lateralLoad = 0,
+    this.concentratedLoad = 0,
+    this.bearingLength = 0,
+    this.bearingWidth = 0,
+    this.edgeDistance = 0,
   });
 }
 
@@ -118,7 +139,20 @@ MasonryWallResult designMasonryWall(MasonryWallInput i) {
   final fd = fk / i.gammaM;
   final t = i.t;
   final hef = i.rhoN * i.height * 1e3;
-  final slender = hef / t;
+  if (i.otherLeaf < 0) {
+    throw const InputError(InputProblem.notPositive, 'otherLeaf');
+  }
+  if (i.lateralLoad < 0) {
+    throw const InputError(InputProblem.notPositive, 'lateralLoad');
+  }
+  // Cavity walls: effective thickness (5.11) with ktef = 1.
+  final tef = i.otherLeaf > 0
+      ? math.pow(t * t * t + math.pow(i.otherLeaf, 3), 1 / 3).toDouble()
+      : t;
+  final slender = hef / tef;
+  // Lateral load: mid-height moment of a vertical simple span (kN·m/m)
+  // as an eccentricity ehm = M / N (6.1.2.2).
+  final ehm = i.lateralLoad * i.height * i.height / 8 * 1e3 / i.nEd;
   final eInit = hef / 450;
   final eMin = 0.05 * t;
 
@@ -133,10 +167,10 @@ MasonryWallResult designMasonryWall(MasonryWallInput i) {
   final e1 = topLarger ? i.eTop : i.eBottom;
   final e2 = topLarger ? i.eBottom : i.eTop;
   final eM0 = math.max((0.6 * e1 + 0.4 * e2).abs(), 0.4 * e1.abs());
-  final em = eM0 + eInit;
+  final em = eM0 + ehm + eInit;
   final eCreep = slender <= 15
       ? 0.0
-      : 0.002 * i.unit.creep * slender * math.sqrt(t * em);
+      : 0.002 * i.unit.creep * slender * math.sqrt(tef * em);
   final eMid = math.max(em + eCreep, eMin);
   // Annex G with E = 1000 fk.
   final a1 = 1 - 2 * eMid / t;
@@ -149,6 +183,33 @@ MasonryWallResult designMasonryWall(MasonryWallInput i) {
   final nRd = math.min(nRdEnd, nRdMid);
 
   const ref = 'EN 1996-1-1';
+
+  // Concentrated load (6.1.3): NRdc = β Ab fd, the load spreading at 60°
+  // to mid-height; Ab / Aef limited to 0.45.
+  Check? concentrated;
+  double? beta;
+  if (i.concentratedLoad > 0) {
+    requirePositive(i.bearingLength, 'bearingLength');
+    requirePositive(i.bearingWidth, 'bearingWidth');
+    if (i.bearingWidth > t) {
+      throw const InputError(InputProblem.inconsistentGeometry, 'bearingWidth');
+    }
+    final hc = i.height * 1e3;
+    final spread = hc / 2 / math.tan(math.pi / 3);
+    final lefm = i.bearingLength + math.min(i.edgeDistance, spread) + spread;
+    final ab = i.bearingLength * i.bearingWidth;
+    final ratio = math.min(0.45, ab / (lefm * t));
+    final b = (1 + 0.3 * i.edgeDistance / hc) * (1.5 - 1.1 * ratio);
+    beta = b.clamp(1.0, math.min(1.25 + i.edgeDistance / (2 * hc), 1.5));
+    concentrated = Check(
+      kind: CheckKind.concentratedLoad,
+      demand: i.concentratedLoad,
+      capacity: beta * ab * fd / 1e3,
+      clause: '$ref 6.1.3 (β = ${beta.toStringAsFixed(2)})',
+      unit: 'kN',
+    );
+  }
+
   return MasonryWallResult(
     fk: fk,
     fd: fd,
@@ -166,7 +227,7 @@ MasonryWallResult designMasonryWall(MasonryWallInput i) {
         kind: CheckKind.slenderness,
         demand: slender,
         capacity: 27,
-        clause: '$ref 5.5.1.4',
+        clause: i.otherLeaf > 0 ? '$ref 5.5.1.4, tef 5.5.1.3' : '$ref 5.5.1.4',
       ),
       Check(
         kind: CheckKind.wallEnd,
@@ -182,6 +243,7 @@ MasonryWallResult designMasonryWall(MasonryWallInput i) {
         clause: '$ref 6.1.2.2, Annex G',
         unit: 'kN/m',
       ),
+      ?concentrated,
     ],
   );
 }

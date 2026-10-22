@@ -3,7 +3,18 @@ import 'dart:math' as math;
 import 'core.dart';
 import 'materials.dart';
 
-/// Punching of a slab under an interior column or a concentrated load
+/// Position of a column in the slab plan, with the EC2 6.4.3(6)
+/// approximate eccentricity factor β (braced structures).
+enum PunchingPosition {
+  interior(1.15),
+  edge(1.4),
+  corner(1.5);
+
+  final double beta;
+  const PunchingPosition(this.beta);
+}
+
+/// Punching of a slab under an interior, edge or corner column or a concentrated load
 /// on a c1 × c2 area (mm).
 class PunchingDesign {
   /// Basic control perimeter (EC2: at 2d; BAEL: at h/2), mm.
@@ -97,7 +108,9 @@ Check footingPunching({
 
 /// [vEd] ULS load (kN); [d] mean effective depth and [h] thickness (mm);
 /// [rhoL] mean tension steel ratio √(ρx·ρy); [beta] EC2 eccentricity
-/// factor (1.15 for an interior column, 1.0 for a centred load).
+/// factor (by [position] when null: 1.15 interior, 1.4 edge, 1.5
+/// corner; 1.0 for a centred load). Edge columns: [c1] is perpendicular
+/// to the free edge and [c2] along it; the column face is at the edge.
 PunchingDesign designPunching({
   required DesignCode code,
   required double c1,
@@ -108,8 +121,10 @@ PunchingDesign designPunching({
   required double rhoL,
   required double fck,
   required double fyk,
-  double beta = 1.15,
+  double? beta,
+  PunchingPosition position = PunchingPosition.interior,
 }) {
+  final b = beta ?? position.beta;
   requirePositive(c1, 'c1');
   requirePositive(c2, 'c2');
   requirePositive(vEd, 'vEd');
@@ -118,10 +133,23 @@ PunchingDesign designPunching({
 
   switch (code) {
     case DesignCode.ec2:
-      // 6.4.2: basic control perimeter at 2d.
-      final u1 = 2 * (c1 + c2) + 4 * math.pi * d;
-      final u0 = 2 * (c1 + c2);
-      final vEd1 = beta * v / (u1 * d); // 6.4.3(3)
+      // 6.4.2 (Fig. 6.15): basic control perimeter at 2d; 6.4.5(3):
+      // perimeter at the column face.
+      final (u1, u0) = switch (position) {
+        PunchingPosition.interior => (
+          2 * (c1 + c2) + 4 * math.pi * d,
+          2 * (c1 + c2),
+        ),
+        PunchingPosition.edge => (
+          2 * c1 + c2 + 2 * math.pi * d,
+          math.min(c2 + 3 * d, c2 + 2 * c1),
+        ),
+        PunchingPosition.corner => (
+          c1 + c2 + math.pi * d,
+          math.min(3 * d, c1 + c2),
+        ),
+      };
+      final vEd1 = b * v / (u1 * d); // 6.4.3(3)
       final k = math.min(1 + math.sqrt(200 / d), 2.0);
       final rho = math.min(rhoL, 0.02);
       final vMin = 0.035 * math.pow(k, 1.5) * math.sqrt(fck);
@@ -129,7 +157,7 @@ PunchingDesign designPunching({
       // 6.4.5(3) as amended (A1:2014): vRd,max = 0.4·ν·fcd.
       final nu = 0.6 * (1 - fck / 250);
       final vRdMax = 0.4 * nu * concrete.fcd;
-      final vEd0 = beta * v / (u0 * d);
+      final vEd0 = b * v / (u0 * d);
       double? asw;
       if (vEd1 > vRdc && vEd0 <= vRdMax) {
         // 6.4.5(1) eq. 6.52 with sr = 0.75d, vertical links.
@@ -163,7 +191,11 @@ PunchingDesign designPunching({
       );
     case DesignCode.bael:
       // A.5.2.42: Qu ≤ 0.045·uc·h·fc28/γb, uc at h/2 from the loaded area.
-      final uc = 2 * (c1 + c2 + 2 * h);
+      final uc = switch (position) {
+        PunchingPosition.interior => 2 * (c1 + c2 + 2 * h),
+        PunchingPosition.edge => 2 * c1 + c2 + 2 * h,
+        PunchingPosition.corner => c1 + c2 + h,
+      };
       final resistance = 0.045 * uc * h * fck / Concrete.gammaC / 1e3;
       return PunchingDesign(
         u1: uc,

@@ -107,6 +107,73 @@ void main() {
     expect(timberKdef(3), 2.0);
   });
 
+  test('bearing at the support: σc,90 ≤ kc,90 fc,90,d with l + 30 mm', () {
+    // 10 kN on 75 mm wide, 60 mm bearing: σ = 10e3 / (75 × 90) = 1.48 MPa;
+    // fc,90,d = 0.8 × 2.5 / 1.3 = 1.538, × 1.5 = 2.31 MPa.
+    final r = designTimberMember(
+      TimberMemberInput(
+        timber: c24,
+        b: 75,
+        h: 200,
+        length: 4,
+        vEd: 10,
+        bearingLength: 60,
+      ),
+    );
+    final c = r.checks.firstWhere((x) => x.kind == CheckKind.timberBearing);
+    expect(c.demand, closeTo(1.4815, 1e-3));
+    expect(c.capacity, closeTo(2.3077, 1e-3));
+  });
+
+  test('notched end: kv from 6.62', () {
+    // h = 200, hef = 150 (α = 0.75), x = 50: kv = 5 / (√200 (√0.1875
+    // + 0.8·0.25·√(1.333 − 0.5625))) = 5 / (14.142 × (0.4330 + 0.1756))
+    // = 0.581.
+    final r = designTimberMember(
+      TimberMemberInput(
+        timber: c24,
+        b: 75,
+        h: 200,
+        length: 4,
+        vEd: 6,
+        notchDepth: 150,
+        notchX: 50,
+      ),
+    );
+    final c = r.checks.firstWhere((x) => x.kind == CheckKind.timberNotch);
+    expect(c.capacity, closeTo(0.581 * 2.4615, 0.01));
+    expect(c.demand, closeTo(1.5 * 6000 / (0.67 * 75 * 150), 1e-6));
+  });
+
+  test('dowel connection: Johansen mode c governs for equal members', () {
+    // C24 (ρk = 350), d = 12 mm, fu = 400, t1 = t2 = 45 mm:
+    // fh = 25.26 MPa, My = 76 750 N·mm, mode (c) = 5 650 N.
+    final r = designDowelConnection(
+      DowelConnectionInput(timber: c24, d: 12, t1: 45, t2: 45, fEd: 5),
+    );
+    expect(r.fh1, closeTo(25.26, 0.01));
+    expect(r.myRk, closeTo(76750, 150));
+    expect(r.governing, 2);
+    expect(r.fvRk, closeTo(5650, 10));
+    expect(r.fvRd, closeTo(0.8 * 5650 / 1.3, 10));
+  });
+
+  test('rows of bolts: nef = n^0.9 (a1 / 13d)^0.25', () {
+    final r = designDowelConnection(
+      DowelConnectionInput(
+        timber: c24,
+        d: 12,
+        t1: 45,
+        t2: 45,
+        fEd: 5,
+        perRow: 4,
+        a1: 84,
+      ),
+    );
+    // 4^0.9 × (84 / 156)^0.25 = 3.482 × 0.8566 = 2.983.
+    expect(r.nef, closeTo(2.983, 0.005));
+  });
+
   test('rejects b larger than h', () {
     expect(
       () => designTimberMember(

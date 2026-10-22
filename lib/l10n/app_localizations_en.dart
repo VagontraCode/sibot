@@ -2677,7 +2677,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slopeSubtitle =>
-      'Bishop\'s simplified method · automatic critical circle search';
+      'Bishop circles or Janbu non-circular surfaces · automatic critical search';
 
   @override
   String get slopeGeometry => 'Slope geometry';
@@ -2696,7 +2696,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slopeGeometryNote =>
-      'Simple slope from a horizontal crest to a horizontal toe, β ≤ 75°. Max. depth limits deep circles (empty = H).';
+      'Simple slope from a horizontal crest to a horizontal toe: β ≤ 75° with Bishop, up to 90° (vertical cut) with Janbu. Max. depth limits deep surfaces (empty = H).';
 
   @override
   String get slopeSoil => 'Soil (effective parameters)';
@@ -2712,10 +2712,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get slopeSoilNote =>
-      'Homogeneous soil. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.';
+      'Top soil, down to the first lower layer. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.';
 
   @override
-  String get slopeCritical => 'Critical slip circle';
+  String get slopeCritical => 'Critical slip surface';
 
   @override
   String get slopeFactor => 'Factor of safety';
@@ -2730,11 +2730,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slopeRadius => 'Radius';
 
   @override
-  String get slopeCircles => 'Circles analysed';
+  String get slopeCircles => 'Surfaces analysed';
 
   @override
   String get slopeNoteScope =>
-      'Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.';
+      'Origin at the crest edge (x right, y up). Bishop: circular surfaces. Janbu simplified: polylines with up to two kinks, corrected by f0 = 1 + b1 (d/L − 1.4 (d/L)²); it usually gives a little less than Bishop. Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Horizontal layers and water table only; seepage forces and tension cracks are not modelled.';
 
   @override
   String get checkSlopeGlobal => 'Global factor of safety';
@@ -3533,4 +3533,50 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get f3dUtil => 'Util.';
+
+  @override
+  String get punchingEdge => 'Edge column (β 1.4)';
+
+  @override
+  String get punchingCorner => 'Corner column (β 1.5)';
+
+  @override
+  String get slopeMethod => 'Method';
+
+  @override
+  String get slopeBishop => 'Bishop (circles)';
+
+  @override
+  String get slopeJanbu => 'Janbu (non-circular)';
+
+  @override
+  String get slopeWater => 'Water table level zw';
+
+  @override
+  String get slopeLayers => 'Water and lower layers (optional)';
+
+  @override
+  String get slopeLayerTop => 'Layer top level';
+
+  @override
+  String get slopeLayersNote =>
+      'Levels in m from the toe (0), up positive. Water table: u = γw (zw − z) below zw, ponded water in front of the toe is included; use it instead of ru. Each lower layer applies from its top level down to the next one; leave the level empty for none (empty γ = top soil).';
+
+  @override
+  String get slopeF0 => 'Janbu correction factor';
+
+  @override
+  String get checkPileReaction => 'Pile reaction';
+
+  @override
+  String get checkTimberBearing => 'Bearing perpendicular to the grain';
+
+  @override
+  String get checkTimberNotch => 'Shear at the notched end';
+
+  @override
+  String get checkConnection => 'Fastener capacity';
+
+  @override
+  String get checkConcentratedLoad => 'Concentrated load';
 }

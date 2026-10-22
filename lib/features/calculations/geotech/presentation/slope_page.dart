@@ -28,14 +28,28 @@ class SlopePage extends ConsumerWidget {
       'ru': 'ru',
       'surcharge': l.slopeSurcharge,
       'maxDepth': l.slopeMaxDepth,
+      'waterLevel': l.slopeWater,
+      'layers': l.slopeLayers,
+      for (final [top, gamma, c, phi] in slopeLayerKeys) ...{
+        top: l.slopeLayerTop,
+        gamma: l.slopeGamma,
+        c: l.slopeCohesion,
+        phi: l.slopePhi,
+      },
     };
-    Widget field(String key, String unit, {String? hint}) => FormNumber(
+    Widget field(
+      String key,
+      String unit, {
+      String? hint,
+      bool negative = false,
+    }) => FormNumber(
       state: s,
       notifier: n,
       field: key,
       label: labels[key]!,
       unit: unit,
       hint: hint,
+      allowNegative: negative,
     );
 
     return CalculatorScaffold(
@@ -50,6 +64,12 @@ class SlopePage extends ConsumerWidget {
           title: l.slopeGeometry,
           icon: Icons.terrain_rounded,
           children: [
+            ChoiceField<String>(
+              label: l.slopeMethod,
+              value: s.options['method']!,
+              options: {'bishop': l.slopeBishop, 'janbu': l.slopeJanbu},
+              onChanged: (v) => n.setOption('method', v),
+            ),
             FieldRow(
               children: [
                 field('height', 'm', hint: '8'),
@@ -74,6 +94,23 @@ class SlopePage extends ConsumerWidget {
             ),
             FieldRow(children: [field('gamma', 'kN/m³'), field('ru', '')]),
             Text(l.slopeSoilNote, style: context.text.bodySmall),
+          ],
+        ),
+        FormSection(
+          title: l.slopeLayers,
+          icon: Icons.water_drop_outlined,
+          children: [
+            field('waterLevel', 'm', negative: true),
+            for (final [top, gamma, c, phi] in slopeLayerKeys) ...[
+              FieldRow(
+                children: [
+                  field(top, 'm', negative: true),
+                  field(gamma, 'kN/m³'),
+                ],
+              ),
+              FieldRow(children: [field(c, 'kPa'), field(phi, '°')]),
+            ],
+            Text(l.slopeLayersNote, style: context.text.bodySmall),
           ],
         ),
       ],
@@ -102,17 +139,30 @@ class SlopePage extends ConsumerWidget {
             value: fmt(context, r.factorEc7, 3),
           ),
           ResultRow(
-            label: l.slopeCentre,
-            symbol: 'xc / yc',
-            value: '${f2(r.circle.xc)} / ${f2(r.circle.yc)}',
-            unit: 'm',
+            label: l.slopeMethod,
+            value: r.method == SlopeMethod.bishop
+                ? l.slopeBishop
+                : l.slopeJanbu,
           ),
-          ResultRow(
-            label: l.slopeRadius,
-            symbol: 'R',
-            value: f2(r.circle.r),
-            unit: 'm',
-          ),
+          if (r.circle case final c?) ...[
+            ResultRow(
+              label: l.slopeCentre,
+              symbol: 'xc / yc',
+              value: '${f2(c.xc)} / ${f2(c.yc)}',
+              unit: 'm',
+            ),
+            ResultRow(
+              label: l.slopeRadius,
+              symbol: 'R',
+              value: f2(c.r),
+              unit: 'm',
+            ),
+          ] else
+            ResultRow(
+              label: l.slopeF0,
+              symbol: 'f0',
+              value: fmt(context, r.f0, 3),
+            ),
           ResultRow(label: l.slopeCircles, value: '${r.circles}'),
         ],
       ),
@@ -123,7 +173,8 @@ class SlopePage extends ConsumerWidget {
   }
 }
 
-/// Slope profile with the critical slip circle and its slices.
+/// Slope profile with the critical slip surface, its slices, the layer
+/// boundaries and the water table.
 class SlopeSketch extends StatelessWidget {
   final SlopeResult result;
   const SlopeSketch({super.key, required this.result});
@@ -141,6 +192,7 @@ class SlopeSketch extends StatelessWidget {
             slip: context.appColors.danger,
             mass: context.appColors.danger.withValues(alpha: 0.12),
             ink: context.colors.onSurfaceVariant,
+            water: context.colors.primary,
           ),
         ),
       ),
@@ -150,9 +202,10 @@ class SlopeSketch extends StatelessWidget {
 
 class _SlopePainter extends CustomPainter {
   final SlopeResult r;
-  final Color soil, edge, slip, mass, ink;
+  final Color soil, edge, slip, mass, ink, water;
   _SlopePainter(
     this.r, {
+    required this.water,
     required this.soil,
     required this.edge,
     required this.slip,
@@ -163,16 +216,17 @@ class _SlopePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final sl = r.slices;
+    final surface = r.surface;
     final c = r.circle;
     final g = r.input;
     final h = g.height;
     final a = sl.first.x - sl.first.width / 2;
     final b = sl.last.x + sl.last.width / 2;
-    final x0 = math.min(a, c.xc) - h * 0.3;
-    final x1 = math.max(math.max(b, g.toeX), c.xc) + h * 0.3;
+    final x0 = math.min(a, c?.xc ?? a) - h * 0.3;
+    final x1 = math.max(math.max(b, g.toeX), c?.xc ?? b) + h * 0.3;
     final yMin =
         math.min(0.0, sl.map((p) => p.base).reduce(math.min)) - h * 0.2;
-    final yMax = c.yc + h * 0.15;
+    final yMax = (c == null ? h : math.max(h, c.yc)) + h * 0.15;
     const pad = 12.0;
     final k = math.min(
       (size.width - 2 * pad) / (x1 - x0),
@@ -182,11 +236,33 @@ class _SlopePainter extends CustomPainter {
     final oy = (size.height - (yMax - yMin) * k) / 2;
     Offset at(double x, double y) =>
         Offset(ox + (x - x0) * k, size.height - oy - (y - yMin) * k);
+    double baseAt(double x) {
+      final y = surface.baseY(x);
+      return y.isNaN ? g.groundY(x) : y;
+    }
 
     final profile = [at(x0, h), at(0, h), at(g.toeX, 0), at(x1, 0)];
     final ground = Path()
       ..addPolygon([...profile, at(x1, yMin), at(x0, yMin)], true);
     canvas.drawPath(ground, Paint()..color = soil);
+
+    // Layer boundaries (dashed) clipped to the ground.
+    canvas.save();
+    canvas.clipPath(ground);
+    final layerPaint = Paint()
+      ..color = edge.withValues(alpha: 0.6)
+      ..strokeWidth = 1;
+    final dash = (x1 - x0) / 40;
+    for (final layer in g.layers) {
+      for (var x = x0; x < x1; x += dash) {
+        canvas.drawLine(
+          at(x, layer.top),
+          at(math.min(x + dash / 2, x1), layer.top),
+          layerPaint,
+        );
+      }
+    }
+    canvas.restore();
 
     // Sliding mass and every fourth slice boundary.
     final massPath = Path();
@@ -197,7 +273,7 @@ class _SlopePainter extends CustomPainter {
     }
     for (var i = 60; i >= 0; i--) {
       final x = a + (b - a) * i / 60;
-      final p = at(x, c.baseY(x));
+      final p = at(x, baseAt(x));
       massPath.lineTo(p.dx, p.dy);
     }
     massPath.close();
@@ -207,7 +283,7 @@ class _SlopePainter extends CustomPainter {
       ..strokeWidth = 0.8;
     for (var i = 4; i < sl.length; i += 4) {
       final x = sl[i].x - sl[i].width / 2;
-      canvas.drawLine(at(x, g.groundY(x)), at(x, c.baseY(x)), thin);
+      canvas.drawLine(at(x, g.groundY(x)), at(x, baseAt(x)), thin);
     }
 
     canvas.drawPath(
@@ -218,11 +294,31 @@ class _SlopePainter extends CustomPainter {
         ..strokeWidth = 1.5,
     );
 
-    // Slip arc, centre and radii to its ends.
+    // Water table with its marker.
+    if (g.waterLevel case final zw?) {
+      canvas.drawLine(
+        at(x0, zw),
+        at(x1, zw),
+        Paint()
+          ..color = water
+          ..strokeWidth = 1.5,
+      );
+      final tip = at(x0 + (x1 - x0) * 0.85, zw);
+      canvas.drawPath(
+        Path()
+          ..moveTo(tip.dx, tip.dy)
+          ..lineTo(tip.dx - 5, tip.dy - 8)
+          ..lineTo(tip.dx + 5, tip.dy - 8)
+          ..close(),
+        Paint()..color = water,
+      );
+    }
+
+    // Slip surface; for circles also the centre and the end radii.
     final arc = Path();
     for (var i = 0; i <= 60; i++) {
       final x = a + (b - a) * i / 60;
-      final p = at(x, c.baseY(x));
+      final p = at(x, baseAt(x));
       i == 0 ? arc.moveTo(p.dx, p.dy) : arc.lineTo(p.dx, p.dy);
     }
     canvas.drawPath(
@@ -232,13 +328,21 @@ class _SlopePainter extends CustomPainter {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2,
     );
-    final centre = at(c.xc, c.yc);
-    canvas.drawCircle(centre, 3.5, Paint()..color = slip);
-    final dash = Paint()
-      ..color = slip.withValues(alpha: 0.5)
-      ..strokeWidth = 1;
-    canvas.drawLine(centre, at(a, c.baseY(a)), dash);
-    canvas.drawLine(centre, at(b, c.baseY(b)), dash);
+    var labelAt = at((a + b) / 2, h) + const Offset(0, -18);
+    if (c != null) {
+      final centre = at(c.xc, c.yc);
+      canvas.drawCircle(centre, 3.5, Paint()..color = slip);
+      final radius = Paint()
+        ..color = slip.withValues(alpha: 0.5)
+        ..strokeWidth = 1;
+      canvas.drawLine(centre, at(a, c.baseY(a)), radius);
+      canvas.drawLine(centre, at(b, c.baseY(b)), radius);
+      labelAt = centre + const Offset(8, -6);
+    } else if (surface is SlipPolyline) {
+      for (final (x, y) in surface.points) {
+        canvas.drawCircle(at(x, y), 3, Paint()..color = slip);
+      }
+    }
 
     final label = TextPainter(
       text: TextSpan(
@@ -251,7 +355,7 @@ class _SlopePainter extends CustomPainter {
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    label.paint(canvas, centre + const Offset(8, -6));
+    label.paint(canvas, labelAt);
   }
 
   @override

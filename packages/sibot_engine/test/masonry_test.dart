@@ -65,6 +65,63 @@ void main() {
     expect(r.checks.first.ok, isFalse);
   });
 
+  test('lateral load adds M/N at mid-height', () {
+    // 2 kPa over 2.7 m: M = 2 × 2.7² / 8 = 1.8225 kN·m/m, N = 300:
+    // ehm = 6.075 mm; em = 6.075 + 4.5 = 10.575 mm (> emin 10 mm).
+    final r = designMasonryWall(
+      const MasonryWallInput(
+        unit: MasonryUnit.clayGroup1,
+        fb: 20,
+        fm: 10,
+        t: 200,
+        height: 2.7,
+        nEd: 300,
+        lateralLoad: 2,
+      ),
+    );
+    expect(r.eMid, closeTo(10.575, 1e-3));
+  });
+
+  test('cavity wall: tef = (t1³ + t2³)^(1/3)', () {
+    final r = designMasonryWall(
+      const MasonryWallInput(
+        unit: MasonryUnit.clayGroup1,
+        fb: 20,
+        fm: 10,
+        t: 100,
+        height: 2.7,
+        nEd: 100,
+        otherLeaf: 100,
+      ),
+    );
+    // tef = 126.0 mm: hef / tef = 2025 / 126 = 16.07.
+    expect(r.slenderness, closeTo(2025 / 125.99, 0.01));
+    expect(r.eCreep, greaterThan(0));
+  });
+
+  test('concentrated load: β and NRdc = β Ab fd', () {
+    // 200 × 200 bearing, a1 = 500, hc = 2700: lefm = 1479 mm,
+    // Ab/Aef = 0.135, β = 1.426 capped at 1.25 + 500/5400 = 1.343;
+    // NRdc = 1.343 × 40 000 × 3.574 = 191.9 kN.
+    final r = designMasonryWall(
+      const MasonryWallInput(
+        unit: MasonryUnit.clayGroup1,
+        fb: 20,
+        fm: 10,
+        t: 200,
+        height: 2.7,
+        nEd: 300,
+        concentratedLoad: 150,
+        bearingLength: 200,
+        bearingWidth: 200,
+        edgeDistance: 500,
+      ),
+    );
+    final c = r.checks.firstWhere((x) => x.kind == CheckKind.concentratedLoad);
+    expect(c.capacity, closeTo(191.9, 0.5));
+    expect(c.ok, isTrue);
+  });
+
   test('mortar strength is capped at 2 fb', () {
     final a = designMasonryWall(
       const MasonryWallInput(

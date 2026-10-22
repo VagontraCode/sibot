@@ -109,6 +109,8 @@ class SlabPage extends ConsumerWidget {
               value: s.options['punchType']!,
               options: {
                 'column': l.punchingColumn,
+                'edge': l.punchingEdge,
+                'corner': l.punchingCorner,
                 'load': l.punchingPointLoad,
               },
               onChanged: (v) => n.setOption('punchType', v),

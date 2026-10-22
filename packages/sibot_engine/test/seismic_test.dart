@@ -51,6 +51,21 @@ void main() {
     expect(r3.baseShear / r2.baseShear, closeTo(1.2, 1e-9));
   });
 
+  test('PS92 spectrum in the lateral force method (λ = 1)', () {
+    final r = lateralForceMethod(
+      fourStoreys,
+      design: (t) => ps92Spectrum(t, 2.5, Ps92Site.s1, 2),
+    );
+    final sd = ps92Spectrum(r.t1, 2.5, Ps92Site.s1, 2);
+    expect(r.lambda, 1);
+    expect(r.baseShear, closeTo(sd * 1200, 1e-9));
+  });
+
+  test('accidental torsion factor: 1.3 at the edge', () {
+    expect(accidentalTorsionFactor(10, 20), closeTo(1.3, 1e-12));
+    expect(accidentalTorsionFactor(0, 20), 1);
+  });
+
   test('rejects floors that are not in ascending order', () {
     expect(
       () => lateralForceMethod(

@@ -5033,7 +5033,7 @@ abstract class AppLocalizations {
   /// No description provided for @slopeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Bishop\'s simplified method · automatic critical circle search'**
+  /// **'Bishop circles or Janbu non-circular surfaces · automatic critical search'**
   String get slopeSubtitle;
 
   /// No description provided for @slopeGeometry.
@@ -5069,7 +5069,7 @@ abstract class AppLocalizations {
   /// No description provided for @slopeGeometryNote.
   ///
   /// In en, this message translates to:
-  /// **'Simple slope from a horizontal crest to a horizontal toe, β ≤ 75°. Max. depth limits deep circles (empty = H).'**
+  /// **'Simple slope from a horizontal crest to a horizontal toe: β ≤ 75° with Bishop, up to 90° (vertical cut) with Janbu. Max. depth limits deep surfaces (empty = H).'**
   String get slopeGeometryNote;
 
   /// No description provided for @slopeSoil.
@@ -5099,13 +5099,13 @@ abstract class AppLocalizations {
   /// No description provided for @slopeSoilNote.
   ///
   /// In en, this message translates to:
-  /// **'Homogeneous soil. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.'**
+  /// **'Top soil, down to the first lower layer. Pore pressure ratio ru = u / (γ h): 0 dry, about 0.3 to 0.5 with a high water table. For undrained clay enter c = cu and φ = 0.'**
   String get slopeSoilNote;
 
   /// No description provided for @slopeCritical.
   ///
   /// In en, this message translates to:
-  /// **'Critical slip circle'**
+  /// **'Critical slip surface'**
   String get slopeCritical;
 
   /// No description provided for @slopeFactor.
@@ -5135,13 +5135,13 @@ abstract class AppLocalizations {
   /// No description provided for @slopeCircles.
   ///
   /// In en, this message translates to:
-  /// **'Circles analysed'**
+  /// **'Surfaces analysed'**
   String get slopeCircles;
 
   /// No description provided for @slopeNoteScope.
   ///
   /// In en, this message translates to:
-  /// **'Circular slip surfaces only, origin at the crest edge (x right, y up). Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Layered soils, water tables and non-circular surfaces are not covered.'**
+  /// **'Origin at the crest edge (x right, y up). Bishop: circular surfaces. Janbu simplified: polylines with up to two kinks, corrected by f0 = 1 + b1 (d/L − 1.4 (d/L)²); it usually gives a little less than Bishop. Required F ≥ 1.5 (traditional) and Fd ≥ 1.0 with tan φ\' and c\' divided by 1.25 and the surcharge × 1.3 (EN 1997-1 DA3). Horizontal layers and water table only; seepage forces and tension cracks are not modelled.'**
   String get slopeNoteScope;
 
   /// No description provided for @checkSlopeGlobal.
@@ -6553,6 +6553,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Util.'**
   String get f3dUtil;
+
+  /// No description provided for @punchingEdge.
+  ///
+  /// In en, this message translates to:
+  /// **'Edge column (β 1.4)'**
+  String get punchingEdge;
+
+  /// No description provided for @punchingCorner.
+  ///
+  /// In en, this message translates to:
+  /// **'Corner column (β 1.5)'**
+  String get punchingCorner;
+
+  /// No description provided for @slopeMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get slopeMethod;
+
+  /// No description provided for @slopeBishop.
+  ///
+  /// In en, this message translates to:
+  /// **'Bishop (circles)'**
+  String get slopeBishop;
+
+  /// No description provided for @slopeJanbu.
+  ///
+  /// In en, this message translates to:
+  /// **'Janbu (non-circular)'**
+  String get slopeJanbu;
+
+  /// No description provided for @slopeWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water table level zw'**
+  String get slopeWater;
+
+  /// No description provided for @slopeLayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Water and lower layers (optional)'**
+  String get slopeLayers;
+
+  /// No description provided for @slopeLayerTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Layer top level'**
+  String get slopeLayerTop;
+
+  /// No description provided for @slopeLayersNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Levels in m from the toe (0), up positive. Water table: u = γw (zw − z) below zw, ponded water in front of the toe is included; use it instead of ru. Each lower layer applies from its top level down to the next one; leave the level empty for none (empty γ = top soil).'**
+  String get slopeLayersNote;
+
+  /// No description provided for @slopeF0.
+  ///
+  /// In en, this message translates to:
+  /// **'Janbu correction factor'**
+  String get slopeF0;
+
+  /// No description provided for @checkPileReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Pile reaction'**
+  String get checkPileReaction;
+
+  /// No description provided for @checkTimberBearing.
+  ///
+  /// In en, this message translates to:
+  /// **'Bearing perpendicular to the grain'**
+  String get checkTimberBearing;
+
+  /// No description provided for @checkTimberNotch.
+  ///
+  /// In en, this message translates to:
+  /// **'Shear at the notched end'**
+  String get checkTimberNotch;
+
+  /// No description provided for @checkConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Fastener capacity'**
+  String get checkConnection;
+
+  /// No description provided for @checkConcentratedLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Concentrated load'**
+  String get checkConcentratedLoad;
 }
 
 class _AppLocalizationsDelegate

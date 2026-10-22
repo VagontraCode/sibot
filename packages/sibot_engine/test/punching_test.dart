@@ -40,6 +40,60 @@ void main() {
     });
   });
 
+  test('EC2 edge and corner columns: β 1.4 / 1.5 and reduced perimeters', () {
+    PunchingDesign run(PunchingPosition p) => designPunching(
+      code: DesignCode.ec2,
+      c1: 400,
+      c2: 400,
+      vEd: 300,
+      d: 200,
+      h: 240,
+      rhoL: 0.008,
+      fck: 30,
+      fyk: 500,
+      position: p,
+    );
+    final e = run(PunchingPosition.edge), c = run(PunchingPosition.corner);
+    // Edge: u1 = 2 × 400 + 400 + 2π × 200 = 2456.6; u0 = min(400 + 600, 1200).
+    expect(e.u1, closeTo(1200 + 400 * math.pi, 1e-9));
+    expect(e.demand, closeTo(1.4 * 300e3 / (e.u1 * 200), 1e-12));
+    expect(e.faceStress, closeTo(1.4 * 300e3 / (1000 * 200), 1e-12));
+    // Corner: u1 = 800 + π × 200; u0 = min(600, 800).
+    expect(c.u1, closeTo(800 + 200 * math.pi, 1e-9));
+    expect(c.faceStress, closeTo(1.5 * 300e3 / (600 * 200), 1e-12));
+    // An explicit β still wins.
+    final f = designPunching(
+      code: DesignCode.ec2,
+      c1: 400,
+      c2: 400,
+      vEd: 300,
+      d: 200,
+      h: 240,
+      rhoL: 0.008,
+      fck: 30,
+      fyk: 500,
+      beta: 1,
+      position: PunchingPosition.corner,
+    );
+    expect(f.demand, closeTo(300e3 / (c.u1 * 200), 1e-12));
+  });
+
+  test('BAEL edge column: uc = 2 c1 + c2 + 2h', () {
+    final p = designPunching(
+      code: DesignCode.bael,
+      c1: 400,
+      c2: 400,
+      vEd: 300,
+      d: 200,
+      h: 240,
+      rhoL: 0.008,
+      fck: 25,
+      fyk: 500,
+      position: PunchingPosition.edge,
+    );
+    expect(p.u1, 1680);
+  });
+
   test('BAEL A.5.2.42', () {
     // uc = 2(400 + 400 + 2 × 240) = 2560 mm
     // Qu,lim = 0.045 × 2560 × 240 × 25/1.5 = 460.8 kN < 600 kN

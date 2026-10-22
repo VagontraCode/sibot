@@ -11,6 +11,9 @@ class TimberClass {
   final double ft0k;
   final double fc0k;
   final double fvk;
+
+  /// Compression perpendicular to the grain, MPa.
+  final double fc90k;
   final double e0mean;
   final double e005;
   final double rhoK;
@@ -22,6 +25,7 @@ class TimberClass {
     required this.ft0k,
     required this.fc0k,
     required this.fvk,
+    required this.fc90k,
     required this.e0mean,
     required this.e005,
     required this.rhoK,
@@ -39,6 +43,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 10,
     fc0k: 17,
     fvk: 3.2,
+    fc90k: 2.2,
     e0mean: 8000,
     e005: 5400,
     rhoK: 310,
@@ -50,6 +55,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 11,
     fc0k: 18,
     fvk: 3.4,
+    fc90k: 2.2,
     e0mean: 9000,
     e005: 6000,
     rhoK: 320,
@@ -61,6 +67,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 14,
     fc0k: 21,
     fvk: 4.0,
+    fc90k: 2.5,
     e0mean: 11000,
     e005: 7400,
     rhoK: 350,
@@ -72,6 +79,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 18,
     fc0k: 23,
     fvk: 4.0,
+    fc90k: 2.7,
     e0mean: 12000,
     e005: 8000,
     rhoK: 380,
@@ -83,6 +91,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 19.2,
     fc0k: 24,
     fvk: 3.5,
+    fc90k: 2.5,
     e0mean: 11500,
     e005: 9600,
     rhoK: 385,
@@ -94,6 +103,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 22.3,
     fc0k: 28,
     fvk: 3.5,
+    fc90k: 2.5,
     e0mean: 12600,
     e005: 10500,
     rhoK: 425,
@@ -105,6 +115,7 @@ const timberClasses = <String, TimberClass>{
     ft0k: 25.6,
     fc0k: 32,
     fvk: 3.5,
+    fc90k: 2.5,
     e0mean: 14200,
     e005: 11800,
     rhoK: 440,
@@ -164,6 +175,16 @@ class TimberMemberInput {
   final double limitInst;
   final double limitFin;
 
+  /// End support: bearing length (mm, 0 = not checked) and reaction
+  /// (kN, defaults to [vEd]).
+  final double bearingLength;
+  final double? reaction;
+
+  /// Notch on the underside at the support: remaining depth hef (mm,
+  /// 0 = no notch) and distance from the reaction to the notch corner.
+  final double notchDepth;
+  final double notchX;
+
   const TimberMemberInput({
     required this.timber,
     required this.b,
@@ -182,6 +203,10 @@ class TimberMemberInput {
     this.psi2 = 0.3,
     this.limitInst = 300,
     this.limitFin = 250,
+    this.bearingLength = 0,
+    this.reaction,
+    this.notchDepth = 0,
+    this.notchX = 0,
   });
 }
 
@@ -360,6 +385,50 @@ TimberMemberResult designTimberMember(TimberMemberInput i) {
         clause: compression ? '$ref 6.3.3 (6.35)' : '$ref 6.3.3 (6.33)',
       ),
   ];
+
+  // Bearing at an end support (6.1.5): effective length l + 30 mm,
+  // kc,90 = 1.5 (solid softwood) or 1.75 (glulam, l ≤ 400 mm) for
+  // discrete supports.
+  final reaction = i.reaction ?? i.vEd;
+  if (i.bearingLength > 0 && reaction > 0) {
+    final lef = i.bearingLength + 30;
+    final kc90 = t.glulam ? (i.bearingLength <= 400 ? 1.75 : 1.0) : 1.5;
+    final fc90d = kmod * t.fc90k / t.gammaM;
+    checks.add(
+      Check(
+        kind: CheckKind.timberBearing,
+        demand: reaction * 1e3 / (i.b * lef),
+        capacity: kc90 * fc90d,
+        clause: '$ref 6.1.5 (kc,90 = ${kc90.toStringAsFixed(2)})',
+        unit: 'MPa',
+      ),
+    );
+  }
+
+  // Notch on the loaded side's underside at the support (6.5.2).
+  if (i.notchDepth > 0) {
+    if (i.notchDepth >= i.h) {
+      throw const InputError(InputProblem.inconsistentGeometry, 'notchDepth');
+    }
+    final h = i.h, alpha = i.notchDepth / h;
+    final kn = t.glulam ? 6.5 : 5.0;
+    final kv = math.min(
+      1.0,
+      kn /
+          (math.sqrt(h) *
+              (math.sqrt(alpha * (1 - alpha)) +
+                  0.8 * i.notchX / h * math.sqrt(1 / alpha - alpha * alpha))),
+    );
+    checks.add(
+      Check(
+        kind: CheckKind.timberNotch,
+        demand: 1.5 * reaction * 1e3 / (kcr * i.b * i.notchDepth),
+        capacity: kv * fvd,
+        clause: '$ref 6.5.2 (kv = ${kv.toStringAsFixed(2)})',
+        unit: 'MPa',
+      ),
+    );
+  }
 
   // Deflection of a simply supported span (2.2.3, 7.2).
   double? wInstQ, wFin;

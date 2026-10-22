@@ -4,7 +4,7 @@ import 'core.dart';
 import 'materials.dart';
 import 'rebar.dart';
 
-/// Rigid pile cap under a centred square column, designed with the
+/// Rigid pile cap under a centred rectangular column, designed with the
 /// strut-and-tie (Blévot) model. Piles are equally spaced: in line (2),
 /// at the corners of an equilateral triangle (3) or of a square (4).
 class PileCapInput {
@@ -18,8 +18,18 @@ class PileCapInput {
   final double spacing;
   final double pileDiameter;
 
-  /// Column side, mm.
+  /// Column side, mm, along the pile line (x), and across it (null =
+  /// square).
   final double column;
+  final double? columnB;
+
+  /// ULS moments at the cap underside, kN·m: [mx] about x (varies the
+  /// reactions along y), [my] about y (along x).
+  final double mx;
+  final double my;
+
+  /// Design compressive resistance of one pile, kN (null = not checked).
+  final double? pileCapacity;
 
   /// Cap depth, bottom cover to the ties and edge distance beyond the
   /// pile faces, mm.
@@ -37,6 +47,10 @@ class PileCapInput {
     required this.pileDiameter,
     required this.column,
     required this.h,
+    this.columnB,
+    this.mx = 0,
+    this.my = 0,
+    this.pileCapacity,
     this.code = DesignCode.ec2,
     this.cover = 50,
     this.edge = 150,
@@ -53,8 +67,14 @@ class PileCapResult {
   final double width;
   final double selfWeight;
 
-  /// Pile reaction at ULS, kN.
+  /// Mean pile reaction at ULS, kN, and the extreme ones under the
+  /// moments (R = N/n ± M x / Σx²).
   final double reaction;
+  final double maxReaction;
+  final double minReaction;
+
+  /// A pile is pulled (minimum reaction < 0).
+  bool get tension => minReaction < -1e-9;
 
   /// Strut angle to the horizontal, degrees.
   final double theta;
@@ -85,6 +105,8 @@ class PileCapResult {
     required this.width,
     required this.selfWeight,
     required this.reaction,
+    required this.maxReaction,
+    required this.minReaction,
     required this.theta,
     required this.ties,
     required this.tieForce,
@@ -114,11 +136,14 @@ PileCapResult designPileCap(PileCapInput i) {
   final concrete = Concrete(i.code, i.fck);
   final steel = RebarSteel(i.fyk);
   final e = i.spacing * 1e3, a = i.column, dp = i.pileDiameter;
+  final b = i.columnB ?? a;
+  requirePositive(b, 'columnB');
+  if (i.pileCapacity != null) requirePositive(i.pileCapacity!, 'pileCapacity');
   if (e < 2 * dp) {
     // Piles closer than two diameters interact (EC7 / DTU 13.2 practice).
     throw const InputError(InputProblem.inconsistentGeometry, 'spacing');
   }
-  if (a >= e) {
+  if (a >= e || (i.piles > 2 && b >= e)) {
     throw const InputError(InputProblem.inconsistentGeometry, 'column');
   }
   final d = i.h - i.cover - 12;
@@ -150,22 +175,46 @@ PileCapResult designPileCap(PileCapInput i) {
   final nTotal = i.nEd + 1.35 * selfWeight;
   final r = nTotal / i.piles;
 
+  // Pile coordinates (mm) and reactions under the moments.
+  final piles = switch (i.piles) {
+    2 => [(-e / 2, 0.0), (e / 2, 0.0)],
+    3 => [
+      (0.0, e / math.sqrt(3)),
+      (-e / 2, -e / (2 * math.sqrt(3))),
+      (e / 2, -e / (2 * math.sqrt(3))),
+    ],
+    _ => [(-e / 2, -e / 2), (e / 2, -e / 2), (-e / 2, e / 2), (e / 2, e / 2)],
+  };
+  final sxx = piles.fold<double>(0, (s, p) => s + p.$1 * p.$1);
+  final syy = piles.fold<double>(0, (s, p) => s + p.$2 * p.$2);
+  if (i.mx != 0 && syy < 1e-9) {
+    // Piles in one line cannot carry a moment about that line.
+    throw const InputError(InputProblem.inconsistentGeometry, 'mx');
+  }
+  final reactions = [
+    for (final (x, y) in piles)
+      r + i.my * 1e3 * x / sxx + (syy > 0 ? i.mx * 1e3 * y / syy : 0),
+  ];
+  final rMax = reactions.reduce(math.max);
+  final rMin = reactions.reduce(math.min);
+
   // Horizontal distance from the column node to a pile, mm.
+  final lx = e / 2 - a / 4, ly = e / 2 - b / 4;
   final l = switch (i.piles) {
-    2 => e / 2 - a / 4,
-    3 => e / math.sqrt(3) - 0.3 * a,
-    _ => (e / 2 - a / 4) * math.sqrt2,
+    2 => lx,
+    3 => e / math.sqrt(3) - 0.3 * math.sqrt(a * b),
+    _ => math.sqrt(lx * lx + ly * ly),
   };
   final tanT = d / l;
   final theta = math.atan(tanT) * 180 / math.pi;
   final sin2 = tanT * tanT / (1 + tanT * tanT);
 
-  // Tie forces.
-  final h = r * l / d; // horizontal strut component at a pile, kN
+  // Tie forces, every tie designed for the largest reaction.
+  final h = rMax * l / d; // horizontal strut component at a pile, kN
   final (ties, t) = switch (i.piles) {
     2 => (1, h),
     3 => (3, h / math.sqrt(3)),
-    _ => (4, h / math.sqrt2),
+    _ => (4, rMax * math.max(lx, ly) / d),
   };
   final asTie = t * 1e3 / steel.fyd;
   final bars = chooseBars(asTie, dp, maxCount: 10);
@@ -175,8 +224,8 @@ PileCapResult designPileCap(PileCapInput i) {
   final nu = 1 - i.fck / 250;
   final limitColumn = 1.0 * nu * concrete.fcd;
   final limitPile = 0.85 * nu * concrete.fcd;
-  final sigmaColumn = i.nEd * 1e3 / (a * a * sin2);
-  final sigmaPile = r * 1e3 / (math.pi * dp * dp / 4 * sin2);
+  final sigmaColumn = i.nEd * 1e3 / (a * b * sin2);
+  final sigmaPile = rMax * 1e3 / (math.pi * dp * dp / 4 * sin2);
 
   // Depths for θ = 45° and 55°.
   final extra = i.cover + 12;
@@ -190,6 +239,8 @@ PileCapResult designPileCap(PileCapInput i) {
     width: width / 1e3,
     selfWeight: selfWeight,
     reaction: r,
+    maxReaction: rMax,
+    minReaction: rMin,
     theta: theta,
     ties: ties,
     tieForce: t,
@@ -237,6 +288,14 @@ PileCapResult designPileCap(PileCapInput i) {
         clause: 'EN 1992-1-1 6.5.4 (6.61)',
         unit: 'MPa',
       ),
+      if (i.pileCapacity != null)
+        Check(
+          kind: CheckKind.pileReaction,
+          demand: rMax,
+          capacity: i.pileCapacity!,
+          clause: 'EN 1997-1 7.6.2',
+          unit: 'kN',
+        ),
     ],
   );
 }

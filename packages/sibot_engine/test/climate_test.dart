@@ -81,6 +81,45 @@ void main() {
     expect(s.max, closeTo(0.52, 1e-9));
   });
 
+  test('orography factor scales qp by co² at the mean wind part', () {
+    final flat = peakVelocityPressure(
+      vb: 26,
+      terrain: TerrainCategory.catII,
+      z: 10,
+    );
+    final hill = peakVelocityPressure(
+      vb: 26,
+      terrain: TerrainCategory.catII,
+      z: 10,
+      co: 1.2,
+    );
+    // qp = (1 + 7 kI / (co ln)) · ½ρ (co cr vb)²: (co² + 7 co Iv0)/(1 + 7 Iv0).
+    final iv0 = flat.iv;
+    expect(
+      hill.qp / flat.qp,
+      closeTo((1.44 + 7 * 1.2 * iv0) / (1 + 7 * iv0), 1e-9),
+    );
+  });
+
+  test('duopitch roof coefficients: table values and interpolation', () {
+    final (s15, p15) = duopitchCpe(15);
+    expect(s15, [-0.9, -0.8, -0.3, -0.4, -1.0]);
+    expect(p15[0], 0.2);
+    final (s225, _) = duopitchCpe(22.5);
+    expect(s225[0], closeTo(-0.7, 1e-12));
+  });
+
+  test('French snow regions with altitude', () {
+    expect(frenchSnowLoad('A2', 150), 0.45);
+    expect(frenchSnowLoad('C1', 400), closeTo(0.85, 1e-12));
+    // Continuity at 500 m and 1000 m.
+    expect(frenchSnowLoad('B1', 500), closeTo(0.85, 1e-12));
+    expect(frenchSnowLoad('B1', 1000), closeTo(0.55 + 1.05, 1e-12));
+    expect(frenchSnowLoad('E', 500), closeTo(1.85, 1e-12));
+    expect(() => frenchSnowLoad('E', 1200), throwsA(isA<InputError>()));
+    expect(frenchWindRegions[3], 26);
+  });
+
   test('flat roof: s = 0.8 Ce Ct sk', () {
     final s = designSnow(sk: 0.45, shape: RoofShape.flat, ce: 1.2);
     expect(s.max, closeTo(0.8 * 1.2 * 0.45, 1e-12));

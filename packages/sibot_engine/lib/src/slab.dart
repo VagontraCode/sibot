@@ -40,11 +40,13 @@ class SlabInput {
   final SlabSupport support;
 
   /// Optional punching check: ULS load (kN) on a c1 × c2 area (mm),
-  /// EC2 factor β (1.15 interior column, 1.0 centred load).
+  /// column position and EC2 factor β (null = by position; 1.0 for a
+  /// centred load).
   final double? punchLoad;
   final double punchC1;
   final double punchC2;
-  final double punchBeta;
+  final double? punchBeta;
+  final PunchingPosition punchPosition;
   final double fck;
   final double fyk;
 
@@ -62,7 +64,8 @@ class SlabInput {
     this.punchLoad,
     this.punchC1 = 300,
     this.punchC2 = 300,
-    this.punchBeta = 1.15,
+    this.punchBeta,
+    this.punchPosition = PunchingPosition.interior,
   });
 
   bool get twoWay => ly != null;
@@ -412,6 +415,7 @@ SlabDesign designSlab(SlabInput i) {
       fck: i.fck,
       fyk: i.fyk,
       beta: i.punchBeta,
+      position: i.punchPosition,
     );
     checks.addAll(punching.checks);
   }

@@ -2693,7 +2693,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get slopeSubtitle =>
-      'Méthode de Bishop simplifiée · recherche automatique du cercle critique';
+      'Cercles de Bishop ou surfaces non circulaires de Janbu · recherche automatique';
 
   @override
   String get slopeGeometry => 'Géométrie du talus';
@@ -2712,7 +2712,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get slopeGeometryNote =>
-      'Talus simple entre une crête et un pied horizontaux, β ≤ 75°. La profondeur max. limite les cercles profonds (vide = H).';
+      'Talus simple entre une crête et un pied horizontaux : β ≤ 75° avec Bishop, jusqu’à 90° (talus vertical) avec Janbu. La profondeur max. limite les surfaces profondes (vide = H).';
 
   @override
   String get slopeSoil => 'Sol (paramètres effectifs)';
@@ -2728,10 +2728,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get slopeSoilNote =>
-      'Sol homogène. Coefficient de pression interstitielle ru = u / (γ h) : 0 sec, environ 0,3 à 0,5 avec une nappe haute. Pour une argile non drainée, saisir c = cu et φ = 0.';
+      'Sol de surface, jusqu’à la première couche inférieure. Coefficient de pression interstitielle ru = u / (γ h) : 0 sec, environ 0,3 à 0,5 avec une nappe haute. Pour une argile non drainée, saisir c = cu et φ = 0.';
 
   @override
-  String get slopeCritical => 'Cercle de glissement critique';
+  String get slopeCritical => 'Surface de rupture critique';
 
   @override
   String get slopeFactor => 'Coefficient de sécurité';
@@ -2746,11 +2746,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get slopeRadius => 'Rayon';
 
   @override
-  String get slopeCircles => 'Cercles analysés';
+  String get slopeCircles => 'Surfaces analysées';
 
   @override
   String get slopeNoteScope =>
-      'Surfaces de rupture circulaires uniquement, origine au bord de la crête (x vers la droite, y vers le haut). F ≥ 1,5 requis (approche traditionnelle) et Fd ≥ 1,0 avec tan φ\' et c\' divisés par 1,25 et la surcharge × 1,3 (EN 1997-1 AC3). Les sols stratifiés, les nappes et les surfaces non circulaires ne sont pas traités.';
+      'Origine au bord de la crête (x à droite, y vers le haut). Bishop : surfaces circulaires. Janbu simplifiée : lignes brisées à deux coudes au plus, corrigées par f0 = 1 + b1 (d/L − 1,4 (d/L)²) ; elle donne en général un peu moins que Bishop. F ≥ 1,5 requis (traditionnel) et Fd ≥ 1,0 avec tan φ\' et c\' divisés par 1,25 et la surcharge × 1,3 (EN 1997-1 AC3). Couches et nappe horizontales uniquement ; les forces d’écoulement et les fissures de traction ne sont pas modélisées.';
 
   @override
   String get checkSlopeGlobal => 'Coefficient de sécurité global';
@@ -3553,4 +3553,50 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get f3dUtil => 'Taux';
+
+  @override
+  String get punchingEdge => 'Poteau de rive (β 1,4)';
+
+  @override
+  String get punchingCorner => 'Poteau d’angle (β 1,5)';
+
+  @override
+  String get slopeMethod => 'Méthode';
+
+  @override
+  String get slopeBishop => 'Bishop (cercles)';
+
+  @override
+  String get slopeJanbu => 'Janbu (non circulaire)';
+
+  @override
+  String get slopeWater => 'Niveau de la nappe zw';
+
+  @override
+  String get slopeLayers => 'Nappe et couches inférieures (facultatif)';
+
+  @override
+  String get slopeLayerTop => 'Toit de la couche';
+
+  @override
+  String get slopeLayersNote =>
+      'Niveaux en m depuis le pied (0), positifs vers le haut. Nappe : u = γw (zw − z) sous zw, l’eau en avant du pied est prise en compte ; à utiliser à la place de ru. Chaque couche inférieure s’applique de son toit jusqu’à la suivante ; laissez le niveau vide si aucune (γ vide = sol de surface).';
+
+  @override
+  String get slopeF0 => 'Facteur de correction de Janbu';
+
+  @override
+  String get checkPileReaction => 'Réaction de pieu';
+
+  @override
+  String get checkTimberBearing => 'Compression transversale à l’appui';
+
+  @override
+  String get checkTimberNotch => 'Cisaillement à l’entaille';
+
+  @override
+  String get checkConnection => 'Résistance des organes';
+
+  @override
+  String get checkConcentratedLoad => 'Charge concentrée';
 }

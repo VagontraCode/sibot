@@ -48,8 +48,12 @@ PeakPressure peakVelocityPressure({
   required double vb,
   required TerrainCategory terrain,
   required double z,
+
+  /// Orography factor co(z) (4.3.3, Annex A.3); 1 on flat terrain.
+  double co = 1,
 }) {
   requirePositive(vb, 'vb');
+  requireRange(co, 1, 2, 'co');
   requirePositive(z, 'z');
   requireRange(z, 0, 200, 'z');
   const rho = 1.25;
@@ -57,8 +61,8 @@ PeakPressure peakVelocityPressure({
   final zz = math.max(z, terrain.zMin);
   final ln = math.log(zz / terrain.z0);
   final cr = kr * ln;
-  final vm = cr * vb;
-  final iv = 1 / ln;
+  final vm = cr * co * vb;
+  final iv = 1 / (co * ln);
   final qb = 0.5 * rho * vb * vb / 1e3;
   final qp = (1 + 7 * iv) * 0.5 * rho * vm * vm / 1e3;
   return PeakPressure(
@@ -131,11 +135,12 @@ WindResult designWind({
   required double h,
   required double b,
   required double d,
+  double co = 1,
 }) {
   requirePositive(h, 'h');
   requirePositive(b, 'b');
   requirePositive(d, 'd');
-  final peak = peakVelocityPressure(vb: vb, terrain: terrain, z: h);
+  final peak = peakVelocityPressure(vb: vb, terrain: terrain, z: h, co: co);
   final qp = peak.qp;
   final e = math.min(b, 2 * h);
   final hd = h / d;
@@ -255,4 +260,78 @@ SnowResult designSnow({
     mu1Right: m2,
     cases: cases,
   );
+}
+
+// ── Duopitch roofs (EN 1991-1-4 Table 7.4a, θ = 0°) ───────────────────
+
+/// cpe,10 of the zones F, G, H (windward slope), I, J (leeward) for the
+/// two load cases of the table: [suction] (negative values) and
+/// [pressure] (positive values), at pitches 5°–75°.
+final _duopitch = <int, (List<double>, List<double>)>{
+  5: ([-1.7, -1.2, -0.6, -0.6, 0.2], [0.0, 0.0, 0.0, -0.6, -0.6]),
+  15: ([-0.9, -0.8, -0.3, -0.4, -1.0], [0.2, 0.2, 0.2, 0.0, 0.0]),
+  30: ([-0.5, -0.5, -0.2, -0.4, -0.5], [0.7, 0.7, 0.4, 0.0, 0.0]),
+  45: ([0.0, 0.0, 0.0, -0.2, -0.3], [0.7, 0.7, 0.6, 0.0, 0.0]),
+  60: ([0.7, 0.7, 0.7, -0.2, -0.3], [0.7, 0.7, 0.7, -0.2, -0.3]),
+  75: ([0.8, 0.8, 0.8, -0.2, -0.3], [0.8, 0.8, 0.8, -0.2, -0.3]),
+};
+
+/// Zone coefficients of a duopitch roof at [pitch] (°, 5–75), linear
+/// interpolation between the tabulated pitches: (suction case,
+/// pressure case), each for F, G, H, I, J.
+(List<double>, List<double>) duopitchCpe(double pitch) {
+  requireRange(pitch, 5, 75, 'pitch');
+  final keys = _duopitch.keys.toList();
+  var k = 0;
+  while (k < keys.length - 2 && pitch > keys[k + 1]) {
+    k++;
+  }
+  final a = keys[k], b = keys[k + 1];
+  final t = (pitch - a) / (b - a);
+  List<double> lerp(List<double> x, List<double> y) => [
+    for (var i = 0; i < 5; i++) x[i] + (y[i] - x[i]) * t,
+  ];
+  return (
+    lerp(_duopitch[a]!.$1, _duopitch[b]!.$1),
+    lerp(_duopitch[a]!.$2, _duopitch[b]!.$2),
+  );
+}
+
+// ── French National Annex regions ─────────────────────────────────────
+
+/// Basic wind velocity vb,0 of the mainland wind regions 1–4 (NF EN
+/// 1991-1-4/NA), m/s.
+const frenchWindRegions = {1: 22.0, 2: 24.0, 3: 26.0, 4: 28.0};
+
+/// Ground snow load at 200 m of the snow regions (NF EN 1991-1-3/NA),
+/// kN/m².
+const frenchSnowRegions = {
+  'A1': 0.45,
+  'A2': 0.45,
+  'B1': 0.55,
+  'B2': 0.55,
+  'C1': 0.65,
+  'C2': 0.65,
+  'D': 0.90,
+  'E': 1.40,
+};
+
+/// Characteristic ground snow load at altitude [altitude] (m) of a
+/// French snow region: sk,200 + Δs. Regions A1–D up to 2000 m; region E
+/// up to 1000 m (beyond, enter sk from the National Annex).
+double frenchSnowLoad(String region, double altitude) {
+  final s0 = frenchSnowRegions[region];
+  if (s0 == null) throw const InputError(InputProblem.outOfRange, 'region');
+  requireRange(altitude, 0, 2000, 'altitude');
+  final a = altitude;
+  if (region == 'E') {
+    if (a > 1000) throw const InputError(InputProblem.outOfRange, 'altitude');
+    if (a <= 200) return s0;
+    if (a <= 500) return s0 + 1.5 * (a - 200) / 1000;
+    return s0 + 3.5 * a / 1000 - 1.30;
+  }
+  if (a <= 200) return s0;
+  if (a <= 500) return s0 + (a - 200) / 1000;
+  if (a <= 1000) return s0 + 1.5 * a / 1000 - 0.45;
+  return s0 + 3.5 * a / 1000 - 2.45;
 }

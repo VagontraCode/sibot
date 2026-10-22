@@ -133,7 +133,12 @@ class SeismicResult {
 
 /// Lateral force method of analysis, EN 1998-1 4.3.3.2, with the
 /// height-proportional distribution (4.11).
-SeismicResult lateralForceMethod(SeismicInput i) {
+/// [design] replaces the EN 1998-1 spectrum (e.g. PS92: aN·R(T)/q); the
+/// correction factor λ is then 1.
+SeismicResult lateralForceMethod(
+  SeismicInput i, {
+  double Function(double period)? design,
+}) {
   requirePositive(i.agR, 'agR');
   requireRange(i.q, 1, 8, 'q');
   if (i.masses.isEmpty || i.masses.length != i.heights.length) {
@@ -158,8 +163,11 @@ SeismicResult lateralForceMethod(SeismicInput i) {
   final ag = gammaI * i.agR;
   final height = i.heights.last;
   final t1 = i.period ?? i.system.ct * math.pow(height, 0.75).toDouble();
-  final sd = designSpectrum(t1, ag, p, i.q);
-  final lambda = t1 <= 2 * p.tc && i.masses.length > 2 ? 0.85 : 1.0;
+  double sdOf(double t) => design?.call(t) ?? designSpectrum(t, ag, p, i.q);
+  final sd = sdOf(t1);
+  final lambda = design == null && t1 <= 2 * p.tc && i.masses.length > 2
+      ? 0.85
+      : 1.0;
   final mass = i.masses.reduce((a, b) => a + b);
   final fb = sd * mass * lambda; // t · m/s² = kN
 
@@ -183,8 +191,7 @@ SeismicResult lateralForceMethod(SeismicInput i) {
   }
 
   final curve = [
-    for (var k = 0; k <= 80; k++)
-      (k * 0.05, designSpectrum(math.max(k * 0.05, 1e-6), ag, p, i.q)),
+    for (var k = 0; k <= 80; k++) (k * 0.05, sdOf(math.max(k * 0.05, 1e-6))),
   ];
 
   return SeismicResult(
@@ -253,3 +260,12 @@ double ps92Spectrum(
   double q, {
   double tau = 1,
 }) => aN * ps92R(t, site) * tau / q;
+
+/// Accidental torsion amplification of an element at distance [x] from
+/// the centre of a floor of width [le] perpendicular to the action
+/// (EN 1998-1 4.3.3.2.4, 4.18): δ = 1 + 0.6 x / Le (1.3 at the edge).
+double accidentalTorsionFactor(double x, double le) {
+  requirePositive(le, 'le');
+  requireRange(x, 0, le / 2, 'x');
+  return 1 + 0.6 * x / le;
+}

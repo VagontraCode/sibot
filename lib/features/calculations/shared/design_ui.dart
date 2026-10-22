@@ -67,6 +67,11 @@ String checkLabel(AppLocalizations l, CheckKind k) => switch (k) {
   CheckKind.tieSteel => l.checkTieSteel,
   CheckKind.nodeColumn => l.checkNodeColumn,
   CheckKind.nodePile => l.checkNodePile,
+  CheckKind.pileReaction => l.checkPileReaction,
+  CheckKind.timberBearing => l.checkTimberBearing,
+  CheckKind.timberNotch => l.checkTimberNotch,
+  CheckKind.connection => l.checkConnection,
+  CheckKind.concentratedLoad => l.checkConcentratedLoad,
 };
 
 /// Message for an input problem, using the page's field labels.

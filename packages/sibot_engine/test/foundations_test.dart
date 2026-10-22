@@ -147,4 +147,36 @@ void main() {
     expect(r.overhang1 + xBar, closeTo(r.length / 2, 1e-9));
     expect(r.ok, isTrue, reason: r.checks.join('\n'));
   });
+
+  test('combined footing width optimisation never costs more', () {
+    CombinedFootingDesign run(bool opt) => designCombinedFooting(
+      CombinedFootingInput(
+        code: DesignCode.ec2,
+        a1: 400,
+        b1: 400,
+        a2: 500,
+        b2: 500,
+        spacing: 4,
+        g1: 900,
+        q1: 300,
+        g2: 1200,
+        q2: 400,
+        qAllowable: 250,
+        fck: 30,
+        fyk: 500,
+        optimiseWidth: opt,
+      ),
+    );
+    double cost(CombinedFootingDesign r) =>
+        r.width * r.length * r.h / 1000 +
+        75 *
+            ((r.asBottom + r.asTop) * r.length * 1000 +
+                r.asTransverse.reduce((a, b) => a + b) * r.width * 1000) *
+            1e-9;
+    final basic = run(false), opt = run(true);
+    expect(opt.ok, isTrue);
+    expect(opt.width, greaterThanOrEqualTo(basic.width));
+    expect(cost(opt), lessThanOrEqualTo(cost(basic) + 1e-9));
+    expect(opt.h, lessThanOrEqualTo(basic.h));
+  });
 }

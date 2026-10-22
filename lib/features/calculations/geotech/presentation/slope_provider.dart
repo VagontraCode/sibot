@@ -13,6 +13,12 @@ final slopeStateProvider =
       String
     >(SlopeNotifier.new);
 
+/// Optional lower layers: top elevation, γ, c and φ per layer.
+const slopeLayerKeys = [
+  ['l1Top', 'l1Gamma', 'l1C', 'l1Phi'],
+  ['l2Top', 'l2Gamma', 'l2C', 'l2Phi'],
+];
+
 class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
   SlopeNotifier(super.projectId);
 
@@ -26,7 +32,12 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
     'ru': 0,
     'surcharge': 0,
     'maxDepth': null,
+    'waterLevel': null,
+    for (final k in slopeLayerKeys.expand((l) => l)) k: null,
   };
+
+  @override
+  Map<String, String> get initialOptions => {'method': 'bishop'};
 
   @override
   List<String> get requiredKeys => [
@@ -40,24 +51,50 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
   ];
 
   @override
-  SlopeResult compute(DesignFormState<SlopeResult> s) =>
-      analyseSlope(_input(s));
+  SlopeResult compute(DesignFormState<SlopeResult> s) {
+    final (input, method) = _input(s);
+    return analyseSlope(input, method: method);
+  }
 
-  // Thousands of trial circles: run off the UI thread.
+  // Thousands of trial surfaces: run off the UI thread.
   @override
-  Future<SlopeResult> computeAsync(DesignFormState<SlopeResult> s) =>
-      _slopeInIsolate(_input(s));
+  Future<SlopeResult> computeAsync(DesignFormState<SlopeResult> s) {
+    final (input, method) = _input(s);
+    return _slopeInIsolate(input, method);
+  }
 
-  SlopeInput _input(DesignFormState<SlopeResult> s) => (SlopeInput(
-    height: s['height']!,
-    angle: s['angle']!,
-    gamma: s['gamma']!,
-    cohesion: s['cohesion']!,
-    phi: s['phi']!,
-    ru: s['ru']!,
-    surcharge: s['surcharge']!,
-    maxDepth: s['maxDepth'],
-  ));
+  (SlopeInput, SlopeMethod) _input(DesignFormState<SlopeResult> s) {
+    final layers = <SoilLayer>[];
+    for (final [top, gamma, c, phi] in slopeLayerKeys) {
+      if (s[top] == null) continue;
+      // A layer needs its strength; γ defaults to the top soil's.
+      if (s[c] == null) throw InputError(InputProblem.notPositive, c);
+      if (s[phi] == null) throw InputError(InputProblem.notPositive, phi);
+      layers.add(
+        SoilLayer(
+          top: s[top]!,
+          gamma: s[gamma] ?? s['gamma']!,
+          cohesion: s[c]!,
+          phi: s[phi]!,
+        ),
+      );
+    }
+    return (
+      SlopeInput(
+        height: s['height']!,
+        angle: s['angle']!,
+        gamma: s['gamma']!,
+        cohesion: s['cohesion']!,
+        phi: s['phi']!,
+        ru: s['ru']!,
+        surcharge: s['surcharge']!,
+        maxDepth: s['maxDepth'],
+        waterLevel: s['waterLevel'],
+        layers: layers,
+      ),
+      s.options['method'] == 'janbu' ? SlopeMethod.janbu : SlopeMethod.bishop,
+    );
+  }
 
   @override
   Future<String> saveResult(
@@ -65,6 +102,7 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
     SlopeResult r,
   ) async {
     final id = IdService.generateCalculationId();
+    final c = r.circle;
     await save(
       id,
       ModuleCalculation(
@@ -77,9 +115,10 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
         metadata: flatMetadata(s, {
           'factor': r.factor,
           'factorEc7': r.factorEc7,
-          'xc': r.circle.xc,
-          'yc': r.circle.yc,
-          'r': r.circle.r,
+          'xc': ?c?.xc,
+          'yc': ?c?.yc,
+          'r': ?c?.r,
+          if (c == null) 'f0': r.f0,
         }),
       ),
     );
@@ -87,5 +126,5 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
   }
 }
 
-Future<SlopeResult> _slopeInIsolate(SlopeInput input) =>
-    Isolate.run(() => analyseSlope(input));
+Future<SlopeResult> _slopeInIsolate(SlopeInput input, SlopeMethod method) =>
+    Isolate.run(() => analyseSlope(input, method: method));

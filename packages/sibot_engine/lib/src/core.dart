@@ -48,14 +48,19 @@ enum CheckKind {
   combinedStress,
   deflectionInstant,
   deflectionFinal,
+  timberBearing,
+  timberNotch,
+  connection,
   wallEnd,
   wallMid,
+  concentratedLoad,
   slopeGlobal,
   slopeEc7,
   strutAngle,
   tieSteel,
   nodeColumn,
   nodePile,
+  pileReaction,
 }
 
 /// One design check: [demand] must not exceed [capacity].
