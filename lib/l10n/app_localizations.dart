@@ -3689,7 +3689,7 @@ abstract class AppLocalizations {
   /// No description provided for @frameMemberLoad.
   ///
   /// In en, this message translates to:
-  /// **'Uniform load, case {name}'**
+  /// **'Distributed load, case {name}'**
   String frameMemberLoad(String name);
 
   /// No description provided for @frameLoadDirection.
@@ -7171,6 +7171,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Region {n} (vb,0 = {v} m/s)'**
   String windRegionN(String n, String v);
+
+  /// No description provided for @frameLoadFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From a'**
+  String get frameLoadFrom;
+
+  /// No description provided for @frameLoadTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To b'**
+  String get frameLoadTo;
+
+  /// No description provided for @frameLoadExtentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Distances from the start node. Empty w2 = uniform, empty a and b = whole member; 0 removes the load.'**
+  String get frameLoadExtentNote;
+
+  /// No description provided for @framePointLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Point load, case {name}'**
+  String framePointLoadTitle(String name);
+
+  /// No description provided for @framePointAt.
+  ///
+  /// In en, this message translates to:
+  /// **'At distance'**
+  String get framePointAt;
+
+  /// No description provided for @frameApplyPointLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the point load'**
+  String get frameApplyPointLoad;
+
+  /// No description provided for @frameArrayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy / array'**
+  String get frameArrayTitle;
+
+  /// No description provided for @frameArrayCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies'**
+  String get frameArrayCount;
+
+  /// No description provided for @frameArrayNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies the member n times, each shifted by Δx, Δy from the previous one, with its section, hinges and loads in every case. Nodes at the same position are shared. In the select tool, drag a node to move it (snapped to the grid).'**
+  String get frameArrayNote;
+
+  /// No description provided for @frameArrayApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Create the copies'**
+  String get frameArrayApply;
 }
 
 class _AppLocalizationsDelegate

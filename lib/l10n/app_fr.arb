@@ -1178,5 +1178,15 @@
   "pileCapTensionMsg": "La plus petite réaction de pieu vaut {r} kN : les pieux et leur ancrage dans la semelle doivent être dimensionnés en traction.",
   "seismicPs92Note": "Spectre PS92 aN · R(T) / q avec aN = {a} m/s², λ = 1, τ = 1 (site plat).",
   "windDuopitchTitle": "Toiture 2 versants, α = {pitch}°",
-  "windRegionN": "Région {n} (vb,0 = {v} m/s)"
+  "windRegionN": "Région {n} (vb,0 = {v} m/s)",
+  "frameLoadFrom": "De a",
+  "frameLoadTo": "À b",
+  "frameLoadExtentNote": "Distances depuis le nœud de départ. w2 vide = uniforme, a et b vides = toute la barre ; 0 supprime la charge.",
+  "framePointLoadTitle": "Charge ponctuelle, cas {name}",
+  "framePointAt": "À la distance",
+  "frameApplyPointLoad": "Appliquer la charge ponctuelle",
+  "frameArrayTitle": "Copier / répéter",
+  "frameArrayCount": "Copies",
+  "frameArrayNote": "Copie la barre n fois, chaque copie décalée de Δx, Δy par rapport à la précédente, avec sa section, ses articulations et ses charges dans tous les cas. Les nœuds à la même position sont partagés. Avec l’outil de sélection, faites glisser un nœud pour le déplacer (aimanté sur la grille).",
+  "frameArrayApply": "Créer les copies"
 }

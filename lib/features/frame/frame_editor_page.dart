@@ -177,6 +177,7 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
                 FrameTool.support => _n.cycleSupport(i),
                 _ => _n.select(NodeSelection(i)),
               },
+              onDragNode: s.tool == FrameTool.select ? _n.dragNode : null,
               onTapElement: (k) => _n.select(ElementSelection(k)),
             ),
           ),
@@ -222,16 +223,19 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
             constraints: BoxConstraints(
               maxHeight: MediaQuery.sizeOf(context).height * 0.42,
             ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: context.colors.surface,
-                border: Border(
-                  top: BorderSide(color: context.colors.outlineVariant),
+            // Material (not a coloured box) so list tiles show their ink.
+            child: Material(
+              color: context.colors.surface,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(color: context.colors.outlineVariant),
+                  ),
                 ),
-              ),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Gap.lg),
-                child: panel,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(Gap.lg),
+                  child: panel,
+                ),
               ),
             ),
           ),
@@ -793,7 +797,24 @@ class _ElementPanelState extends State<_ElementPanel> {
     return null;
   }();
   late double? _w = -(_load?.w1 ?? 0);
+  late double? _w2 = _load == null || _load.w2 == _load.w1 ? null : -_load.w2;
+  late double? _start = _load == null || _load.start == 0 ? null : _load.start;
+  late double? _end = _load?.end;
   late LoadAxis _axis = _load?.axis ?? LoadAxis.globalY;
+
+  late final MemberPointLoad? _point = () {
+    final c = widget.state.model.cases;
+    if (c.isEmpty) return null;
+    for (final l in c[widget.state.activeCase].point) {
+      if (l.element == widget.index) return l;
+    }
+    return null;
+  }();
+  late double? _p = _point == null ? null : -_point.p;
+  late double? _pa = _point?.a;
+
+  double? _dx, _dy;
+  double? _copies = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -878,23 +899,132 @@ class _ElementPanelState extends State<_ElementPanel> {
           onChanged: (v) => setState(() => _axis = v),
         ),
         const SizedBox(height: Gap.sm),
-        NumberField(
-          label: _axis == LoadAxis.globalY ? 'w ↓' : 'w ⟂',
-          unit: 'kN/m',
-          value: _w,
-          allowNegative: true,
-          onChanged: (v) => _w = v,
+        FieldRow(
+          children: [
+            NumberField(
+              label: _axis == LoadAxis.globalY ? 'w1 ↓' : 'w1 ⟂',
+              unit: 'kN/m',
+              value: _w,
+              allowNegative: true,
+              onChanged: (v) => _w = v,
+            ),
+            NumberField(
+              label: _axis == LoadAxis.globalY ? 'w2 ↓' : 'w2 ⟂',
+              unit: 'kN/m',
+              value: _w2,
+              allowNegative: true,
+              onChanged: (v) => _w2 = v,
+            ),
+          ],
+        ),
+        const SizedBox(height: Gap.sm),
+        FieldRow(
+          children: [
+            NumberField(
+              label: l.frameLoadFrom,
+              unit: 'm',
+              value: _start,
+              onChanged: (v) => _start = v,
+            ),
+            NumberField(
+              label: l.frameLoadTo,
+              unit: 'm',
+              value: _end,
+              onChanged: (v) => _end = v,
+            ),
+          ],
+        ),
+        const SizedBox(height: Gap.xs),
+        Text(l.frameLoadExtentNote, style: context.text.bodySmall),
+        const SizedBox(height: Gap.sm),
+        OutlinedButton(
+          onPressed: m.cases.isEmpty
+              ? null
+              : () {
+                  final start = (_start ?? 0).clamp(0.0, length);
+                  final end = _end?.clamp(start, length);
+                  widget.notifier.setMemberLoad(
+                    widget.index,
+                    -(_w ?? 0),
+                    _axis,
+                    w2: _w2 == null ? null : -_w2!,
+                    start: start,
+                    end: end == length ? null : end,
+                  );
+                },
+          child: Text(l.frameApplyLoad),
+        ),
+        const SizedBox(height: Gap.md),
+        Text(l.framePointLoadTitle(caseName), style: context.text.labelMedium),
+        const SizedBox(height: Gap.sm),
+        FieldRow(
+          children: [
+            NumberField(
+              label: _axis == LoadAxis.globalY ? 'P ↓' : 'P ⟂',
+              unit: 'kN',
+              value: _p,
+              allowNegative: true,
+              onChanged: (v) => _p = v,
+            ),
+            NumberField(
+              label: l.framePointAt,
+              unit: 'm',
+              value: _pa,
+              hint: fmt(context, length / 2, 2),
+              onChanged: (v) => _pa = v,
+            ),
+          ],
         ),
         const SizedBox(height: Gap.sm),
         OutlinedButton(
           onPressed: m.cases.isEmpty
               ? null
-              : () => widget.notifier.setMemberLoad(
+              : () => widget.notifier.setMemberPointLoad(
                   widget.index,
-                  -(_w ?? 0),
+                  (_pa ?? length / 2).clamp(0.0, length),
+                  -(_p ?? 0),
                   _axis,
                 ),
-          child: Text(l.frameApplyLoad),
+          child: Text(l.frameApplyPointLoad),
+        ),
+        const SizedBox(height: Gap.lg),
+        Text(l.frameArrayTitle, style: context.text.labelMedium),
+        const SizedBox(height: Gap.sm),
+        FieldRow(
+          children: [
+            NumberField(
+              label: 'Δx',
+              unit: 'm',
+              value: _dx,
+              allowNegative: true,
+              onChanged: (v) => _dx = v,
+            ),
+            NumberField(
+              label: 'Δy',
+              unit: 'm',
+              value: _dy,
+              allowNegative: true,
+              onChanged: (v) => _dy = v,
+            ),
+            NumberField(
+              label: l.frameArrayCount,
+              value: _copies,
+              onChanged: (v) => _copies = v,
+            ),
+          ],
+        ),
+        const SizedBox(height: Gap.xs),
+        Text(l.frameArrayNote, style: context.text.bodySmall),
+        const SizedBox(height: Gap.sm),
+        OutlinedButton.icon(
+          onPressed: () => widget.notifier.arrayElement(
+            widget.index,
+            _dx ?? 0,
+            _dy ?? 0,
+            (_copies ?? 1).round().clamp(1, 50),
+          ),
+          icon: const Icon(Icons.copy_all_rounded),
+          label: Text(l.frameArrayApply),
         ),
       ],
     );

@@ -820,7 +820,7 @@
   "frameKindTruss": "Truss bar",
   "frameHingeStart": "Hinge at start",
   "frameHingeEnd": "Hinge at end",
-  "frameMemberLoad": "Uniform load, case {name}",
+  "frameMemberLoad": "Distributed load, case {name}",
   "@frameMemberLoad": {
     "placeholders": {
       "name": {
@@ -1704,5 +1704,22 @@
         "type": "String"
       }
     }
-  }
+  },
+  "frameLoadFrom": "From a",
+  "frameLoadTo": "To b",
+  "frameLoadExtentNote": "Distances from the start node. Empty w2 = uniform, empty a and b = whole member; 0 removes the load.",
+  "framePointLoadTitle": "Point load, case {name}",
+  "@framePointLoadTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "framePointAt": "At distance",
+  "frameApplyPointLoad": "Apply the point load",
+  "frameArrayTitle": "Copy / array",
+  "frameArrayCount": "Copies",
+  "frameArrayNote": "Copies the member n times, each shifted by Δx, Δy from the previous one, with its section, hinges and loads in every case. Nodes at the same position are shared. In the select tool, drag a node to move it (snapped to the grid).",
+  "frameArrayApply": "Create the copies"
 }

@@ -239,6 +239,15 @@ class FrameEditorNotifier extends Notifier<FrameEditorState> {
     _apply(state.model.copyWith(supports: sup), keepSelection: true);
   }
 
+  /// Moves [node] to the grid point nearest to (x, y), e.g. at the end of
+  /// a drag on the canvas.
+  void dragNode(int node, double x, double y) {
+    final sx = _snap(x), sy = _snap(y);
+    final n = state.model.nodes[node];
+    if ((n.x - sx).abs() < 1e-9 && (n.y - sy).abs() < 1e-9) return;
+    moveNode(node, sx, sy);
+  }
+
   void moveNode(int node, double x, double y) {
     final nodes = [...state.model.nodes];
     nodes[node] = Node2D(x, y);
@@ -270,14 +279,115 @@ class FrameEditorNotifier extends Notifier<FrameEditorState> {
     _replaceCase(_case.copyWith(nodal: list));
   }
 
-  /// Sets a uniform load on [element] in the active case (0 removes it).
-  void setMemberLoad(int element, double w, LoadAxis axis) {
+  /// Sets the distributed load on [element] in the active case: [w] at
+  /// [start] to [w2] (null = uniform) at [end] (m from the start node,
+  /// null = member end). Zero intensities remove it.
+  void setMemberLoad(
+    int element,
+    double w,
+    LoadAxis axis, {
+    double? w2,
+    double start = 0,
+    double? end,
+  }) {
     final list = [
       for (final l in _case.distributed)
         if (l.element != element) l,
-      if (w != 0) DistributedLoad(element, w, axis: axis),
+      if (w != 0 || (w2 ?? 0) != 0)
+        DistributedLoad(element, w, w2: w2, axis: axis, start: start, end: end),
     ];
     _replaceCase(_case.copyWith(distributed: list));
+  }
+
+  /// Sets the point load [p] at [a] (m from the start node) on [element]
+  /// in the active case (0 removes it).
+  void setMemberPointLoad(int element, double a, double p, LoadAxis axis) {
+    final list = [
+      for (final l in _case.point)
+        if (l.element != element) l,
+      if (p != 0) MemberPointLoad(element, a, p, axis: axis),
+    ];
+    _replaceCase(_case.copyWith(point: list));
+  }
+
+  /// Copies [element] [count] times, each shifted by ([dx], [dy]) from the
+  /// previous one, with its section, hinges and loads in every case.
+  /// Nodes at an existing position are shared.
+  void arrayElement(int element, double dx, double dy, int count) {
+    if (count < 1 || (dx == 0 && dy == 0)) return;
+    final m = state.model;
+    final nodes = [...m.nodes];
+    final elements = [...m.elements];
+    final src = m.elements[element];
+    final cases = [
+      for (final c in m.cases)
+        (distributed: [...c.distributed], point: [...c.point]),
+    ];
+    int nodeAt(double x, double y) {
+      for (var i = 0; i < nodes.length; i++) {
+        if ((nodes[i].x - x).abs() < 1e-6 && (nodes[i].y - y).abs() < 1e-6) {
+          return i;
+        }
+      }
+      nodes.add(Node2D(x, y));
+      return nodes.length - 1;
+    }
+
+    final a = m.nodes[src.n1], b = m.nodes[src.n2];
+    for (var k = 1; k <= count; k++) {
+      final n1 = nodeAt(a.x + k * dx, a.y + k * dy);
+      final n2 = nodeAt(b.x + k * dx, b.y + k * dy);
+      // Skip copies that would duplicate an existing member.
+      final exists = elements.any(
+        (e) => (e.n1 == n1 && e.n2 == n2) || (e.n1 == n2 && e.n2 == n1),
+      );
+      if (exists || n1 == n2) continue;
+      elements.add(
+        Element2D(
+          n1,
+          n2,
+          section: src.section,
+          kind: src.kind,
+          hingeStart: src.hingeStart,
+          hingeEnd: src.hingeEnd,
+        ),
+      );
+      final index = elements.length - 1;
+      for (var c = 0; c < m.cases.length; c++) {
+        for (final l in m.cases[c].distributed) {
+          if (l.element != element) continue;
+          cases[c].distributed.add(
+            DistributedLoad(
+              index,
+              l.w1,
+              w2: l.w2,
+              axis: l.axis,
+              start: l.start,
+              end: l.end,
+              projected: l.projected,
+            ),
+          );
+        }
+        for (final l in m.cases[c].point) {
+          if (l.element != element) continue;
+          cases[c].point.add(MemberPointLoad(index, l.a, l.p, axis: l.axis));
+        }
+      }
+    }
+    _apply(
+      m.copyWith(
+        nodes: nodes,
+        elements: elements,
+        cases: [
+          for (var c = 0; c < m.cases.length; c++)
+            m.cases[c].copyWith(
+              distributed: cases[c].distributed,
+              point: cases[c].point,
+            ),
+        ],
+      ),
+      keepSelection: true,
+    );
   }
 
   void addCase(String name, LoadType type) {

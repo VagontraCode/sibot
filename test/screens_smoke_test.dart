@@ -35,6 +35,7 @@ import 'package:sibot/features/calculations/retaining_walls/presentation/retaini
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
 import 'package:sibot/features/tools/tools_providers.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
+import 'package:sibot/features/frame/frame_providers.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
@@ -169,6 +170,9 @@ Future<void> _seed() async {
 }
 
 final _calculations = <String, Future<void> Function(ProviderContainer)>{
+  'frame_editor_member': (c) async => c
+      .read(frameEditorProvider('FM_1').notifier)
+      .select(const ElementSelection(1)),
   'beam': (c) => (c.read(
     beamStateProvider('PRJ_1').notifier,
   )..setAll({'span': 6, 'b': 300, 'h': 600, 'g': 20, 'q': 15})).calculate(),
@@ -426,6 +430,7 @@ void main() {
     'quantities': '/projects/PRJ_1/quantities',
     'frame_list': '/projects/PRJ_1/frame2d',
     'frame_editor': '/projects/PRJ_1/frame2d/FM_1',
+    'frame_editor_member': '/projects/PRJ_1/frame2d/FM_1',
     'frame_results': '/projects/PRJ_1/frame2d/FM_1',
     'frame3d_list': '/projects/PRJ_1/frame3d',
     'frame3d_static': '/projects/PRJ_1/frame3d/F3_1',

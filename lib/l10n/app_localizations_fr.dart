@@ -3886,4 +3886,38 @@ class AppLocalizationsFr extends AppLocalizations {
   String windRegionN(String n, String v) {
     return 'Région $n (vb,0 = $v m/s)';
   }
+
+  @override
+  String get frameLoadFrom => 'De a';
+
+  @override
+  String get frameLoadTo => 'À b';
+
+  @override
+  String get frameLoadExtentNote =>
+      'Distances depuis le nœud de départ. w2 vide = uniforme, a et b vides = toute la barre ; 0 supprime la charge.';
+
+  @override
+  String framePointLoadTitle(String name) {
+    return 'Charge ponctuelle, cas $name';
+  }
+
+  @override
+  String get framePointAt => 'À la distance';
+
+  @override
+  String get frameApplyPointLoad => 'Appliquer la charge ponctuelle';
+
+  @override
+  String get frameArrayTitle => 'Copier / répéter';
+
+  @override
+  String get frameArrayCount => 'Copies';
+
+  @override
+  String get frameArrayNote =>
+      'Copie la barre n fois, chaque copie décalée de Δx, Δy par rapport à la précédente, avec sa section, ses articulations et ses charges dans tous les cas. Les nœuds à la même position sont partagés. Avec l’outil de sélection, faites glisser un nœud pour le déplacer (aimanté sur la grille).';
+
+  @override
+  String get frameArrayApply => 'Créer les copies';
 }

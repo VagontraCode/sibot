@@ -137,7 +137,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Results: deformed shape, N/V/M diagrams drawn on the tension side, reactions, per-member values and diagrams, envelope
 - [x] Verification: 19 closed-form benchmarks (cantilever, simple / fixed / continuous beams, propped cantilever, Kleinlogel portal, truss, hinge, spring, inclined member, equilibrium) + template tests; 2091-node frame in ~0.55 s
 - [ ] Compare with the user's RSA models, then remove the Beta banner
-- [ ] Editor: point loads and partial / trapezoidal loads in the UI (engine supports them), node dragging, copy / array tools
+- [x] Editor: point loads and partial / trapezoidal loads in the UI, node dragging (snapped, undoable), member copy / array
 - [x] Send member forces to the RC design modules (Phase 3)
 
 ### Phase 3 — Analysis-to-design link and the other materials

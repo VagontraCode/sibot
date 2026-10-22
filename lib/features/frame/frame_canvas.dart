@@ -31,6 +31,10 @@ class FrameCanvas extends StatefulWidget {
   final void Function(int node)? onTapNode;
   final void Function(int element)? onTapElement;
 
+  /// Called when a node has been dragged to world position (x, y); null
+  /// disables dragging.
+  final void Function(int node, double x, double y)? onDragNode;
+
   const FrameCanvas({
     super.key,
     required this.model,
@@ -42,6 +46,7 @@ class FrameCanvas extends StatefulWidget {
     this.onTapEmpty,
     this.onTapNode,
     this.onTapElement,
+    this.onDragNode,
   });
 
   @override
@@ -56,6 +61,31 @@ class FrameCanvasState extends State<FrameCanvas> {
 
   double _startScale = 40;
   Offset _startFocalWorld = Offset.zero;
+
+  /// Node being dragged and the model drawn meanwhile.
+  int? _dragNode;
+  Model2D? _dragModel;
+
+  Model2D get shownModel => _dragModel ?? widget.model;
+
+  int _nodeNear(Offset p) {
+    final m = widget.model;
+    var best = -1;
+    var bestD = 22.0;
+    for (var i = 0; i < m.nodes.length; i++) {
+      final d = (toScreen(m.nodes[i].x, m.nodes[i].y) - p).distance;
+      if (d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  }
+
+  Offset _snapped(Offset world) {
+    final g = widget.grid;
+    return Offset((world.dx / g).round() * g, (world.dy / g).round() * g);
+  }
 
   Offset toScreen(double x, double y) =>
       Offset(_origin.dx + x * _scale, _origin.dy - y * _scale);
@@ -171,16 +201,42 @@ class FrameCanvasState extends State<FrameCanvas> {
             behavior: HitTestBehavior.opaque,
             onTapUp: (d) => _onTap(d.localPosition),
             onScaleStart: (d) {
+              if (widget.onDragNode != null && d.pointerCount == 1) {
+                final k = _nodeNear(d.localFocalPoint);
+                if (k >= 0) {
+                  _dragNode = k;
+                  return;
+                }
+              }
               _startScale = _scale;
               _startFocalWorld = toWorld(d.localFocalPoint);
             },
             onScaleUpdate: (d) {
+              if (_dragNode case final k?) {
+                final w = _snapped(toWorld(d.localFocalPoint));
+                final nodes = [...widget.model.nodes];
+                nodes[k] = Node2D(w.dx, w.dy);
+                setState(
+                  () => _dragModel = widget.model.copyWith(nodes: nodes),
+                );
+                return;
+              }
               _scale = (_startScale * d.scale).clamp(2.0, 2000.0);
               _origin = Offset(
                 d.localFocalPoint.dx - _startFocalWorld.dx * _scale,
                 d.localFocalPoint.dy + _startFocalWorld.dy * _scale,
               );
               setState(() {});
+            },
+            onScaleEnd: (_) {
+              final k = _dragNode;
+              if (k == null) return;
+              final moved = _dragModel?.nodes[k];
+              setState(() {
+                _dragNode = null;
+                _dragModel = null;
+              });
+              if (moved != null) widget.onDragNode!(k, moved.x, moved.y);
             },
             child: CustomPaint(
               size: size,
@@ -225,7 +281,7 @@ class _FramePainter extends CustomPainter {
 
   _FramePainter(this.v, this.w, this.p, this.context);
 
-  Model2D get m => w.model;
+  Model2D get m => v.shownModel;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -436,20 +492,77 @@ class _FramePainter extends CustomPainter {
         LoadAxis.globalX => Offset(d.w1 > 0 ? 1 : -1, 0),
         LoadAxis.localY => Offset(u.dy, -u.dx) * (d.w1 > 0 ? -1 : 1),
       };
-      final count = math.max(3, (len / 22).floor());
+      // Loaded extent and intensities (trapezoidal, partial).
+      final na = m.nodes[e.n1], nb = m.nodes[e.n2];
+      final lw = math.sqrt(math.pow(nb.x - na.x, 2) + math.pow(nb.y - na.y, 2));
+      final t0 = lw > 0 ? (d.start / lw).clamp(0.0, 1.0) : 0.0;
+      final t1 = lw > 0 ? ((d.end ?? lw) / lw).clamp(0.0, 1.0) : 1.0;
+      if (t1 <= t0) continue;
+      final peak = math.max(d.w1.abs(), d.w2.abs());
+      if (peak == 0) continue;
+      final count = math.max(3, (len * (t1 - t0) / 22).floor());
       final tops = <Offset>[];
       for (var k = 0; k <= count; k++) {
-        final tip = a + along * (k / count);
-        _arrow(canvas, tip - dir * 3, dir, 22, paint);
-        tops.add(tip - dir * 25);
+        final f = k / count;
+        final tip = a + along * (t0 + (t1 - t0) * f);
+        final w = (d.w1 + (d.w2 - d.w1) * f).abs();
+        final h = math.max(6.0, 22 * w / peak);
+        _arrow(canvas, tip - dir * 3, dir, h, paint);
+        tops.add(tip - dir * (h + 3));
       }
-      canvas.drawLine(tops.first, tops.last, paint);
-      _label(
-        canvas,
-        fmt(context, d.w1.abs(), 1),
-        (tops.first + tops.last) / 2 - dir * 9,
-        p.load,
+      canvas.drawPath(
+        Path()..addPolygon(tops, false),
+        Paint()
+          ..color = p.load
+          ..strokeWidth = 1.4
+          ..style = PaintingStyle.stroke,
       );
+      if (d.w1 == d.w2) {
+        _label(
+          canvas,
+          fmt(context, d.w1.abs(), 1),
+          (tops.first + tops.last) / 2 - dir * 9,
+          p.load,
+        );
+      } else {
+        _label(
+          canvas,
+          fmt(context, d.w1.abs(), 1),
+          tops.first - dir * 9,
+          p.load,
+        );
+        _label(
+          canvas,
+          fmt(context, d.w2.abs(), 1),
+          tops.last - dir * 9,
+          p.load,
+        );
+      }
+    }
+    for (final pl in c.point) {
+      if (pl.element >= m.elements.length) continue;
+      final e = m.elements[pl.element];
+      final na = m.nodes[e.n1], nb = m.nodes[e.n2];
+      final lw = math.sqrt(math.pow(nb.x - na.x, 2) + math.pow(nb.y - na.y, 2));
+      if (lw == 0) continue;
+      final a = v.toScreen(na.x, na.y), b = v.toScreen(nb.x, nb.y);
+      final u = (b - a) / (b - a).distance;
+      final dir = switch (pl.axis) {
+        LoadAxis.globalY => Offset(0, pl.p < 0 ? 1 : -1),
+        LoadAxis.globalX => Offset(pl.p > 0 ? 1 : -1, 0),
+        LoadAxis.localY => Offset(u.dy, -u.dx) * (pl.p > 0 ? -1 : 1),
+      };
+      final at = a + (b - a) * (pl.a / lw).clamp(0.0, 1.0);
+      _arrow(
+        canvas,
+        at - dir * 4,
+        dir,
+        34,
+        Paint()
+          ..color = p.load
+          ..strokeWidth = 2,
+      );
+      _label(canvas, fmt(context, pl.p.abs(), 1), at - dir * 46, p.load);
     }
     for (final n in c.nodal) {
       if (n.node >= m.nodes.length) continue;

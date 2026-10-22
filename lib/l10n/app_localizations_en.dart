@@ -1951,7 +1951,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String frameMemberLoad(String name) {
-    return 'Uniform load, case $name';
+    return 'Distributed load, case $name';
   }
 
   @override
@@ -3864,4 +3864,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String windRegionN(String n, String v) {
     return 'Region $n (vb,0 = $v m/s)';
   }
+
+  @override
+  String get frameLoadFrom => 'From a';
+
+  @override
+  String get frameLoadTo => 'To b';
+
+  @override
+  String get frameLoadExtentNote =>
+      'Distances from the start node. Empty w2 = uniform, empty a and b = whole member; 0 removes the load.';
+
+  @override
+  String framePointLoadTitle(String name) {
+    return 'Point load, case $name';
+  }
+
+  @override
+  String get framePointAt => 'At distance';
+
+  @override
+  String get frameApplyPointLoad => 'Apply the point load';
+
+  @override
+  String get frameArrayTitle => 'Copy / array';
+
+  @override
+  String get frameArrayCount => 'Copies';
+
+  @override
+  String get frameArrayNote =>
+      'Copies the member n times, each shifted by Δx, Δy from the previous one, with its section, hinges and loads in every case. Nodes at the same position are shared. In the select tool, drag a node to move it (snapped to the grid).';
+
+  @override
+  String get frameArrayApply => 'Create the copies';
 }
