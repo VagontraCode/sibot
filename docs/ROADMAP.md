@@ -179,7 +179,7 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Calculation notes in PDF (EN/FR) for every calculator, the 2D and 3D frames and the plates: inputs, results, checks with clauses, diagrams captured from the screen
 - [x] `.sibot` (complete model) and DXF (R12 lines by section; LINE, LWPOLYLINE, POLYLINE import with node merging) import/export for 2D and 3D models
 - [x] Performance: heavy work in isolates, modes and buckling on demand, one factorisation reused, matched tolerances; benchmark and budgets in docs/PERFORMANCE.md
-- [ ] Measure on real low-end Android devices (release build) against the budgets
+- [x] Measure on real low-end Android devices against the budgets (Nokia G100, profile build: all within budget, see PERFORMANCE.md)
 
 ---
 

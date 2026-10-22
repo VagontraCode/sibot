@@ -22,20 +22,43 @@ dart run benchmark/bench.dart
 | 30 × 30 | 38 ms |
 | 40 × 40 (largest allowed) | 81 ms |
 
-These timings were measured on the development PC, not on a phone. Expect a
-low-end Android phone (4 efficiency cores, release build, AOT) to be roughly
-3–8 times slower. **Measuring on real low-end devices is still to do**
-(see the roadmap).
+Desktop timings before the Lanczos modal solver (the largest building's
+modes now take about 240 ms on the desktop).
+
+## Measured timings on a low-end phone (Nokia G100, 2026-10-22)
+
+Nokia G100: Snapdragon 480, Android 12, profile build (AOT). Run with:
+
+```
+flutter drive --profile --driver=test_driver/integration_test.dart \
+  --target=integration_test/perf_test.dart -d <device id>
+```
+
+| Model | Static (all cases) | Modal, 12 modes | Spectrum X + torsion | Buckling αcr |
+|---|---|---|---|---|
+| 3×2 bays × 4 storeys | 51 ms | 43 ms | 102 ms | 608 ms |
+| 5×4 bays × 8 storeys | 141 ms | 150 ms | 638 ms | 1 405 ms |
+| 6×6 bays × 12 storeys | 745 ms | 529 ms | 1 753 ms | 3 049 ms |
+
+| Other | Time |
+|---|---|
+| Plate 16 × 16 / 30 × 30 / 40 × 40 | 26 / 155 / 389 ms |
+| Slope, Bishop circle search | 103 ms |
+| Slope, Janbu search, layered soil and water table | 176 ms |
+| Continuous beam, 6 spans, 5 load arrangements | 6 ms |
+
+The first run on this phone, before the Lanczos solver, took 5 065 ms for
+the modes of the largest building.
 
 ## Budgets
 
-| Action | Target on a low-end phone | Status from the desktop timings |
+| Action | Target on a low-end phone | Nokia G100, largest model |
 |---|---|---|
-| Open a 3D model (static results) | < 1 s | 0.17 s desktop for 1 800 equations → within budget |
-| Modes tab | < 4 s | 0.7 s desktop for the largest building |
-| Seismic run (X + Y, torsion) | < 6 s | 2 × (modal + spectrum) ≈ 2.1 s desktop |
-| Buckling tab | < 5 s | 0.7 s desktop |
-| Plate 40 × 40 | < 1 s | 0.08 s desktop |
+| Open a 3D model (static results) | < 1 s | 0.75 s (1 800 equations) ✓ |
+| Modes tab | < 4 s | 0.53 s ✓ |
+| Seismic run (X + Y, torsion) | < 6 s | modes + 2 spectra ≤ 4.1 s ✓ |
+| Buckling tab | < 5 s | 3.0 s ✓ |
+| Plate 40 × 40 | < 1 s | 0.39 s ✓ |
 | UI thread | no frame longer than 16 ms during a calculation | all heavy work runs in isolates |
 
 ## What keeps the app fast and light on battery
@@ -49,7 +72,8 @@ low-end Android phone (4 efficiency cores, release build, AOT) to be roughly
   by Riverpod per model and code, and recomputed only when the model changes
   (provider keys are the model's JSON).
 - **One factorisation.** The banded Cholesky factor of K (RCM numbering) is
-  reused for every load case, the modes (subspace iteration), the spectrum
+  reused for every load case, the modes (shift-invert Lanczos with full
+  reorthogonalisation, subspace iteration as a fallback), the spectrum
   responses, the buckling power iteration and the two plate load sets.
 - **Tolerances matched to engineering needs.** Modal eigenvalues converge to
   1e-8 (frequencies to ~5e-9), αcr to 1e-7. Tightening them changed nothing

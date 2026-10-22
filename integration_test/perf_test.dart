@@ -74,6 +74,34 @@ void main() {
         const SlopeInput(height: 8, angle: 33.7, gamma: 19, cohesion: 10, phi: 28),
       );
     });
+    time('slope Janbu layered', () {
+      analyseSlope(
+        const SlopeInput(
+          height: 8,
+          angle: 60,
+          gamma: 19,
+          cohesion: 15,
+          phi: 25,
+          waterLevel: 2,
+          layers: [SoilLayer(top: 1, gamma: 18, cohesion: 5, phi: 15)],
+        ),
+        method: SlopeMethod.janbu,
+      );
+    });
+    time('continuous beam 6 spans', () {
+      designContinuousBeam(
+        const ContinuousBeamInput(
+          code: DesignCode.ec2,
+          spans: [5, 6, 6, 6, 6, 5],
+          b: 300,
+          h: 550,
+          g: 20,
+          q: 15,
+          fck: 30,
+          fyk: 500,
+        ),
+      );
+    });
     binding.reportData = {'timings': timings};
   });
 }
