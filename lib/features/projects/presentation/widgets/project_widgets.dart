@@ -305,7 +305,7 @@ class ProjectSwitcher extends ConsumerWidget {
             onPressed: () async {
               final id = await showProjectPicker(context, ref);
               if (id != null) {
-                ref.read(selectedProjectIdProvider.notifier).state = id;
+                ref.read(selectedProjectIdProvider.notifier).set(id);
               }
             },
             icon: const Icon(Icons.swap_horiz_rounded, size: 18),

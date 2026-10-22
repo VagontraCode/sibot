@@ -2064,7 +2064,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get memberUnsupportedSectionMsg =>
-      'Les rectangles en béton et les profilés laminés IPE, HEA et HEB peuvent être dimensionnés ici.';
+      'Les rectangles en béton, les profilés laminés I et H (IPE, HEA, HEB, HEM) et les profils creux (CHS, SHS, RHS) sont dimensionnés ici. Les UPN et cornières L servent seulement à l\'analyse.';
 
   @override
   String get memberBeamNote =>
@@ -3550,4 +3550,7 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get exchangeImportHint =>
       'Importez un modèle .sibot ou un dessin DXF : chaque LINE ou polyligne devient une barre (une section par calque), les points les plus bas deviennent des appuis encastrés.';
+
+  @override
+  String get f3dUtil => 'Taux';
 }

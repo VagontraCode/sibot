@@ -57,7 +57,10 @@ class _Member3DSheetState extends State<_Member3DSheet> {
     final l = context.l10n;
     final f = widget.envelope;
     final s = _section;
-    final steel = s.profile != null && steelSections[s.profile] != null;
+    final steel =
+        s.profile != null &&
+        steelProfiles[s.profile] != null &&
+        steelDesignable(steelProfiles[s.profile]!);
     final concrete = !steel && s.b != null && s.h != null;
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -126,7 +129,7 @@ class _Member3DSheetState extends State<_Member3DSheet> {
             ),
             const SizedBox(height: Gap.md),
             if (steel)
-              _steel(context, f, steelSections[s.profile]!)
+              _steel(context, f, steelProfiles[s.profile]!)
             else if (concrete)
               _concrete(context, f, s)
             else
@@ -335,7 +338,7 @@ class _Member3DSheetState extends State<_Member3DSheet> {
     );
   }
 
-  Widget _steel(BuildContext context, MemberEnvelope3D f, ISteelSection p) {
+  Widget _steel(BuildContext context, MemberEnvelope3D f, SteelProfile p) {
     final l = context.l10n;
     final inputs = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

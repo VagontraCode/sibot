@@ -32,6 +32,8 @@ dependencies:
   file_picker: ^13.1.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_lints: ^6.0.0
   flutter_test:
     sdk: flutter

@@ -207,6 +207,24 @@ ModalResult modalAnalysis(
   ];
   final p = math.min(options.modes, massDofs.length);
   if (p == 0) return ModalResult(const [], totalMass, nodeMass, 0, an);
+  // Lanczos first (about 3p solves); subspace iteration as a fallback.
+  final lz = _lanczos(n, p, massDofs.length, mDiag, mul, an.solveVector);
+  if (lz != null) {
+    return _buildResult(
+      model,
+      an,
+      lz.$1,
+      lz.$2,
+      p,
+      mul,
+      rigid,
+      dot,
+      totalMass,
+      nodeMass,
+      lz.$3,
+    );
+  }
+
   final q = math.min(math.max(2 * p, p + 8), massDofs.length);
 
   // Starting vectors: the mass diagonal, then unit vectors at the DOFs
@@ -264,6 +282,34 @@ ModalResult modalAnalysis(
     if (converged) break;
   }
 
+  return _buildResult(
+    model,
+    an,
+    lambda,
+    x,
+    p,
+    mul,
+    rigid,
+    dot,
+    totalMass,
+    nodeMass,
+    iterations,
+  );
+}
+
+ModalResult _buildResult(
+  Model3D model,
+  Frame3DAnalysis an,
+  List<double> lambda,
+  List<Float64List> x,
+  int p,
+  Float64List Function(Float64List) mul,
+  List<Float64List> rigid,
+  double Function(Float64List, Float64List) dot,
+  List<double> totalMass,
+  List<double> nodeMass,
+  int iterations,
+) {
   final modes = <Mode>[];
   for (var j = 0; j < p; j++) {
     final v = x[j];
@@ -417,4 +463,114 @@ ModalResult modalAnalysis(
     }
   }
   return ([for (var i = 0; i < n; i++) a[i][i]], v);
+}
+
+/// Shift-invert Lanczos on K⁻¹M with full M-reorthogonalisation.
+/// Returns eigenvalues ω² (ascending), M-orthonormal vectors and the
+/// number of steps, or null when the [p] lowest modes did not converge.
+(List<double>, List<Float64List>, int)? _lanczos(
+  int n,
+  int p,
+  int massDofs,
+  Float64List mDiag,
+  Float64List Function(Float64List) mul,
+  Float64List Function(Float64List) solve,
+) {
+  final kMax = math.min(massDofs, math.max(3 * p, p + 30));
+  if (kMax < p) return null;
+  double dot(Float64List a, Float64List b) {
+    var s = 0.0;
+    for (var i = 0; i < n; i++) {
+      s += a[i] * b[i];
+    }
+    return s;
+  }
+
+  // Start in the range of K⁻¹M: a slightly perturbed mass vector.
+  final x0 = Float64List(n);
+  for (var i = 0; i < n; i++) {
+    x0[i] = mDiag[i] * (1 + 0.1 * math.sin(1.0 + i));
+  }
+  var r = solve(x0);
+  var mr = mul(r);
+  var beta = math.sqrt(math.max(0, dot(r, mr)));
+  if (beta == 0) return null;
+  final qs = <Float64List>[], mqs = <Float64List>[];
+  final alphas = <double>[], betas = <double>[];
+  for (var j = 0; j < kMax; j++) {
+    final qj = Float64List(n), mqj = Float64List(n);
+    for (var i = 0; i < n; i++) {
+      qj[i] = r[i] / beta;
+      mqj[i] = mr[i] / beta;
+    }
+    qs.add(qj);
+    mqs.add(mqj);
+    r = solve(mqj);
+    if (j > 0) {
+      final qp = qs[j - 1];
+      for (var i = 0; i < n; i++) {
+        r[i] -= beta * qp[i];
+      }
+    }
+    final alpha = dot(r, mqj);
+    alphas.add(alpha);
+    for (var i = 0; i < n; i++) {
+      r[i] -= alpha * qj[i];
+    }
+    // Full reorthogonalisation (twice) against all Lanczos vectors.
+    for (var pass = 0; pass < 2; pass++) {
+      for (var k = 0; k <= j; k++) {
+        final c = dot(r, mqs[k]);
+        final qk = qs[k];
+        for (var i = 0; i < n; i++) {
+          r[i] -= c * qk[i];
+        }
+      }
+    }
+    mr = mul(r);
+    beta = math.sqrt(math.max(0, dot(r, mr)));
+    final steps = j + 1;
+    if (steps >= p && (steps % 5 == 0 || steps == kMax || beta < 1e-14)) {
+      // Ritz values of the tridiagonal matrix.
+      final t = List.generate(steps, (_) => Float64List(steps));
+      for (var a = 0; a < steps; a++) {
+        t[a][a] = alphas[a];
+        if (a + 1 < steps) t[a][a + 1] = t[a + 1][a] = betas[a];
+      }
+      final (theta, s) = _jacobi(t);
+      final order = List.generate(steps, (k) => k)
+        ..sort((a, b) => theta[b].compareTo(theta[a]));
+      // Converged when |β s_last| is small for the p largest θ.
+      var ok = true;
+      for (var k = 0; k < p; k++) {
+        final i = order[k];
+        if (theta[i] <= 0) {
+          ok = false;
+          break;
+        }
+        if ((beta * s[steps - 1][i]).abs() > 1e-9 * theta[i]) ok = false;
+      }
+      if (ok || beta < 1e-14) {
+        if (!ok) return null;
+        final vals = <double>[], vecs = <Float64List>[];
+        for (var k = 0; k < p; k++) {
+          final i = order[k];
+          vals.add(1 / theta[i]);
+          final v = Float64List(n);
+          for (var a = 0; a < steps; a++) {
+            final c = s[a][i];
+            final qa = qs[a];
+            for (var e = 0; e < n; e++) {
+              v[e] += c * qa[e];
+            }
+          }
+          vecs.add(v);
+        }
+        return (vals, vecs, steps);
+      }
+    }
+    betas.add(beta);
+    if (beta < 1e-14) return null;
+  }
+  return null;
 }

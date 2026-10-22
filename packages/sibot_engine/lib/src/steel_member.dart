@@ -2,6 +2,8 @@ import 'dart:math' as math;
 
 import 'core.dart';
 import 'steel_sections.dart';
+import 'steel_hollow.dart';
+import 'steel_profiles.dart';
 
 /// Shape of the major-axis bending moment between restraints; sets C1
 /// (elastic critical moment) and the equivalent uniform moment factors.
@@ -21,7 +23,8 @@ enum MomentShape {
 
 /// Steel member under axial force and major-axis bending, EN 1993-1-1.
 class SteelMemberInput {
-  final ISteelSection section;
+  /// I or H section, or hot-finished hollow section.
+  final SteelProfile section;
 
   /// Grade name from [steelGrades], e.g. 'S275'.
   final String grade;
@@ -163,7 +166,12 @@ int _classOf(double ratio, double l1, double l2, double l3) =>
     ratio <= l1 ? 1 : (ratio <= l2 ? 2 : (ratio <= l3 ? 3 : 4));
 
 SteelMemberResult designSteelMember(SteelMemberInput i) {
-  final s = i.section;
+  final p = i.section;
+  if (p is HollowSection) return designHollowMember(i, p);
+  if (p is! ISteelSection) {
+    throw const InputError(InputProblem.outOfRange, 'section');
+  }
+  final s = p;
   requirePositive(i.length, 'length');
   requirePositive(i.ky, 'ky');
   requirePositive(i.kz, 'kz');
@@ -450,13 +458,14 @@ SteelMemberResult designSteelMember(SteelMemberInput i) {
 
 /// Lightest library profile of [series] ('IPE', 'HEA', 'HEB') that passes
 /// every check, or null when none does.
-ISteelSection? lightestSteelSection(
+SteelProfile? lightestSteelSection(
   String series,
-  SteelMemberInput Function(ISteelSection) inputFor,
+  SteelMemberInput Function(SteelProfile) inputFor,
 ) {
-  final candidates =
-      steelSections.values.where((s) => s.name.startsWith('$series ')).toList()
-        ..sort((a, b) => a.area.compareTo(b.area));
+  final candidates = [
+    for (final n in profilesOfSeries(series))
+      if (steelDesignable(steelProfiles[n]!)) steelProfiles[n]!,
+  ]..sort((a, b) => a.area.compareTo(b.area));
   for (final s in candidates) {
     if (designSteelMember(inputFor(s)).ok) return s;
   }

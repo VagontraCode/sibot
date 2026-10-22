@@ -387,7 +387,7 @@ class Frame3DEditPanel extends StatelessWidget {
                   PickerField<String>(
                     label: l.steelProfile,
                     value: profile,
-                    options: {for (final k in steelSections.keys) k: k},
+                    options: {for (final k in steelProfiles.keys) k: k},
                     onChanged: (v) => profile = v,
                   )
                 else

@@ -48,7 +48,7 @@ class SteelMemberPage extends ConsumerWidget {
     );
 
     final series = s.options['series']!;
-    final profile = steelSections[s.options['profile']]!;
+    final profile = steelProfiles[s.options['profile']]!;
 
     return CalculatorScaffold(
       title: l.modSteelMember,
@@ -62,10 +62,11 @@ class SteelMemberPage extends ConsumerWidget {
           title: l.steelProfileTitle,
           icon: Icons.horizontal_split_outlined,
           children: [
-            ChoiceField<String>(
+            PickerField<String>(
+              key: ValueKey('series-$series'),
               label: l.steelSeries,
               value: series,
-              options: {for (final x in steelSeries) x: x},
+              options: {for (final x in designSeries) x: x},
               onChanged: n.setSeries,
             ),
             FieldRow(
@@ -135,7 +136,7 @@ class SteelMemberPage extends ConsumerWidget {
   List<Widget> _results(
     BuildContext context,
     SteelMemberResult r,
-    ISteelSection p,
+    SteelProfile p,
     SteelMemberNotifier n,
   ) {
     final l = context.l10n;
@@ -242,7 +243,7 @@ class SteelMemberPage extends ConsumerWidget {
           ),
         ],
       ),
-      ISectionSketch(section: p),
+      if (p is ISteelSection) ISectionSketch(section: p),
       ResultCard(
         title: l.steelProperties,
         icon: Icons.straighten,

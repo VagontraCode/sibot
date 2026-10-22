@@ -1,59 +1,36 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
 
 // ============ PROJECT PROVIDERS ============
 
-final projectsProvider =
-    StateNotifierProvider<ProjectNotifier, AsyncValue<List<Project>>>((ref) {
-      return ProjectNotifier();
+final projectsProvider = AsyncNotifierProvider<ProjectNotifier, List<Project>>(
+  ProjectNotifier.new,
+);
+
+class ProjectNotifier extends AsyncNotifier<List<Project>> {
+  dynamic get _box => HiveService.getBox(HiveService.projectsBox);
+
+  List<Project> _read() => (_box.values as Iterable).cast<Project>().toList();
+
+  @override
+  Future<List<Project>> build() async => _read();
+
+  Future<void> _write(Future<void> Function() action) async {
+    state = await AsyncValue.guard(() async {
+      await action();
+      return _read();
     });
-
-class ProjectNotifier extends StateNotifier<AsyncValue<List<Project>>> {
-  ProjectNotifier() : super(const AsyncValue.loading()) {
-    _loadProjects();
   }
 
-  Future<void> _loadProjects() async {
-    try {
-      final box = HiveService.getBox(HiveService.projectsBox);
-      final projects = box.values.cast<Project>().toList();
-      state = AsyncValue.data(projects);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> addProject(Project project) =>
+      _write(() => _box.put(project.id, project));
 
-  Future<void> addProject(Project project) async {
-    try {
-      final box = HiveService.getBox(HiveService.projectsBox);
-      await box.put(project.id, project);
-      await _loadProjects();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> updateProject(Project project) =>
+      _write(() => _box.put(project.id, project));
 
-  Future<void> updateProject(Project project) async {
-    try {
-      final box = HiveService.getBox(HiveService.projectsBox);
-      await box.put(project.id, project);
-      await _loadProjects();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  Future<void> deleteProject(String projectId) async {
-    try {
-      final box = HiveService.getBox(HiveService.projectsBox);
-      await box.delete(projectId);
-      await _loadProjects();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> deleteProject(String projectId) =>
+      _write(() => _box.delete(projectId));
 }
 
 final projectByIdProvider = FutureProvider.family<Project?, String>((
@@ -67,58 +44,35 @@ final projectByIdProvider = FutureProvider.family<Project?, String>((
 // ============ CALCULATION PROVIDERS ============
 
 final footingCalculationsProvider =
-    StateNotifierProvider<
-      FootingCalculationNotifier,
-      AsyncValue<List<FootingCalculation>>
-    >((ref) {
-      return FootingCalculationNotifier();
-    });
+    AsyncNotifierProvider<FootingCalculationNotifier, List<FootingCalculation>>(
+      FootingCalculationNotifier.new,
+    );
 
 class FootingCalculationNotifier
-    extends StateNotifier<AsyncValue<List<FootingCalculation>>> {
-  FootingCalculationNotifier() : super(const AsyncValue.loading()) {
-    _loadCalculations();
+    extends AsyncNotifier<List<FootingCalculation>> {
+  dynamic get _box => HiveService.getBox(HiveService.calculationsBox);
+
+  List<FootingCalculation> _read() =>
+      (_box.values as Iterable).whereType<FootingCalculation>().toList();
+
+  @override
+  Future<List<FootingCalculation>> build() async => _read();
+
+  Future<void> _write(Future<void> Function() action) async {
+    state = await AsyncValue.guard(() async {
+      await action();
+      return _read();
+    });
   }
 
-  Future<void> _loadCalculations() async {
-    try {
-      final box = HiveService.getBox(HiveService.calculationsBox);
-      final calculations = box.values.whereType<FootingCalculation>().toList();
-      state = AsyncValue.data(calculations);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> addCalculation(FootingCalculation calc) =>
+      _write(() => _box.put(calc.id, calc));
 
-  Future<void> addCalculation(FootingCalculation calc) async {
-    try {
-      final box = HiveService.getBox(HiveService.calculationsBox);
-      await box.put(calc.id, calc);
-      await _loadCalculations();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> updateCalculation(FootingCalculation calc) =>
+      _write(() => _box.put(calc.id, calc));
 
-  Future<void> updateCalculation(FootingCalculation calc) async {
-    try {
-      final box = HiveService.getBox(HiveService.calculationsBox);
-      await box.put(calc.id, calc);
-      await _loadCalculations();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  Future<void> deleteCalculation(String calcId) async {
-    try {
-      final box = HiveService.getBox(HiveService.calculationsBox);
-      await box.delete(calcId);
-      await _loadCalculations();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> deleteCalculation(String calcId) =>
+      _write(() => _box.delete(calcId));
 }
 
 final projectCalculationsProvider =
@@ -145,153 +99,108 @@ final projectBeamCalculationsProvider =
           .toList();
     });
 
-final selectedProjectIdProvider = StateProvider<String?>((ref) => null);
+/// Project chosen in the field hub.
+final selectedProjectIdProvider =
+    NotifierProvider<SelectedProjectNotifier, String?>(
+      SelectedProjectNotifier.new,
+    );
+
+class SelectedProjectNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String? id) => state = id;
+}
 
 // ============ FIELD MANAGEMENT PROVIDERS ============
 
-final photoLogsProvider =
-    StateNotifierProvider.family<
-      PhotoLogNotifier,
-      AsyncValue<List<PhotoLog>>,
-      String
-    >((ref, projectId) {
-      return PhotoLogNotifier(projectId);
-    });
-
-class PhotoLogNotifier extends StateNotifier<AsyncValue<List<PhotoLog>>> {
+/// Items of one project stored in a Hive box, with add/update/delete.
+abstract class _ProjectBoxNotifier<T> extends AsyncNotifier<List<T>> {
+  _ProjectBoxNotifier(this.projectId);
   final String projectId;
-  PhotoLogNotifier(this.projectId) : super(const AsyncValue.loading()) {
-    _loadPhotoLogs();
+
+  String get boxName;
+  String projectOf(T item);
+  String idOf(T item);
+
+  dynamic get _box => HiveService.getBox(boxName);
+
+  List<T> _read() => (_box.values as Iterable)
+      .whereType<T>()
+      .where((t) => projectOf(t) == projectId)
+      .toList();
+
+  @override
+  Future<List<T>> build() async => _read();
+
+  Future<void> _write(Future<void> Function() action) async {
+    state = await AsyncValue.guard(() async {
+      await action();
+      return _read();
+    });
   }
 
-  Future<void> _loadPhotoLogs() async {
-    try {
-      final box = HiveService.getBox(HiveService.photoLogsBox);
-      final logs = box.values
-          .whereType<PhotoLog>()
-          .where((log) => log.projectId == projectId)
-          .toList();
-      state = AsyncValue.data(logs);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> _put(T item) => _write(() => _box.put(idOf(item), item));
+  Future<void> _delete(String id) => _write(() => _box.delete(id));
+}
 
-  Future<void> addPhotoLog(PhotoLog log) async {
-    try {
-      final box = HiveService.getBox(HiveService.photoLogsBox);
-      await box.put(log.id, log);
-      await _loadPhotoLogs();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+final photoLogsProvider =
+    AsyncNotifierProvider.family<PhotoLogNotifier, List<PhotoLog>, String>(
+      PhotoLogNotifier.new,
+    );
 
-  Future<void> deletePhotoLog(String logId) async {
-    try {
-      final box = HiveService.getBox(HiveService.photoLogsBox);
-      await box.delete(logId);
-      await _loadPhotoLogs();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+class PhotoLogNotifier extends _ProjectBoxNotifier<PhotoLog> {
+  PhotoLogNotifier(super.projectId);
+
+  @override
+  String get boxName => HiveService.photoLogsBox;
+  @override
+  String projectOf(PhotoLog item) => item.projectId;
+  @override
+  String idOf(PhotoLog item) => item.id;
+
+  Future<void> addPhotoLog(PhotoLog log) => _put(log);
+  Future<void> deletePhotoLog(String logId) => _delete(logId);
 }
 
 final dailyReportsProvider =
-    StateNotifierProvider.family<
+    AsyncNotifierProvider.family<
       DailyReportNotifier,
-      AsyncValue<List<DailyReport>>,
+      List<DailyReport>,
       String
-    >((ref, projectId) {
-      return DailyReportNotifier(projectId);
-    });
+    >(DailyReportNotifier.new);
 
-class DailyReportNotifier extends StateNotifier<AsyncValue<List<DailyReport>>> {
-  final String projectId;
-  DailyReportNotifier(this.projectId) : super(const AsyncValue.loading()) {
-    _loadReports();
-  }
+class DailyReportNotifier extends _ProjectBoxNotifier<DailyReport> {
+  DailyReportNotifier(super.projectId);
 
-  Future<void> _loadReports() async {
-    try {
-      final box = HiveService.getBox(HiveService.dailyReportsBox);
-      final reports = box.values
-          .whereType<DailyReport>()
-          .where((report) => report.projectId == projectId)
-          .toList();
-      state = AsyncValue.data(reports);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  @override
+  String get boxName => HiveService.dailyReportsBox;
+  @override
+  String projectOf(DailyReport item) => item.projectId;
+  @override
+  String idOf(DailyReport item) => item.id;
 
-  Future<void> addReport(DailyReport report) async {
-    try {
-      final box = HiveService.getBox(HiveService.dailyReportsBox);
-      await box.put(report.id, report);
-      await _loadReports();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> addReport(DailyReport report) => _put(report);
 }
 
 final punchListProvider =
-    StateNotifierProvider.family<
+    AsyncNotifierProvider.family<
       PunchListNotifier,
-      AsyncValue<List<PunchListItem>>,
+      List<PunchListItem>,
       String
-    >((ref, projectId) {
-      return PunchListNotifier(projectId);
-    });
+    >(PunchListNotifier.new);
 
-class PunchListNotifier extends StateNotifier<AsyncValue<List<PunchListItem>>> {
-  final String projectId;
-  PunchListNotifier(this.projectId) : super(const AsyncValue.loading()) {
-    _loadPunchList();
-  }
+class PunchListNotifier extends _ProjectBoxNotifier<PunchListItem> {
+  PunchListNotifier(super.projectId);
 
-  Future<void> _loadPunchList() async {
-    try {
-      final box = HiveService.getBox(HiveService.punchListBox);
-      final items = box.values
-          .whereType<PunchListItem>()
-          .where((item) => item.projectId == projectId)
-          .toList();
-      state = AsyncValue.data(items);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  @override
+  String get boxName => HiveService.punchListBox;
+  @override
+  String projectOf(PunchListItem item) => item.projectId;
+  @override
+  String idOf(PunchListItem item) => item.id;
 
-  Future<void> addItem(PunchListItem item) async {
-    try {
-      final box = HiveService.getBox(HiveService.punchListBox);
-      await box.put(item.id, item);
-      await _loadPunchList();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  Future<void> updateItem(PunchListItem item) async {
-    try {
-      final box = HiveService.getBox(HiveService.punchListBox);
-      await box.put(item.id, item);
-      await _loadPunchList();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
-
-  Future<void> deleteItem(String itemId) async {
-    try {
-      final box = HiveService.getBox(HiveService.punchListBox);
-      await box.delete(itemId);
-      await _loadPunchList();
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
-  }
+  Future<void> addItem(PunchListItem item) => _put(item);
+  Future<void> updateItem(PunchListItem item) => _put(item);
+  Future<void> deleteItem(String itemId) => _delete(itemId);
 }

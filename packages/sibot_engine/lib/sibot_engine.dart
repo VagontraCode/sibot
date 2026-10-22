@@ -42,6 +42,8 @@ export 'src/section_properties.dart';
 export 'src/slab.dart';
 export 'src/septic.dart';
 export 'src/slope.dart';
+export 'src/steel_hollow.dart';
 export 'src/steel_member.dart';
+export 'src/steel_profiles.dart';
 export 'src/steel_sections.dart';
 export 'src/timber.dart';

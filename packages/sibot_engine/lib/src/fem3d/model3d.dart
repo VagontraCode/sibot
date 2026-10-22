@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import '../fem/model.dart' show LoadType;
-import '../steel_sections.dart';
+import '../steel_profiles.dart';
 
 /// Space frame model. Global axes: X, Y horizontal, Z up. Units: m, kN,
 /// kN·m, kN/m; section properties in m² / m⁴; moduli in MPa.
@@ -121,7 +121,7 @@ class Section3D {
 
   /// Rolled steel profile from the library (web along local z).
   factory Section3D.steel(String name) {
-    final p = steelSections[name]!;
+    final p = steelProfiles[name]!;
     return Section3D(
       name: name,
       area: p.area * 1e-6,

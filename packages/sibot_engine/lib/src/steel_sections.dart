@@ -1,8 +1,11 @@
 import 'dart:math' as math;
 
+import 'steel_profiles.dart';
+
 /// Doubly symmetric rolled I / H section. Dimensions in mm; derived
 /// properties in mm-based units (mm², mm⁴, mm³, mm⁶).
-class ISteelSection {
+class ISteelSection implements SteelProfile {
+  @override
   final String name;
   final double h;
   final double b;
@@ -15,30 +18,37 @@ class ISteelSection {
   double get _hw => h - 2 * tf;
 
   /// Area including root fillets.
+  @override
   double get area => 2 * b * tf + _hw * tw + (4 - math.pi) * r * r;
 
   /// Second moment about the major axis.
+  @override
   double get iy =>
       (b * h * h * h - (b - tw) * math.pow(_hw, 3)) / 12 +
       0.03 * math.pow(r, 4) +
       0.2146 * r * r * math.pow(_hw - 0.4468 * r, 2);
 
   /// Second moment about the minor axis.
+  @override
   double get iz =>
       (2 * tf * b * b * b + _hw * tw * tw * tw) / 12 +
       0.03 * math.pow(r, 4) +
       0.2146 * r * r * math.pow(tw + 0.4468 * r, 2);
 
+  @override
   double get welY => 2 * iy / h;
+  @override
   double get welZ => 2 * iz / b;
 
   /// Plastic moduli including fillets.
+  @override
   double get wplY =>
       tw * h * h / 4 +
       (b - tw) * (h - tf) * tf +
       (4 - math.pi) / 2 * r * r * (h - 2 * tf) +
       (3 * math.pi - 10) / 3 * r * r * r;
 
+  @override
   double get wplZ =>
       b * b * tf / 2 +
       _hw * tw * tw / 4 +
@@ -50,6 +60,7 @@ class ISteelSection {
 
   /// St Venant torsion constant including the fillets (EN 10365 /
   /// SCI P363 formula) and warping constant.
+  @override
   double get it {
     final alpha =
         -0.042 +
@@ -70,6 +81,7 @@ class ISteelSection {
   double get iRadiusZ => math.sqrt(iz / area);
 
   /// Mass per metre, kg/m (7850 kg/m³).
+  @override
   double get mass => area * 7850e-6;
 }
 
@@ -138,6 +150,7 @@ const _heb = <(String, double, double, double, double, double)>[
 final Map<String, ISteelSection> steelSections = {
   for (final s in [..._ipe, ..._hea, ..._heb])
     s.$1: ISteelSection(s.$1, s.$2, s.$3, s.$4, s.$5, s.$6),
+  ...hemSections,
 };
 
 /// Structural steel grades (EN 10025-2), fy for t ≤ 40 mm and t > 40 mm.

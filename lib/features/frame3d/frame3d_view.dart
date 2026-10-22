@@ -6,7 +6,7 @@ import 'package:sibot/ui/ui.dart';
 import 'package:sibot_engine/sibot_engine.dart';
 
 /// What the viewer colours the members by.
-enum MemberValue { none, my, mz, n }
+enum MemberValue { none, my, mz, n, utilisation }
 
 /// A tapped node or member.
 sealed class Pick3D {
@@ -38,6 +38,10 @@ class Frame3DView extends StatefulWidget {
   final bool animate;
   final MemberValue colorBy;
 
+  /// Per-member values for [MemberValue.utilisation] (null = not
+  /// checked, drawn neutral); 1.0 is the limit.
+  final List<double?>? memberValues;
+
   /// Editing aids: node dots and the loads of [loadCase].
   final bool showNodes;
   final int? loadCase;
@@ -56,6 +60,7 @@ class Frame3DView extends StatefulWidget {
     this.shape,
     this.animate = false,
     this.colorBy = MemberValue.none,
+    this.memberValues,
     this.showNodes = false,
     this.loadCase,
     this.selectedNode,
@@ -376,7 +381,7 @@ class _FramePainter extends CustomPainter {
       MemberValue.my => st.my.abs(),
       MemberValue.mz => st.mz.abs(),
       MemberValue.n => st.n.abs(),
-      MemberValue.none => 0,
+      MemberValue.none || MemberValue.utilisation => 0,
     };
     var vMax = 0.0;
     if (r != null && view.colorBy != MemberValue.none) {
@@ -387,6 +392,9 @@ class _FramePainter extends CustomPainter {
       }
     }
 
+    final util = view.colorBy == MemberValue.utilisation
+        ? view.memberValues
+        : null;
     final deformed = defScale != 0;
     final segments = <(Offset, Offset, double, Color, double)>[];
     for (var e = 0; e < model.elements.length; e++) {
@@ -396,6 +404,17 @@ class _FramePainter extends CustomPainter {
       final (pb, db) = pr.project(b.x, b.y, b.z);
       final depth = (da + db) / 2;
       final selected = e == view.selectedMember;
+      if (util != null) {
+        final u = e < util.length ? util[e] : null;
+        segments.add((
+          pa,
+          pb,
+          depth,
+          u == null ? c.ghost : heat(u.clamp(0.0, 1.0)),
+          u == null ? 1.2 : (u > 1 ? 4.5 : 2.8),
+        ));
+        continue;
+      }
       if (deformed || vMax > 0) {
         segments.add((
           pa,
@@ -582,6 +601,7 @@ class _FramePainter extends CustomPainter {
     axis(0, 1, 0, c.axisY, 'Y');
     axis(0, 0, 1, c.axisZ, 'Z');
 
+    if (util != null) vMax = 1;
     if (vMax > 0) {
       const w = 110.0, h = 8.0;
       final left = size.width - w - 12, top = 12.0;

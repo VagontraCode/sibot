@@ -1225,7 +1225,7 @@ class _SectionsSheetState extends ConsumerState<_SectionsSheet> {
                 initialValue: _ipe,
                 decoration: InputDecoration(labelText: l.frameProfile),
                 items: [
-                  for (final k in steelSections.keys)
+                  for (final k in steelProfiles.keys)
                     DropdownMenuItem(value: k, child: Text(k)),
                 ],
                 onChanged: (v) => _ipe = v ?? _ipe,

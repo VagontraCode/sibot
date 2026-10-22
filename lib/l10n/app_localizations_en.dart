@@ -2050,7 +2050,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberUnsupportedSectionMsg =>
-      'Concrete rectangles and rolled IPE, HEA and HEB profiles can be designed here.';
+      'Concrete rectangles, rolled I and H profiles (IPE, HEA, HEB, HEM) and hollow sections (CHS, SHS, RHS) are designed here. UPN channels and L angles are for analysis only.';
 
   @override
   String get memberBeamNote =>
@@ -3530,4 +3530,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get exchangeImportHint =>
       'Import a .sibot model or a DXF drawing: each LINE or polyline becomes a member (one section per layer), the lowest points become fixed supports.';
+
+  @override
+  String get f3dUtil => 'Util.';
 }

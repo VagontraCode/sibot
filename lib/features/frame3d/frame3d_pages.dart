@@ -238,7 +238,7 @@ class _BuildingWizardState extends State<_BuildingWizard> {
     final l = context.l10n;
     Widget num(String label, double? v, ValueChanged<double?> f, [String? u]) =>
         NumberField(label: label, unit: u, value: v, onChanged: f);
-    final profiles = {for (final k in steelSections.keys) k: k};
+    final profiles = {for (final k in steelProfiles.keys) k: k};
     return Padding(
       padding: EdgeInsets.fromLTRB(
         Gap.xl,
@@ -392,6 +392,50 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   int _mode = 0;
   int? _selected;
 
+  // Steel utilisation per member, cached for one set of results.
+  List<double?>? _util;
+  Object? _utilFor;
+
+  /// Worst EC3 ratio of each steel member under the ULS envelope
+  /// (S275, buckling length factors 1); null for other members.
+  List<double?> _utilisation(Frame3DOutput out) {
+    if (identical(_utilFor, out.results) && _util != null) return _util!;
+    final m = out.model;
+    final uls = [
+      for (var i = 0; i < out.combinations.length; i++)
+        if (out.combinations[i].kind == CombinationKind.uls) out.results[i],
+    ];
+    final values = <double?>[];
+    for (var e = 0; e < m.elements.length; e++) {
+      final name = m.sections[m.elements[e].section].profile;
+      final p = name == null ? null : steelProfiles[name];
+      if (p == null || !steelDesignable(p) || uls.isEmpty) {
+        values.add(null);
+        continue;
+      }
+      final f = MemberEnvelope3D.of(m, e, uls);
+      try {
+        final r = designSteelMember(
+          SteelMemberInput(
+            section: p,
+            length: f.length,
+            nEd: f.nCompression > 0 ? f.nCompression : -f.nTension,
+            myEd: f.myMax,
+            mzEd: f.mzMax,
+            vEd: f.vzMax,
+          ),
+        );
+        values.add(
+          r.checks.map((c) => c.ratio).fold<double>(0, math.max),
+        );
+      } on InputError {
+        values.add(null);
+      }
+    }
+    _utilFor = out.results;
+    return _util = values;
+  }
+
   /// Set while the modal analysis has not returned yet.
   bool _modalPending = false;
   final DesignCode _code = defaultDesignCode();
@@ -522,6 +566,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         model: model,
         result: staticResult,
         colorBy: _colorBy,
+        memberValues: _colorBy == MemberValue.utilisation && out != null
+            ? _utilisation(out)
+            : null,
         selectedMember: _selected,
         onPick: (p) => _design(context, out, p, null),
       ),
@@ -711,6 +758,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         MemberValue.my: 'My',
         MemberValue.mz: 'Mz',
         MemberValue.n: 'N',
+        MemberValue.utilisation: l.f3dUtil,
       },
       onChanged: (v) => setState(() => _colorBy = v),
     );

@@ -109,8 +109,9 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
     if (f == null) {
       body = StatusBanner(tone: Tone.warning, title: l.memberNoEnvelope);
     } else if (sec.material == SectionMaterial.steel &&
-        steelSections[sec.profile] != null) {
-      body = _steel(context, f, steelSections[sec.profile]!);
+        steelProfiles[sec.profile] != null &&
+        steelDesignable(steelProfiles[sec.profile]!)) {
+      body = _steel(context, f, steelProfiles[sec.profile]!);
     } else if (sec.material != SectionMaterial.concrete ||
         sec.b == null ||
         sec.h == null) {
@@ -361,7 +362,7 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
     );
   }
 
-  Widget _steel(BuildContext context, MemberForces f, ISteelSection p) {
+  Widget _steel(BuildContext context, MemberForces f, SteelProfile p) {
     final l = context.l10n;
     final inputs = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -408,7 +409,7 @@ class _MemberDesignSheetState extends State<_MemberDesignSheet> {
       ],
     );
 
-    SteelMemberInput inputFor(ISteelSection s) => SteelMemberInput(
+    SteelMemberInput inputFor(SteelProfile s) => SteelMemberInput(
       section: s,
       grade: _grade,
       length: f.length,

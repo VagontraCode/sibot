@@ -27,7 +27,7 @@ class FieldHubPage extends ConsumerWidget {
               onPressed: () async {
                 final p = await showProjectForm(context, ref);
                 if (p != null) {
-                  ref.read(selectedProjectIdProvider.notifier).state = p.id;
+                  ref.read(selectedProjectIdProvider.notifier).set(p.id);
                 }
               },
               icon: const Icon(Icons.add_rounded),

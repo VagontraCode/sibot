@@ -629,7 +629,7 @@
   "memberBucklingFactorHelp": "1,0 pour un poteau d'étage contreventé est une valeur sûre ; 0,7 à 0,85 si les extrémités sont tenues par des poutres raides.",
   "memberNoEnvelope": "Aucune combinaison ELU : ajoutez d'abord un cas de charge.",
   "memberUnsupportedSection": "Cette section ne peut pas encore être dimensionnée ici",
-  "memberUnsupportedSectionMsg": "Les rectangles en béton et les profilés laminés IPE, HEA et HEB peuvent être dimensionnés ici.",
+  "memberUnsupportedSectionMsg": "Les rectangles en béton, les profilés laminés I et H (IPE, HEA, HEB, HEM) et les profils creux (CHS, SHS, RHS) sont dimensionnés ici. Les UPN et cornières L servent seulement à l'analyse.",
   "memberBeamNote": "Utilise les moments extrêmes de l'enveloppe sur toute la barre ; l'arrêt des barres le long de la portée n'est pas optimisé.",
   "steelSubtitle": "EN 1993-1-1 · profilés laminés I et H",
   "steelLength": "Longueur de la barre",
@@ -1074,5 +1074,6 @@
   "exchangeMillimetres": "Millimètres",
   "exchangeImportFailed": "Ce fichier n'a pas pu être importé.",
   "exchangeExportFailed": "Le fichier n'a pas pu être exporté.",
-  "exchangeImportHint": "Importez un modèle .sibot ou un dessin DXF : chaque LINE ou polyligne devient une barre (une section par calque), les points les plus bas deviennent des appuis encastrés."
+  "exchangeImportHint": "Importez un modèle .sibot ou un dessin DXF : chaque LINE ou polyligne devient une barre (une section par calque), les points les plus bas deviennent des appuis encastrés.",
+  "f3dUtil": "Taux"
 }

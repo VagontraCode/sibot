@@ -11,12 +11,10 @@ final steelMemberStateProvider =
       String
     >(SteelMemberNotifier.new);
 
-const steelSeries = ['IPE', 'HEA', 'HEB'];
+/// Series the EC3 member design covers (I, H and hollow sections).
+const designSeries = ['IPE', 'HEA', 'HEB', 'HEM', 'CHS', 'SHS', 'RHS'];
 
-List<String> profilesOf(String series) => [
-  for (final name in steelSections.keys)
-    if (name.startsWith('$series ')) name,
-];
+List<String> profilesOf(String series) => profilesOfSeries(series);
 
 class SteelMemberNotifier extends DesignFormNotifier<SteelMemberResult> {
   SteelMemberNotifier(super.projectId);
@@ -66,7 +64,7 @@ class SteelMemberNotifier extends DesignFormNotifier<SteelMemberResult> {
 
   SteelMemberInput inputFor(
     DesignFormState<SteelMemberResult> s,
-    ISteelSection p,
+    SteelProfile p,
   ) => SteelMemberInput(
     section: p,
     grade: s.options['grade']!,
@@ -82,7 +80,7 @@ class SteelMemberNotifier extends DesignFormNotifier<SteelMemberResult> {
   );
 
   /// Lightest profile of the selected series passing every check.
-  ISteelSection? lightest() {
+  SteelProfile? lightest() {
     final s = state;
     if (requiredKeys.any((k) => s[k] == null)) return null;
     try {
@@ -99,7 +97,7 @@ class SteelMemberNotifier extends DesignFormNotifier<SteelMemberResult> {
 
   @override
   SteelMemberResult compute(DesignFormState<SteelMemberResult> s) =>
-      designSteelMember(inputFor(s, steelSections[s.options['profile']]!));
+      designSteelMember(inputFor(s, steelProfiles[s.options['profile']]!));
 
   @override
   Future<String> saveResult(

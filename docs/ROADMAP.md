@@ -103,12 +103,12 @@ Each phase ends with a usable app, passing tests, and a git tag.
 ### Phase 0 — Fix and foundation
 - [x] `git init`, first commit of the current state
 - [x] Remove the start-up deletion of all calculations (problem #1)
-- [ ] Create `packages/sibot_engine` with the unit system and a test setup
+- [x] Create `packages/sibot_engine` with the unit system and a test setup
 - [x] Adaptive shell (bottom nav / rail / two panes) and allow text scaling
 - [x] New design system: Inter + JetBrains Mono, light/dark theme, shared page, form and result components
 - [x] Screen smoke test at phone and tablet sizes (`test/screens_smoke_test.dart`)
 - [x] i18n with ARB files (EN/FR) and move existing strings into them (provider validation messages and number formatting move with the Phase 1 rewrite)
-- [ ] Migrate Riverpod legacy APIs to `Notifier`/`AsyncNotifier`
+- [x] Migrate Riverpod legacy APIs to `Notifier`/`AsyncNotifier`
 - [x] Route or hide the 8 unreachable pages, with one entry point per module (hidden as "Phase N": they showed made-up results)
 - [x] Settings: language, theme, default design code (national annex and units in Phase 1)
 
@@ -143,9 +143,9 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 ### Phase 3 — Analysis-to-design link and the other materials
 - [x] Send members from the FEM model straight to RC and steel design, which designs from the envelopes automatically
 - [x] Section library: IPE, HEA, HEB, with properties computed from the dimensions and checked against the tables (A, Iy, Wpl,y within 1 %)
-- [ ] Section library: HEM, UPN, L, CHS, RHS, SHS
+- [x] Section library: HEM, CHS, SHS, RHS (EC3 design, hot-finished, curve a, no LTB), UPN and L (analysis only, approximate properties)
 - [x] Steel EC3 (Beta): classification, resistances with M+V+N, flexural buckling, LTB (6.3.2.3), Annex B interaction, lightest-section search
-- [ ] Steel EC3: minor-axis bending, utilisation colour map on the frame
+- [x] Steel EC3: minor-axis bending (6.41, Annex B kyz/kzz), utilisation colour map on the 3D frame
 - [x] Timber EC5 (Beta): C16–C30 and GL24h–GL32h, kmod/kh/kdef, bending with kcrit, shear, column buckling, 6.23/6.24/6.35 interaction, deflection with creep
 - [ ] Timber EC5: bearing perpendicular to grain, notches, connections
 - [x] Masonry EC6 (Beta): fk = K fb^0.7 fm^0.3, effective height, slenderness ≤ 27, end and mid-height reduction (Annex G) with creep
