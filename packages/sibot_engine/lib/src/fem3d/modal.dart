@@ -137,8 +137,11 @@ List<double> lumpedMasses(
 ModalResult modalAnalysis(
   Model3D model, {
   ModalOptions options = const ModalOptions(),
+
+  /// An existing analysis of [model] whose factorised stiffness is reused.
+  Frame3DAnalysis? analysis,
 }) {
-  final an = Frame3DAnalysis(model);
+  final an = analysis ?? Frame3DAnalysis(model);
   final n = an.equations;
   final nodeMass = lumpedMasses(model, an, options);
 
@@ -252,7 +255,8 @@ ModalResult modalAnalysis(
     ];
     var converged = it > 0;
     for (var j = 0; j < p; j++) {
-      if ((vals[j] - lambda[j]).abs() > 1e-10 * vals[j].abs()) {
+      // 1e-8 on ω² gives frequencies to about 5e-9.
+      if ((vals[j] - lambda[j]).abs() > 1e-8 * vals[j].abs()) {
         converged = false;
       }
     }

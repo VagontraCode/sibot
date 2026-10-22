@@ -174,11 +174,12 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Member design from 3D results: tap a member, envelope of ULS combinations or seismic G + 0.3 Q ± E; RC beam/column (biaxial) and EC3 steel with minor-axis bending
 - [x] Free 3D editing: add, move and delete nodes; connect members; supports; sections; load cases (G, Q, S, W); nodal and member loads; undo; rigid floors follow the levels
 
-### Phase 5 — Plates, polish and performance
+### Phase 5 — Plates, polish and performance ✅ (Beta)
 - [x] Plate elements (ACM Kirchhoff) for slabs and rafts: edge supports, columns, Winkler soil, contour maps, Wood–Armer reinforcement; checked against Timoshenko (SS and clamped squares)
 - [x] Calculation notes in PDF (EN/FR) for every calculator, the 2D and 3D frames and the plates: inputs, results, checks with clauses, diagrams captured from the screen
 - [x] `.sibot` (complete model) and DXF (R12 lines by section; LINE, LWPOLYLINE, POLYLINE import with node merging) import/export for 2D and 3D models
-- [ ] Performance profiling on low-end Android, and battery and memory budgets
+- [x] Performance: heavy work in isolates, modes and buckling on demand, one factorisation reused, matched tolerances; benchmark and budgets in docs/PERFORMANCE.md
+- [ ] Measure on real low-end Android devices (release build) against the budgets
 
 ---
 

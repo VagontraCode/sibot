@@ -25,7 +25,11 @@ void main() {
         beam: Section3D.rectangle(250, 500),
       ),
     );
-    final out = runFrame3d(sourceKey(record), DesignCode.ec2);
+    final key = sourceKey(record);
+    final out = runFrame3d(
+      key,
+      DesignCode.ec2,
+    ).merged(modal: runModal(key), buckling: runBuckling(key, DesignCode.ec2));
     late BuildContext ctx;
     await tester.pumpWidget(
       MaterialApp(

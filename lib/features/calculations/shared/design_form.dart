@@ -84,6 +84,10 @@ abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {
   /// Runs the engine. May throw [InputError].
   R compute(DesignFormState<R> s);
 
+  /// Runs [compute], possibly off the UI thread (heavy modules run it in
+  /// an isolate). May throw [InputError].
+  Future<R> computeAsync(DesignFormState<R> s) async => compute(s);
+
   /// Saves the result; returns the saved calculation id. Tools that keep
   /// no record (section properties, quantities) use this default.
   Future<String> saveResult(DesignFormState<R> s, R r) async =>
@@ -123,7 +127,7 @@ abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {
     }
     final R result;
     try {
-      result = compute(state);
+      result = await computeAsync(state);
     } on InputError catch (e) {
       state = state.copyWith(problem: FormProblem(e.field, e.problem));
       return;

@@ -391,6 +391,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   bool _pDelta = false;
   int _mode = 0;
   int? _selected;
+
+  /// Set while the modal analysis has not returned yet.
+  bool _modalPending = false;
   final DesignCode _code = defaultDesignCode();
   Frame3DEditController? _edit;
   final _viewKey = GlobalKey();
@@ -403,13 +406,19 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     final l = context.l10n;
     if (out == null || out.error != null) return;
     final view = await captureImage(_viewKey);
+    // The note includes modes and buckling: compute them if needed.
+    final key = sourceKey(record);
+    final full = out.merged(
+      modal: await ref.read(frame3dModalProvider(key).future),
+      buckling: await ref.read(frame3dBucklingProvider((key, _code)).future),
+    );
     if (!mounted) return;
     final ok = await shareNote(
       context,
       frame3dNote(
         context,
         record: record,
-        out: out,
+        out: full,
         view: view,
         seismic: seismic,
       ),
@@ -458,7 +467,15 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     edit.sync(record);
     final key = sourceKey(edit.record);
     final output = ref.watch(frame3dAnalysisProvider((key, _code)));
-    final out = output.value;
+    // Modes and buckling only when a tab needs them.
+    final modal = _tab == _Tab.modes || _tab == _Tab.model
+        ? ref.watch(frame3dModalProvider(key)).value
+        : null;
+    final buckling = _tab == _Tab.buckling
+        ? ref.watch(frame3dBucklingProvider((key, _code))).value
+        : null;
+    final out = output.value?.merged(modal: modal, buckling: buckling);
+    _modalPending = modal == null;
     final model = _tab == _Tab.edit ? edit.model : (out?.model ?? edit.model);
 
     final combo = _combo ?? out?.firstUls ?? 0;
@@ -801,6 +818,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   List<Widget> _modesPanel(BuildContext context, Frame3DOutput? out) {
     final l = context.l10n;
     if (out == null) return const [LinearProgressIndicator()];
+    if (out.modes.isEmpty && _modalPending) {
+      return const [LinearProgressIndicator()];
+    }
     if (out.modes.isEmpty) {
       return [StatusBanner(tone: Tone.warning, title: l.f3dNoModes)];
     }
@@ -1028,6 +1048,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   List<Widget> _bucklingPanel(BuildContext context, Frame3DOutput? out) {
     final l = context.l10n;
     if (out == null) return const [LinearProgressIndicator()];
+    if (!out.bucklingDone) return const [LinearProgressIndicator()];
     final a = out.alphaCr;
     if (a == null) {
       return [StatusBanner(tone: Tone.success, title: l.f3dNoBuckling)];

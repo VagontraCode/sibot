@@ -782,9 +782,14 @@ class Frame3DAnalysis {
   /// K φ = α (−Kg) φ) by inverse power iteration, with the buckled shape
   /// per node (largest translation scaled to 1). Null when the case puts
   /// no member in compression.
-  (double, List<List<double>>)? bucklingFactor(int index) {
+  (double, List<List<double>>)? bucklingFactor(int index) =>
+      bucklingFactorOf(solveCase(index));
+
+  /// Critical load factor of the axial forces of a result (e.g. a
+  /// combination), reusing the factorised stiffness.
+  (double, List<List<double>>)? bucklingFactorOf(Frame3DResult result) {
     if (_neq == 0) return null;
-    final n = _axial(solveCase(index));
+    final n = _axial(result);
     if (!n.any((v) => v < 0)) return null;
     final kg = [
       for (var e = 0; e < _elems.length; e++) geometricStiffness(e, n[e]),
@@ -824,10 +829,12 @@ class Frame3DAnalysis {
       x[i] = 1 + 0.1 * math.sin(i + 1.0);
     }
     var mu = 0.0;
+    // −Kg·x is carried from one step to the next: one product per step.
+    var gx = minusKg(x);
     for (var it = 0; it < 500; it++) {
-      final z = _k.solve(minusKg(x));
-      // Rayleigh quotient μ = xᵀ(−Kg)z / xᵀ(−Kg)x ≈ 1/α.
-      final gx = minusKg(x), gz = minusKg(z);
+      final z = _k.solve(gx);
+      // Rayleigh quotient μ = zᵀ(−Kg)z / zᵀK z ≈ 1/α (K z = −Kg x).
+      final gz = minusKg(z);
       var num = 0.0, den = 0.0, norm = 0.0;
       for (var i = 0; i < _neq; i++) {
         num += z[i] * gz[i];
@@ -837,8 +844,11 @@ class Frame3DAnalysis {
       final next = den == 0 ? 0.0 : num / den;
       for (var i = 0; i < _neq; i++) {
         x[i] = z[i] / norm;
+        gz[i] /= norm;
       }
-      if (it > 3 && (next - mu).abs() <= 1e-10 * next.abs()) {
+      gx = gz;
+      // αcr is needed to a few significant digits.
+      if (it > 3 && (next - mu).abs() <= 1e-7 * next.abs()) {
         mu = next;
         break;
       }

@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/core/models/entities.dart';
 import 'package:sibot/core/services/core_services.dart';
@@ -38,18 +40,24 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
   ];
 
   @override
-  SlopeResult compute(DesignFormState<SlopeResult> s) => analyseSlope(
-    SlopeInput(
-      height: s['height']!,
-      angle: s['angle']!,
-      gamma: s['gamma']!,
-      cohesion: s['cohesion']!,
-      phi: s['phi']!,
-      ru: s['ru']!,
-      surcharge: s['surcharge']!,
-      maxDepth: s['maxDepth'],
-    ),
-  );
+  SlopeResult compute(DesignFormState<SlopeResult> s) =>
+      analyseSlope(_input(s));
+
+  // Thousands of trial circles: run off the UI thread.
+  @override
+  Future<SlopeResult> computeAsync(DesignFormState<SlopeResult> s) =>
+      _slopeInIsolate(_input(s));
+
+  SlopeInput _input(DesignFormState<SlopeResult> s) => (SlopeInput(
+    height: s['height']!,
+    angle: s['angle']!,
+    gamma: s['gamma']!,
+    cohesion: s['cohesion']!,
+    phi: s['phi']!,
+    ru: s['ru']!,
+    surcharge: s['surcharge']!,
+    maxDepth: s['maxDepth'],
+  ));
 
   @override
   Future<String> saveResult(
@@ -78,3 +86,6 @@ class SlopeNotifier extends DesignFormNotifier<SlopeResult> {
     return id;
   }
 }
+
+Future<SlopeResult> _slopeInIsolate(SlopeInput input) =>
+    Isolate.run(() => analyseSlope(input));

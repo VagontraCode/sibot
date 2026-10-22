@@ -100,6 +100,18 @@ void main() {
     expect(r.at(r.mx, 1, 1), lessThan(0));
   });
 
+  test('several load sets on one factorisation match separate runs', () {
+    final base = square(EdgeSupport.simple, n: 8);
+    final both = analysePlateCases(base, [
+      (10, const []),
+      (4, const [PlatePointLoad(2, 2, 30)]),
+    ]);
+    final a = analysePlate(base.withLoads(10, const []));
+    final b = analysePlate(base.withLoads(4, const [PlatePointLoad(2, 2, 30)]));
+    expect(both[0].at(both[0].w, 2, 2), closeTo(a.at(a.w, 2, 2), 1e-15));
+    expect(both[1].at(both[1].mx, 2, 2), closeTo(b.at(b.mx, 2, 2), 1e-12));
+  });
+
   test('Wood–Armer moments', () {
     // Pure twist: both faces need |Mxy| in both directions.
     final t = woodArmer(0, 0, 5);

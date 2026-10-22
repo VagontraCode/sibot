@@ -205,6 +205,10 @@ class Frame3DOutput {
   /// combination (null without compression).
   final double? alphaCr;
   final List<List<double>>? bucklingShape;
+
+  /// Whether the buckling analysis has run (αcr may still be null when
+  /// nothing is compressed).
+  final bool bucklingDone;
   final String? error;
 
   const Frame3DOutput({
@@ -216,8 +220,24 @@ class Frame3DOutput {
     this.totalMass = const [0, 0, 0],
     this.alphaCr,
     this.bucklingShape,
+    this.bucklingDone = false,
     this.error,
   });
+
+  /// This output with modal and buckling results merged in.
+  Frame3DOutput merged({ModalOutput? modal, BucklingOutput? buckling}) =>
+      Frame3DOutput(
+        model: model,
+        combinations: combinations,
+        results: results,
+        caseResults: caseResults,
+        modes: modal?.modes ?? modes,
+        totalMass: modal?.totalMass ?? totalMass,
+        alphaCr: buckling == null ? alphaCr : buckling.alpha,
+        bucklingShape: buckling == null ? bucklingShape : buckling.shape,
+        bucklingDone: buckling != null || bucklingDone,
+        error: error,
+      );
 
   int? get firstUls {
     for (var i = 0; i < combinations.length; i++) {
@@ -239,7 +259,7 @@ class Frame3DOutput {
 }
 
 Frame3DOutput runFrame3d(String key, DesignCode code) {
-  final (model, modalOptions) = _source(key);
+  final (model, _) = _source(key);
   try {
     final an = Frame3DAnalysis(model);
     final cases = an.solveAll();
@@ -255,24 +275,12 @@ Frame3DOutput runFrame3d(String key, DesignCode code) {
               .map((e) => cases[e.key].scaled(e.value))
               .reduce((a, b) => a.plus(b)),
     ];
-    final modal = modalAnalysis(model, options: modalOptions);
-    double? alpha;
-    List<List<double>>? shape;
-    final uls = combos.indexWhere((c) => c.kind == CombinationKind.uls);
-    if (uls >= 0) {
-      final withUls = withCase(model, combinedCase(model, combos[uls].factors));
-      final b = Frame3DAnalysis(withUls).bucklingFactor(model.cases.length);
-      if (b != null) (alpha, shape) = b;
-    }
+    // Modes and buckling are computed on demand (separate providers).
     return Frame3DOutput(
       model: model,
       combinations: combos,
       results: results,
       caseResults: cases,
-      modes: modal.modes,
-      totalMass: modal.totalMass,
-      alphaCr: alpha,
-      bucklingShape: shape,
     );
   } on ModelError catch (e) {
     return Frame3DOutput(
@@ -394,4 +402,59 @@ final frame3dSpectrumProvider =
     FutureProvider.family<SeismicOutput, (String, SpectrumRequest)>((ref, key) {
       final (source, request) = key;
       return Isolate.run(() => runSpectrum(source, request));
+    });
+
+/// Natural modes and the vibrating mass of a model.
+class ModalOutput {
+  final List<Mode> modes;
+  final List<double> totalMass;
+  const ModalOutput(this.modes, this.totalMass);
+}
+
+ModalOutput runModal(String key) {
+  final (model, options) = _source(key);
+  try {
+    final r = modalAnalysis(model, options: options);
+    return ModalOutput(r.modes, r.totalMass);
+  } on ModelError {
+    return const ModalOutput([], [0, 0, 0]);
+  }
+}
+
+/// Modes are computed when first needed (Modes tab, seismic mass, note).
+final frame3dModalProvider = FutureProvider.family<ModalOutput, String>(
+  (ref, key) => Isolate.run(() => runModal(key)),
+);
+
+/// Critical load factor of the first ULS combination.
+class BucklingOutput {
+  final double? alpha;
+  final List<List<double>>? shape;
+  const BucklingOutput(this.alpha, this.shape);
+}
+
+BucklingOutput runBuckling(String key, DesignCode code) {
+  final (model, _) = _source(key);
+  try {
+    final combos = combinationsFor([
+      for (final c in model.cases) (c.name, c.type),
+    ], code);
+    final uls = combos.indexWhere((c) => c.kind == CombinationKind.uls);
+    if (uls < 0) return const BucklingOutput(null, null);
+    final an = Frame3DAnalysis(model);
+    final cases = an.solveAll();
+    final result = combos[uls].factors.entries
+        .map((e) => cases[e.key].scaled(e.value))
+        .reduce((a, b) => a.plus(b));
+    final b = an.bucklingFactorOf(result);
+    return BucklingOutput(b?.$1, b?.$2);
+  } on ModelError {
+    return const BucklingOutput(null, null);
+  }
+}
+
+final frame3dBucklingProvider =
+    FutureProvider.family<BucklingOutput, (String, DesignCode)>((ref, key) {
+      final (source, code) = key;
+      return Isolate.run(() => runBuckling(source, code));
     });

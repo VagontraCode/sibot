@@ -348,7 +348,15 @@ class _AcmElement {
 }
 
 /// Linear analysis of a rectangular plate (Kirchhoff, ACM elements).
-PlateResult analysePlate(PlateInput p) {
+PlateResult analysePlate(PlateInput p) =>
+    analysePlateCases(p, [(p.q, p.pointLoads)]).first;
+
+/// Analyses several load sets (uniform load, point loads) on one
+/// factorisation of the stiffness; [p]'s own loads are ignored.
+List<PlateResult> analysePlateCases(
+  PlateInput p,
+  List<(double, List<PlatePointLoad>)> loads,
+) {
   requirePositive(p.lx, 'lx');
   requirePositive(p.ly, 'ly');
   requirePositive(p.t, 't');
@@ -439,7 +447,6 @@ PlateResult analysePlate(PlateInput p) {
   }
 
   final k = BandedMatrix(neq, band);
-  final f = Float64List(neq);
   final ks = p.subgrade;
   for (var j = 0; j < ny; j++) {
     for (var i = 0; i < nx; i++) {
@@ -450,7 +457,6 @@ PlateResult analysePlate(PlateInput p) {
       ];
       for (var a = 0; a < 12; a++) {
         if (dofs[a] < 0) continue;
-        f[dofs[a]] += p.q * el.f[a];
         for (var b = 0; b < 12; b++) {
           if (dofs[b] < dofs[a]) continue;
           final v = el.k[a][b] + ks * el.kw[a][b];
@@ -459,16 +465,67 @@ PlateResult analysePlate(PlateInput p) {
       }
     }
   }
-  for (final pl in p.pointLoads) {
-    final i = (pl.x / dx).round().clamp(0, nx);
-    final j = (pl.y / dy).round().clamp(0, ny);
-    final e = eq[node(i, j)][0];
-    if (e >= 0) f[e] += pl.p;
-  }
   try {
     k.factorize();
   } on SingularStiffness {
     throw const InputError(InputProblem.inconsistentGeometry, 'support');
+  }
+
+  // One factorisation, one solve per load set.
+  return [
+    for (final (q, points) in loads)
+      _solvePlate(
+        p,
+        k,
+        el,
+        eq,
+        columnNodes,
+        q,
+        points,
+        dx: dx,
+        dy: dy,
+        dRig: dRig,
+      ),
+  ];
+}
+
+PlateResult _solvePlate(
+  PlateInput p,
+  BandedMatrix k,
+  _AcmElement el,
+  List<List<int>> eq,
+  List<int> columnNodes,
+  double q,
+  List<PlatePointLoad> pointLoads, {
+  required double dx,
+  required double dy,
+  required double dRig,
+}) {
+  final nx = p.nx, ny = p.ny;
+  final nodes = (nx + 1) * (ny + 1);
+  final ks = p.subgrade;
+  int node(int i, int j) => j * (nx + 1) + i;
+  List<int> elementNodes(int i, int j) => [
+    node(i, j),
+    node(i + 1, j),
+    node(i + 1, j + 1),
+    node(i, j + 1),
+  ];
+  final f = Float64List(k.n);
+  for (var j = 0; j < ny; j++) {
+    for (var i = 0; i < nx; i++) {
+      final en = elementNodes(i, j);
+      for (var a = 0; a < 12; a++) {
+        final e = eq[en[a ~/ 3]][a % 3];
+        if (e >= 0) f[e] += q * el.f[a];
+      }
+    }
+  }
+  for (final pl in pointLoads) {
+    final i = (pl.x / dx).round().clamp(0, nx);
+    final j = (pl.y / dy).round().clamp(0, ny);
+    final e = eq[node(i, j)][0];
+    if (e >= 0) f[e] += pl.p;
   }
   final x = k.solve(f);
 
@@ -520,7 +577,7 @@ PlateResult analysePlate(PlateInput p) {
         for (var b = 0; b < 12; b++) {
           s += (el.k[a][b] + ks * el.kw[a][b]) * d[b];
         }
-        residual[en[a ~/ 3]] += s - p.q * el.f[a];
+        residual[en[a ~/ 3]] += s - q * el.f[a];
       }
     }
   }
@@ -528,7 +585,7 @@ PlateResult analysePlate(PlateInput p) {
   final columnReactions = [
     for (final n in columnNodes)
       -residual[n] +
-          p.pointLoads
+          pointLoads
               .where(
                 (pl) =>
                     node(
@@ -539,7 +596,7 @@ PlateResult analysePlate(PlateInput p) {
               )
               .fold(0.0, (s, pl) => s + pl.p),
   ];
-  final total = p.q * p.lx * p.ly + p.pointLoads.fold(0.0, (s, pl) => s + pl.p);
+  final total = q * p.lx * p.ly + pointLoads.fold(0.0, (s, pl) => s + pl.p);
 
   return PlateResult(
     nx: nx,

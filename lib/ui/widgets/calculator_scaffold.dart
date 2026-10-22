@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +23,9 @@ class CalculatorScaffold extends StatefulWidget {
   final String? subtitle;
   final EngModule? module;
   final List<Widget> inputs;
-  final VoidCallback? onCalculate;
+
+  /// Runs the calculation; a returned future shows a spinner until done.
+  final FutureOr<void> Function()? onCalculate;
   final bool isLoading;
   final String? error;
 
@@ -52,6 +56,18 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
   final _resultsAnchor = GlobalKey();
   final List<GlobalKey> _keys = [];
   bool _exporting = false;
+  bool _running = false;
+
+  Future<void> _calculate() async {
+    final f = widget.onCalculate;
+    if (f == null || _running) return;
+    setState(() => _running = true);
+    try {
+      await f();
+    } finally {
+      if (mounted) setState(() => _running = false);
+    }
+  }
 
   List<GlobalKey> _keysFor(int n) {
     while (_keys.length < n) {
@@ -142,8 +158,10 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
         ],
         const SizedBox(height: Gap.lg),
         FilledButton.icon(
-          onPressed: widget.isLoading ? null : widget.onCalculate,
-          icon: widget.isLoading
+          onPressed: widget.isLoading || _running || widget.onCalculate == null
+              ? null
+              : _calculate,
+          icon: widget.isLoading || _running
               ? SizedBox.square(
                   dimension: 18,
                   child: CircularProgressIndicator(
@@ -152,7 +170,9 @@ class _CalculatorScaffoldState extends State<CalculatorScaffold> {
                   ),
                 )
               : const Icon(Icons.play_arrow_rounded),
-          label: Text(widget.isLoading ? l.calcCalculating : l.calcCalculate),
+          label: Text(
+            widget.isLoading || _running ? l.calcCalculating : l.calcCalculate,
+          ),
         ),
       ],
     );
