@@ -333,6 +333,7 @@ Future<void> showMemberDesignResult(
   BuildContext context, {
   required MemberDesign3D design,
   required String groupName,
+  VoidCallback? onOpenIn,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -355,6 +356,18 @@ Future<void> showMemberDesignResult(
             '$groupName · ${design.asColumn ? l.modColumn : (design.material == DesignMaterial.concrete ? l.modBeam : materialLabel(l, design.material))}',
             style: context.text.bodySmall,
           ),
+          if (onOpenIn != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  onOpenIn();
+                },
+                icon: const Icon(Icons.open_in_new_rounded),
+                label: Text(l.linkDesignIn),
+              ),
+            ),
           const SizedBox(height: Gap.md),
           if (err != null)
             StatusBanner(

@@ -4334,4 +4334,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String f3dShowMore(int n) {
     return 'Show more ($n left)';
   }
+
+  @override
+  String get modBeamSection => 'RC section from forces';
+
+  @override
+  String get modBeamSectionSub => 'Bars and links for given moments and shear';
+
+  @override
+  String get beamSectionSubtitle =>
+      'Rectangular RC section designed for ULS moments and shear, e.g. a member of a frame model.';
+
+  @override
+  String get beamSectionNote =>
+      'Magnitudes: sagging = bottom fibre in tension, hogging = top fibre in tension.';
+
+  @override
+  String get steelMomentZ => 'Minor-axis moment Mz,Ed';
+
+  @override
+  String get linkDesignIn => 'Design in the calculator';
+
+  @override
+  String get linkDesignFooting => 'Design a footing';
+
+  @override
+  String linkSupportN(int n) {
+    return 'Support at node $n';
+  }
+
+  @override
+  String get linkReactions => 'Reactions';
+
+  @override
+  String get linkUlsReaction => 'Largest ULS vertical reaction';
+
+  @override
+  String get linkSupportNote =>
+      'The footing gets the characteristic loads: permanent cases as G, variable cases pressing on the support as Q, and the resultant base moments.';
+
+  @override
+  String linkFrom(String model, String what) {
+    return 'From $model · $what';
+  }
+
+  @override
+  String get linkModelSame =>
+      'The inputs come from this model; it has not changed since.';
+
+  @override
+  String get linkModelChanged =>
+      'The model has changed since these inputs were taken: open it and send the member again.';
+
+  @override
+  String get linkModelGone => 'The model no longer exists.';
+
+  @override
+  String get linkOpenModel => 'Open the model';
+
+  @override
+  String get linkUnlink => 'Unlink';
 }

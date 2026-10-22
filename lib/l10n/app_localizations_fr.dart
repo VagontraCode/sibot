@@ -4357,4 +4357,65 @@ class AppLocalizationsFr extends AppLocalizations {
   String f3dShowMore(int n) {
     return 'Afficher plus ($n restantes)';
   }
+
+  @override
+  String get modBeamSection => 'Section BA depuis les efforts';
+
+  @override
+  String get modBeamSectionSub =>
+      'Aciers et cadres pour des moments et un effort tranchant donnés';
+
+  @override
+  String get beamSectionSubtitle =>
+      'Section rectangulaire BA dimensionnée pour des moments et un effort tranchant ELU, par exemple une barre d’un modèle.';
+
+  @override
+  String get beamSectionNote =>
+      'Valeurs absolues : moment positif = fibre inférieure tendue, moment négatif = fibre supérieure tendue.';
+
+  @override
+  String get steelMomentZ => 'Moment autour de l’axe faible Mz,Ed';
+
+  @override
+  String get linkDesignIn => 'Dimensionner dans le calculateur';
+
+  @override
+  String get linkDesignFooting => 'Dimensionner une semelle';
+
+  @override
+  String linkSupportN(int n) {
+    return 'Appui au nœud $n';
+  }
+
+  @override
+  String get linkReactions => 'Réactions';
+
+  @override
+  String get linkUlsReaction => 'Plus grande réaction verticale ELU';
+
+  @override
+  String get linkSupportNote =>
+      'La semelle reçoit les charges caractéristiques : cas permanents en G, cas variables qui chargent l’appui en Q, et les moments résultants en pied.';
+
+  @override
+  String linkFrom(String model, String what) {
+    return 'Depuis $model · $what';
+  }
+
+  @override
+  String get linkModelSame =>
+      'Les données viennent de ce modèle ; il n’a pas changé depuis.';
+
+  @override
+  String get linkModelChanged =>
+      'Le modèle a changé depuis la reprise de ces données : ouvrez-le et renvoyez la barre.';
+
+  @override
+  String get linkModelGone => 'Le modèle n’existe plus.';
+
+  @override
+  String get linkOpenModel => 'Ouvrir le modèle';
+
+  @override
+  String get linkUnlink => 'Délier';
 }

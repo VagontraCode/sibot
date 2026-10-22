@@ -8023,6 +8023,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Show more ({n} left)'**
   String f3dShowMore(int n);
+
+  /// No description provided for @modBeamSection.
+  ///
+  /// In en, this message translates to:
+  /// **'RC section from forces'**
+  String get modBeamSection;
+
+  /// No description provided for @modBeamSectionSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Bars and links for given moments and shear'**
+  String get modBeamSectionSub;
+
+  /// No description provided for @beamSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangular RC section designed for ULS moments and shear, e.g. a member of a frame model.'**
+  String get beamSectionSubtitle;
+
+  /// No description provided for @beamSectionNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Magnitudes: sagging = bottom fibre in tension, hogging = top fibre in tension.'**
+  String get beamSectionNote;
+
+  /// No description provided for @steelMomentZ.
+  ///
+  /// In en, this message translates to:
+  /// **'Minor-axis moment Mz,Ed'**
+  String get steelMomentZ;
+
+  /// No description provided for @linkDesignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Design in the calculator'**
+  String get linkDesignIn;
+
+  /// No description provided for @linkDesignFooting.
+  ///
+  /// In en, this message translates to:
+  /// **'Design a footing'**
+  String get linkDesignFooting;
+
+  /// No description provided for @linkSupportN.
+  ///
+  /// In en, this message translates to:
+  /// **'Support at node {n}'**
+  String linkSupportN(int n);
+
+  /// No description provided for @linkReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get linkReactions;
+
+  /// No description provided for @linkUlsReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest ULS vertical reaction'**
+  String get linkUlsReaction;
+
+  /// No description provided for @linkSupportNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The footing gets the characteristic loads: permanent cases as G, variable cases pressing on the support as Q, and the resultant base moments.'**
+  String get linkSupportNote;
+
+  /// No description provided for @linkFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {model} · {what}'**
+  String linkFrom(String model, String what);
+
+  /// No description provided for @linkModelSame.
+  ///
+  /// In en, this message translates to:
+  /// **'The inputs come from this model; it has not changed since.'**
+  String get linkModelSame;
+
+  /// No description provided for @linkModelChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'The model has changed since these inputs were taken: open it and send the member again.'**
+  String get linkModelChanged;
+
+  /// No description provided for @linkModelGone.
+  ///
+  /// In en, this message translates to:
+  /// **'The model no longer exists.'**
+  String get linkModelGone;
+
+  /// No description provided for @linkOpenModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the model'**
+  String get linkOpenModel;
+
+  /// No description provided for @linkUnlink.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink'**
+  String get linkUnlink;
 }
 
 class _AppLocalizationsDelegate

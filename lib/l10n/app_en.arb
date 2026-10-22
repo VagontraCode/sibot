@@ -1925,5 +1925,39 @@
         "type": "int"
       }
     }
-  }
+  },
+  "modBeamSection": "RC section from forces",
+  "modBeamSectionSub": "Bars and links for given moments and shear",
+  "beamSectionSubtitle": "Rectangular RC section designed for ULS moments and shear, e.g. a member of a frame model.",
+  "beamSectionNote": "Magnitudes: sagging = bottom fibre in tension, hogging = top fibre in tension.",
+  "steelMomentZ": "Minor-axis moment Mz,Ed",
+  "linkDesignIn": "Design in the calculator",
+  "linkDesignFooting": "Design a footing",
+  "linkSupportN": "Support at node {n}",
+  "@linkSupportN": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "linkReactions": "Reactions",
+  "linkUlsReaction": "Largest ULS vertical reaction",
+  "linkSupportNote": "The footing gets the characteristic loads: permanent cases as G, variable cases pressing on the support as Q, and the resultant base moments.",
+  "linkFrom": "From {model} · {what}",
+  "@linkFrom": {
+    "placeholders": {
+      "model": {
+        "type": "String"
+      },
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "linkModelSame": "The inputs come from this model; it has not changed since.",
+  "linkModelChanged": "The model has changed since these inputs were taken: open it and send the member again.",
+  "linkModelGone": "The model no longer exists.",
+  "linkOpenModel": "Open the model",
+  "linkUnlink": "Unlink"
 }

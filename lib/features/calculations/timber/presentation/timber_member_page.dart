@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
+import 'package:sibot/features/frame3d/model_link.dart';
 import 'package:sibot/features/modules/module_registry.dart';
 import 'package:sibot/l10n/l10n.dart';
 import 'package:sibot/ui/ui.dart';
@@ -61,6 +62,12 @@ class TimberMemberPage extends ConsumerWidget {
       error: s.problem == null ? null : problemMessage(l, s.problem!, labels),
       resultKey: s.runId,
       inputs: [
+        if (s.link != null)
+          ModelLinkBanner(
+            link: s.link!,
+            projectId: projectId,
+            onUnlink: n.unlink,
+          ),
         FormSection(
           title: l.timberMaterialTitle,
           icon: Icons.forest_outlined,

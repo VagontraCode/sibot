@@ -30,6 +30,8 @@ import 'package:sibot/features/calculations/steel/presentation/steel_member_prov
 import 'package:sibot/features/calculations/timber/presentation/timber_member_provider.dart';
 import 'package:sibot/features/calculations/timber/presentation/timber_connection_provider.dart';
 import 'package:sibot/features/calculations/beams/presentation/continuous_beam_provider.dart';
+import 'package:sibot/features/calculations/beams/presentation/beam_section_provider.dart';
+import 'package:sibot/features/frame3d/model_link.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
@@ -286,6 +288,10 @@ final _calculations = <String, Future<void> Function(ProviderContainer)>{
             'a1': 84,
           }))
           .calculate(),
+  'beam_section': (c) =>
+      (c.read(beamSectionStateProvider('PRJ_1').notifier)
+            ..setAll({'b': 300, 'h': 500, 'mSag': 140, 'mHog': 90, 'vEd': 120}))
+          .calculate(),
   'continuous_beam': (c) =>
       (c.read(continuousBeamStateProvider('PRJ_1').notifier)..setAll({
             'span1': 5,
@@ -479,6 +485,7 @@ void main() {
     'timber_member': '/projects/PRJ_1/timber-member',
     'timber_connection': '/projects/PRJ_1/timber-connection',
     'continuous_beam': '/projects/PRJ_1/continuous-beam',
+    'beam_section': '/projects/PRJ_1/beam-section',
     'seismic_ps92': '/projects/PRJ_1/seismic',
     'slope_janbu': '/projects/PRJ_1/slope',
     'steel_member': '/projects/PRJ_1/steel-member',
@@ -750,6 +757,26 @@ void main() {
                   reason: s.key,
                 );
                 await scrollPanel();
+                // A result row, then "Design in the calculator".
+                final row = find.byWidgetPredicate(
+                  (w) => w is ListTile && w.dense == true && w.trailing is Text,
+                );
+                await scrollTo(row);
+                await tester.ensureVisible(row.first);
+                await tester.pump();
+                await tester.tap(row.first);
+                await frames();
+                await tester.tap(find.byIcon(Icons.open_in_new_rounded));
+                await frames();
+                expect(
+                  find.byType(ModelLinkBanner),
+                  findsOneWidget,
+                  reason: s.key,
+                );
+                expect(tester.takeException(), isNull, reason: s.key);
+                // Back to the model.
+                appRouter.pop();
+                await frames();
               }
               if (s.key == 'frame3d_seismic') {
                 await analysesTab();

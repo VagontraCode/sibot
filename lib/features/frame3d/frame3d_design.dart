@@ -13,6 +13,7 @@ Future<void> showMember3DDesign(
   required int index,
   required List<Frame3DResult> results,
   bool seismic = false,
+  VoidCallback? onOpenIn,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
@@ -23,6 +24,7 @@ Future<void> showMember3DDesign(
     index: index,
     envelope: MemberEnvelope3D.of(model, index, results),
     seismic: seismic,
+    onOpenIn: onOpenIn,
   ),
 );
 
@@ -31,11 +33,13 @@ class _Member3DSheet extends StatefulWidget {
   final int index;
   final MemberEnvelope3D envelope;
   final bool seismic;
+  final VoidCallback? onOpenIn;
   const _Member3DSheet({
     required this.model,
     required this.index,
     required this.envelope,
     required this.seismic,
+    this.onOpenIn,
   });
 
   @override
@@ -83,6 +87,18 @@ class _Member3DSheetState extends State<_Member3DSheet> {
               widget.seismic ? l.f3dDesignSeismic : l.f3dDesignStatic,
               style: context.text.bodySmall,
             ),
+            if (widget.onOpenIn != null)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    widget.onOpenIn!();
+                  },
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: Text(l.linkDesignIn),
+                ),
+              ),
             const SizedBox(height: Gap.lg),
             ResultCard(
               title: l.memberEnvelopeForces,

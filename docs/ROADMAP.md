@@ -208,9 +208,9 @@ the next one starts.
 - [x] "Design all": utilisation table (sortable) and colour map; tap a member for its full checks
 - [x] Timber sections in the 3D editor (strength class, E0,mean, density)
 
-**Step 4 — Send results to the design modules**
-- [ ] "Design in…" from a member or a support: beam, column, steel, timber, footing modules open with the forces filled in (envelope or a chosen combination)
-- [ ] The detailed calculation stays linked to the model, with a warning when the model has changed
+**Step 4 — Send results to the design modules ✅**
+- [x] "Design in…" from a member (static, seismic or Design tab) or a tapped support: RC section from forces (new module), column, steel (now with Mz), timber and isolated footing open with the ULS envelope (or the seismic situations) filled in, group settings included; supports send G / Q and base moments from the load cases
+- [x] The detailed calculation stays linked to the model (saved with it), with a warning when the model has changed and a way back to the model
 
 **Step 5 — Results like RSA**
 - [ ] Tables of reactions, displacements and member forces, filtered by case / combination, CSV export

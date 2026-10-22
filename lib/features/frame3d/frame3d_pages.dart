@@ -15,6 +15,7 @@ import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame_notes.dart';
 import 'package:sibot/features/calculations/shared/note_extract.dart';
 import 'package:sibot/features/frame3d/frame3d_view.dart';
+import 'package:sibot/features/frame3d/model_link.dart';
 import 'package:sibot/features/projects/presentation/widgets/project_widgets.dart';
 import 'package:sibot/features/exchange/exchange.dart';
 import 'package:sibot/features/exchange/exchange_ui.dart';
@@ -813,6 +814,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           showMemberDesignResult(
             context,
             design: d,
+            onOpenIn: () => _openDesigned(context, out, d.member),
             groupName:
                 edit.model.groups
                     .where((g) => g.id == d.group)
@@ -838,6 +840,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         result: runs.spectrum!.envelope,
         colorBy: _colorBy,
         selectedMember: _selected,
+        pickableNodes: model.supports.keys.toSet(),
         onPick: (p) => _design(context, out, p, runs.spectrum),
       ),
       (_, AnalysisKind.pDelta) when runs.pDelta != null => Frame3DView(
@@ -856,6 +859,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
             ? _utilisation(out)
             : null,
         selectedMember: _selected,
+        pickableNodes: model.supports.keys.toSet(),
         onPick: (p) => _design(context, out, p, null),
       ),
       _ => Frame3DView(model: model),
@@ -923,6 +927,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
             key,
             design,
             designValue?.isLoading ?? false,
+            out,
           ),
           _Tab.model => _modelPanel(
             context,
@@ -1273,8 +1278,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     Frame3DEditController edit,
     String key,
     DesignOutput? design,
-    bool running,
-  ) {
+    bool running, [
+    Frame3DOutput? out,
+  ]) {
     final l = context.l10n;
     final m = edit.model;
     final groups = m.groups;
@@ -1357,6 +1363,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
                     showMemberDesignResult(
                       context,
                       design: d,
+                      onOpenIn: () => _openDesigned(context, out, d.member),
                       groupName: names[d.group] ?? '',
                     );
                   },
@@ -1447,6 +1454,21 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         const LinearProgressIndicator(),
       ...rows,
     ];
+  }
+
+  /// Opens a designed member in its calculator with the ULS envelope.
+  void _openDesigned(BuildContext context, Frame3DOutput? out, int member) {
+    if (out == null) return;
+    designMemberIn(
+      context,
+      record: _edit!.record,
+      model: out.model,
+      member: member,
+      results: [
+        for (var i = 0; i < out.combinations.length; i++)
+          if (out.combinations[i].kind == CombinationKind.uls) out.results[i],
+      ],
+    );
   }
 
   Future<void> _editGroup(
@@ -1934,7 +1956,12 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     Pick3D? pick,
     SeismicOutput? seismic,
   ) async {
-    if (out == null || pick is! MemberPick) return;
+    if (out == null) return;
+    if (pick is NodePick) {
+      await _support(context, out, pick.node);
+      return;
+    }
+    if (pick is! MemberPick) return;
     setState(() => _selected = pick.member);
     final List<Frame3DResult> results;
     final quasi = out.quasiPermanent;
@@ -1953,6 +1980,84 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       index: pick.member,
       results: results,
       seismic: seismic != null,
+      onOpenIn: () => designMemberIn(
+        context,
+        record: _edit!.record,
+        model: out.model,
+        member: pick.member,
+        results: results,
+      ),
+    );
+  }
+
+  /// Reactions of a tapped support and the footing design from them.
+  Future<void> _support(BuildContext context, Frame3DOutput out, int node) {
+    final l = context.l10n;
+    final m = out.model;
+    final loads = supportLoads(m, out.caseResults, node);
+    var rz = 0.0;
+    for (var i = 0; i < out.combinations.length; i++) {
+      if (out.combinations[i].kind != CombinationKind.uls) continue;
+      final r = out.results[i].reactions[node];
+      if (r != null) rz = math.max(rz, r[2]);
+    }
+    return showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      constraints: const BoxConstraints(maxWidth: 680),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(Gap.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l.linkSupportN(node + 1), style: ctx.text.titleLarge),
+            const SizedBox(height: Gap.md),
+            ResultCard(
+              title: l.linkReactions,
+              icon: Icons.south_rounded,
+              rows: [
+                ResultRow(
+                  label: l.linkUlsReaction,
+                  symbol: 'Rz,Ed',
+                  value: fmt(ctx, rz, 0),
+                  unit: 'kN',
+                  emphasize: true,
+                ),
+                ResultRow(
+                  label: l.loadPermanent,
+                  symbol: 'G / MG',
+                  value: '${fmt(ctx, loads.g, 0)} / ${fmt(ctx, loads.mg, 1)}',
+                  unit: 'kN / kN·m',
+                ),
+                ResultRow(
+                  label: l.loadVariable,
+                  symbol: 'Q / MQ',
+                  value: '${fmt(ctx, loads.q, 0)} / ${fmt(ctx, loads.mq, 1)}',
+                  unit: 'kN / kN·m',
+                ),
+              ],
+            ),
+            const SizedBox(height: Gap.sm),
+            Text(l.linkSupportNote, style: ctx.text.bodySmall),
+            const SizedBox(height: Gap.md),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(ctx);
+                designSupportIn(
+                  context,
+                  record: _edit!.record,
+                  model: m,
+                  node: node,
+                  caseResults: out.caseResults,
+                );
+              },
+              icon: const Icon(Icons.foundation),
+              label: Text(l.linkDesignFooting),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

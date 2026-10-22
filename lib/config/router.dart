@@ -14,6 +14,7 @@ import 'package:sibot/features/calculations/steel/presentation/steel_member_page
 import 'package:sibot/features/calculations/timber/presentation/timber_member_page.dart';
 import 'package:sibot/features/calculations/timber/presentation/timber_connection_page.dart';
 import 'package:sibot/features/calculations/beams/presentation/continuous_beam_page.dart';
+import 'package:sibot/features/calculations/beams/presentation/beam_section_page.dart';
 import 'package:sibot/features/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:sibot/features/field/presentation/pages/field.dart';
 import 'package:sibot/features/field/presentation/pages/field_hub.dart';
@@ -127,6 +128,12 @@ final GoRouter appRouter = GoRouter(
                       name: 'timber-connection',
                       builder: (context, state) =>
                           TimberConnectionPage(projectId: _pid(state)),
+                    ),
+                    GoRoute(
+                      path: 'beam-section',
+                      name: 'beam-section',
+                      builder: (context, state) =>
+                          BeamSectionPage(projectId: _pid(state)),
                     ),
                     GoRoute(
                       path: 'continuous-beam',

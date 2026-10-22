@@ -12,6 +12,46 @@ class FormProblem {
   const FormProblem(this.field, [this.problem]);
 }
 
+/// Where a calculation's inputs came from: a member or a support of a
+/// 3D model, with a stamp of the model at that moment.
+class ModelLink {
+  final String modelId;
+  final String modelName;
+
+  /// Member (0-based) or node (0-based) the forces come from.
+  final int? member;
+  final int? node;
+
+  /// [modelStamp] of the model when the forces were taken.
+  final int stamp;
+
+  const ModelLink({
+    required this.modelId,
+    required this.modelName,
+    required this.stamp,
+    this.member,
+    this.node,
+  });
+
+  Map<String, Object?> toMetadata() => {
+    'link_model': modelId,
+    'link_name': modelName,
+    'link_member': member,
+    'link_node': node,
+    'link_stamp': stamp,
+  };
+}
+
+/// Stable 32-bit FNV-1a hash of a model's JSON source key.
+int modelStamp(String sourceKey) {
+  var h = 0x811c9dc5;
+  for (final c in sourceKey.codeUnits) {
+    h ^= c;
+    h = (h * 0x01000193) & 0xffffffff;
+  }
+  return h;
+}
+
 /// State shared by all design modules: numeric inputs by key, choice
 /// options by key, the design code, and the last result.
 class DesignFormState<R> {
@@ -24,6 +64,9 @@ class DesignFormState<R> {
   /// Identifier of the last saved calculation (changes on every run).
   final String? runId;
 
+  /// Model the inputs were taken from (null = typed in).
+  final ModelLink? link;
+
   const DesignFormState({
     required this.values,
     required this.options,
@@ -31,6 +74,7 @@ class DesignFormState<R> {
     this.result,
     this.problem,
     this.runId,
+    this.link,
   });
 
   double? operator [](String key) => values[key];
@@ -43,6 +87,8 @@ class DesignFormState<R> {
     bool clearResult = false,
     FormProblem? problem,
     String? runId,
+    ModelLink? link,
+    bool clearLink = false,
   }) {
     return DesignFormState(
       values: values ?? this.values,
@@ -52,6 +98,7 @@ class DesignFormState<R> {
       // Any edit clears the previous problem.
       problem: problem,
       runId: runId ?? this.runId,
+      link: clearLink ? null : (link ?? this.link),
     );
   }
 }
@@ -113,6 +160,25 @@ abstract class DesignFormNotifier<R> extends Notifier<DesignFormState<R>> {
     state = state.copyWith(code: code, clearResult: true);
   }
 
+  /// Starts from [values] and [options] taken from a model (the other
+  /// fields keep their initial values) and remembers the [link].
+  void applyLink(
+    ModelLink link, {
+    Map<String, double?> values = const {},
+    Map<String, String> options = const {},
+    DesignCode? code,
+  }) {
+    state = DesignFormState(
+      values: {...initialValues, ...values},
+      options: {...initialOptions, ...options},
+      code: code ?? state.code,
+      link: link,
+    );
+  }
+
+  /// Forgets where the inputs came from.
+  void unlink() => state = state.copyWith(clearLink: true);
+
   /// Replaces several values at once (e.g. a pre-sizing suggestion).
   void setAll(Map<String, double?> values) {
     state = state.copyWith(values: {...state.values, ...values});
@@ -160,4 +226,7 @@ Map<String, dynamic> flatMetadata(
   for (final e in s.options.entries) 'opt_${e.key}': e.value,
   for (final e in results.entries)
     if (e.value != null) e.key: e.value,
+  if (s.link != null)
+    for (final e in s.link!.toMetadata().entries)
+      if (e.value != null) e.key: e.value,
 };

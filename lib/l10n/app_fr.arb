@@ -1320,5 +1320,22 @@
   "f3dUtilisation": "Taux de travail",
   "f3dDesignSummary": "Dimensionnement",
   "f3dDesignResult": "Armatures / section",
-  "f3dShowMore": "Afficher plus ({n} restantes)"
+  "f3dShowMore": "Afficher plus ({n} restantes)",
+  "modBeamSection": "Section BA depuis les efforts",
+  "modBeamSectionSub": "Aciers et cadres pour des moments et un effort tranchant donnés",
+  "beamSectionSubtitle": "Section rectangulaire BA dimensionnée pour des moments et un effort tranchant ELU, par exemple une barre d’un modèle.",
+  "beamSectionNote": "Valeurs absolues : moment positif = fibre inférieure tendue, moment négatif = fibre supérieure tendue.",
+  "steelMomentZ": "Moment autour de l’axe faible Mz,Ed",
+  "linkDesignIn": "Dimensionner dans le calculateur",
+  "linkDesignFooting": "Dimensionner une semelle",
+  "linkSupportN": "Appui au nœud {n}",
+  "linkReactions": "Réactions",
+  "linkUlsReaction": "Plus grande réaction verticale ELU",
+  "linkSupportNote": "La semelle reçoit les charges caractéristiques : cas permanents en G, cas variables qui chargent l’appui en Q, et les moments résultants en pied.",
+  "linkFrom": "Depuis {model} · {what}",
+  "linkModelSame": "Les données viennent de ce modèle ; il n’a pas changé depuis.",
+  "linkModelChanged": "Le modèle a changé depuis la reprise de ces données : ouvrez-le et renvoyez la barre.",
+  "linkModelGone": "Le modèle n’existe plus.",
+  "linkOpenModel": "Ouvrir le modèle",
+  "linkUnlink": "Délier"
 }

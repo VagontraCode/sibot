@@ -125,6 +125,10 @@ class Frame3DView extends StatefulWidget {
   final ValueChanged<Node3D>? onPlaneTap;
   final ViewCamera? camera;
 
+  /// Nodes that can be tapped although node dots are hidden (e.g. the
+  /// supports in a results view).
+  final Set<int>? pickableNodes;
+
   const Frame3DView({
     super.key,
     required this.model,
@@ -144,6 +148,7 @@ class Frame3DView extends StatefulWidget {
     this.workPlane,
     this.onPlaneTap,
     this.camera,
+    this.pickableNodes,
   });
 
   @override
@@ -357,10 +362,14 @@ class _Frame3DViewState extends State<Frame3DView>
     // Nodes first (when shown), then the nearest member; while drawing,
     // a tap away from the nodes gives a point of the working plane.
     final plane = widget.workPlane, onPlane = widget.onPlaneTap;
-    if (widget.showNodes || onPlane != null) {
+    final pickable = widget.pickableNodes;
+    if (widget.showNodes || onPlane != null || pickable != null) {
       var best = -1;
       var bestD = 22.0;
       for (var i = 0; i < m.nodes.length; i++) {
+        if (!widget.showNodes && onPlane == null && !pickable!.contains(i)) {
+          continue;
+        }
         final d = (pr.node(m.nodes[i]) - p).distance;
         if (d < bestD) {
           bestD = d;
