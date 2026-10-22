@@ -4241,4 +4241,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonSave => 'Save';
+
+  @override
+  String get f3dTabDesign => 'Design';
+
+  @override
+  String get f3dDesignHelp =>
+      'Group the members that share their design settings, then design them all. Members are designed for the envelope of the ULS combinations; deflections are checked under the characteristic SLS ones.';
+
+  @override
+  String get f3dGroupAdd => 'New group';
+
+  @override
+  String get f3dGroupAuto => 'Automatic groups';
+
+  @override
+  String get f3dNoGroups =>
+      'No design group yet: create one, or let the app group the members by material and kind.';
+
+  @override
+  String get f3dGroupSettings => 'Design group';
+
+  @override
+  String get f3dGroupName => 'Group name';
+
+  @override
+  String f3dGroupMembers(int n) {
+    return '$n members';
+  }
+
+  @override
+  String f3dGroupUseSelection(int n) {
+    return 'Edit selection ($n)';
+  }
+
+  @override
+  String f3dGroupDefaultName(int n) {
+    return 'Group $n';
+  }
+
+  @override
+  String get f3dRoleAuto => 'By direction';
+
+  @override
+  String get f3dDeflectionLimit => 'Deflection limit';
+
+  @override
+  String get f3dGroupNote =>
+      'A member belongs to its first group. Concrete “by direction”: vertical members are columns, the others beams. Timber: the moment about the minor axis is not checked.';
+
+  @override
+  String get f3dGroupInvalid => 'Give a name and at least one member.';
+
+  @override
+  String get f3dDesignAll => 'Design all';
+
+  @override
+  String get f3dDesignFailed => 'Could not be designed';
+
+  @override
+  String get f3dDesignNoUls => 'The model has no valid ULS combination.';
+
+  @override
+  String f3dDesignCounts(int ok, int fail) {
+    return '$ok members pass, $fail fail';
+  }
+
+  @override
+  String f3dDesignUngrouped(int n) {
+    return '$n members are in no group and were not designed.';
+  }
+
+  @override
+  String get f3dSortBy => 'Sort by';
+
+  @override
+  String get f3dSortMember => 'Member';
+
+  @override
+  String get f3dSortGroup => 'Group';
+
+  @override
+  String get f3dUtilisation => 'Utilisation';
+
+  @override
+  String get f3dDesignSummary => 'Design';
+
+  @override
+  String get f3dDesignResult => 'Reinforcement / section';
+
+  @override
+  String f3dShowMore(int n) {
+    return 'Show more ($n left)';
+  }
 }

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../fem/model.dart' show Combination, LoadType;
 import '../steel_profiles.dart';
+import 'groups3d.dart';
 
 /// Space frame model. Global axes: X, Y horizontal, Z up. Units: m, kN,
 /// kN·m, kN/m; section properties in m² / m⁴; moduli in MPa.
@@ -471,6 +472,9 @@ class Model3D {
   /// cases (EN 1990 or BAEL) by [combinationsOf].
   final List<Combination>? combinations;
 
+  /// Design groups: members designed with the same settings.
+  final List<DesignGroup> groups;
+
   const Model3D({
     required this.nodes,
     required this.supports,
@@ -480,6 +484,7 @@ class Model3D {
     this.diaphragms = const [],
     this.plane = false,
     this.combinations,
+    this.groups = const [],
   });
 
   /// An empty model with a default concrete section and permanent and
@@ -509,6 +514,7 @@ class Model3D {
     if (plane) 'plane': true,
     if (combinations != null)
       'combinations': [for (final c in combinations!) c.toJson()],
+    if (groups.isNotEmpty) 'groups': [for (final g in groups) g.toJson()],
   };
 
   factory Model3D.fromJson(Map<String, dynamic> j) => Model3D(
@@ -542,5 +548,9 @@ class Model3D {
     combinations: (j['combinations'] as List?)
         ?.map((c) => Combination.fromJson(Map<String, dynamic>.from(c as Map)))
         .toList(),
+    groups: [
+      for (final g in (j['groups'] as List? ?? const []))
+        DesignGroup.fromJson(Map<String, dynamic>.from(g as Map)),
+    ],
   );
 }

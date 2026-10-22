@@ -4264,4 +4264,97 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonSave => 'Enregistrer';
+
+  @override
+  String get f3dTabDesign => 'Dimensionnement';
+
+  @override
+  String get f3dDesignHelp =>
+      'Regroupez les barres qui partagent les mêmes réglages, puis dimensionnez-les toutes. Les barres sont dimensionnées pour l’enveloppe des combinaisons ELU ; les flèches sont vérifiées sous les combinaisons ELS caractéristiques.';
+
+  @override
+  String get f3dGroupAdd => 'Nouveau groupe';
+
+  @override
+  String get f3dGroupAuto => 'Groupes automatiques';
+
+  @override
+  String get f3dNoGroups =>
+      'Aucun groupe de dimensionnement : créez-en un, ou laissez l’application grouper les barres par matériau et par type.';
+
+  @override
+  String get f3dGroupSettings => 'Groupe de dimensionnement';
+
+  @override
+  String get f3dGroupName => 'Nom du groupe';
+
+  @override
+  String f3dGroupMembers(int n) {
+    return '$n barres';
+  }
+
+  @override
+  String f3dGroupUseSelection(int n) {
+    return 'Sélection de l’édition ($n)';
+  }
+
+  @override
+  String f3dGroupDefaultName(int n) {
+    return 'Groupe $n';
+  }
+
+  @override
+  String get f3dRoleAuto => 'Selon la direction';
+
+  @override
+  String get f3dDeflectionLimit => 'Limite de flèche';
+
+  @override
+  String get f3dGroupNote =>
+      'Une barre appartient à son premier groupe. Béton « selon la direction » : les barres verticales sont des poteaux, les autres des poutres. Bois : le moment autour de l’axe faible n’est pas vérifié.';
+
+  @override
+  String get f3dGroupInvalid => 'Donnez un nom et au moins une barre.';
+
+  @override
+  String get f3dDesignAll => 'Tout dimensionner';
+
+  @override
+  String get f3dDesignFailed => 'Dimensionnement impossible';
+
+  @override
+  String get f3dDesignNoUls => 'Le modèle n’a aucune combinaison ELU valable.';
+
+  @override
+  String f3dDesignCounts(int ok, int fail) {
+    return '$ok barres conformes, $fail non conformes';
+  }
+
+  @override
+  String f3dDesignUngrouped(int n) {
+    return '$n barres ne sont dans aucun groupe et n’ont pas été dimensionnées.';
+  }
+
+  @override
+  String get f3dSortBy => 'Trier par';
+
+  @override
+  String get f3dSortMember => 'Barre';
+
+  @override
+  String get f3dSortGroup => 'Groupe';
+
+  @override
+  String get f3dUtilisation => 'Taux de travail';
+
+  @override
+  String get f3dDesignSummary => 'Dimensionnement';
+
+  @override
+  String get f3dDesignResult => 'Armatures / section';
+
+  @override
+  String f3dShowMore(int n) {
+    return 'Afficher plus ($n restantes)';
+  }
 }

@@ -497,6 +497,7 @@ void main() {
     'frame3d_edit': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_seismic': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_combos': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_design': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_free': '/projects/PRJ_1/frame3d/F3_FREE',
     'frame3d_free_multi': '/projects/PRJ_1/frame3d/F3_FREE',
     'frame3d_empty_draw': '/projects/PRJ_1/frame3d/F3_EMPTY',
@@ -583,6 +584,14 @@ void main() {
               Future<void> scrollPanel() async {
                 for (var k = 0; k < 4; k++) {
                   await tester.drag(panelScroll(), const Offset(0, -300));
+                  await tester.pump();
+                }
+              }
+
+              // Scrolls the panel down until [f] is built.
+              Future<void> scrollTo(Finder f) async {
+                for (var k = 0; k < 15 && f.evaluate().isEmpty; k++) {
+                  await tester.drag(panelScroll(), const Offset(0, -200));
                   await tester.pump();
                 }
               }
@@ -715,6 +724,32 @@ void main() {
                       .nodes,
                   isEmpty,
                 );
+              }
+              if (s.key == 'frame3d_design') {
+                final tab = find.byType(ChoiceChip).at(4);
+                await tester.ensureVisible(tab);
+                await tester.pump();
+                await tester.tap(tab);
+                await tester.pump();
+                await tester.tap(find.byIcon(Icons.auto_awesome_rounded));
+                await frames();
+                final all = find.byIcon(Icons.fact_check_outlined);
+                await scrollTo(all);
+                await tester.ensureVisible(all);
+                await tester.pump();
+                await tester.tap(all);
+                await tester.pump();
+                await settle();
+                final view = tester.widget<Frame3DView>(
+                  find.byType(Frame3DView),
+                );
+                expect(view.memberValues, isNotNull, reason: s.key);
+                expect(
+                  view.memberValues!.whereType<double>(),
+                  isNotEmpty,
+                  reason: s.key,
+                );
+                await scrollPanel();
               }
               if (s.key == 'frame3d_seismic') {
                 await analysesTab();

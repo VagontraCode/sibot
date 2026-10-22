@@ -579,3 +579,65 @@ final frame3dBucklingProvider =
       final (source, code, combo) = key;
       return Isolate.run(() => runBuckling(source, code, combo));
     });
+
+/// Design of every grouped member, sent back from an isolate.
+class DesignOutput {
+  final List<MemberDesign3D> members;
+
+  /// Members in no group.
+  final int ungrouped;
+  final String? error;
+  const DesignOutput(this.members, {this.ungrouped = 0, this.error});
+
+  int get failing => members.where((m) => !m.ok).length;
+
+  /// Ratio of each member (null = not designed), for the colour map.
+  List<double?> ratios(int count) {
+    final out = List<double?>.filled(count, null);
+    for (final m in members) {
+      if (m.member < count) out[m.member] = m.ratio;
+    }
+    return out;
+  }
+}
+
+/// Designs the model's groups from all ULS combinations, deflections
+/// under the characteristic SLS ones.
+DesignOutput runDesign(String key, DesignCode code) {
+  final (model, _) = _source(key);
+  try {
+    final an = Frame3DAnalysis(model);
+    final cases = an.solveAll();
+    Frame3DResult combine(Combination c) => c.factors.entries
+        .map((e) => cases[e.key].scaled(e.value))
+        .reduce((a, b) => a.plus(b));
+    final combos = [
+      for (final c in combinationsOf(model, code))
+        if (combinationValid(model, c)) c,
+    ];
+    final uls = [
+      for (final c in combos)
+        if (c.kind == CombinationKind.uls) combine(c),
+    ];
+    final sls = [
+      for (final c in combos)
+        if (c.kind == CombinationKind.slsCharacteristic) combine(c),
+    ];
+    if (uls.isEmpty) return const DesignOutput([], error: 'uls');
+    final grouped = {for (final g in model.groups) ...g.members};
+    return DesignOutput(
+      designGroups(model, model.groups, uls, sls),
+      ungrouped:
+          model.elements.length -
+          grouped.where((e) => e >= 0 && e < model.elements.length).length,
+    );
+  } on ModelError catch (e) {
+    return DesignOutput(const [], error: e.problem.name);
+  }
+}
+
+final frame3dDesignProvider =
+    FutureProvider.family<DesignOutput, (String, DesignCode)>((ref, key) {
+      final (source, code) = key;
+      return Isolate.run(() => runDesign(source, code));
+    });

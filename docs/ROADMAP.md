@@ -202,10 +202,11 @@ the next one starts.
 - [x] Analysis list built by the user, each with its settings and run on demand: static (chosen combinations), modal (number of modes; masses from G + 0.3 Q), spectrum (direction, EC8 / PS92, modes), buckling and P-Δ on a chosen combination
 - [x] Results kept per analysis and invalidated when the model changes
 
-**Step 3 — Design groups and per-member settings**
-- [ ] Select members (tap, by kind, by level) and put them in design groups
-- [ ] Each group: material, code (EC / BAEL), grade, buckling lengths, deflection limit, exposure
-- [ ] "Design all": utilisation table (sortable) and colour map; tap a member for its full checks
+**Step 3 — Design groups and per-member settings ✅**
+- [x] Select members (Edit selection, by kind, by level) and put them in design groups; automatic groups by material and kind; groups follow deletions and copies
+- [x] Each group: material (RC, steel, timber), code (EC / BAEL), concrete and steel strengths, cover, beam / column role, steel grade, timber class, load duration and service class, buckling lengths, deflection limit (exposure / crack widths: later, with the SLS design)
+- [x] "Design all": utilisation table (sortable) and colour map; tap a member for its full checks
+- [x] Timber sections in the 3D editor (strength class, E0,mean, density)
 
 **Step 4 — Send results to the design modules**
 - [ ] "Design in…" from a member or a support: beam, column, steel, timber, footing modules open with the forces filled in (envelope or a chosen combination)

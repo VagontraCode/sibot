@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import '../fem/model.dart';
 import '../steel_profiles.dart';
+import 'groups3d.dart';
 import 'model3d.dart';
 
 /// What a member is, from its direction.
@@ -26,6 +27,7 @@ extension Model3DEdit on Model3D {
     bool? plane,
     List<Combination>? combinations,
     bool autoCombinations = false,
+    List<DesignGroup>? groups,
   }) => Model3D(
     nodes: nodes ?? this.nodes,
     supports: supports ?? this.supports,
@@ -34,9 +36,8 @@ extension Model3DEdit on Model3D {
     cases: cases ?? this.cases,
     diaphragms: diaphragms ?? this.diaphragms,
     plane: plane ?? this.plane,
-    combinations: autoCombinations
-        ? null
-        : (combinations ?? this.combinations),
+    combinations: autoCombinations ? null : (combinations ?? this.combinations),
+    groups: groups ?? this.groups,
   );
 
   /// Index of a node at (x, y, z) within [tol], or −1.
@@ -178,6 +179,15 @@ extension Model3DEdit on Model3D {
     }
     return copyWith(
       elements: kept,
+      groups: [
+        for (final g in groups)
+          g.copyWith(
+            members: [
+              for (final e in g.members)
+                if (map.containsKey(e)) map[e]!,
+            ],
+          ),
+      ],
       cases: [
         for (final c in cases)
           c.copyWith(
@@ -254,6 +264,7 @@ extension Model3DEdit on Model3D {
       ],
       plane: plane,
       combinations: combinations,
+      groups: m.groups,
     );
   }
 
@@ -487,6 +498,9 @@ extension Model3DEdit on Model3D {
       for (final c in cases) [...c.point],
     ];
     final addedNodes = <int>{}, addedElements = <int>{};
+    final groupMembers = [
+      for (final g in groups) [...g.members],
+    ];
     final srcNodes = {...nodesOf(elems), ...extraNodes};
 
     int nodeFor(Node3D p) {
@@ -554,6 +568,9 @@ extension Model3DEdit on Model3D {
         newElements.add(src.copyWith(n1: n1, n2: n2));
         final index = newElements.length - 1;
         addedElements.add(index);
+        for (var g = 0; g < groups.length; g++) {
+          if (groups[g].members.contains(e)) groupMembers[g].add(index);
+        }
         if (!withLoads) continue;
         for (var c = 0; c < cases.length; c++) {
           for (final q in cases[c].member) {
@@ -594,6 +611,10 @@ extension Model3DEdit on Model3D {
         nodes: newNodes,
         elements: newElements,
         supports: newSupports,
+        groups: [
+          for (var g = 0; g < groups.length; g++)
+            groups[g].copyWith(members: groupMembers[g]),
+        ],
         cases: [
           for (var c = 0; c < cases.length; c++)
             cases[c].copyWith(

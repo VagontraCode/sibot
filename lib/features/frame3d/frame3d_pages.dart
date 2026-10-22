@@ -9,6 +9,7 @@ import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_analyses_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
+import 'package:sibot/features/frame3d/frame3d_groups_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame_notes.dart';
@@ -464,7 +465,9 @@ class _BuildingWizardState extends State<_BuildingWizard> {
 /// Run marks per model for the session.
 final _ranByModel = <String, Map<String, String>>{};
 
-enum _Tab { model, edit, combos, analyses }
+enum _Tab { model, edit, combos, analyses, design }
+
+enum _DesignSort { ratio, member, group }
 
 /// Status of one analysis for the current model.
 enum _RunState { notRun, running, done, stale, failed }
@@ -491,6 +494,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   MemberValue _colorBy = MemberValue.my;
   int _mode = 0;
   int? _selected;
+
+  _DesignSort _designSort = _DesignSort.ratio;
+  int _designShown = 50;
 
   /// Analysis whose results are shown.
   String? _active;
@@ -744,6 +750,12 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         analyses.where((a) => a.id == _active).firstOrNull ??
         analyses.firstOrNull;
     final runs = _watchAnalyses(key, analyses, active, out);
+    // Member design, once asked for this model.
+    final designRan = _ran[_designId] == key;
+    final designValue = designRan
+        ? ref.watch(frame3dDesignProvider((key, _code)))
+        : null;
+    final design = designValue?.value;
     // The Model tab shows the vibrating mass.
     final modelModal = _tab == _Tab.model
         ? ref.watch(frame3dModalProvider((key, 12))).value
@@ -786,6 +798,30 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         camera: edit.camera,
       ),
       (_Tab.combos, _) => Frame3DView(model: model, loadCase: edit.activeCase),
+      (_Tab.design, _) when design != null => Frame3DView(
+        model: model,
+        colorBy: MemberValue.utilisation,
+        memberValues: design.ratios(model.elements.length),
+        selectedMember: _selected,
+        onPick: (p) {
+          if (p is! MemberPick) return;
+          final d = design.members
+              .where((x) => x.member == p.member)
+              .firstOrNull;
+          if (d == null) return;
+          setState(() => _selected = p.member);
+          showMemberDesignResult(
+            context,
+            design: d,
+            groupName:
+                edit.model.groups
+                    .where((g) => g.id == d.group)
+                    .firstOrNull
+                    ?.name ??
+                '',
+          );
+        },
+      ),
       (_, AnalysisKind.modal) when runs.modal?.modes.isNotEmpty ?? false =>
         Frame3DView(
           model: model,
@@ -825,7 +861,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       _ => Frame3DView(model: model),
     };
     final busy =
-        output.isLoading || runs.state.values.contains(_RunState.running);
+        output.isLoading ||
+        runs.state.values.contains(_RunState.running) ||
+        (designValue?.isLoading ?? false);
     viewer = RepaintBoundary(
       key: _viewKey,
       child: Stack(
@@ -859,6 +897,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
                       _Tab.edit => l.f3dTabEdit,
                       _Tab.combos => l.f3dTabCombos,
                       _Tab.analyses => l.f3dTabAnalyses,
+                      _Tab.design => l.f3dTabDesign,
                     }),
                     selected: _tab == t,
                     onSelected: (_) => setState(() => _tab = t),
@@ -878,6 +917,13 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
               message: l.f3dEmptyEdit,
             ),
           ],
+          _Tab.design => _designPanel(
+            context,
+            edit,
+            key,
+            design,
+            designValue?.isLoading ?? false,
+          ),
           _Tab.model => _modelPanel(
             context,
             edit.record,
@@ -1216,6 +1262,223 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         ],
       },
     ];
+  }
+
+  // ───────────────────────────── design ─────────────────────────────
+
+  static const _designId = '__design';
+
+  List<Widget> _designPanel(
+    BuildContext context,
+    Frame3DEditController edit,
+    String key,
+    DesignOutput? design,
+    bool running,
+  ) {
+    final l = context.l10n;
+    final m = edit.model;
+    final groups = m.groups;
+    final ran = _ran[_designId];
+    final stale = ran != null && ran != key;
+    Future<void> setGroups(List<DesignGroup> next) =>
+        edit.apply(m.copyWith(groups: next));
+
+    final rows = <Widget>[];
+    if (design != null && !stale) {
+      final names = {for (final g in groups) g.id: g.name};
+      final list = [...design.members];
+      switch (_designSort) {
+        case _DesignSort.ratio:
+          list.sort((a, b) => b.ratio.compareTo(a.ratio));
+        case _DesignSort.member:
+          list.sort((a, b) => a.member.compareTo(b.member));
+        case _DesignSort.group:
+          list.sort(
+            (a, b) => (names[a.group] ?? '').compareTo(names[b.group] ?? ''),
+          );
+      }
+      final ok = design.members.length - design.failing;
+      rows.addAll([
+        if (design.error != null)
+          StatusBanner(
+            tone: Tone.danger,
+            title: l.f3dDesignFailed,
+            message: design.error == 'uls' ? l.f3dDesignNoUls : design.error,
+          )
+        else
+          StatusBanner(
+            tone: design.failing == 0 ? Tone.success : Tone.danger,
+            title: l.f3dDesignCounts(ok, design.failing),
+            message: design.ungrouped > 0
+                ? l.f3dDesignUngrouped(design.ungrouped)
+                : null,
+          ),
+        const SizedBox(height: Gap.md),
+        ChoiceField<_DesignSort>(
+          label: l.f3dSortBy,
+          value: _designSort,
+          options: {
+            _DesignSort.ratio: l.f3dUtilisation,
+            _DesignSort.member: l.f3dSortMember,
+            _DesignSort.group: l.f3dSortGroup,
+          },
+          onChanged: (v) => setState(() => _designSort = v),
+        ),
+        const SizedBox(height: Gap.sm),
+        SurfaceCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+          child: Column(
+            children: [
+              for (final d in list.take(_designShown))
+                ListTile(
+                  dense: true,
+                  selected: d.member == _selected,
+                  title: Text(
+                    '${l.frameMemberTitle(d.member + 1)} · ${names[d.group] ?? ''}',
+                  ),
+                  subtitle: Text(
+                    d.error != null
+                        ? l.f3dDesignFailed
+                        : '${d.summary}\n${d.governing == null ? '' : checkLabel(l, d.governing!.kind)}',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: Text(
+                    d.ratio.isFinite ? fmt(context, d.ratio, 2) : '—',
+                    style: AppTheme.mono(context, size: 15).copyWith(
+                      color: d.ok
+                          ? context.appColors.success
+                          : context.appColors.danger,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  onTap: () {
+                    setState(() => _selected = d.member);
+                    showMemberDesignResult(
+                      context,
+                      design: d,
+                      groupName: names[d.group] ?? '',
+                    );
+                  },
+                ),
+              if (list.length > _designShown)
+                TextButton(
+                  onPressed: () => setState(() => _designShown += 50),
+                  child: Text(l.f3dShowMore(list.length - _designShown)),
+                ),
+            ],
+          ),
+        ),
+      ]);
+    }
+
+    return [
+      Text(l.f3dDesignHelp, style: context.text.bodySmall),
+      const SizedBox(height: Gap.md),
+      Wrap(
+        spacing: Gap.sm,
+        runSpacing: Gap.sm,
+        children: [
+          FilledButton.tonalIcon(
+            onPressed: () => _editGroup(context, edit, null),
+            icon: const Icon(Icons.add_rounded),
+            label: Text(l.f3dGroupAdd),
+          ),
+          OutlinedButton.icon(
+            onPressed: () => setGroups(
+              autoGroups(
+                m,
+                (mat, k) => autoGroupName(l, mat, k),
+                existing: groups,
+              ),
+            ),
+            icon: const Icon(Icons.auto_awesome_rounded),
+            label: Text(l.f3dGroupAuto),
+          ),
+        ],
+      ),
+      const SizedBox(height: Gap.md),
+      if (groups.isEmpty)
+        StatusBanner(tone: Tone.primary, title: l.f3dNoGroups)
+      else
+        SurfaceCard(
+          padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+          child: Column(
+            children: [
+              for (final g in groups)
+                ListTile(
+                  leading: Icon(switch (g.material) {
+                    DesignMaterial.concrete => Icons.view_column_outlined,
+                    DesignMaterial.steel => Icons.horizontal_split_outlined,
+                    DesignMaterial.timber => Icons.forest_outlined,
+                  }),
+                  title: Text(g.name),
+                  subtitle: Text(
+                    '${materialLabel(l, g.material)} · ${l.f3dGroupMembers(g.members.length)}',
+                  ),
+                  trailing: const Icon(Icons.tune_rounded),
+                  onTap: () => _editGroup(context, edit, g),
+                ),
+            ],
+          ),
+        ),
+      const SizedBox(height: Gap.md),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: FilledButton.icon(
+          onPressed: groups.isEmpty
+              ? null
+              : () => setState(() {
+                  _ran[_designId] = key;
+                  _designShown = 50;
+                }),
+          icon: const Icon(Icons.fact_check_outlined),
+          label: Text(l.f3dDesignAll),
+        ),
+      ),
+      const SizedBox(height: Gap.md),
+      if (stale)
+        StatusBanner(
+          tone: Tone.warning,
+          title: l.f3dRunStale,
+          message: l.f3dRunHelp,
+        )
+      else if (running)
+        const LinearProgressIndicator(),
+      ...rows,
+    ];
+  }
+
+  Future<void> _editGroup(
+    BuildContext context,
+    Frame3DEditController edit,
+    DesignGroup? group,
+  ) async {
+    final l = context.l10n;
+    final m = edit.model;
+    final g =
+        group ??
+        DesignGroup(
+          id: 'g${DateTime.now().microsecondsSinceEpoch}',
+          name: l.f3dGroupDefaultName(m.groups.length + 1),
+          members: const [],
+          material: DesignMaterial.concrete,
+          code: _code,
+        );
+    final result = await showGroupSettings(
+      context,
+      group: g,
+      model: m,
+      selection: {...edit.members},
+      canDelete: group != null,
+    );
+    if (result == null) return;
+    final next = [
+      for (final x in m.groups)
+        if (x.id != g.id) x else if (!identical(result, deletedGroup)) result,
+      if (group == null) result,
+    ];
+    await edit.apply(m.copyWith(groups: next));
   }
 
   // ─────────────────────────── combinations ───────────────────────────

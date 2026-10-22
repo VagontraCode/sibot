@@ -153,8 +153,7 @@ class AnalysisSpec {
 
   @override
   bool operator ==(Object other) =>
-      other is AnalysisSpec &&
-      other.toJson().toString() == toJson().toString();
+      other is AnalysisSpec && other.toJson().toString() == toJson().toString();
 
   @override
   int get hashCode => toJson().toString().hashCode;

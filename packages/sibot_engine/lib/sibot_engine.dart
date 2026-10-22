@@ -21,6 +21,7 @@ export 'src/fem3d/analyses3d.dart';
 export 'src/fem3d/analysis3d.dart';
 export 'src/fem3d/design3d.dart';
 export 'src/fem3d/edit3d.dart';
+export 'src/fem3d/groups3d.dart';
 export 'src/fem3d/model3d.dart';
 export 'src/fem3d/modal.dart';
 export 'src/fem3d/spectrum.dart';

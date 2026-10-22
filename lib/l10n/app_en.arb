@@ -1854,5 +1854,76 @@
   "f3dComboFactors": "Factor of each load case",
   "f3dComboFactorsHelp": "Leave empty (or 0) to leave a load case out. Negative factors are allowed (e.g. uplift).",
   "f3dComboInvalid": "Give a name and at least one factor.",
-  "commonSave": "Save"
+  "commonSave": "Save",
+  "f3dTabDesign": "Design",
+  "f3dDesignHelp": "Group the members that share their design settings, then design them all. Members are designed for the envelope of the ULS combinations; deflections are checked under the characteristic SLS ones.",
+  "f3dGroupAdd": "New group",
+  "f3dGroupAuto": "Automatic groups",
+  "f3dNoGroups": "No design group yet: create one, or let the app group the members by material and kind.",
+  "f3dGroupSettings": "Design group",
+  "f3dGroupName": "Group name",
+  "f3dGroupMembers": "{n} members",
+  "@f3dGroupMembers": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dGroupUseSelection": "Edit selection ({n})",
+  "@f3dGroupUseSelection": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dGroupDefaultName": "Group {n}",
+  "@f3dGroupDefaultName": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dRoleAuto": "By direction",
+  "f3dDeflectionLimit": "Deflection limit",
+  "f3dGroupNote": "A member belongs to its first group. Concrete “by direction”: vertical members are columns, the others beams. Timber: the moment about the minor axis is not checked.",
+  "f3dGroupInvalid": "Give a name and at least one member.",
+  "f3dDesignAll": "Design all",
+  "f3dDesignFailed": "Could not be designed",
+  "f3dDesignNoUls": "The model has no valid ULS combination.",
+  "f3dDesignCounts": "{ok} members pass, {fail} fail",
+  "@f3dDesignCounts": {
+    "placeholders": {
+      "ok": {
+        "type": "int"
+      },
+      "fail": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dDesignUngrouped": "{n} members are in no group and were not designed.",
+  "@f3dDesignUngrouped": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dSortBy": "Sort by",
+  "f3dSortMember": "Member",
+  "f3dSortGroup": "Group",
+  "f3dUtilisation": "Utilisation",
+  "f3dDesignSummary": "Design",
+  "f3dDesignResult": "Reinforcement / section",
+  "f3dShowMore": "Show more ({n} left)",
+  "@f3dShowMore": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -7867,6 +7867,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save'**
   String get commonSave;
+
+  /// No description provided for @f3dTabDesign.
+  ///
+  /// In en, this message translates to:
+  /// **'Design'**
+  String get f3dTabDesign;
+
+  /// No description provided for @f3dDesignHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Group the members that share their design settings, then design them all. Members are designed for the envelope of the ULS combinations; deflections are checked under the characteristic SLS ones.'**
+  String get f3dDesignHelp;
+
+  /// No description provided for @f3dGroupAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get f3dGroupAdd;
+
+  /// No description provided for @f3dGroupAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic groups'**
+  String get f3dGroupAuto;
+
+  /// No description provided for @f3dNoGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'No design group yet: create one, or let the app group the members by material and kind.'**
+  String get f3dNoGroups;
+
+  /// No description provided for @f3dGroupSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Design group'**
+  String get f3dGroupSettings;
+
+  /// No description provided for @f3dGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get f3dGroupName;
+
+  /// No description provided for @f3dGroupMembers.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} members'**
+  String f3dGroupMembers(int n);
+
+  /// No description provided for @f3dGroupUseSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit selection ({n})'**
+  String f3dGroupUseSelection(int n);
+
+  /// No description provided for @f3dGroupDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group {n}'**
+  String f3dGroupDefaultName(int n);
+
+  /// No description provided for @f3dRoleAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'By direction'**
+  String get f3dRoleAuto;
+
+  /// No description provided for @f3dDeflectionLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Deflection limit'**
+  String get f3dDeflectionLimit;
+
+  /// No description provided for @f3dGroupNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A member belongs to its first group. Concrete “by direction”: vertical members are columns, the others beams. Timber: the moment about the minor axis is not checked.'**
+  String get f3dGroupNote;
+
+  /// No description provided for @f3dGroupInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a name and at least one member.'**
+  String get f3dGroupInvalid;
+
+  /// No description provided for @f3dDesignAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Design all'**
+  String get f3dDesignAll;
+
+  /// No description provided for @f3dDesignFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not be designed'**
+  String get f3dDesignFailed;
+
+  /// No description provided for @f3dDesignNoUls.
+  ///
+  /// In en, this message translates to:
+  /// **'The model has no valid ULS combination.'**
+  String get f3dDesignNoUls;
+
+  /// No description provided for @f3dDesignCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{ok} members pass, {fail} fail'**
+  String f3dDesignCounts(int ok, int fail);
+
+  /// No description provided for @f3dDesignUngrouped.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} members are in no group and were not designed.'**
+  String f3dDesignUngrouped(int n);
+
+  /// No description provided for @f3dSortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get f3dSortBy;
+
+  /// No description provided for @f3dSortMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get f3dSortMember;
+
+  /// No description provided for @f3dSortGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get f3dSortGroup;
+
+  /// No description provided for @f3dUtilisation.
+  ///
+  /// In en, this message translates to:
+  /// **'Utilisation'**
+  String get f3dUtilisation;
+
+  /// No description provided for @f3dDesignSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Design'**
+  String get f3dDesignSummary;
+
+  /// No description provided for @f3dDesignResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Reinforcement / section'**
+  String get f3dDesignResult;
+
+  /// No description provided for @f3dShowMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Show more ({n} left)'**
+  String f3dShowMore(int n);
 }
 
 class _AppLocalizationsDelegate

@@ -639,9 +639,10 @@ class Frame3DEditPanel extends StatelessWidget {
 
   Future<void> _addSection(BuildContext context) async {
     final l = context.l10n;
-    var steel = false;
+    var material = DesignMaterial.concrete;
     double? b = 300, h = 500;
     var profile = 'IPE 300';
+    var timber = 'C24';
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => StatefulBuilder(
@@ -653,14 +654,27 @@ class Frame3DEditPanel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ChoiceField<bool>(
+                ChoiceField<DesignMaterial>(
                   label: l.f3dMaterial,
-                  value: steel,
-                  options: {false: l.catConcrete, true: l.catSteel},
-                  onChanged: (v) => set(() => steel = v),
+                  value: material,
+                  options: {
+                    DesignMaterial.concrete: l.catConcrete,
+                    DesignMaterial.steel: l.catSteel,
+                    DesignMaterial.timber: l.catTimber,
+                  },
+                  onChanged: (v) => set(() => material = v),
                 ),
                 const SizedBox(height: Gap.md),
-                if (steel)
+                if (material == DesignMaterial.timber) ...[
+                  PickerField<String>(
+                    label: l.timberStrengthClass,
+                    value: timber,
+                    options: {for (final k in timberClasses.keys) k: k},
+                    onChanged: (v) => timber = v,
+                  ),
+                  const SizedBox(height: Gap.md),
+                ],
+                if (material == DesignMaterial.steel)
                   PickerField<String>(
                     label: l.steelProfile,
                     value: profile,
@@ -701,10 +715,13 @@ class Frame3DEditPanel extends StatelessWidget {
       ),
     );
     if (ok != true) return;
+    final steel = material == DesignMaterial.steel;
     if (!steel && ((b ?? 0) <= 0 || (h ?? 0) <= 0)) return;
-    final m = c.model.addSection(
-      steel ? Section3D.steel(profile) : Section3D.rectangle(b!, h!),
-    );
+    final m = c.model.addSection(switch (material) {
+      DesignMaterial.steel => Section3D.steel(profile),
+      DesignMaterial.concrete => Section3D.rectangle(b!, h!),
+      DesignMaterial.timber => timberSection(timberClasses[timber]!, b!, h!),
+    });
     c.activeSection = m.sections.length - 1;
     await c.apply(m);
   }
