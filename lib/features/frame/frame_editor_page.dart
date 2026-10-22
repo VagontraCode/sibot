@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/calculations/shared/diagrams.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sibot/core/services/core_services.dart';
 import 'package:sibot/features/frame/frame_canvas.dart';
+import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame/frame_member_design.dart';
 import 'package:sibot/features/frame/frame_providers.dart';
 import 'package:sibot/features/frame3d/frame_notes.dart';
@@ -106,11 +109,15 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
             icon: const Icon(Icons.fit_screen_rounded),
           ),
           PopupMenuButton<String>(
-            onSelected: (v) =>
-                v == 'cases' ? _manageCases(context) : _manageSections(context),
+            onSelected: (v) => switch (v) {
+              'cases' => _manageCases(context),
+              'to3d' => _openAs3d(context, s),
+              _ => _manageSections(context),
+            },
             itemBuilder: (_) => [
               PopupMenuItem(value: 'cases', child: Text(l.frameLoadCases)),
               PopupMenuItem(value: 'sections', child: Text(l.frameSections)),
+              PopupMenuItem(value: 'to3d', child: Text(l.frameOpenAs3d)),
             ],
           ),
           const SizedBox(width: Gap.sm),
@@ -449,6 +456,20 @@ class _FrameEditorPageState extends ConsumerState<FrameEditorPage> {
       ),
     );
     if (name != null && name.isNotEmpty) _n.rename(name);
+  }
+
+  /// Copies this frame into a new plane 3D model and opens it.
+  Future<void> _openAs3d(BuildContext context, FrameEditorState s) async {
+    final record = Frame3DRecord.free(
+      id: IdService.generateCalculationId(),
+      projectId: widget.projectId,
+      name: s.record.name,
+      model: planeModelFrom2D(s.model),
+    );
+    await Frame3DRepository.save(record);
+    if (context.mounted) {
+      context.push('/projects/${widget.projectId}/frame3d/${record.id}');
+    }
   }
 
   void _manageCases(BuildContext context) {

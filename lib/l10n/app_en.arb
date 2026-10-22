@@ -1465,7 +1465,7 @@
       }
     }
   },
-  "f3dMemberLoad": "Uniform load ({name})",
+  "f3dMemberLoad": "Distributed load ({name})",
   "@f3dMemberLoad": {
     "placeholders": {
       "name": {
@@ -1721,5 +1721,103 @@
   "frameArrayTitle": "Copy / array",
   "frameArrayCount": "Copies",
   "frameArrayNote": "Copies the member n times, each shifted by Δx, Δy from the previous one, with its section, hinges and loads in every case. Nodes at the same position are shared. In the select tool, drag a node to move it (snapped to the grid).",
-  "frameArrayApply": "Create the copies"
+  "frameArrayApply": "Create the copies",
+  "f3dToolSelect": "Select",
+  "f3dToolDraw": "Draw",
+  "f3dToolMulti": "Multi",
+  "f3dDrawHelp": "Tap the grid or existing nodes: each tap adds a node and a member from the previous one. Tap “End line” to lift the pen. The active section is used.",
+  "f3dMultiHelp": "Tap nodes and members to add or remove them, or use the quick selections; then edit the whole selection below.",
+  "f3dEndLine": "End line",
+  "f3dPlane": "Working plane",
+  "f3dPlaneLevel": "Level Z",
+  "f3dPlaneFront": "Front Y",
+  "f3dPlaneSide": "Side X",
+  "f3dPlaneValue": "Plane at",
+  "f3dGridStep": "Grid step",
+  "f3dLookAtPlane": "Face the plane",
+  "f3dViewIso": "3D",
+  "f3dViewTop": "Top",
+  "f3dViewFront": "Front",
+  "f3dViewSide": "Side",
+  "f3dPlaneModel": "Plane frame in the X–Z plane: every node is held out of the plane (uy, rx, rz).",
+  "f3dRestraints": "Restraints",
+  "f3dSprings": "Springs",
+  "f3dApplySupport": "Apply the support",
+  "f3dReleases": "End releases",
+  "f3dReleaseStart": "Start",
+  "f3dReleaseEnd": "End",
+  "f3dRigid": "Rigid",
+  "f3dPinBoth": "Pinned both ends",
+  "f3dPinStart": "Pinned start",
+  "f3dPinEnd": "Pinned end",
+  "f3dReleasesHelp": "A released end carries no moment about that local axis (Mx torsion, My major axis, Mz minor axis). Torsion stays fixed at one end at least; rotations that no member resists are held automatically.",
+  "f3dDirLocalZ": "local z",
+  "f3dDirLocalY": "local y",
+  "f3dLoadFrom": "From a",
+  "f3dLoadTo": "To b",
+  "f3dLoadExtentNote": "kN/m, gravity is −Z. Distances from the start node; empty w2 = uniform, empty a and b = whole member; w1 = 0 removes the load.",
+  "f3dPointLoad": "Point load ({name})",
+  "@f3dPointLoad": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "f3dPointAt": "At distance",
+  "f3dApplyPointLoad": "Apply the point load",
+  "f3dSelection": "{nodes} nodes, {members} members selected",
+  "@f3dSelection": {
+    "placeholders": {
+      "nodes": {
+        "type": "int"
+      },
+      "members": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dSelectAll": "All",
+  "f3dSelectColumns": "Columns",
+  "f3dSelectBeams": "Beams",
+  "f3dSelectBraces": "Braces",
+  "f3dSelectLevel": "Level",
+  "f3dSelectClear": "Clear",
+  "f3dBulkSection": "Section of the selected members",
+  "f3dBulkReleases": "Releases of the selected members",
+  "f3dBulkSupport": "Support of the selected nodes",
+  "f3dMoveCopy": "Move / copy",
+  "f3dCopies": "Copies",
+  "f3dMoveBtn": "Move",
+  "f3dCopyBtn": "Copy",
+  "f3dCopyHelp": "Copy repeats the selection n times, each shifted by Δx, Δy, Δz from the previous one; nodes at the same place are shared and the supports and loads follow.",
+  "f3dMirror": "Mirror",
+  "f3dMirrorAbout": "About the plane",
+  "f3dMirrorBtn": "Mirrored copy",
+  "f3dDeleteSelection": "Delete the selection",
+  "f3dEmptyEditTitle": "Nothing to analyse yet",
+  "f3dEmptyEdit": "Open the Edit tab, choose Draw and tap the grid to place nodes and members.",
+  "f3dNewModel": "New model",
+  "f3dNewModelTitle": "Start a model",
+  "f3dEmptyModel": "Empty 3D model",
+  "f3dEmptyModelSub": "Start from an empty space and draw any structure.",
+  "f3dPlaneFrameNew": "Plane frame",
+  "f3dPlaneFrameNewSub": "A 2D frame in the X–Z plane, with all the 3D tools.",
+  "f3dGeneratorNew": "Building generator",
+  "f3dGeneratorNewSub": "Bays, storeys, sections and floor loads in one step.",
+  "f3dFrom2d": "From a 2D frame",
+  "f3dFrom2dSub": "Use one of the project's 2D frames as a plane model (hinges, supports and loads are kept).",
+  "f3dFreeSummary": "{nodes} nodes · {members} members",
+  "@f3dFreeSummary": {
+    "placeholders": {
+      "nodes": {
+        "type": "int"
+      },
+      "members": {
+        "type": "int"
+      }
+    }
+  },
+  "f3dFreeNote": "Free model: draw, copy and edit anything in the Edit tab. Seismic masses come from the load cases (G + 0.3 Q).",
+  "frameOpenAs3d": "Open as a plane model in 3D"
 }

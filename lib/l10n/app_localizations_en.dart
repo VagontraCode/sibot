@@ -3297,7 +3297,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String f3dMemberLoad(String name) {
-    return 'Uniform load ($name)';
+    return 'Distributed load ($name)';
   }
 
   @override
@@ -3898,4 +3898,235 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get frameArrayApply => 'Create the copies';
+
+  @override
+  String get f3dToolSelect => 'Select';
+
+  @override
+  String get f3dToolDraw => 'Draw';
+
+  @override
+  String get f3dToolMulti => 'Multi';
+
+  @override
+  String get f3dDrawHelp =>
+      'Tap the grid or existing nodes: each tap adds a node and a member from the previous one. Tap “End line” to lift the pen. The active section is used.';
+
+  @override
+  String get f3dMultiHelp =>
+      'Tap nodes and members to add or remove them, or use the quick selections; then edit the whole selection below.';
+
+  @override
+  String get f3dEndLine => 'End line';
+
+  @override
+  String get f3dPlane => 'Working plane';
+
+  @override
+  String get f3dPlaneLevel => 'Level Z';
+
+  @override
+  String get f3dPlaneFront => 'Front Y';
+
+  @override
+  String get f3dPlaneSide => 'Side X';
+
+  @override
+  String get f3dPlaneValue => 'Plane at';
+
+  @override
+  String get f3dGridStep => 'Grid step';
+
+  @override
+  String get f3dLookAtPlane => 'Face the plane';
+
+  @override
+  String get f3dViewIso => '3D';
+
+  @override
+  String get f3dViewTop => 'Top';
+
+  @override
+  String get f3dViewFront => 'Front';
+
+  @override
+  String get f3dViewSide => 'Side';
+
+  @override
+  String get f3dPlaneModel =>
+      'Plane frame in the X–Z plane: every node is held out of the plane (uy, rx, rz).';
+
+  @override
+  String get f3dRestraints => 'Restraints';
+
+  @override
+  String get f3dSprings => 'Springs';
+
+  @override
+  String get f3dApplySupport => 'Apply the support';
+
+  @override
+  String get f3dReleases => 'End releases';
+
+  @override
+  String get f3dReleaseStart => 'Start';
+
+  @override
+  String get f3dReleaseEnd => 'End';
+
+  @override
+  String get f3dRigid => 'Rigid';
+
+  @override
+  String get f3dPinBoth => 'Pinned both ends';
+
+  @override
+  String get f3dPinStart => 'Pinned start';
+
+  @override
+  String get f3dPinEnd => 'Pinned end';
+
+  @override
+  String get f3dReleasesHelp =>
+      'A released end carries no moment about that local axis (Mx torsion, My major axis, Mz minor axis). Torsion stays fixed at one end at least; rotations that no member resists are held automatically.';
+
+  @override
+  String get f3dDirLocalZ => 'local z';
+
+  @override
+  String get f3dDirLocalY => 'local y';
+
+  @override
+  String get f3dLoadFrom => 'From a';
+
+  @override
+  String get f3dLoadTo => 'To b';
+
+  @override
+  String get f3dLoadExtentNote =>
+      'kN/m, gravity is −Z. Distances from the start node; empty w2 = uniform, empty a and b = whole member; w1 = 0 removes the load.';
+
+  @override
+  String f3dPointLoad(String name) {
+    return 'Point load ($name)';
+  }
+
+  @override
+  String get f3dPointAt => 'At distance';
+
+  @override
+  String get f3dApplyPointLoad => 'Apply the point load';
+
+  @override
+  String f3dSelection(int nodes, int members) {
+    return '$nodes nodes, $members members selected';
+  }
+
+  @override
+  String get f3dSelectAll => 'All';
+
+  @override
+  String get f3dSelectColumns => 'Columns';
+
+  @override
+  String get f3dSelectBeams => 'Beams';
+
+  @override
+  String get f3dSelectBraces => 'Braces';
+
+  @override
+  String get f3dSelectLevel => 'Level';
+
+  @override
+  String get f3dSelectClear => 'Clear';
+
+  @override
+  String get f3dBulkSection => 'Section of the selected members';
+
+  @override
+  String get f3dBulkReleases => 'Releases of the selected members';
+
+  @override
+  String get f3dBulkSupport => 'Support of the selected nodes';
+
+  @override
+  String get f3dMoveCopy => 'Move / copy';
+
+  @override
+  String get f3dCopies => 'Copies';
+
+  @override
+  String get f3dMoveBtn => 'Move';
+
+  @override
+  String get f3dCopyBtn => 'Copy';
+
+  @override
+  String get f3dCopyHelp =>
+      'Copy repeats the selection n times, each shifted by Δx, Δy, Δz from the previous one; nodes at the same place are shared and the supports and loads follow.';
+
+  @override
+  String get f3dMirror => 'Mirror';
+
+  @override
+  String get f3dMirrorAbout => 'About the plane';
+
+  @override
+  String get f3dMirrorBtn => 'Mirrored copy';
+
+  @override
+  String get f3dDeleteSelection => 'Delete the selection';
+
+  @override
+  String get f3dEmptyEditTitle => 'Nothing to analyse yet';
+
+  @override
+  String get f3dEmptyEdit =>
+      'Open the Edit tab, choose Draw and tap the grid to place nodes and members.';
+
+  @override
+  String get f3dNewModel => 'New model';
+
+  @override
+  String get f3dNewModelTitle => 'Start a model';
+
+  @override
+  String get f3dEmptyModel => 'Empty 3D model';
+
+  @override
+  String get f3dEmptyModelSub =>
+      'Start from an empty space and draw any structure.';
+
+  @override
+  String get f3dPlaneFrameNew => 'Plane frame';
+
+  @override
+  String get f3dPlaneFrameNewSub =>
+      'A 2D frame in the X–Z plane, with all the 3D tools.';
+
+  @override
+  String get f3dGeneratorNew => 'Building generator';
+
+  @override
+  String get f3dGeneratorNewSub =>
+      'Bays, storeys, sections and floor loads in one step.';
+
+  @override
+  String get f3dFrom2d => 'From a 2D frame';
+
+  @override
+  String get f3dFrom2dSub =>
+      'Use one of the project\'s 2D frames as a plane model (hinges, supports and loads are kept).';
+
+  @override
+  String f3dFreeSummary(int nodes, int members) {
+    return '$nodes nodes · $members members';
+  }
+
+  @override
+  String get f3dFreeNote =>
+      'Free model: draw, copy and edit anything in the Edit tab. Seismic masses come from the load cases (G + 0.3 Q).';
+
+  @override
+  String get frameOpenAs3d => 'Open as a plane model in 3D';
 }

@@ -21,6 +21,11 @@ class Frame3DRecord {
   /// when the nodes change.
   final List<double>? masses;
 
+  /// A free model (drawn from scratch, a 2D frame or an import): it has
+  /// no generator to go back to; [params] only carry the rigid-floor
+  /// setting.
+  final bool free;
+
   const Frame3DRecord({
     required this.id,
     required this.projectId,
@@ -29,7 +34,58 @@ class Frame3DRecord {
     required this.params,
     this.custom,
     this.masses,
+    this.free = false,
   });
+
+  /// A free model starting from [model].
+  factory Frame3DRecord.free({
+    required String id,
+    required String projectId,
+    required String name,
+    required Model3D model,
+    bool rigidFloors = false,
+  }) => Frame3DRecord(
+    id: id,
+    projectId: projectId,
+    name: name,
+    updatedAt: DateTime.now(),
+    params: BuildingParams(
+      spansX: const [5],
+      spansY: const [5],
+      storeyHeights: const [3],
+      column: Section3D.rectangle(300, 300),
+      beam: Section3D.rectangle(250, 500),
+      rigidFloors: rigidFloors,
+    ),
+    custom: model,
+    free: true,
+  );
+
+  /// The same record with rigid floors switched on or off (the model is
+  /// kept).
+  Frame3DRecord withRigidFloors(bool on) {
+    final p = params;
+    return Frame3DRecord(
+      id: id,
+      projectId: projectId,
+      name: name,
+      updatedAt: DateTime.now(),
+      params: BuildingParams(
+        spansX: p.spansX,
+        spansY: p.spansY,
+        storeyHeights: p.storeyHeights,
+        column: p.column,
+        beam: p.beam,
+        g: p.g,
+        q: p.q,
+        facade: p.facade,
+        rigidFloors: on,
+      ),
+      custom: custom,
+      masses: masses,
+      free: free,
+    );
+  }
 
   /// The model to analyse.
   Model3D get model => custom ?? buildingFrame(params);
@@ -44,6 +100,7 @@ class Frame3DRecord {
         // New parameters regenerate the building.
         custom: params == null ? custom : null,
         masses: params == null ? masses : null,
+        free: params == null && free,
       );
 
   /// The record with an edited model; masses are kept only while the
@@ -60,20 +117,23 @@ class Frame3DRecord {
       masses: previous != null && previous.length == m.nodes.length
           ? previous
           : null,
+      free: free,
     );
   }
 
   List<double> _generatedMasses() =>
       buildingNodeMasses(params, buildingFrame(params));
 
-  /// Back to the generated building.
-  Frame3DRecord regenerated() => Frame3DRecord(
-    id: id,
-    projectId: projectId,
-    name: name,
-    updatedAt: DateTime.now(),
-    params: params,
-  );
+  /// Back to the generated building (free models stay as they are).
+  Frame3DRecord regenerated() => free
+      ? this
+      : Frame3DRecord(
+          id: id,
+          projectId: projectId,
+          name: name,
+          updatedAt: DateTime.now(),
+          params: params,
+        );
 
   Map<String, dynamic> toStored() => {
     'id': id,
@@ -83,6 +143,7 @@ class Frame3DRecord {
     'params': jsonEncode(params.toJson()),
     if (custom != null) 'model': jsonEncode(custom!.toJson()),
     if (masses != null) 'masses': masses,
+    if (free) 'free': true,
   };
 
   static Frame3DRecord? fromStored(Object? v) {
@@ -105,6 +166,7 @@ class Frame3DRecord {
         masses: (v['masses'] as List?)
             ?.map((e) => (e as num).toDouble())
             .toList(),
+        free: v['free'] as bool? ?? false,
       );
     } catch (e) {
       LoggerService.w('Unreadable 3D model: $e');

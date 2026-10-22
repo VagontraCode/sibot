@@ -3920,4 +3920,235 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get frameArrayApply => 'Créer les copies';
+
+  @override
+  String get f3dToolSelect => 'Sélection';
+
+  @override
+  String get f3dToolDraw => 'Dessin';
+
+  @override
+  String get f3dToolMulti => 'Multiple';
+
+  @override
+  String get f3dDrawHelp =>
+      'Touchez la grille ou des nœuds existants : chaque touche ajoute un nœud et une barre depuis le précédent. « Fin de ligne » lève le crayon. La section active est utilisée.';
+
+  @override
+  String get f3dMultiHelp =>
+      'Touchez des nœuds et des barres pour les ajouter ou les retirer, ou utilisez les sélections rapides ; puis modifiez toute la sélection ci-dessous.';
+
+  @override
+  String get f3dEndLine => 'Fin de ligne';
+
+  @override
+  String get f3dPlane => 'Plan de travail';
+
+  @override
+  String get f3dPlaneLevel => 'Niveau Z';
+
+  @override
+  String get f3dPlaneFront => 'Façade Y';
+
+  @override
+  String get f3dPlaneSide => 'Pignon X';
+
+  @override
+  String get f3dPlaneValue => 'Plan à';
+
+  @override
+  String get f3dGridStep => 'Pas de grille';
+
+  @override
+  String get f3dLookAtPlane => 'Voir le plan de face';
+
+  @override
+  String get f3dViewIso => '3D';
+
+  @override
+  String get f3dViewTop => 'Dessus';
+
+  @override
+  String get f3dViewFront => 'Face';
+
+  @override
+  String get f3dViewSide => 'Côté';
+
+  @override
+  String get f3dPlaneModel =>
+      'Portique plan dans le plan X–Z : chaque nœud est bloqué hors du plan (uy, rx, rz).';
+
+  @override
+  String get f3dRestraints => 'Blocages';
+
+  @override
+  String get f3dSprings => 'Ressorts';
+
+  @override
+  String get f3dApplySupport => 'Appliquer l’appui';
+
+  @override
+  String get f3dReleases => 'Relâchements d’extrémité';
+
+  @override
+  String get f3dReleaseStart => 'Origine';
+
+  @override
+  String get f3dReleaseEnd => 'Extrémité';
+
+  @override
+  String get f3dRigid => 'Encastré';
+
+  @override
+  String get f3dPinBoth => 'Articulée aux deux bouts';
+
+  @override
+  String get f3dPinStart => 'Articulée à l’origine';
+
+  @override
+  String get f3dPinEnd => 'Articulée à l’extrémité';
+
+  @override
+  String get f3dReleasesHelp =>
+      'Une extrémité relâchée ne transmet aucun moment autour de cet axe local (Mx torsion, My axe fort, Mz axe faible). La torsion reste bloquée à une extrémité au moins ; les rotations qu’aucune barre ne retient sont bloquées automatiquement.';
+
+  @override
+  String get f3dDirLocalZ => 'z local';
+
+  @override
+  String get f3dDirLocalY => 'y local';
+
+  @override
+  String get f3dLoadFrom => 'De a';
+
+  @override
+  String get f3dLoadTo => 'À b';
+
+  @override
+  String get f3dLoadExtentNote =>
+      'kN/m, la pesanteur est −Z. Distances depuis le nœud origine ; w2 vide = uniforme, a et b vides = toute la barre ; w1 = 0 supprime la charge.';
+
+  @override
+  String f3dPointLoad(String name) {
+    return 'Charge ponctuelle ($name)';
+  }
+
+  @override
+  String get f3dPointAt => 'À la distance';
+
+  @override
+  String get f3dApplyPointLoad => 'Appliquer la charge ponctuelle';
+
+  @override
+  String f3dSelection(int nodes, int members) {
+    return '$nodes nœuds, $members barres sélectionnés';
+  }
+
+  @override
+  String get f3dSelectAll => 'Tout';
+
+  @override
+  String get f3dSelectColumns => 'Poteaux';
+
+  @override
+  String get f3dSelectBeams => 'Poutres';
+
+  @override
+  String get f3dSelectBraces => 'Diagonales';
+
+  @override
+  String get f3dSelectLevel => 'Niveau';
+
+  @override
+  String get f3dSelectClear => 'Effacer';
+
+  @override
+  String get f3dBulkSection => 'Section des barres sélectionnées';
+
+  @override
+  String get f3dBulkReleases => 'Relâchements des barres sélectionnées';
+
+  @override
+  String get f3dBulkSupport => 'Appui des nœuds sélectionnés';
+
+  @override
+  String get f3dMoveCopy => 'Déplacer / copier';
+
+  @override
+  String get f3dCopies => 'Copies';
+
+  @override
+  String get f3dMoveBtn => 'Déplacer';
+
+  @override
+  String get f3dCopyBtn => 'Copier';
+
+  @override
+  String get f3dCopyHelp =>
+      'La copie répète la sélection n fois, chaque copie décalée de Δx, Δy, Δz par rapport à la précédente ; les nœuds au même endroit sont partagés, les appuis et les charges suivent.';
+
+  @override
+  String get f3dMirror => 'Symétrie';
+
+  @override
+  String get f3dMirrorAbout => 'Par rapport au plan';
+
+  @override
+  String get f3dMirrorBtn => 'Copie symétrique';
+
+  @override
+  String get f3dDeleteSelection => 'Supprimer la sélection';
+
+  @override
+  String get f3dEmptyEditTitle => 'Rien à calculer pour l’instant';
+
+  @override
+  String get f3dEmptyEdit =>
+      'Ouvrez l’onglet Édition, choisissez Dessin et touchez la grille pour placer nœuds et barres.';
+
+  @override
+  String get f3dNewModel => 'Nouveau modèle';
+
+  @override
+  String get f3dNewModelTitle => 'Commencer un modèle';
+
+  @override
+  String get f3dEmptyModel => 'Modèle 3D vide';
+
+  @override
+  String get f3dEmptyModelSub =>
+      'Partir d’un espace vide et dessiner n’importe quelle structure.';
+
+  @override
+  String get f3dPlaneFrameNew => 'Portique plan';
+
+  @override
+  String get f3dPlaneFrameNewSub =>
+      'Un portique 2D dans le plan X–Z, avec tous les outils 3D.';
+
+  @override
+  String get f3dGeneratorNew => 'Générateur de bâtiment';
+
+  @override
+  String get f3dGeneratorNewSub =>
+      'Travées, niveaux, sections et charges de plancher en une étape.';
+
+  @override
+  String get f3dFrom2d => 'Depuis un portique 2D';
+
+  @override
+  String get f3dFrom2dSub =>
+      'Utiliser un portique 2D du projet comme modèle plan (articulations, appuis et charges conservés).';
+
+  @override
+  String f3dFreeSummary(int nodes, int members) {
+    return '$nodes nœuds · $members barres';
+  }
+
+  @override
+  String get f3dFreeNote =>
+      'Modèle libre : dessinez, copiez et modifiez tout dans l’onglet Édition. Les masses sismiques viennent des cas de charge (G + 0,3 Q).';
+
+  @override
+  String get frameOpenAs3d => 'Ouvrir comme modèle plan en 3D';
 }

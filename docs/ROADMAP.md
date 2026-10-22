@@ -187,14 +187,15 @@ which analyses to run and what to design from the results. The single calculator
 quick checks. Each step is finished, tested (engine, widgets, Nokia G100) and committed before
 the next one starts.
 
-**Step 1 — Free modelling**
-- [ ] Start a 3D model from an empty space; the building generator, 2D frames and DXF become starting points
-- [ ] Working grid and storey levels with snapping; node coordinates editable
-- [ ] Per-member end releases (moments about y and z, torsion) in the 3D editor
-- [ ] Supports per node: any combination of the six restraints, and elastic springs
-- [ ] Copy / array / mirror of the selected nodes and members, with their loads
-- [ ] Multi-selection (tap, by level, by kind: columns / beams / braces) and bulk edits (section, releases, delete)
-- [ ] Plane-frame models: a 3D model locked to the XZ plane, so 2D frames get the same tools
+**Step 1 — Free modelling ✅**
+- [x] Start a 3D model from an empty space; the building generator, 2D frames and DXF become starting points
+- [x] Working grid and storey levels with snapping; node coordinates editable
+- [x] Per-member end releases (moments about y and z, torsion) in the 3D editor
+- [x] Supports per node: any combination of the six restraints, and elastic springs
+- [x] Copy / array / mirror of the selected nodes and members, with their loads
+- [x] Multi-selection (tap, by level, by kind: columns / beams / braces) and bulk edits (section, releases, delete)
+- [x] Plane-frame models: a 3D model locked to the XZ plane, so 2D frames get the same tools
+- [x] Also: partial / trapezoidal and point loads on 3D members, camera presets (top, front, side)
 
 **Step 2 — Your own load cases, combinations and analyses**
 - [ ] Combination table: generate EN 1990 / BAEL combinations, then add, delete and edit any factor

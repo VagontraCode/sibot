@@ -6125,7 +6125,7 @@ abstract class AppLocalizations {
   /// No description provided for @f3dMemberLoad.
   ///
   /// In en, this message translates to:
-  /// **'Uniform load ({name})'**
+  /// **'Distributed load ({name})'**
   String f3dMemberLoad(String name);
 
   /// No description provided for @f3dMemberLoadHelp.
@@ -7231,6 +7231,432 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create the copies'**
   String get frameArrayApply;
+
+  /// No description provided for @f3dToolSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get f3dToolSelect;
+
+  /// No description provided for @f3dToolDraw.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get f3dToolDraw;
+
+  /// No description provided for @f3dToolMulti.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi'**
+  String get f3dToolMulti;
+
+  /// No description provided for @f3dDrawHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the grid or existing nodes: each tap adds a node and a member from the previous one. Tap “End line” to lift the pen. The active section is used.'**
+  String get f3dDrawHelp;
+
+  /// No description provided for @f3dMultiHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap nodes and members to add or remove them, or use the quick selections; then edit the whole selection below.'**
+  String get f3dMultiHelp;
+
+  /// No description provided for @f3dEndLine.
+  ///
+  /// In en, this message translates to:
+  /// **'End line'**
+  String get f3dEndLine;
+
+  /// No description provided for @f3dPlane.
+  ///
+  /// In en, this message translates to:
+  /// **'Working plane'**
+  String get f3dPlane;
+
+  /// No description provided for @f3dPlaneLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level Z'**
+  String get f3dPlaneLevel;
+
+  /// No description provided for @f3dPlaneFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Front Y'**
+  String get f3dPlaneFront;
+
+  /// No description provided for @f3dPlaneSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side X'**
+  String get f3dPlaneSide;
+
+  /// No description provided for @f3dPlaneValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane at'**
+  String get f3dPlaneValue;
+
+  /// No description provided for @f3dGridStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Grid step'**
+  String get f3dGridStep;
+
+  /// No description provided for @f3dLookAtPlane.
+  ///
+  /// In en, this message translates to:
+  /// **'Face the plane'**
+  String get f3dLookAtPlane;
+
+  /// No description provided for @f3dViewIso.
+  ///
+  /// In en, this message translates to:
+  /// **'3D'**
+  String get f3dViewIso;
+
+  /// No description provided for @f3dViewTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Top'**
+  String get f3dViewTop;
+
+  /// No description provided for @f3dViewFront.
+  ///
+  /// In en, this message translates to:
+  /// **'Front'**
+  String get f3dViewFront;
+
+  /// No description provided for @f3dViewSide.
+  ///
+  /// In en, this message translates to:
+  /// **'Side'**
+  String get f3dViewSide;
+
+  /// No description provided for @f3dPlaneModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane frame in the X–Z plane: every node is held out of the plane (uy, rx, rz).'**
+  String get f3dPlaneModel;
+
+  /// No description provided for @f3dRestraints.
+  ///
+  /// In en, this message translates to:
+  /// **'Restraints'**
+  String get f3dRestraints;
+
+  /// No description provided for @f3dSprings.
+  ///
+  /// In en, this message translates to:
+  /// **'Springs'**
+  String get f3dSprings;
+
+  /// No description provided for @f3dApplySupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the support'**
+  String get f3dApplySupport;
+
+  /// No description provided for @f3dReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'End releases'**
+  String get f3dReleases;
+
+  /// No description provided for @f3dReleaseStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get f3dReleaseStart;
+
+  /// No description provided for @f3dReleaseEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get f3dReleaseEnd;
+
+  /// No description provided for @f3dRigid.
+  ///
+  /// In en, this message translates to:
+  /// **'Rigid'**
+  String get f3dRigid;
+
+  /// No description provided for @f3dPinBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned both ends'**
+  String get f3dPinBoth;
+
+  /// No description provided for @f3dPinStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned start'**
+  String get f3dPinStart;
+
+  /// No description provided for @f3dPinEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned end'**
+  String get f3dPinEnd;
+
+  /// No description provided for @f3dReleasesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A released end carries no moment about that local axis (Mx torsion, My major axis, Mz minor axis). Torsion stays fixed at one end at least; rotations that no member resists are held automatically.'**
+  String get f3dReleasesHelp;
+
+  /// No description provided for @f3dDirLocalZ.
+  ///
+  /// In en, this message translates to:
+  /// **'local z'**
+  String get f3dDirLocalZ;
+
+  /// No description provided for @f3dDirLocalY.
+  ///
+  /// In en, this message translates to:
+  /// **'local y'**
+  String get f3dDirLocalY;
+
+  /// No description provided for @f3dLoadFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From a'**
+  String get f3dLoadFrom;
+
+  /// No description provided for @f3dLoadTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To b'**
+  String get f3dLoadTo;
+
+  /// No description provided for @f3dLoadExtentNote.
+  ///
+  /// In en, this message translates to:
+  /// **'kN/m, gravity is −Z. Distances from the start node; empty w2 = uniform, empty a and b = whole member; w1 = 0 removes the load.'**
+  String get f3dLoadExtentNote;
+
+  /// No description provided for @f3dPointLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Point load ({name})'**
+  String f3dPointLoad(String name);
+
+  /// No description provided for @f3dPointAt.
+  ///
+  /// In en, this message translates to:
+  /// **'At distance'**
+  String get f3dPointAt;
+
+  /// No description provided for @f3dApplyPointLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply the point load'**
+  String get f3dApplyPointLoad;
+
+  /// No description provided for @f3dSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'{nodes} nodes, {members} members selected'**
+  String f3dSelection(int nodes, int members);
+
+  /// No description provided for @f3dSelectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get f3dSelectAll;
+
+  /// No description provided for @f3dSelectColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Columns'**
+  String get f3dSelectColumns;
+
+  /// No description provided for @f3dSelectBeams.
+  ///
+  /// In en, this message translates to:
+  /// **'Beams'**
+  String get f3dSelectBeams;
+
+  /// No description provided for @f3dSelectBraces.
+  ///
+  /// In en, this message translates to:
+  /// **'Braces'**
+  String get f3dSelectBraces;
+
+  /// No description provided for @f3dSelectLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get f3dSelectLevel;
+
+  /// No description provided for @f3dSelectClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get f3dSelectClear;
+
+  /// No description provided for @f3dBulkSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Section of the selected members'**
+  String get f3dBulkSection;
+
+  /// No description provided for @f3dBulkReleases.
+  ///
+  /// In en, this message translates to:
+  /// **'Releases of the selected members'**
+  String get f3dBulkReleases;
+
+  /// No description provided for @f3dBulkSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Support of the selected nodes'**
+  String get f3dBulkSupport;
+
+  /// No description provided for @f3dMoveCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Move / copy'**
+  String get f3dMoveCopy;
+
+  /// No description provided for @f3dCopies.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies'**
+  String get f3dCopies;
+
+  /// No description provided for @f3dMoveBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get f3dMoveBtn;
+
+  /// No description provided for @f3dCopyBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get f3dCopyBtn;
+
+  /// No description provided for @f3dCopyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy repeats the selection n times, each shifted by Δx, Δy, Δz from the previous one; nodes at the same place are shared and the supports and loads follow.'**
+  String get f3dCopyHelp;
+
+  /// No description provided for @f3dMirror.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirror'**
+  String get f3dMirror;
+
+  /// No description provided for @f3dMirrorAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About the plane'**
+  String get f3dMirrorAbout;
+
+  /// No description provided for @f3dMirrorBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Mirrored copy'**
+  String get f3dMirrorBtn;
+
+  /// No description provided for @f3dDeleteSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete the selection'**
+  String get f3dDeleteSelection;
+
+  /// No description provided for @f3dEmptyEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to analyse yet'**
+  String get f3dEmptyEditTitle;
+
+  /// No description provided for @f3dEmptyEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the Edit tab, choose Draw and tap the grid to place nodes and members.'**
+  String get f3dEmptyEdit;
+
+  /// No description provided for @f3dNewModel.
+  ///
+  /// In en, this message translates to:
+  /// **'New model'**
+  String get f3dNewModel;
+
+  /// No description provided for @f3dNewModelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a model'**
+  String get f3dNewModelTitle;
+
+  /// No description provided for @f3dEmptyModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty 3D model'**
+  String get f3dEmptyModel;
+
+  /// No description provided for @f3dEmptyModelSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from an empty space and draw any structure.'**
+  String get f3dEmptyModelSub;
+
+  /// No description provided for @f3dPlaneFrameNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Plane frame'**
+  String get f3dPlaneFrameNew;
+
+  /// No description provided for @f3dPlaneFrameNewSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A 2D frame in the X–Z plane, with all the 3D tools.'**
+  String get f3dPlaneFrameNewSub;
+
+  /// No description provided for @f3dGeneratorNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Building generator'**
+  String get f3dGeneratorNew;
+
+  /// No description provided for @f3dGeneratorNewSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Bays, storeys, sections and floor loads in one step.'**
+  String get f3dGeneratorNewSub;
+
+  /// No description provided for @f3dFrom2d.
+  ///
+  /// In en, this message translates to:
+  /// **'From a 2D frame'**
+  String get f3dFrom2d;
+
+  /// No description provided for @f3dFrom2dSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Use one of the project\'s 2D frames as a plane model (hinges, supports and loads are kept).'**
+  String get f3dFrom2dSub;
+
+  /// No description provided for @f3dFreeSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{nodes} nodes · {members} members'**
+  String f3dFreeSummary(int nodes, int members);
+
+  /// No description provided for @f3dFreeNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Free model: draw, copy and edit anything in the Edit tab. Seismic masses come from the load cases (G + 0.3 Q).'**
+  String get f3dFreeNote;
+
+  /// No description provided for @frameOpenAs3d.
+  ///
+  /// In en, this message translates to:
+  /// **'Open as a plane model in 3D'**
+  String get frameOpenAs3d;
 }
 
 class _AppLocalizationsDelegate

@@ -122,6 +122,65 @@ Future<void> _seed() async {
       ),
     ),
   );
+  // Free 3D models: one drawn with releases, a spring support and
+  // general loads, one still empty.
+  await Frame3DRepository.save(
+    Frame3DRecord.free(
+      id: 'F3_FREE',
+      projectId: 'PRJ_1',
+      name: 'Canopy',
+      model: Model3D(
+        nodes: const [
+          Node3D(0, 0, 0),
+          Node3D(0, 0, 3),
+          Node3D(5, 0, 3),
+          Node3D(5, 0, 0),
+          Node3D(5, 4, 3),
+          Node3D(5, 4, 0),
+        ],
+        supports: {
+          0: Support3D.fixed,
+          3: Support3D.fixed,
+          5: Support3D.of(
+            [true, true, false, true, true, true],
+            [0, 0, 20000, 0, 0, 0],
+          ),
+        },
+        sections: [Section3D.rectangle(300, 300), Section3D.steel('IPE 300')],
+        elements: const [
+          Element3D(0, 1, 0),
+          Element3D(3, 2, 0),
+          Element3D(1, 2, 1, releases: Element3D.pinnedEnds),
+          Element3D(2, 4, 1),
+          Element3D(5, 4, 0),
+          Element3D(0, 2, 1, releases: Element3D.pinnedEnds),
+        ],
+        cases: const [
+          LoadCase3D(
+            name: 'G',
+            selfWeight: true,
+            member: [
+              MemberLoad3D(2, qz: -8, start: 1, end: 4, end2: [0, 0, -12]),
+            ],
+            point: [PointLoad3D(3, 2, fz: -25)],
+          ),
+          LoadCase3D(
+            name: 'Q',
+            type: LoadType.imposed,
+            member: [MemberLoad3D(3, qz: -5)],
+          ),
+        ],
+      ),
+    ),
+  );
+  await Frame3DRepository.save(
+    Frame3DRecord.free(
+      id: 'F3_EMPTY',
+      projectId: 'PRJ_1',
+      name: 'Empty',
+      model: Model3D.empty(),
+    ),
+  );
   await projects.put(
     'PRJ_1',
     Project(
@@ -437,6 +496,10 @@ void main() {
     'frame3d_modes': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_edit': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_seismic': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_free': '/projects/PRJ_1/frame3d/F3_FREE',
+    'frame3d_free_multi': '/projects/PRJ_1/frame3d/F3_FREE',
+    'frame3d_empty_draw': '/projects/PRJ_1/frame3d/F3_EMPTY',
+    'frame3d_new': '/projects/PRJ_1/frame3d',
     'retaining_wall': '/projects/PRJ_1/retaining-wall',
     'field': '/field',
     'punch_list': '/field/punch-list/PRJ_1',
@@ -478,7 +541,9 @@ void main() {
           for (final s in screens.entries) {
             appRouter.go(s.value);
             final live3d =
-                s.key.startsWith('frame3d_') && s.key != 'frame3d_list';
+                s.key.startsWith('frame3d_') &&
+                s.key != 'frame3d_list' &&
+                s.key != 'frame3d_new';
             if (live3d) {
               // The analysis runs in an isolate behind a progress bar.
               await tester.pump(const Duration(milliseconds: 500));
@@ -523,6 +588,53 @@ void main() {
                 await tester.pump();
                 expect(find.byType(Frame3DEditPanel), findsOneWidget);
               }
+              if (s.key == 'frame3d_free_multi') {
+                final edit = find.byType(ChoiceChip).at(1);
+                await tester.ensureVisible(edit);
+                await tester.pump();
+                await tester.tap(edit);
+                await tester.pump();
+                await tester.tap(find.byIcon(Icons.select_all_rounded));
+                await tester.pump();
+                // Camera presets first, then the quick selections.
+                final all = find.byType(ActionChip).at(4);
+                await tester.ensureVisible(all);
+                await tester.tap(all);
+                await tester.pump();
+                expect(find.byIcon(Icons.copy_all_rounded), findsOneWidget);
+              }
+              if (s.key == 'frame3d_empty_draw') {
+                // An empty model opens on the Edit tab.
+                expect(find.byType(Frame3DEditPanel), findsOneWidget);
+                await tester.tap(find.byIcon(Icons.draw_outlined));
+                await tester.pump();
+                final view = tester.getRect(find.byType(Frame3DView));
+                await tester.tapAt(view.center);
+                await tester.pump();
+                await tester.tapAt(view.center + const Offset(40, 0));
+                await tester.pump();
+                await tester.runAsync(
+                  () => Future<void>.delayed(const Duration(milliseconds: 50)),
+                );
+                await tester.pump();
+                final drawn = tester.widget<Frame3DView>(
+                  find.byType(Frame3DView),
+                );
+                expect(drawn.model.nodes, hasLength(2), reason: s.key);
+                expect(drawn.model.elements, hasLength(1), reason: s.key);
+                // Undo both taps: the next configuration starts empty again.
+                for (var k = 0; k < 2; k++) {
+                  await tester.tap(find.byIcon(Icons.undo_rounded));
+                  await tester.pump();
+                }
+                expect(
+                  tester
+                      .widget<Frame3DView>(find.byType(Frame3DView))
+                      .model
+                      .nodes,
+                  isEmpty,
+                );
+              }
               if (s.key == 'frame3d_seismic') {
                 final chip = find.byType(ChoiceChip).at(4);
                 await tester.ensureVisible(chip);
@@ -551,6 +663,15 @@ void main() {
               }
               await tester.pump(const Duration(milliseconds: 400));
               expect(find.byType(Frame3DView), findsOneWidget);
+            }
+
+            if (s.key == 'frame3d_new') {
+              await tester.tap(find.byType(FloatingActionButton));
+              await tester.pumpAndSettle();
+              expect(find.byType(ListTile), findsAtLeastNWidgets(3));
+              expect(tester.takeException(), isNull, reason: s.key);
+              await tester.tapAt(const Offset(4, 4));
+              await tester.pumpAndSettle();
             }
 
             // Run a calculation so the results view is rendered too.

@@ -23,6 +23,68 @@ class MemberPick extends Pick3D {
   const MemberPick(this.member);
 }
 
+/// Orientation of a working plane: a level (Z = value), a front plane
+/// (Y = value) or a side plane (X = value).
+enum PlaneAxis { z, y, x }
+
+/// Plane on which taps place nodes, snapped to a square grid.
+class WorkPlane {
+  final PlaneAxis axis;
+  final double value;
+  final double step;
+  const WorkPlane(this.axis, this.value, {this.step = 1});
+
+  /// The point of the plane nearest to [p] on the grid.
+  Node3D snap(Node3D p) {
+    double s(double v) => (v / step).round() * step;
+    return switch (axis) {
+      PlaneAxis.z => Node3D(s(p.x), s(p.y), value),
+      PlaneAxis.y => Node3D(s(p.x), value, s(p.z)),
+      PlaneAxis.x => Node3D(value, s(p.y), s(p.z)),
+    };
+  }
+
+  /// Grid rectangle (in-plane coordinates u, v) covering the model's
+  /// nodes with a margin, at least 10 m × 10 m from the origin.
+  (double, double, double, double) extent(Model3D m) {
+    var u0 = 0.0, u1 = 10.0, v0 = 0.0, v1 = 10.0;
+    for (final n in m.nodes) {
+      final (u, v) = coords(n);
+      u0 = math.min(u0, u - 2 * step);
+      u1 = math.max(u1, u + 2 * step);
+      v0 = math.min(v0, v - 2 * step);
+      v1 = math.max(v1, v + 2 * step);
+    }
+    double down(double x) => (x / step).floor() * step;
+    double up(double x) => (x / step).ceil() * step;
+    return (down(u0), up(u1), down(v0), up(v1));
+  }
+
+  (double, double) coords(Node3D n) => switch (axis) {
+    PlaneAxis.z => (n.x, n.y),
+    PlaneAxis.y => (n.x, n.z),
+    PlaneAxis.x => (n.y, n.z),
+  };
+
+  Node3D point(double u, double v) => switch (axis) {
+    PlaneAxis.z => Node3D(u, v, value),
+    PlaneAxis.y => Node3D(u, value, v),
+    PlaneAxis.x => Node3D(value, u, v),
+  };
+}
+
+/// Standard camera orientations.
+enum ViewPreset { iso, top, front, side }
+
+/// Lets a parent turn the camera of a [Frame3DView] to a preset.
+class ViewCamera extends ChangeNotifier {
+  ViewPreset preset = ViewPreset.iso;
+  void show(ViewPreset p) {
+    preset = p;
+    notifyListeners();
+  }
+}
+
 /// Interactive orthographic view of a space frame: drag to orbit, pinch
 /// (or scroll) to zoom, two fingers to pan, double-tap to reset, tap to
 /// pick a node or a member.
@@ -53,6 +115,16 @@ class Frame3DView extends StatefulWidget {
   final int? pendingNode;
   final ValueChanged<Pick3D?>? onPick;
 
+  /// Multi-selection highlights.
+  final Set<int> selectedNodes;
+  final Set<int> selectedMembers;
+
+  /// Working plane drawn as a grid; taps away from nodes call
+  /// [onPlaneTap] with the snapped point.
+  final WorkPlane? workPlane;
+  final ValueChanged<Node3D>? onPlaneTap;
+  final ViewCamera? camera;
+
   const Frame3DView({
     super.key,
     required this.model,
@@ -67,6 +139,11 @@ class Frame3DView extends StatefulWidget {
     this.selectedMember,
     this.pendingNode,
     this.onPick,
+    this.selectedNodes = const {},
+    this.selectedMembers = const {},
+    this.workPlane,
+    this.onPlaneTap,
+    this.camera,
   });
 
   @override
@@ -85,9 +162,10 @@ class _Projector {
     double yaw,
     double pitch,
     double zoom,
-    Offset pan,
-  ) {
-    final (cx, cy, cz, r) = _bounds(m);
+    Offset pan, [
+    List<Node3D> extra = const [],
+  ]) {
+    final (cx, cy, cz, r) = _bounds([...m.nodes, ...extra]);
     return _Projector._(
       cx,
       cy,
@@ -115,11 +193,11 @@ class _Projector {
     this.sp,
   );
 
-  static (double, double, double, double) _bounds(Model3D m) {
-    if (m.nodes.isEmpty) return (0, 0, 0, 1);
+  static (double, double, double, double) _bounds(List<Node3D> nodes) {
+    if (nodes.isEmpty) return (0, 0, 0, 1);
     var minX = double.infinity, minY = minX, minZ = minX;
     var maxX = -double.infinity, maxY = maxX, maxZ = maxX;
-    for (final n in m.nodes) {
+    for (final n in nodes) {
       minX = math.min(minX, n.x);
       maxX = math.max(maxX, n.x);
       minY = math.min(minY, n.y);
@@ -151,6 +229,33 @@ class _Projector {
 
   Offset node(Node3D n) => project(n.x, n.y, n.z).$1;
 
+  /// The point of the plane under screen point [p] (null when the plane
+  /// is seen edge-on).
+  Node3D? unproject(Offset p, PlaneAxis axis, double value) {
+    final x1 = (p.dx - centre.dx) / scale;
+    final up = -(p.dy - centre.dy) / scale;
+    // Screen (x1, up) and depth d back to model coordinates.
+    final double d;
+    switch (axis) {
+      case PlaneAxis.z:
+        if (sp.abs() < 0.05) return null;
+        d = (up * cp - (value - cz)) / sp;
+      case PlaneAxis.y:
+        final den = cp * cyw;
+        if (den.abs() < 0.05) return null;
+        d = ((value - cy) + x1 * syw - up * sp * cyw) / den;
+      case PlaneAxis.x:
+        final den = cp * syw;
+        if (den.abs() < 0.05) return null;
+        d = ((value - cx) - x1 * cyw - up * sp * syw) / den;
+    }
+    final y1 = up * sp + d * cp;
+    final pz = up * cp - d * sp;
+    final px = x1 * cyw + y1 * syw;
+    final py = -x1 * syw + y1 * cyw;
+    return Node3D(cx + px, cy + py, cz + pz);
+  }
+
   /// Screen image of a global direction, [len] pixels per unit.
   Offset direction(double x, double y, double z, double len) {
     final x1 = x * cyw - y * syw;
@@ -176,12 +281,42 @@ class _Frame3DViewState extends State<Frame3DView>
   void initState() {
     super.initState();
     _syncAnimation();
+    widget.camera?.addListener(_applyPreset);
   }
 
   @override
   void didUpdateWidget(Frame3DView old) {
     super.didUpdateWidget(old);
     _syncAnimation();
+    if (old.camera != widget.camera) {
+      old.camera?.removeListener(_applyPreset);
+      widget.camera?.addListener(_applyPreset);
+    }
+  }
+
+  void _applyPreset() {
+    final p = widget.camera?.preset;
+    if (p == null) return;
+    setState(() {
+      final (yaw, pitch) = switch (p) {
+        ViewPreset.iso => (_yaw0, _pitch0),
+        ViewPreset.top => (0.0, math.pi / 2),
+        ViewPreset.front => (0.0, 0.0),
+        ViewPreset.side => (-math.pi / 2, 0.0),
+      };
+      _yaw = yaw;
+      _pitch = pitch;
+      _zoom = 1;
+      _pan = Offset.zero;
+    });
+  }
+
+  /// Corners of the working-plane grid, kept inside the framed volume.
+  List<Node3D> get _extra {
+    final w = widget.workPlane;
+    if (w == null) return const [];
+    final (u0, u1, v0, v1) = w.extent(widget.model);
+    return [w.point(u0, v0), w.point(u1, v1)];
   }
 
   void _syncAnimation() {
@@ -194,6 +329,7 @@ class _Frame3DViewState extends State<Frame3DView>
 
   @override
   void dispose() {
+    widget.camera?.removeListener(_applyPreset);
     _anim.dispose();
     super.dispose();
   }
@@ -208,10 +344,20 @@ class _Frame3DViewState extends State<Frame3DView>
   void _tap(Offset p) {
     final onPick = widget.onPick;
     if (onPick == null) return;
-    final pr = _Projector(widget.model, _size, _yaw, _pitch, _zoom, _pan);
+    final pr = _Projector(
+      widget.model,
+      _size,
+      _yaw,
+      _pitch,
+      _zoom,
+      _pan,
+      _extra,
+    );
     final m = widget.model;
-    // Nodes first (when shown), then the nearest member.
-    if (widget.showNodes) {
+    // Nodes first (when shown), then the nearest member; while drawing,
+    // a tap away from the nodes gives a point of the working plane.
+    final plane = widget.workPlane, onPlane = widget.onPlaneTap;
+    if (widget.showNodes || onPlane != null) {
       var best = -1;
       var bestD = 22.0;
       for (var i = 0; i < m.nodes.length; i++) {
@@ -225,6 +371,11 @@ class _Frame3DViewState extends State<Frame3DView>
         onPick(NodePick(best));
         return;
       }
+    }
+    if (plane != null && onPlane != null) {
+      final hit = pr.unproject(p, plane.axis, plane.value);
+      if (hit != null) onPlane(plane.snap(hit));
+      return;
     }
     var best = -1;
     var bestD = 18.0;
@@ -264,7 +415,8 @@ class _Frame3DViewState extends State<Frame3DView>
             }
           },
           child: GestureDetector(
-            onDoubleTap: _reset,
+            // While drawing, taps must act at once (no double-tap wait).
+            onDoubleTap: widget.onPlaneTap == null ? _reset : null,
             onTapUp: (d) => _tap(d.localPosition),
             onScaleStart: (_) => _scaleStart = _zoom,
             onScaleUpdate: (d) => setState(() {
@@ -286,6 +438,7 @@ class _Frame3DViewState extends State<Frame3DView>
                   size: Size.infinite,
                   painter: _FramePainter(
                     view: widget,
+                    extra: _extra,
                     phase: widget.animate
                         ? math.cos(_anim.value * 2 * math.pi)
                         : 1,
@@ -334,6 +487,7 @@ Color heat(double t) {
 
 class _FramePainter extends CustomPainter {
   final Frame3DView view;
+  final List<Node3D> extra;
   final double phase;
   final double yaw, pitch, zoom;
   final Offset pan;
@@ -341,6 +495,7 @@ class _FramePainter extends CustomPainter {
 
   _FramePainter({
     required this.view,
+    this.extra = const [],
     required this.phase,
     required this.yaw,
     required this.pitch,
@@ -353,8 +508,31 @@ class _FramePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final model = view.model;
     final nodes = model.nodes;
+    final plane = view.workPlane;
+    if (nodes.isEmpty && plane == null) return;
+    final pr = _Projector(model, size, yaw, pitch, zoom, pan, extra);
+
+    // Working-plane grid (thicker every 5 steps).
+    if (plane != null) {
+      final (u0, u1, v0, v1) = plane.extent(model);
+      final thin = Paint()
+        ..color = c.ghost.withValues(alpha: 0.45)
+        ..strokeWidth = 0.6;
+      final thick = Paint()
+        ..color = c.ghost
+        ..strokeWidth = 1.1;
+      final st = plane.step;
+      bool major(double v) => ((v / st).round() % 5) == 0;
+      for (var u = u0; u <= u1 + 1e-9; u += st) {
+        final a = plane.point(u, v0), b = plane.point(u, v1);
+        canvas.drawLine(pr.node(a), pr.node(b), major(u) ? thick : thin);
+      }
+      for (var v = v0; v <= v1 + 1e-9; v += st) {
+        final a = plane.point(u0, v), b = plane.point(u1, v);
+        canvas.drawLine(pr.node(a), pr.node(b), major(v) ? thick : thin);
+      }
+    }
     if (nodes.isEmpty) return;
-    final pr = _Projector(model, size, yaw, pitch, zoom, pan);
     final radius = pr.radius;
     final r = view.result, s = view.shape;
 
@@ -403,7 +581,8 @@ class _FramePainter extends CustomPainter {
       final (pa, da) = pr.project(a.x, a.y, a.z);
       final (pb, db) = pr.project(b.x, b.y, b.z);
       final depth = (da + db) / 2;
-      final selected = e == view.selectedMember;
+      final selected =
+          e == view.selectedMember || view.selectedMembers.contains(e);
       if (util != null) {
         final u = e < util.length ? util[e] : null;
         segments.add((
@@ -487,14 +666,45 @@ class _FramePainter extends CustomPainter {
       );
     }
 
-    // Supports.
+    // Supports: filled for restraints, hollow for springs only.
     final supportPaint = Paint()..color = c.support;
-    for (final n in model.supports.keys) {
+    final springPaint = Paint()
+      ..color = c.support
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6;
+    for (final e in model.supports.entries) {
+      final n = e.key;
       if (n < 0 || n >= nodes.length) continue;
-      canvas.drawRect(
-        Rect.fromCenter(center: pr.node(nodes[n]), width: 7, height: 7),
-        supportPaint,
+      final rect = Rect.fromCenter(
+        center: pr.node(nodes[n]),
+        width: 8,
+        height: 8,
       );
+      canvas.drawRect(
+        rect,
+        e.value.dofs.any((d) => d) ? supportPaint : springPaint,
+      );
+    }
+
+    // End releases (editing): a hollow ring near each released end.
+    if (view.showNodes) {
+      final ring = Paint()
+        ..color = c.ink
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.3;
+      for (final el in model.elements) {
+        if (el.releases.isEmpty) continue;
+        final a = pr.node(nodes[el.n1]), b = pr.node(nodes[el.n2]);
+        final ab = b - a;
+        if (ab.distance < 1) continue;
+        final off = ab / ab.distance * math.min(10.0, ab.distance / 4);
+        if (el.releases.any((d) => d < 6)) {
+          canvas.drawCircle(a + off, 3.4, ring);
+        }
+        if (el.releases.any((d) => d >= 6)) {
+          canvas.drawCircle(b - off, 3.4, ring);
+        }
+      }
     }
 
     // Loads of the edited case: arrows for nodal forces and global
@@ -531,15 +741,51 @@ class _FramePainter extends CustomPainter {
           pr.direction(p.fx / f, p.fy / f, p.fz / f, 28),
         );
       }
+      double memberLength(Element3D el) {
+        final a = nodes[el.n1], b = nodes[el.n2];
+        return math.sqrt(
+          math.pow(b.x - a.x, 2) +
+              math.pow(b.y - a.y, 2) +
+              math.pow(b.z - a.z, 2),
+        );
+      }
+
+      for (final p in c3.point) {
+        if (p.local || p.element < 0 || p.element >= model.elements.length) {
+          continue;
+        }
+        final el = model.elements[p.element];
+        final a = nodes[el.n1], b = nodes[el.n2];
+        final l = memberLength(el);
+        final f = math.sqrt(p.fx * p.fx + p.fy * p.fy + p.fz * p.fz);
+        if (f == 0 || l == 0) continue;
+        final t = (p.a / l).clamp(0.0, 1.0);
+        final tip = pr
+            .project(
+              a.x + (b.x - a.x) * t,
+              a.y + (b.y - a.y) * t,
+              a.z + (b.z - a.z) * t,
+            )
+            .$1;
+        arrow(tip, pr.direction(p.fx / f, p.fy / f, p.fz / f, 26));
+      }
       for (final q in c3.member) {
         if (q.local || q.element < 0 || q.element >= model.elements.length) {
           continue;
         }
         final el = model.elements[q.element];
         final a = nodes[el.n1], b = nodes[el.n2];
-        final w = math.sqrt(q.qx * q.qx + q.qy * q.qy + q.qz * q.qz);
+        final qx = q.qx + q.q2[0], qy = q.qy + q.q2[1], qz = q.qz + q.q2[2];
+        final w = math.sqrt(qx * qx + qy * qy + qz * qz);
         if (w == 0) continue;
-        for (final t in const [0.5]) {
+        final l = memberLength(el);
+        final t0 = l == 0 ? 0.0 : (q.start / l).clamp(0.0, 1.0);
+        final t1 = l == 0 ? 1.0 : ((q.end ?? l) / l).clamp(0.0, 1.0);
+        for (final t in [
+          t0 + (t1 - t0) * 0.2,
+          (t0 + t1) / 2,
+          t0 + (t1 - t0) * 0.8,
+        ]) {
           final tip = pr
               .project(
                 a.x + (b.x - a.x) * t,
@@ -547,7 +793,7 @@ class _FramePainter extends CustomPainter {
                 a.z + (b.z - a.z) * t,
               )
               .$1;
-          arrow(tip, pr.direction(q.qx / w, q.qy / w, q.qz / w, 14));
+          arrow(tip, pr.direction(qx / w, qy / w, qz / w, 14));
         }
       }
     }
@@ -559,7 +805,11 @@ class _FramePainter extends CustomPainter {
         canvas.drawCircle(pr.node(n), 2.6, dot);
       }
     }
-    for (final i in [view.selectedNode, view.pendingNode]) {
+    for (final i in [
+      view.selectedNode,
+      view.pendingNode,
+      ...view.selectedNodes,
+    ]) {
       if (i == null || i < 0 || i >= nodes.length) continue;
       canvas.drawCircle(
         pr.node(nodes[i]),

@@ -24,7 +24,8 @@ class Sibot2D extends SibotFile {
 class Sibot3D extends SibotFile {
   final BuildingParams params;
   final Model3D? custom;
-  const Sibot3D(super.name, this.params, this.custom);
+  final bool free;
+  const Sibot3D(super.name, this.params, this.custom, {this.free = false});
 }
 
 const sibotFormat = 'sibot';
@@ -47,6 +48,7 @@ String encodeFrame3d(Frame3DRecord r) =>
       'name': r.name,
       'params': r.params.toJson(),
       if (r.custom != null) 'model': r.custom!.toJson(),
+      if (r.free) 'free': true,
     });
 
 /// Reads a .sibot file; throws [FormatException] when it is not one.
@@ -74,6 +76,7 @@ SibotFile decodeSibot(String text) {
         name,
         BuildingParams.fromJson(map(j['params'])),
         j['model'] == null ? null : Model3D.fromJson(map(j['model'])),
+        free: j['free'] as bool? ?? false,
       );
     default:
       throw const FormatException('unknown model kind');
@@ -141,6 +144,7 @@ Future<String> importFrame3d(
       updatedAt: now,
       params: importedParams(model),
       custom: model,
+      free: true,
     );
   } else {
     final f = decodeSibot(text);
@@ -152,6 +156,7 @@ Future<String> importFrame3d(
       updatedAt: now,
       params: f.params,
       custom: f.custom,
+      free: f.free,
     );
   }
   await Frame3DRepository.save(record);

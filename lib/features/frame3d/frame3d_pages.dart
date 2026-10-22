@@ -8,6 +8,7 @@ import 'package:sibot/features/calculations/loads/presentation/seismic_provider.
     show frenchZones;
 import 'package:sibot/features/calculations/shared/design_form.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
+import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
@@ -27,7 +28,7 @@ class Frame3DModelsPage extends ConsumerWidget {
   const Frame3DModelsPage({super.key, required this.projectId});
 
   Future<void> _create(BuildContext context) async {
-    final record = await showBuildingWizard(context, projectId: projectId);
+    final record = await showNewModelSheet(context, projectId: projectId);
     if (record != null && context.mounted) {
       context.push('/projects/$projectId/frame3d/${record.id}');
     }
@@ -45,7 +46,7 @@ class Frame3DModelsPage extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _create(context),
         icon: const Icon(Icons.add_rounded),
-        label: Text(l.f3dNewBuilding),
+        label: Text(l.f3dNewModel),
       ),
       children: [
         const BetaNotice(),
@@ -67,7 +68,7 @@ class Frame3DModelsPage extends ConsumerWidget {
                   action: FilledButton.icon(
                     onPressed: () => _create(context),
                     icon: const Icon(Icons.add_rounded),
-                    label: Text(l.f3dNewBuilding),
+                    label: Text(l.f3dNewModel),
                   ),
                 )
               : ResponsiveGrid(
@@ -88,7 +89,7 @@ class Frame3DModelsPage extends ConsumerWidget {
                                 children: [
                                   Text(r.name, style: context.text.titleMedium),
                                   Text(
-                                    '${l.f3dGridSummary(r.params.spansX.length, r.params.spansY.length, r.params.storeyHeights.length)}  ·  ${relativeDate(context, r.updatedAt)}',
+                                    '${r.free ? l.f3dFreeSummary(r.model.nodes.length, r.model.elements.length) : l.f3dGridSummary(r.params.spansX.length, r.params.spansY.length, r.params.storeyHeights.length)}  ·  ${relativeDate(context, r.updatedAt)}',
                                     style: context.text.bodySmall,
                                   ),
                                 ],
@@ -108,6 +109,99 @@ class Frame3DModelsPage extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Asks how to start a new 3D model (empty space, plane frame, building
+/// generator or one of the project's 2D frames); saves and returns it.
+Future<Frame3DRecord?> showNewModelSheet(
+  BuildContext context, {
+  required String projectId,
+}) async {
+  final l = context.l10n;
+  final frames = FrameRepository.forProject(projectId);
+  final choice = await showModalBottomSheet<Object>(
+    context: context,
+    useSafeArea: true,
+    isScrollControlled: true,
+    constraints: const BoxConstraints(maxWidth: 680),
+    builder: (ctx) => SingleChildScrollView(
+      padding: const EdgeInsets.all(Gap.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l.f3dNewModelTitle, style: ctx.text.titleLarge),
+          const SizedBox(height: Gap.md),
+          for (final (key, icon, title, sub) in [
+            (
+              'empty',
+              Icons.view_in_ar_outlined,
+              l.f3dEmptyModel,
+              l.f3dEmptyModelSub,
+            ),
+            (
+              'plane',
+              Icons.crop_landscape_rounded,
+              l.f3dPlaneFrameNew,
+              l.f3dPlaneFrameNewSub,
+            ),
+            (
+              'building',
+              Icons.apartment_rounded,
+              l.f3dGeneratorNew,
+              l.f3dGeneratorNewSub,
+            ),
+          ])
+            ListTile(
+              leading: Icon(icon),
+              title: Text(title),
+              subtitle: Text(sub),
+              onTap: () => Navigator.pop(ctx, key),
+            ),
+          if (frames.isNotEmpty) ...[
+            const Divider(),
+            Text(l.f3dFrom2d, style: ctx.text.titleMedium),
+            Text(l.f3dFrom2dSub, style: ctx.text.bodySmall),
+            for (final f in frames)
+              ListTile(
+                leading: const Icon(Icons.hub_outlined),
+                title: Text(f.name),
+                subtitle: Text(
+                  l.f3dFreeSummary(
+                    f.model.nodes.length,
+                    f.model.elements.length,
+                  ),
+                ),
+                onTap: () => Navigator.pop(ctx, f),
+              ),
+          ],
+        ],
+      ),
+    ),
+  );
+  if (choice == null || !context.mounted) return null;
+  if (choice == 'building') {
+    return showBuildingWizard(context, projectId: projectId);
+  }
+  final id = IdService.generateCalculationId();
+  final Frame3DRecord record;
+  if (choice is FrameModelRecord) {
+    record = Frame3DRecord.free(
+      id: id,
+      projectId: projectId,
+      name: choice.name,
+      model: planeModelFrom2D(choice.model),
+    );
+  } else {
+    final plane = choice == 'plane';
+    record = Frame3DRecord.free(
+      id: id,
+      projectId: projectId,
+      name: plane ? l.f3dPlaneFrameNew : l.f3dEmptyModel,
+      model: Model3D.empty(plane: plane),
+    );
+  }
+  await Frame3DRepository.save(record);
+  return record;
 }
 
 /// Opens the building wizard; saves and returns the record.
@@ -386,6 +480,7 @@ class Frame3DPage extends ConsumerStatefulWidget {
 
 class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   _Tab _tab = _Tab.statics;
+  bool _tabChosen = false;
   int? _combo;
   MemberValue _colorBy = MemberValue.my;
   bool _pDelta = false;
@@ -507,6 +602,11 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         if (mounted) setState(() {});
       });
     edit.sync(record);
+    // Models without members open on the Edit tab.
+    if (!_tabChosen) {
+      _tabChosen = true;
+      if (edit.model.elements.isEmpty) _tab = _Tab.edit;
+    }
     final key = sourceKey(edit.record);
     final output = ref.watch(frame3dAnalysisProvider((key, _code)));
     // Modes and buckling only when a tab needs them.
@@ -539,10 +639,17 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         model: edit.model,
         showNodes: true,
         loadCase: edit.activeCase,
-        selectedNode: edit.node,
-        selectedMember: edit.member,
+        selectedNode: edit.tool == EditTool.multi ? null : edit.node,
+        selectedMember: edit.tool == EditTool.multi ? null : edit.member,
+        selectedNodes: edit.nodes,
+        selectedMembers: edit.members,
         pendingNode: edit.connectFrom,
         onPick: edit.pick,
+        workPlane: edit.tool == EditTool.draw || edit.model.nodes.isEmpty
+            ? edit.plane
+            : null,
+        onPlaneTap: edit.tool == EditTool.draw ? edit.planeTap : null,
+        camera: edit.camera,
       ),
       _Tab.modes when out != null && out.modes.isNotEmpty => Frame3DView(
         model: model,
@@ -615,7 +722,13 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        if (out?.error != null && _tab != _Tab.edit)
+        if (edit.model.elements.isEmpty && _tab != _Tab.edit)
+          StatusBanner(
+            tone: Tone.primary,
+            title: l.f3dEmptyEditTitle,
+            message: l.f3dEmptyEdit,
+          )
+        else if (out?.error != null && _tab != _Tab.edit)
           StatusBanner(
             tone: Tone.danger,
             title: l.frameAnalysisFailed,
@@ -647,15 +760,16 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
             onPressed: () => _exportNote(edit.record, out, spectrum),
             icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
-          IconButton(
-            tooltip: l.f3dEditBuilding,
-            icon: const Icon(Icons.tune_rounded),
-            onPressed: () => showBuildingWizard(
-              context,
-              projectId: widget.projectId,
-              existing: record,
+          if (!edit.record.free)
+            IconButton(
+              tooltip: l.f3dEditBuilding,
+              icon: const Icon(Icons.tune_rounded),
+              onPressed: () => showBuildingWizard(
+                context,
+                projectId: widget.projectId,
+                existing: record,
+              ),
             ),
-          ),
         ],
       ),
       body: LayoutBuilder(
@@ -701,6 +815,47 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     final l = context.l10n;
     final p = record.params;
     final mass = out?.totalMass[0];
+    if (record.free) {
+      final kinds = {
+        for (final k in MemberKind.values) k: model.elementsOfKind(k).length,
+      };
+      return [
+        ResultCard(
+          title: l.f3dTabModel,
+          icon: Icons.view_in_ar_outlined,
+          rows: [
+            ResultRow(
+              label: l.f3dNodesMembers,
+              value: '${model.nodes.length} / ${model.elements.length}',
+            ),
+            ResultRow(
+              label:
+                  '${l.f3dSelectColumns} / ${l.f3dSelectBeams} / ${l.f3dSelectBraces}',
+              value:
+                  '${kinds[MemberKind.column]} / ${kinds[MemberKind.beam]} / ${kinds[MemberKind.brace]}',
+            ),
+            ResultRow(label: l.f3dSupport, value: '${model.supports.length}'),
+            ResultRow(
+              label: l.f3dSection,
+              value: model.sections.map((s) => s.name).join(', '),
+            ),
+            ResultRow(
+              label: l.f3dLoadCase,
+              value: model.cases.map((c) => c.name).join(', '),
+            ),
+            if (mass != null)
+              ResultRow(
+                label: l.f3dSeismicMass,
+                symbol: 'G + 0.3 Q',
+                value: fmt(context, mass, 0),
+                unit: 't',
+              ),
+          ],
+        ),
+        const SizedBox(height: Gap.md),
+        NotesCard(notes: [if (model.plane) l.f3dPlaneModel, l.f3dFreeNote]),
+      ];
+    }
     return [
       ResultCard(
         title: l.f3dTabModel,
