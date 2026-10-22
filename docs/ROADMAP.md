@@ -197,10 +197,10 @@ the next one starts.
 - [x] Plane-frame models: a 3D model locked to the XZ plane, so 2D frames get the same tools
 - [x] Also: partial / trapezoidal and point loads on 3D members, camera presets (top, front, side)
 
-**Step 2 — Your own load cases, combinations and analyses**
-- [ ] Combination table: generate EN 1990 / BAEL combinations, then add, delete and edit any factor
-- [ ] Analysis list built by the user, each with its settings and run on demand: static (chosen cases and combinations), modal (number of modes, masses), spectrum (direction, EC8 / PS92), buckling and P-Δ on a chosen combination
-- [ ] Results kept per analysis and invalidated when the model changes
+**Step 2 — Your own load cases, combinations and analyses ✅**
+- [x] Combination table: generate EN 1990 / BAEL combinations, then add, delete and edit any factor
+- [x] Analysis list built by the user, each with its settings and run on demand: static (chosen combinations), modal (number of modes; masses from G + 0.3 Q), spectrum (direction, EC8 / PS92, modes), buckling and P-Δ on a chosen combination
+- [x] Results kept per analysis and invalidated when the model changes
 
 **Step 3 — Design groups and per-member settings**
 - [ ] Select members (tap, by kind, by level) and put them in design groups

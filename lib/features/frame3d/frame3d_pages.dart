@@ -4,11 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sibot/core/services/core_services.dart';
-import 'package:sibot/features/calculations/loads/presentation/seismic_provider.dart'
-    show frenchZones;
 import 'package:sibot/features/calculations/shared/design_form.dart';
 import 'package:sibot/features/calculations/shared/design_ui.dart';
 import 'package:sibot/features/frame/frame_repository.dart';
+import 'package:sibot/features/frame3d/frame3d_analyses_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
@@ -462,9 +461,16 @@ class _BuildingWizardState extends State<_BuildingWizard> {
   }
 }
 
-enum _Tab { model, edit, statics, modes, seismic, buckling }
+/// Run marks per model for the session.
+final _ranByModel = <String, Map<String, String>>{};
 
-/// Analysis of one 3D building: viewer and result panels.
+enum _Tab { model, edit, combos, analyses }
+
+/// Status of one analysis for the current model.
+enum _RunState { notRun, running, done, stale, failed }
+
+/// Analysis of one 3D model: viewer, model editing, combinations and the
+/// user's analyses with their results.
 class Frame3DPage extends ConsumerStatefulWidget {
   final String projectId;
   final String modelId;
@@ -479,13 +485,21 @@ class Frame3DPage extends ConsumerStatefulWidget {
 }
 
 class _Frame3DPageState extends ConsumerState<Frame3DPage> {
-  _Tab _tab = _Tab.statics;
+  _Tab _tab = _Tab.analyses;
   bool _tabChosen = false;
   int? _combo;
   MemberValue _colorBy = MemberValue.my;
-  bool _pDelta = false;
   int _mode = 0;
   int? _selected;
+
+  /// Analysis whose results are shown.
+  String? _active;
+
+  /// Model (source key) each analysis was last run on; static analyses
+  /// run by themselves. Kept for the session when the page is reopened
+  /// (the results stay in the providers).
+  Map<String, String> get _ran =>
+      _ranByModel.putIfAbsent(widget.modelId, () => {});
 
   // Steel utilisation per member, cached for one set of results.
   List<double?>? _util;
@@ -529,8 +543,6 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     return _util = values;
   }
 
-  /// Set while the modal analysis has not returned yet.
-  bool _modalPending = false;
   final DesignCode _code = defaultDesignCode();
   Frame3DEditController? _edit;
   final _viewKey = GlobalKey();
@@ -543,11 +555,26 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     final l = context.l10n;
     if (out == null || out.error != null) return;
     final view = await captureImage(_viewKey);
-    // The note includes modes and buckling: compute them if needed.
+    // The note includes modes and buckling: those of the first modal and
+    // buckling analyses of the list (computed if needed).
     final key = sourceKey(record);
+    final modalSpec = record.analyses
+        .where((a) => a.kind == AnalysisKind.modal)
+        .firstOrNull;
+    final bucklingSpec = record.analyses
+        .where((a) => a.kind == AnalysisKind.buckling)
+        .firstOrNull;
     final full = out.merged(
-      modal: await ref.read(frame3dModalProvider(key).future),
-      buckling: await ref.read(frame3dBucklingProvider((key, _code)).future),
+      modal: await ref.read(
+        frame3dModalProvider((key, modalSpec?.modes ?? 12)).future,
+      ),
+      buckling: await ref.read(
+        frame3dBucklingProvider((
+          key,
+          _code,
+          bucklingSpec?.combinationIn(out.combinations),
+        )).future,
+      ),
     );
     if (!mounted) return;
     final ok = await shareNote(
@@ -568,24 +595,126 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
   }
 
   @override
+  void didUpdateWidget(Frame3DPage old) {
+    super.didUpdateWidget(old);
+    // The router may reuse this page for another model: start afresh.
+    if (old.modelId != widget.modelId) {
+      _edit?.dispose();
+      _edit = null;
+      _tabChosen = false;
+      _tab = _Tab.analyses;
+      _active = null;
+      _combo = null;
+      _selected = null;
+      _mode = 0;
+      _util = null;
+      _utilFor = null;
+    }
+  }
+
+  @override
   void dispose() {
     _edit?.dispose();
     super.dispose();
   }
 
-  // Seismic input; the analysis runs when [_spectrum] is set.
-  String _zone = '4';
-  double? _agR = frenchZones[4];
-  int _importance = 2;
-  GroundType _ground = GroundType.b;
-  double? _q = 1.5;
-  int _direction = 2;
-  bool _torsion = true;
-  bool _ps92 = false;
-  Ps92Zone _psZone = Ps92Zone.ib;
-  String _psClass = 'C';
-  Ps92Site _psSite = Ps92Site.s1;
-  SpectrumRequest? _spectrum;
+  String _analysisName(AppLocalizations l, AnalysisSpec a) {
+    if (a.name.isNotEmpty) return a.name;
+    return switch (a.kind) {
+      AnalysisKind.static => l.f3dTabStatic,
+      AnalysisKind.modal => l.f3dTabModes,
+      AnalysisKind.spectrum => l.f3dTabSeismic,
+      AnalysisKind.buckling => l.f3dTabBuckling,
+      AnalysisKind.pDelta => l.f3dPDelta,
+    };
+  }
+
+  IconData _analysisIcon(AnalysisKind k) => switch (k) {
+    AnalysisKind.static => Icons.insights_rounded,
+    AnalysisKind.modal => Icons.graphic_eq_rounded,
+    AnalysisKind.spectrum => Icons.waves_outlined,
+    AnalysisKind.buckling => Icons.compress_rounded,
+    AnalysisKind.pDelta => Icons.trending_down_rounded,
+  };
+
+  /// Results of the analyses that have run on the current model.
+  ({
+    Map<String, _RunState> state,
+    ModalOutput? modal,
+    SeismicOutput? spectrum,
+    BucklingOutput? buckling,
+    Frame3DResult? pDelta,
+  })
+  _watchAnalyses(
+    String key,
+    List<AnalysisSpec> list,
+    AnalysisSpec? active,
+    Frame3DOutput? out,
+  ) {
+    final state = <String, _RunState>{};
+    ModalOutput? modal;
+    SeismicOutput? spectrum;
+    BucklingOutput? buckling;
+    Frame3DResult? pDelta;
+    final combos = out?.combinations ?? const <Combination>[];
+    for (final a in list) {
+      if (a.kind == AnalysisKind.static) {
+        state[a.id] = out == null
+            ? _RunState.running
+            : (out.error == null ? _RunState.done : _RunState.failed);
+        continue;
+      }
+      final ran = _ran[a.id];
+      if (ran == null) {
+        state[a.id] = _RunState.notRun;
+        continue;
+      }
+      if (ran != key) {
+        state[a.id] = _RunState.stale;
+        continue;
+      }
+      final AsyncValue<Object?> v = switch (a.kind) {
+        AnalysisKind.modal => ref.watch(frame3dModalProvider((key, a.modes))),
+        AnalysisKind.spectrum => ref.watch(
+          frame3dSpectrumProvider((key, SpectrumRequest.of(a))),
+        ),
+        AnalysisKind.buckling => ref.watch(
+          frame3dBucklingProvider((key, _code, a.combinationIn(combos))),
+        ),
+        _ => () {
+          final c = a.combinationIn(combos);
+          if (c == null) return const AsyncValue<Object?>.data(null);
+          return ref.watch(frame3dPDeltaProvider((key, c, _code)));
+        }(),
+      };
+      state[a.id] = v.isLoading
+          ? _RunState.running
+          : (v.hasError ? _RunState.failed : _RunState.done);
+      if (a.id != active?.id || !v.hasValue) continue;
+      switch (v.value) {
+        case ModalOutput m:
+          modal = m;
+        case SeismicOutput s:
+          spectrum = s;
+        case BucklingOutput b:
+          buckling = b;
+        case Frame3DResult r:
+          pDelta = r;
+      }
+    }
+    return (
+      state: state,
+      modal: modal,
+      spectrum: spectrum,
+      buckling: buckling,
+      pDelta: pDelta,
+    );
+  }
+
+  Future<void> _saveAnalyses(
+    Frame3DEditController edit,
+    List<AnalysisSpec> l,
+  ) => Frame3DRepository.save(edit.record.withAnalyses(l));
 
   @override
   Widget build(BuildContext context) {
@@ -609,33 +738,38 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     }
     final key = sourceKey(edit.record);
     final output = ref.watch(frame3dAnalysisProvider((key, _code)));
-    // Modes and buckling only when a tab needs them.
-    final modal = _tab == _Tab.modes || _tab == _Tab.model
-        ? ref.watch(frame3dModalProvider(key)).value
+    final out = output.value;
+    final analyses = edit.record.analyses;
+    final active =
+        analyses.where((a) => a.id == _active).firstOrNull ??
+        analyses.firstOrNull;
+    final runs = _watchAnalyses(key, analyses, active, out);
+    // The Model tab shows the vibrating mass.
+    final modelModal = _tab == _Tab.model
+        ? ref.watch(frame3dModalProvider((key, 12))).value
         : null;
-    final buckling = _tab == _Tab.buckling
-        ? ref.watch(frame3dBucklingProvider((key, _code))).value
-        : null;
-    final out = output.value?.merged(modal: modal, buckling: buckling);
-    _modalPending = modal == null;
+    final shown = _tab == _Tab.analyses ? active : null;
     final model = _tab == _Tab.edit ? edit.model : (out?.model ?? edit.model);
 
-    final combo = _combo ?? out?.firstUls ?? 0;
+    final combos = out?.combinations ?? const <Combination>[];
+    final allowed = <int>[
+      for (var i = 0; i < combos.length; i++)
+        if (shown?.combinations == null || shown!.combinations!.contains(i)) i,
+    ];
+    final combo = allowed.contains(_combo)
+        ? _combo!
+        : (allowed
+                  .where((i) => combos[i].kind == CombinationKind.uls)
+                  .firstOrNull ??
+              allowed.firstOrNull ??
+              0);
     Frame3DResult? staticResult;
     if (out != null && out.error == null && out.results.isNotEmpty) {
-      final c = combo.clamp(0, out.results.length - 1);
-      final uls = out.combinations[c].kind == CombinationKind.uls;
-      staticResult = _pDelta && uls
-          ? ref.watch(frame3dPDeltaProvider((key, c, _code))).value
-          : out.results[c];
-    }
-    SeismicOutput? spectrum;
-    if (_spectrum != null) {
-      spectrum = ref.watch(frame3dSpectrumProvider((key, _spectrum!))).value;
+      staticResult = out.results[combo.clamp(0, out.results.length - 1)];
     }
 
-    Widget viewer = switch (_tab) {
-      _Tab.edit => Frame3DView(
+    Widget viewer = switch ((_tab, shown?.kind)) {
+      (_Tab.edit, _) => Frame3DView(
         model: edit.model,
         showNodes: true,
         loadCase: edit.activeCase,
@@ -651,23 +785,34 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         onPlaneTap: edit.tool == EditTool.draw ? edit.planeTap : null,
         camera: edit.camera,
       ),
-      _Tab.modes when out != null && out.modes.isNotEmpty => Frame3DView(
+      (_Tab.combos, _) => Frame3DView(model: model, loadCase: edit.activeCase),
+      (_, AnalysisKind.modal) when runs.modal?.modes.isNotEmpty ?? false =>
+        Frame3DView(
+          model: model,
+          shape: runs
+              .modal!
+              .modes[_mode.clamp(0, runs.modal!.modes.length - 1)]
+              .shape,
+          animate: true,
+        ),
+      (_, AnalysisKind.buckling) when runs.buckling?.shape != null =>
+        Frame3DView(model: model, shape: runs.buckling!.shape),
+      (_, AnalysisKind.spectrum) when runs.spectrum != null => Frame3DView(
         model: model,
-        shape: out.modes[_mode.clamp(0, out.modes.length - 1)].shape,
-        animate: true,
-      ),
-      _Tab.buckling when out?.bucklingShape != null => Frame3DView(
-        model: model,
-        shape: out!.bucklingShape,
-      ),
-      _Tab.seismic when spectrum != null => Frame3DView(
-        model: model,
-        result: spectrum.envelope,
+        result: runs.spectrum!.envelope,
         colorBy: _colorBy,
         selectedMember: _selected,
-        onPick: (p) => _design(context, out, p, spectrum),
+        onPick: (p) => _design(context, out, p, runs.spectrum),
       ),
-      _Tab.statics when staticResult != null => Frame3DView(
+      (_, AnalysisKind.pDelta) when runs.pDelta != null => Frame3DView(
+        model: model,
+        result: runs.pDelta,
+        colorBy: _colorBy == MemberValue.utilisation
+            ? MemberValue.my
+            : _colorBy,
+        selectedMember: _selected,
+      ),
+      (_, AnalysisKind.static) when staticResult != null => Frame3DView(
         model: model,
         result: staticResult,
         colorBy: _colorBy,
@@ -679,12 +824,14 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
       ),
       _ => Frame3DView(model: model),
     };
+    final busy =
+        output.isLoading || runs.state.values.contains(_RunState.running);
     viewer = RepaintBoundary(
       key: _viewKey,
       child: Stack(
         children: [
           Positioned.fill(child: viewer),
-          if (output.isLoading)
+          if (busy)
             const Positioned(
               left: 0,
               right: 0,
@@ -696,6 +843,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     );
 
     final panel = ListView(
+      key: const ValueKey('frame3d-panel'),
       padding: const EdgeInsets.all(Gap.lg),
       children: [
         SingleChildScrollView(
@@ -709,10 +857,8 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
                     label: Text(switch (t) {
                       _Tab.model => l.f3dTabModel,
                       _Tab.edit => l.f3dTabEdit,
-                      _Tab.statics => l.f3dTabStatic,
-                      _Tab.modes => l.f3dTabModes,
-                      _Tab.seismic => l.f3dTabSeismic,
-                      _Tab.buckling => l.f3dTabBuckling,
+                      _Tab.combos => l.f3dTabCombos,
+                      _Tab.analyses => l.f3dTabAnalyses,
                     }),
                     selected: _tab == t,
                     onSelected: (_) => setState(() => _tab = t),
@@ -722,27 +868,46 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           ),
         ),
         const SizedBox(height: Gap.lg),
-        if (edit.model.elements.isEmpty && _tab != _Tab.edit)
-          StatusBanner(
-            tone: Tone.primary,
-            title: l.f3dEmptyEditTitle,
-            message: l.f3dEmptyEdit,
-          )
-        else if (out?.error != null && _tab != _Tab.edit)
-          StatusBanner(
-            tone: Tone.danger,
-            title: l.frameAnalysisFailed,
-            message: out!.error,
-          )
-        else
-          ...switch (_tab) {
-            _Tab.model => _modelPanel(context, edit.record, model, out),
-            _Tab.edit => [Frame3DEditPanel(c: edit)],
-            _Tab.statics => _staticPanel(context, out, combo, staticResult),
-            _Tab.modes => _modesPanel(context, out),
-            _Tab.seismic => _seismicPanel(context, spectrum),
-            _Tab.buckling => _bucklingPanel(context, out),
-          },
+        ...switch (_tab) {
+          _Tab.edit => [Frame3DEditPanel(c: edit)],
+          _Tab.combos => _combosPanel(context, edit),
+          _ when edit.model.elements.isEmpty => [
+            StatusBanner(
+              tone: Tone.primary,
+              title: l.f3dEmptyEditTitle,
+              message: l.f3dEmptyEdit,
+            ),
+          ],
+          _Tab.model => _modelPanel(
+            context,
+            edit.record,
+            model,
+            out?.merged(modal: modelModal),
+          ),
+          _Tab.analyses => [
+            ..._analysesList(context, edit, analyses, active, runs.state, key),
+            const SizedBox(height: Gap.lg),
+            if (out?.error != null)
+              StatusBanner(
+                tone: Tone.danger,
+                title: l.frameAnalysisFailed,
+                message: out!.error,
+              )
+            else if (active != null)
+              ..._resultsOf(
+                context,
+                edit,
+                active,
+                runs.state[active.id] ?? _RunState.notRun,
+                out,
+                combo,
+                allowed,
+                staticResult,
+                runs,
+                key,
+              ),
+          ],
+        },
       ],
     );
 
@@ -757,7 +922,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
           ),
           IconButton(
             tooltip: l.noteExport,
-            onPressed: () => _exportNote(edit.record, out, spectrum),
+            onPressed: () => _exportNote(edit.record, out, runs.spectrum),
             icon: const Icon(Icons.picture_as_pdf_outlined),
           ),
           if (!edit.record.free)
@@ -804,6 +969,370 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         },
       ),
     );
+  }
+
+  // ───────────────────────────── analyses ─────────────────────────────
+
+  List<Widget> _analysesList(
+    BuildContext context,
+    Frame3DEditController edit,
+    List<AnalysisSpec> list,
+    AnalysisSpec? active,
+    Map<String, _RunState> state,
+    String key,
+  ) {
+    final l = context.l10n;
+    Widget status(_RunState s) {
+      final (text, tone) = switch (s) {
+        _RunState.notRun => (l.f3dRunNotRun, context.colors.outline),
+        _RunState.running => (l.f3dRunRunning, context.colors.primary),
+        _RunState.done => (l.f3dRunDone, context.appColors.success),
+        _RunState.stale => (l.f3dRunStale, context.appColors.warning),
+        _RunState.failed => (l.f3dRunFailed, context.appColors.danger),
+      };
+      return Text(text, style: context.text.labelSmall?.copyWith(color: tone));
+    }
+
+    final runnable = [
+      for (final a in list)
+        if (a.kind != AnalysisKind.static) a.id,
+    ];
+    return [
+      Row(
+        children: [
+          Expanded(
+            child: Text(l.f3dAnalysesHelp, style: context.text.bodySmall),
+          ),
+          PopupMenuButton<AnalysisKind>(
+            tooltip: l.f3dAddAnalysis,
+            icon: const Icon(Icons.add_rounded),
+            onSelected: (k) => _addAnalysis(context, edit, list, k),
+            itemBuilder: (_) => [
+              for (final k in AnalysisKind.values)
+                PopupMenuItem(
+                  value: k,
+                  child: ListTile(
+                    dense: true,
+                    leading: Icon(_analysisIcon(k)),
+                    title: Text(
+                      _analysisName(l, AnalysisSpec(id: '', kind: k)),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+      const SizedBox(height: Gap.sm),
+      SurfaceCard(
+        padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+        child: Column(
+          children: [
+            for (final a in list)
+              ListTile(
+                selected: a.id == active?.id,
+                leading: Icon(_analysisIcon(a.kind)),
+                title: Text(_analysisName(l, a)),
+                subtitle: status(state[a.id] ?? _RunState.notRun),
+                onTap: () => setState(() {
+                  _active = a.id;
+                  _selected = null;
+                }),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (a.kind != AnalysisKind.static)
+                      IconButton(
+                        tooltip: l.f3dRun,
+                        icon: const Icon(Icons.play_arrow_rounded),
+                        onPressed: () => setState(() {
+                          _ran[a.id] = key;
+                          _active = a.id;
+                        }),
+                      ),
+                    IconButton(
+                      tooltip: l.f3dAnalysisSettings,
+                      icon: const Icon(Icons.tune_rounded),
+                      onPressed: () => _editAnalysis(context, edit, list, a),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+      const SizedBox(height: Gap.sm),
+      Align(
+        alignment: Alignment.centerRight,
+        child: FilledButton.tonalIcon(
+          onPressed: runnable.isEmpty
+              ? null
+              : () => setState(() {
+                  for (final id in runnable) {
+                    _ran[id] = key;
+                  }
+                }),
+          icon: const Icon(Icons.playlist_play_rounded),
+          label: Text(l.f3dRunAll),
+        ),
+      ),
+    ];
+  }
+
+  Future<void> _addAnalysis(
+    BuildContext context,
+    Frame3DEditController edit,
+    List<AnalysisSpec> list,
+    AnalysisKind kind,
+  ) async {
+    final spec = AnalysisSpec(
+      id: 'a${DateTime.now().microsecondsSinceEpoch}',
+      kind: kind,
+    );
+    final edited = await showAnalysisSettings(
+      context,
+      spec: spec,
+      combinations: combinationsOf(edit.model, _code),
+    );
+    if (edited == null) return;
+    await _saveAnalyses(edit, [...list, edited]);
+    setState(() => _active = edited.id);
+  }
+
+  Future<void> _editAnalysis(
+    BuildContext context,
+    Frame3DEditController edit,
+    List<AnalysisSpec> list,
+    AnalysisSpec a,
+  ) async {
+    final result = await showAnalysisSettings(
+      context,
+      spec: a,
+      combinations: combinationsOf(edit.model, _code),
+      canDelete: true,
+    );
+    if (result == null) return;
+    if (identical(result, deletedAnalysis)) {
+      await _saveAnalyses(edit, [
+        for (final x in list)
+          if (x.id != a.id) x,
+      ]);
+      _ran.remove(a.id);
+      return;
+    }
+    await _saveAnalyses(edit, [
+      for (final x in list) x.id == a.id ? result : x,
+    ]);
+    // New settings: the old run no longer applies.
+    _ran.remove(a.id);
+    setState(() {});
+  }
+
+  List<Widget> _resultsOf(
+    BuildContext context,
+    Frame3DEditController edit,
+    AnalysisSpec a,
+    _RunState state,
+    Frame3DOutput? out,
+    int combo,
+    List<int> allowed,
+    Frame3DResult? staticResult,
+    ({
+      Map<String, _RunState> state,
+      ModalOutput? modal,
+      SeismicOutput? spectrum,
+      BucklingOutput? buckling,
+      Frame3DResult? pDelta,
+    })
+    runs,
+    String key,
+  ) {
+    final l = context.l10n;
+    final title = Text(_analysisName(l, a), style: context.text.titleMedium);
+    if (a.kind != AnalysisKind.static) {
+      switch (state) {
+        case _RunState.notRun || _RunState.stale:
+          return [
+            title,
+            const SizedBox(height: Gap.sm),
+            StatusBanner(
+              tone: state == _RunState.stale ? Tone.warning : Tone.primary,
+              title: state == _RunState.stale ? l.f3dRunStale : l.f3dRunNotRun,
+              message: l.f3dRunHelp,
+            ),
+            const SizedBox(height: Gap.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                onPressed: () => setState(() => _ran[a.id] = key),
+                icon: const Icon(Icons.play_arrow_rounded),
+                label: Text(l.f3dRun),
+              ),
+            ),
+          ];
+        case _RunState.running:
+          return [title, const LinearProgressIndicator()];
+        case _RunState.failed:
+          return [
+            title,
+            StatusBanner(tone: Tone.danger, title: l.frameAnalysisFailed),
+          ];
+        case _RunState.done:
+          break;
+      }
+    }
+    return [
+      title,
+      const SizedBox(height: Gap.md),
+      ...switch (a.kind) {
+        AnalysisKind.static => _staticPanel(
+          context,
+          out,
+          combo,
+          allowed,
+          staticResult,
+        ),
+        AnalysisKind.modal => _modesPanel(context, runs.modal),
+        AnalysisKind.spectrum => _seismicPanel(context, runs.spectrum),
+        AnalysisKind.buckling => _bucklingPanel(
+          context,
+          runs.buckling,
+          out == null ? null : a.combinationIn(out.combinations),
+          out,
+        ),
+        AnalysisKind.pDelta => [
+          if (out != null)
+            Text(
+              out.combinations[a.combinationIn(out.combinations) ?? 0].name,
+              style: context.text.bodySmall,
+            ),
+          const SizedBox(height: Gap.sm),
+          _colorChoice(context),
+          const SizedBox(height: Gap.md),
+          if (runs.pDelta != null && out != null)
+            _staticSummary(context, out.model, runs.pDelta!),
+          const SizedBox(height: Gap.md),
+          NotesCard(notes: [l.f3dPDeltaHelp]),
+        ],
+      },
+    ];
+  }
+
+  // ─────────────────────────── combinations ───────────────────────────
+
+  List<Widget> _combosPanel(BuildContext context, Frame3DEditController edit) {
+    final l = context.l10n;
+    final m = edit.model;
+    final own = m.combinations != null;
+    final list = combinationsOf(m, _code);
+    String factors(Combination c) => [
+      for (final e in c.factors.entries)
+        if (e.key < m.cases.length)
+          '${fmt(context, e.value, 2)} ${m.cases[e.key].name}'
+        else
+          '${fmt(context, e.value, 2)} ?',
+    ].join(' + ');
+    String kind(CombinationKind k) => switch (k) {
+      CombinationKind.uls => l.f3dComboUls,
+      CombinationKind.slsCharacteristic => l.f3dComboSlsChar,
+      CombinationKind.slsQuasiPermanent => l.f3dComboSlsQp,
+    };
+    return [
+      StatusBanner(
+        tone: own ? Tone.primary : Tone.success,
+        title: own ? l.f3dCombosOwn : l.f3dCombosAuto,
+        message: own ? l.f3dCombosOwnMsg : l.f3dCombosAutoMsg,
+      ),
+      const SizedBox(height: Gap.sm),
+      Wrap(
+        spacing: Gap.sm,
+        runSpacing: Gap.sm,
+        children: [
+          FilledButton.tonalIcon(
+            onPressed: () => _editCombination(context, edit, list, null),
+            icon: const Icon(Icons.add_rounded),
+            label: Text(l.f3dComboAdd),
+          ),
+          if (own)
+            OutlinedButton.icon(
+              onPressed: () async {
+                final ok = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    content: Text(l.f3dCombosResetConfirm),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: Text(l.commonCancel),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.pop(ctx, true),
+                        child: Text(l.f3dConfirm),
+                      ),
+                    ],
+                  ),
+                );
+                if (ok == true) {
+                  await edit.apply(m.copyWith(autoCombinations: true));
+                }
+              },
+              icon: const Icon(Icons.auto_mode_rounded),
+              label: Text(l.f3dCombosReset),
+            ),
+        ],
+      ),
+      const SizedBox(height: Gap.md),
+      SurfaceCard(
+        padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+        child: Column(
+          children: [
+            for (var i = 0; i < list.length; i++)
+              ListTile(
+                title: Text(list[i].name),
+                subtitle: Text(
+                  '${kind(list[i].kind)} · ${factors(list[i])}',
+                  style: AppTheme.mono(context, size: 12),
+                ),
+                leading: combinationValid(m, list[i])
+                    ? const Icon(Icons.functions_rounded)
+                    : Icon(
+                        Icons.error_outline_rounded,
+                        color: context.appColors.danger,
+                      ),
+                trailing: const Icon(Icons.edit_outlined),
+                onTap: () => _editCombination(context, edit, list, i),
+              ),
+          ],
+        ),
+      ),
+      const SizedBox(height: Gap.sm),
+      NotesCard(notes: [l.f3dCombosNote]),
+    ];
+  }
+
+  Future<void> _editCombination(
+    BuildContext context,
+    Frame3DEditController edit,
+    List<Combination> list,
+    int? index,
+  ) async {
+    final m = edit.model;
+    final result = await showCombinationEditor(
+      context,
+      cases: [for (final c in m.cases) c.name],
+      initial: index == null ? null : list[index],
+      canDelete: index != null,
+    );
+    if (result == null) return;
+    final next = [...list];
+    if (identical(result, deletedCombination)) {
+      next.removeAt(index!);
+    } else if (index == null) {
+      next.add(result);
+    } else {
+      next[index] = result;
+    }
+    await edit.apply(m.copyWith(combinations: next));
   }
 
   List<Widget> _modelPanel(
@@ -921,33 +1450,25 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     BuildContext context,
     Frame3DOutput? out,
     int combo,
+    List<int> allowed,
     Frame3DResult? r,
   ) {
     final l = context.l10n;
     if (out == null) return const [LinearProgressIndicator()];
-    final c = combo.clamp(0, out.combinations.length - 1);
-    final uls = out.combinations[c].kind == CombinationKind.uls;
+    if (allowed.isEmpty) {
+      return [StatusBanner(tone: Tone.warning, title: l.f3dNoCombination)];
+    }
+    final c = allowed.contains(combo) ? combo : allowed.first;
     return [
       PickerField<int>(
-        key: ValueKey('combo-$c'),
+        key: ValueKey('combo-$c-${allowed.length}'),
         label: l.f3dCombination,
         value: c,
-        options: {
-          for (var i = 0; i < out.combinations.length; i++)
-            i: out.combinations[i].name,
-        },
+        options: {for (final i in allowed) i: out.combinations[i].name},
         onChanged: (v) => setState(() => _combo = v),
       ),
       const SizedBox(height: Gap.md),
       _colorChoice(context),
-      if (uls)
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          title: Text(l.f3dPDelta),
-          subtitle: Text(l.f3dPDeltaHelp),
-          value: _pDelta,
-          onChanged: (v) => setState(() => _pDelta = v),
-        ),
       const SizedBox(height: Gap.md),
       Text(l.f3dTapToDesign, style: context.text.bodySmall),
       const SizedBox(height: Gap.md),
@@ -1016,12 +1537,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     );
   }
 
-  List<Widget> _modesPanel(BuildContext context, Frame3DOutput? out) {
+  List<Widget> _modesPanel(BuildContext context, ModalOutput? out) {
     final l = context.l10n;
     if (out == null) return const [LinearProgressIndicator()];
-    if (out.modes.isEmpty && _modalPending) {
-      return const [LinearProgressIndicator()];
-    }
     if (out.modes.isEmpty) {
       return [StatusBanner(tone: Tone.warning, title: l.f3dNoModes)];
     }
@@ -1065,192 +1583,65 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
 
   List<Widget> _seismicPanel(BuildContext context, SeismicOutput? s) {
     final l = context.l10n;
-    final ps92 = <Widget>[
-      FieldRow(
-        children: [
-          PickerField<Ps92Zone>(
-            label: l.f3dPs92Zone,
-            value: _psZone,
-            options: const {
-              Ps92Zone.ia: 'Ia',
-              Ps92Zone.ib: 'Ib',
-              Ps92Zone.ii: 'II',
-              Ps92Zone.iii: 'III',
-            },
-            onChanged: (v) => setState(() => _psZone = v),
-          ),
-          PickerField<String>(
-            label: l.f3dPs92Class,
-            value: _psClass,
-            options: const {'B': 'B', 'C': 'C', 'D': 'D'},
-            onChanged: (v) => setState(() => _psClass = v),
-          ),
-        ],
-      ),
-      const SizedBox(height: Gap.md),
-      ChoiceField<Ps92Site>(
-        label: l.f3dPs92Site,
-        value: _psSite,
-        options: {for (final s in Ps92Site.values) s: s.name.toUpperCase()},
-        onChanged: (v) => setState(() => _psSite = v),
-      ),
-      const SizedBox(height: Gap.md),
-      NumberField(label: l.seismicQ, value: _q, onChanged: (v) => _q = v),
-      const SizedBox(height: Gap.sm),
-      Text(
-        l.f3dPs92Note(
-          fmt(context, ps92NominalAcceleration(_psZone, _psClass), 1),
-        ),
-        style: context.text.bodySmall,
-      ),
-    ];
+    if (s == null) return const [LinearProgressIndicator()];
     return [
-      ChoiceField<bool>(
-        label: l.footingCode,
-        value: _ps92,
-        options: const {false: 'EN 1998-1', true: 'PS92'},
-        onChanged: (v) => setState(() => _ps92 = v),
-      ),
-      const SizedBox(height: Gap.md),
-      if (_ps92)
-        ...ps92
-      else ...[
-        PickerField<String>(
-          key: ValueKey('zone-$_zone'),
-          label: l.seismicZone,
-          value: _zone,
-          options: {
-            'custom': l.seismicZoneCustom,
-            for (final z in frenchZones.entries)
-              '${z.key}': l.seismicZoneN(z.key, fmt(context, z.value, 1)),
-          },
-          onChanged: (v) => setState(() {
-            _zone = v;
-            final n = int.tryParse(v);
-            if (n != null) _agR = frenchZones[n];
-          }),
+      for (final run in s.runs) ...[
+        StatusBanner(
+          tone: run.enoughModes ? Tone.success : Tone.warning,
+          title: l.f3dBaseShearDir(
+            run.direction == 0 ? 'X' : 'Y',
+            fmt(context, run.baseShear, 0),
+          ),
+          message: [
+            l.f3dSpectrumMass(fmt(context, run.massRatio * 100, 1)),
+            if (run.torsionMoments.isNotEmpty)
+              l.f3dTorsionApplied(
+                fmt(context, run.torsionMoments.reduce((a, b) => a + b), 0),
+              ),
+          ].join(' '),
         ),
-        const SizedBox(height: Gap.md),
-        FieldRow(
-          children: [
-            NumberField(
-              key: ValueKey('ag-$_zone'),
-              label: l.seismicAgR,
-              unit: 'm/s²',
-              value: _agR,
-              onChanged: (v) => _agR = v,
-            ),
-            NumberField(label: l.seismicQ, value: _q, onChanged: (v) => _q = v),
+        const SizedBox(height: Gap.sm),
+      ],
+      if (s.runs.length > 1)
+        Text(l.f3dCombinedNote, style: context.text.bodySmall),
+      Text(l.f3dTapToDesign, style: context.text.bodySmall),
+      const SizedBox(height: Gap.md),
+      _colorChoice(context),
+      const SizedBox(height: Gap.md),
+      for (final run in s.runs) ...[
+        ResultCard(
+          title:
+              '${l.f3dModalContributions} (${run.direction == 0 ? 'X' : 'Y'})',
+          icon: Icons.stacked_bar_chart_rounded,
+          rows: [
+            for (final m in run.modal.where(
+              (m) => m.baseShear > 0.005 * run.baseShear,
+            ))
+              ResultRow(
+                label: l.f3dModeN(m.mode + 1),
+                symbol:
+                    'T ${fmt(context, m.period, 3)} s · Sd ${fmt(context, m.sd, 2)}',
+                value: fmt(context, m.baseShear, 0),
+                unit: 'kN',
+              ),
           ],
         ),
         const SizedBox(height: Gap.md),
-        ChoiceField<GroundType>(
-          label: l.seismicGround,
-          value: _ground,
-          options: {for (final g in GroundType.values) g: g.name.toUpperCase()},
-          onChanged: (v) => setState(() => _ground = v),
-        ),
-        const SizedBox(height: Gap.md),
-        ChoiceField<int>(
-          label: l.seismicImportance,
-          value: _importance,
-          options: const {1: 'I', 2: 'II', 3: 'III', 4: 'IV'},
-          onChanged: (v) => setState(() => _importance = v),
-        ),
       ],
       const SizedBox(height: Gap.md),
-      ChoiceField<int>(
-        label: l.f3dDirection,
-        value: _direction,
-        options: {0: 'X', 1: 'Y', 2: l.f3dBothDirections},
-        onChanged: (v) => setState(() => _direction = v),
-      ),
-      SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        title: Text(l.f3dAccidentalTorsion),
-        subtitle: Text(l.f3dAccidentalTorsionHelp),
-        value: _torsion,
-        onChanged: (v) => setState(() => _torsion = v),
-      ),
-      const SizedBox(height: Gap.sm),
-      FilledButton.icon(
-        onPressed: () {
-          if ((!_ps92 && (_agR ?? 0) <= 0) || (_q ?? 0) < 1) return;
-          setState(
-            () => _spectrum = SpectrumRequest(
-              agR: _agR!,
-              ground: _ground,
-              importance: _importance,
-              type1: _zone == '5',
-              q: _q!,
-              direction: _direction,
-              torsion: _torsion,
-              ps92: _ps92,
-              aN: ps92NominalAcceleration(_psZone, _psClass),
-              site: _psSite,
-            ),
-          );
-        },
-        icon: const Icon(Icons.play_arrow_rounded),
-        label: Text(l.f3dRunSpectrum),
-      ),
-      const SizedBox(height: Gap.md),
-      if (_spectrum != null && s == null) const LinearProgressIndicator(),
-      if (s != null) ...[
-        for (final run in s.runs) ...[
-          StatusBanner(
-            tone: run.enoughModes ? Tone.success : Tone.warning,
-            title: l.f3dBaseShearDir(
-              run.direction == 0 ? 'X' : 'Y',
-              fmt(context, run.baseShear, 0),
-            ),
-            message: [
-              l.f3dSpectrumMass(fmt(context, run.massRatio * 100, 1)),
-              if (run.torsionMoments.isNotEmpty)
-                l.f3dTorsionApplied(
-                  fmt(context, run.torsionMoments.reduce((a, b) => a + b), 0),
-                ),
-            ].join(' '),
-          ),
-          const SizedBox(height: Gap.sm),
-        ],
-        if (s.runs.length > 1)
-          Text(l.f3dCombinedNote, style: context.text.bodySmall),
-        Text(l.f3dTapToDesign, style: context.text.bodySmall),
-        const SizedBox(height: Gap.md),
-        _colorChoice(context),
-        const SizedBox(height: Gap.md),
-        for (final run in s.runs) ...[
-          ResultCard(
-            title:
-                '${l.f3dModalContributions} (${run.direction == 0 ? 'X' : 'Y'})',
-            icon: Icons.stacked_bar_chart_rounded,
-            rows: [
-              for (final m in run.modal.where(
-                (m) => m.baseShear > 0.005 * run.baseShear,
-              ))
-                ResultRow(
-                  label: l.f3dModeN(m.mode + 1),
-                  symbol:
-                      'T ${fmt(context, m.period, 3)} s · Sd ${fmt(context, m.sd, 2)}',
-                  value: fmt(context, m.baseShear, 0),
-                  unit: 'kN',
-                ),
-            ],
-          ),
-          const SizedBox(height: Gap.md),
-        ],
-        const SizedBox(height: Gap.md),
-        NotesCard(notes: [l.f3dSpectrumNote]),
-      ],
+      NotesCard(notes: [l.f3dSpectrumNote]),
     ];
   }
 
-  List<Widget> _bucklingPanel(BuildContext context, Frame3DOutput? out) {
+  List<Widget> _bucklingPanel(
+    BuildContext context,
+    BucklingOutput? b,
+    int? combo,
+    Frame3DOutput? out,
+  ) {
     final l = context.l10n;
-    if (out == null) return const [LinearProgressIndicator()];
-    if (!out.bucklingDone) return const [LinearProgressIndicator()];
-    final a = out.alphaCr;
+    if (b == null) return const [LinearProgressIndicator()];
+    final a = b.alpha;
     if (a == null) {
       return [StatusBanner(tone: Tone.success, title: l.f3dNoBuckling)];
     }
@@ -1258,6 +1649,9 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
     final message = a >= 10
         ? l.f3dAlphaFirstOrder
         : (a >= 3 ? l.f3dAlphaSecondOrder : l.f3dAlphaTooLow);
+    final name = out != null && combo != null && combo < out.combinations.length
+        ? out.combinations[combo].name
+        : '';
     return [
       StatusBanner(
         tone: tone,
@@ -1265,13 +1659,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         message: message,
       ),
       const SizedBox(height: Gap.md),
-      NotesCard(
-        notes: [
-          l.f3dBucklingNote(
-            out.firstUls == null ? '' : out.combinations[out.firstUls!].name,
-          ),
-        ],
-      ),
+      NotesCard(notes: [l.f3dBucklingNote(name)]),
     ];
   }
 

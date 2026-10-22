@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import '../fem/model.dart' show LoadType;
+import '../fem/model.dart' show Combination, LoadType;
 import '../steel_profiles.dart';
 
 /// Space frame model. Global axes: X, Y horizontal, Z up. Units: m, kN,
@@ -467,6 +467,10 @@ class Model3D {
   /// plane (uy, rx, rz restrained).
   final bool plane;
 
+  /// The user's own load combinations; null = generated from the load
+  /// cases (EN 1990 or BAEL) by [combinationsOf].
+  final List<Combination>? combinations;
+
   const Model3D({
     required this.nodes,
     required this.supports,
@@ -475,6 +479,7 @@ class Model3D {
     this.cases = const [],
     this.diaphragms = const [],
     this.plane = false,
+    this.combinations,
   });
 
   /// An empty model with a default concrete section and permanent and
@@ -502,6 +507,8 @@ class Model3D {
     'cases': [for (final c in cases) c.toJson()],
     'diaphragms': diaphragms,
     if (plane) 'plane': true,
+    if (combinations != null)
+      'combinations': [for (final c in combinations!) c.toJson()],
   };
 
   factory Model3D.fromJson(Map<String, dynamic> j) => Model3D(
@@ -532,5 +539,8 @@ class Model3D {
         (g as List).cast<int>(),
     ],
     plane: j['plane'] as bool? ?? false,
+    combinations: (j['combinations'] as List?)
+        ?.map((c) => Combination.fromJson(Map<String, dynamic>.from(c as Map)))
+        .toList(),
   );
 }

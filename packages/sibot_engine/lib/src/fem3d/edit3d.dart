@@ -24,6 +24,8 @@ extension Model3DEdit on Model3D {
     List<LoadCase3D>? cases,
     List<List<int>>? diaphragms,
     bool? plane,
+    List<Combination>? combinations,
+    bool autoCombinations = false,
   }) => Model3D(
     nodes: nodes ?? this.nodes,
     supports: supports ?? this.supports,
@@ -32,6 +34,9 @@ extension Model3DEdit on Model3D {
     cases: cases ?? this.cases,
     diaphragms: diaphragms ?? this.diaphragms,
     plane: plane ?? this.plane,
+    combinations: autoCombinations
+        ? null
+        : (combinations ?? this.combinations),
   );
 
   /// Index of a node at (x, y, z) within [tol], or −1.
@@ -248,6 +253,7 @@ extension Model3DEdit on Model3D {
           ],
       ],
       plane: plane,
+      combinations: combinations,
     );
   }
 

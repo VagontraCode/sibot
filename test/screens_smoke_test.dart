@@ -496,6 +496,7 @@ void main() {
     'frame3d_modes': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_edit': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_seismic': '/projects/PRJ_1/frame3d/F3_1',
+    'frame3d_combos': '/projects/PRJ_1/frame3d/F3_1',
     'frame3d_free': '/projects/PRJ_1/frame3d/F3_FREE',
     'frame3d_free_multi': '/projects/PRJ_1/frame3d/F3_FREE',
     'frame3d_empty_draw': '/projects/PRJ_1/frame3d/F3_EMPTY',
@@ -574,11 +575,89 @@ void main() {
                   break;
                 }
               }
-              if (s.key == 'frame3d_modes') {
-                final modes = find.byType(ChoiceChip).at(3);
-                await tester.ensureVisible(modes);
+              // The scrolling panel beside or under the 3D view.
+              Finder panelScroll() =>
+                  find.byKey(const ValueKey('frame3d-panel'));
+
+              // Brings the results under the list into view.
+              Future<void> scrollPanel() async {
+                for (var k = 0; k < 4; k++) {
+                  await tester.drag(panelScroll(), const Offset(0, -300));
+                  await tester.pump();
+                }
+              }
+
+              // Waits until no analysis is running.
+              Future<void> settle() async {
+                for (var i = 0; i < 80; i++) {
+                  await tester.runAsync(
+                    () =>
+                        Future<void>.delayed(const Duration(milliseconds: 250)),
+                  );
+                  await tester.pump();
+                  if (find.byType(LinearProgressIndicator).evaluate().isEmpty) {
+                    break;
+                  }
+                }
+              }
+
+              // The same model may be shown again: start at the top.
+              if (panelScroll().evaluate().isNotEmpty) {
+                for (var k = 0; k < 6; k++) {
+                  await tester.drag(panelScroll(), const Offset(0, 400));
+                  await tester.pump();
+                }
+              }
+              // A few frames (pumpAndSettle would wait for the progress bars).
+              Future<void> frames() async {
+                for (var k = 0; k < 10; k++) {
+                  await tester.pump(const Duration(milliseconds: 100));
+                }
+              }
+
+              // Analyses tab for the screens that run something.
+              Future<void> analysesTab() async {
+                final tab = find.byType(ChoiceChip).at(3);
+                await tester.ensureVisible(tab);
                 await tester.pump();
-                await tester.tap(modes);
+                await tester.tap(tab);
+                await tester.pump();
+              }
+
+              if (s.key == 'frame3d_modes') {
+                await analysesTab();
+                // The default list: static, modal, buckling; run the modes.
+                final run = find.byIcon(Icons.play_arrow_rounded).first;
+                await tester.ensureVisible(run);
+                await tester.pump();
+                await tester.tap(run);
+                await tester.pump();
+                await settle();
+                await scrollPanel();
+                expect(find.byType(CircleAvatar), findsWidgets, reason: s.key);
+              }
+              if (s.key == 'frame3d_combos') {
+                final tab = find.byType(ChoiceChip).at(2);
+                await tester.ensureVisible(tab);
+                await tester.pump();
+                await tester.tap(tab);
+                await tester.pump();
+                final add = find.byIcon(Icons.add_rounded).first;
+                await tester.ensureVisible(add);
+                await tester.tap(add);
+                await tester.pumpAndSettle();
+                // Name and the first factor, then save.
+                await tester.enterText(find.byType(TextField).first, 'C perso');
+                await tester.enterText(find.byType(TextField).at(1), '1.2');
+                await tester.tap(find.byType(FilledButton).last);
+                // Let the sheet close (fake clock), then the analysis.
+                for (var k = 0; k < 10; k++) {
+                  await tester.pump(const Duration(milliseconds: 100));
+                }
+                await settle();
+                expect(find.byType(BottomSheet), findsNothing, reason: s.key);
+                await scrollPanel();
+                expect(find.text('C perso'), findsWidgets, reason: s.key);
               }
               if (s.key == 'frame3d_edit') {
                 final edit = find.byType(ChoiceChip).at(1);
@@ -599,8 +678,10 @@ void main() {
                 // Camera presets first, then the quick selections.
                 final all = find.byType(ActionChip).at(4);
                 await tester.ensureVisible(all);
+                await tester.pump();
                 await tester.tap(all);
                 await tester.pump();
+                await scrollPanel();
                 expect(find.byIcon(Icons.copy_all_rounded), findsOneWidget);
               }
               if (s.key == 'frame3d_empty_draw') {
@@ -636,30 +717,25 @@ void main() {
                 );
               }
               if (s.key == 'frame3d_seismic') {
-                final chip = find.byType(ChoiceChip).at(4);
-                await tester.ensureVisible(chip);
+                await analysesTab();
+                // Add a spectrum analysis with its default settings, run it.
+                final add = find.byIcon(Icons.add_rounded);
+                await tester.ensureVisible(add);
                 await tester.pump();
-                await tester.tap(chip);
-                await tester.pump();
-                final run = find.byIcon(Icons.play_arrow_rounded);
-                await tester.dragUntilVisible(
-                  run,
-                  find.byType(ListView).last,
-                  const Offset(0, -200),
-                );
+                await tester.tap(add);
+                await frames();
+                await tester.tap(find.byIcon(Icons.waves_outlined).last);
+                await frames();
+                await tester.tap(find.byType(FilledButton).last);
+                await frames();
+                final run = find.byIcon(Icons.play_arrow_rounded).last;
+                await tester.ensureVisible(run);
                 await tester.pump();
                 await tester.tap(run);
-                for (var i = 0; i < 60; i++) {
-                  await tester.runAsync(
-                    () =>
-                        Future<void>.delayed(const Duration(milliseconds: 250)),
-                  );
-                  await tester.pump();
-                  if (find.byType(LinearProgressIndicator).evaluate().isEmpty) {
-                    break;
-                  }
-                }
-                expect(find.textContaining('kN'), findsWidgets);
+                await tester.pump();
+                await settle();
+                await scrollPanel();
+                expect(find.textContaining('kN'), findsWidgets, reason: s.key);
               }
               await tester.pump(const Duration(milliseconds: 400));
               expect(find.byType(Frame3DView), findsOneWidget);

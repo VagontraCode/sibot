@@ -4151,4 +4151,117 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get frameOpenAs3d => 'Ouvrir comme modèle plan en 3D';
+
+  @override
+  String get f3dTabCombos => 'Combinaisons';
+
+  @override
+  String get f3dTabAnalyses => 'Analyses';
+
+  @override
+  String get f3dAnalysesHelp =>
+      'Vos analyses : touchez-en une pour voir ses résultats. Le statique se calcule seul ; lancez les autres quand vous en avez besoin.';
+
+  @override
+  String get f3dAddAnalysis => 'Ajouter une analyse';
+
+  @override
+  String get f3dAnalysisSettings => 'Paramètres de l’analyse';
+
+  @override
+  String get f3dAnalysisName => 'Nom (facultatif)';
+
+  @override
+  String get f3dAllCombinations => 'Toutes les combinaisons';
+
+  @override
+  String get f3dModeCount => 'Nombre de modes';
+
+  @override
+  String get f3dNoCombination =>
+      'Aucune combinaison choisie pour cette analyse.';
+
+  @override
+  String get f3dRun => 'Lancer';
+
+  @override
+  String get f3dRunAll => 'Tout lancer';
+
+  @override
+  String get f3dRunNotRun => 'Pas encore lancée';
+
+  @override
+  String get f3dRunRunning => 'Calcul en cours…';
+
+  @override
+  String get f3dRunDone => 'Terminée';
+
+  @override
+  String get f3dRunStale => 'Modèle modifié : relancer';
+
+  @override
+  String get f3dRunFailed => 'Échec';
+
+  @override
+  String get f3dRunHelp =>
+      'Les résultats sont conservés pour ce modèle ; toute modification du modèle demande un nouveau calcul.';
+
+  @override
+  String get f3dCombosAuto => 'Combinaisons générées';
+
+  @override
+  String get f3dCombosAutoMsg =>
+      'Construites à partir des cas de charge (EN 1990 ou BAEL, selon les réglages). Modifiez-en ou ajoutez-en une pour en faire votre liste.';
+
+  @override
+  String get f3dCombosOwn => 'Vos combinaisons';
+
+  @override
+  String get f3dCombosOwnMsg =>
+      'La liste est la vôtre : les nouveaux cas de charge ne sont pas ajoutés automatiquement.';
+
+  @override
+  String get f3dCombosReset => 'Revenir aux combinaisons générées';
+
+  @override
+  String get f3dCombosResetConfirm =>
+      'Remplacer vos combinaisons par les combinaisons générées ?';
+
+  @override
+  String get f3dCombosNote =>
+      'Les combinaisons ELU servent au dimensionnement des barres et au flambement, les ELS aux flèches. Les combinaisons qui utilisent un cas manquant sont signalées et donnent des résultats nuls.';
+
+  @override
+  String get f3dComboAdd => 'Ajouter une combinaison';
+
+  @override
+  String get f3dComboEdit => 'Combinaison';
+
+  @override
+  String get f3dComboName => 'Nom';
+
+  @override
+  String get f3dComboKind => 'Type';
+
+  @override
+  String get f3dComboUls => 'ELU';
+
+  @override
+  String get f3dComboSlsChar => 'ELS caractéristique';
+
+  @override
+  String get f3dComboSlsQp => 'ELS quasi permanent';
+
+  @override
+  String get f3dComboFactors => 'Coefficient de chaque cas de charge';
+
+  @override
+  String get f3dComboFactorsHelp =>
+      'Laissez vide (ou 0) pour exclure un cas. Les coefficients négatifs sont permis (soulèvement par exemple).';
+
+  @override
+  String get f3dComboInvalid => 'Donnez un nom et au moins un coefficient.';
+
+  @override
+  String get commonSave => 'Enregistrer';
 }

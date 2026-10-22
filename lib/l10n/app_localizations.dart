@@ -7657,6 +7657,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open as a plane model in 3D'**
   String get frameOpenAs3d;
+
+  /// No description provided for @f3dTabCombos.
+  ///
+  /// In en, this message translates to:
+  /// **'Combinations'**
+  String get f3dTabCombos;
+
+  /// No description provided for @f3dTabAnalyses.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyses'**
+  String get f3dTabAnalyses;
+
+  /// No description provided for @f3dAnalysesHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your analyses: tap one to see its results. Static runs by itself; run the others when you need them.'**
+  String get f3dAnalysesHelp;
+
+  /// No description provided for @f3dAddAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an analysis'**
+  String get f3dAddAnalysis;
+
+  /// No description provided for @f3dAnalysisSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis settings'**
+  String get f3dAnalysisSettings;
+
+  /// No description provided for @f3dAnalysisName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get f3dAnalysisName;
+
+  /// No description provided for @f3dAllCombinations.
+  ///
+  /// In en, this message translates to:
+  /// **'All combinations'**
+  String get f3dAllCombinations;
+
+  /// No description provided for @f3dModeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Number of modes'**
+  String get f3dModeCount;
+
+  /// No description provided for @f3dNoCombination.
+  ///
+  /// In en, this message translates to:
+  /// **'No combination selected for this analysis.'**
+  String get f3dNoCombination;
+
+  /// No description provided for @f3dRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Run'**
+  String get f3dRun;
+
+  /// No description provided for @f3dRunAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Run all'**
+  String get f3dRunAll;
+
+  /// No description provided for @f3dRunNotRun.
+  ///
+  /// In en, this message translates to:
+  /// **'Not run yet'**
+  String get f3dRunNotRun;
+
+  /// No description provided for @f3dRunRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running…'**
+  String get f3dRunRunning;
+
+  /// No description provided for @f3dRunDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get f3dRunDone;
+
+  /// No description provided for @f3dRunStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Model changed: run again'**
+  String get f3dRunStale;
+
+  /// No description provided for @f3dRunFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get f3dRunFailed;
+
+  /// No description provided for @f3dRunHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Results are kept for this model; any change to the model asks for a new run.'**
+  String get f3dRunHelp;
+
+  /// No description provided for @f3dCombosAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated combinations'**
+  String get f3dCombosAuto;
+
+  /// No description provided for @f3dCombosAutoMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Built from the load cases (EN 1990 or BAEL, from the settings). Edit or add one to make the list your own.'**
+  String get f3dCombosAutoMsg;
+
+  /// No description provided for @f3dCombosOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your combinations'**
+  String get f3dCombosOwn;
+
+  /// No description provided for @f3dCombosOwnMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'The list is yours: new load cases are not added automatically.'**
+  String get f3dCombosOwnMsg;
+
+  /// No description provided for @f3dCombosReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to generated'**
+  String get f3dCombosReset;
+
+  /// No description provided for @f3dCombosResetConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace your combinations with the generated ones?'**
+  String get f3dCombosResetConfirm;
+
+  /// No description provided for @f3dCombosNote.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS combinations are used for member design and buckling, SLS ones for deflections. Combinations using a missing load case are marked and give zero results.'**
+  String get f3dCombosNote;
+
+  /// No description provided for @f3dComboAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a combination'**
+  String get f3dComboAdd;
+
+  /// No description provided for @f3dComboEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Combination'**
+  String get f3dComboEdit;
+
+  /// No description provided for @f3dComboName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get f3dComboName;
+
+  /// No description provided for @f3dComboKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Kind'**
+  String get f3dComboKind;
+
+  /// No description provided for @f3dComboUls.
+  ///
+  /// In en, this message translates to:
+  /// **'ULS'**
+  String get f3dComboUls;
+
+  /// No description provided for @f3dComboSlsChar.
+  ///
+  /// In en, this message translates to:
+  /// **'SLS characteristic'**
+  String get f3dComboSlsChar;
+
+  /// No description provided for @f3dComboSlsQp.
+  ///
+  /// In en, this message translates to:
+  /// **'SLS quasi-permanent'**
+  String get f3dComboSlsQp;
+
+  /// No description provided for @f3dComboFactors.
+  ///
+  /// In en, this message translates to:
+  /// **'Factor of each load case'**
+  String get f3dComboFactors;
+
+  /// No description provided for @f3dComboFactorsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty (or 0) to leave a load case out. Negative factors are allowed (e.g. uplift).'**
+  String get f3dComboFactorsHelp;
+
+  /// No description provided for @f3dComboInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Give a name and at least one factor.'**
+  String get f3dComboInvalid;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
 }
 
 class _AppLocalizationsDelegate

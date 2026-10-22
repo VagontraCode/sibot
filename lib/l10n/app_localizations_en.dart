@@ -4129,4 +4129,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get frameOpenAs3d => 'Open as a plane model in 3D';
+
+  @override
+  String get f3dTabCombos => 'Combinations';
+
+  @override
+  String get f3dTabAnalyses => 'Analyses';
+
+  @override
+  String get f3dAnalysesHelp =>
+      'Your analyses: tap one to see its results. Static runs by itself; run the others when you need them.';
+
+  @override
+  String get f3dAddAnalysis => 'Add an analysis';
+
+  @override
+  String get f3dAnalysisSettings => 'Analysis settings';
+
+  @override
+  String get f3dAnalysisName => 'Name (optional)';
+
+  @override
+  String get f3dAllCombinations => 'All combinations';
+
+  @override
+  String get f3dModeCount => 'Number of modes';
+
+  @override
+  String get f3dNoCombination => 'No combination selected for this analysis.';
+
+  @override
+  String get f3dRun => 'Run';
+
+  @override
+  String get f3dRunAll => 'Run all';
+
+  @override
+  String get f3dRunNotRun => 'Not run yet';
+
+  @override
+  String get f3dRunRunning => 'Running…';
+
+  @override
+  String get f3dRunDone => 'Done';
+
+  @override
+  String get f3dRunStale => 'Model changed: run again';
+
+  @override
+  String get f3dRunFailed => 'Failed';
+
+  @override
+  String get f3dRunHelp =>
+      'Results are kept for this model; any change to the model asks for a new run.';
+
+  @override
+  String get f3dCombosAuto => 'Generated combinations';
+
+  @override
+  String get f3dCombosAutoMsg =>
+      'Built from the load cases (EN 1990 or BAEL, from the settings). Edit or add one to make the list your own.';
+
+  @override
+  String get f3dCombosOwn => 'Your combinations';
+
+  @override
+  String get f3dCombosOwnMsg =>
+      'The list is yours: new load cases are not added automatically.';
+
+  @override
+  String get f3dCombosReset => 'Back to generated';
+
+  @override
+  String get f3dCombosResetConfirm =>
+      'Replace your combinations with the generated ones?';
+
+  @override
+  String get f3dCombosNote =>
+      'ULS combinations are used for member design and buckling, SLS ones for deflections. Combinations using a missing load case are marked and give zero results.';
+
+  @override
+  String get f3dComboAdd => 'Add a combination';
+
+  @override
+  String get f3dComboEdit => 'Combination';
+
+  @override
+  String get f3dComboName => 'Name';
+
+  @override
+  String get f3dComboKind => 'Kind';
+
+  @override
+  String get f3dComboUls => 'ULS';
+
+  @override
+  String get f3dComboSlsChar => 'SLS characteristic';
+
+  @override
+  String get f3dComboSlsQp => 'SLS quasi-permanent';
+
+  @override
+  String get f3dComboFactors => 'Factor of each load case';
+
+  @override
+  String get f3dComboFactorsHelp =>
+      'Leave empty (or 0) to leave a load case out. Negative factors are allowed (e.g. uplift).';
+
+  @override
+  String get f3dComboInvalid => 'Give a name and at least one factor.';
+
+  @override
+  String get commonSave => 'Save';
 }

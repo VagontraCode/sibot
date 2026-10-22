@@ -26,6 +26,11 @@ class Frame3DRecord {
   /// setting.
   final bool free;
 
+  /// The user's analyses (null = [defaultAnalyses]).
+  final List<AnalysisSpec>? savedAnalyses;
+
+  List<AnalysisSpec> get analyses => savedAnalyses ?? defaultAnalyses;
+
   const Frame3DRecord({
     required this.id,
     required this.projectId,
@@ -35,7 +40,21 @@ class Frame3DRecord {
     this.custom,
     this.masses,
     this.free = false,
+    this.savedAnalyses,
   });
+
+  /// The same record with another list of analyses.
+  Frame3DRecord withAnalyses(List<AnalysisSpec> list) => Frame3DRecord(
+    id: id,
+    projectId: projectId,
+    name: name,
+    updatedAt: DateTime.now(),
+    params: params,
+    custom: custom,
+    masses: masses,
+    free: free,
+    savedAnalyses: list,
+  );
 
   /// A free model starting from [model].
   factory Frame3DRecord.free({
@@ -84,6 +103,7 @@ class Frame3DRecord {
       custom: custom,
       masses: masses,
       free: free,
+      savedAnalyses: savedAnalyses,
     );
   }
 
@@ -101,6 +121,7 @@ class Frame3DRecord {
         custom: params == null ? custom : null,
         masses: params == null ? masses : null,
         free: params == null && free,
+        savedAnalyses: savedAnalyses,
       );
 
   /// The record with an edited model; masses are kept only while the
@@ -118,6 +139,7 @@ class Frame3DRecord {
           ? previous
           : null,
       free: free,
+      savedAnalyses: savedAnalyses,
     );
   }
 
@@ -133,6 +155,7 @@ class Frame3DRecord {
           name: name,
           updatedAt: DateTime.now(),
           params: params,
+          savedAnalyses: savedAnalyses,
         );
 
   Map<String, dynamic> toStored() => {
@@ -144,6 +167,8 @@ class Frame3DRecord {
     if (custom != null) 'model': jsonEncode(custom!.toJson()),
     if (masses != null) 'masses': masses,
     if (free) 'free': true,
+    if (savedAnalyses != null)
+      'analyses': jsonEncode([for (final a in savedAnalyses!) a.toJson()]),
   };
 
   static Frame3DRecord? fromStored(Object? v) {
@@ -167,6 +192,12 @@ class Frame3DRecord {
             ?.map((e) => (e as num).toDouble())
             .toList(),
         free: v['free'] as bool? ?? false,
+        savedAnalyses: v['analyses'] == null
+            ? null
+            : [
+                for (final a in jsonDecode(v['analyses'] as String) as List)
+                  AnalysisSpec.fromJson(Map<String, dynamic>.from(a as Map)),
+              ],
       );
     } catch (e) {
       LoggerService.w('Unreadable 3D model: $e');
@@ -224,7 +255,7 @@ String sourceKey(Frame3DRecord r) => jsonEncode({
 });
 
 /// Model and modal options decoded from a [sourceKey].
-(Model3D, ModalOptions) _source(String key) {
+(Model3D, ModalOptions) _source(String key, {int modes = 12}) {
   final j = Map<String, dynamic>.from(jsonDecode(key) as Map);
   final params = BuildingParams.fromJson(
     Map<String, dynamic>.from(j['p'] as Map),
@@ -245,7 +276,7 @@ String sourceKey(Frame3DRecord r) => jsonEncode({
   return (
     model,
     ModalOptions(
-      modes: 12,
+      modes: modes,
       nodeMasses: masses,
       massCases: masses == null ? model.seismicMassFactors() : const {},
     ),
@@ -325,12 +356,10 @@ Frame3DOutput runFrame3d(String key, DesignCode code) {
   try {
     final an = Frame3DAnalysis(model);
     final cases = an.solveAll();
-    final combos = combinationsFor([
-      for (final c in model.cases) (c.name, c.type),
-    ], code);
+    final combos = combinationsOf(model, code);
     final results = [
       for (final c in combos)
-        if (c.factors.isEmpty)
+        if (!combinationValid(model, c))
           cases.first.scaled(0)
         else
           c.factors.entries
@@ -361,9 +390,7 @@ final frame3dAnalysisProvider =
 /// Second-order result of one combination.
 Frame3DResult runPDelta(String key, int combo, DesignCode code) {
   final (model, _) = _source(key);
-  final combos = combinationsFor([
-    for (final c in model.cases) (c.name, c.type),
-  ], code);
+  final combos = combinationsOf(model, code);
   final m = withCase(model, combinedCase(model, combos[combo].factors));
   return Frame3DAnalysis(m).pDeltaCase(model.cases.length);
 }
@@ -391,6 +418,9 @@ class SpectrumRequest {
   final double aN;
   final Ps92Site site;
 
+  /// Modes of the underlying modal analysis.
+  final int modes;
+
   const SpectrumRequest({
     required this.agR,
     required this.ground,
@@ -402,7 +432,23 @@ class SpectrumRequest {
     this.ps92 = false,
     this.aN = 0,
     this.site = Ps92Site.s1,
+    this.modes = 12,
   });
+
+  /// The request of a spectrum analysis.
+  factory SpectrumRequest.of(AnalysisSpec s) => SpectrumRequest(
+    agR: s.agR,
+    ground: s.ground,
+    importance: s.importance,
+    type1: s.type1,
+    q: s.q,
+    direction: s.direction,
+    torsion: s.torsion,
+    ps92: s.ps92,
+    aN: s.aN,
+    site: s.site,
+    modes: s.modes,
+  );
 
   @override
   bool operator ==(Object other) =>
@@ -416,7 +462,8 @@ class SpectrumRequest {
       other.torsion == torsion &&
       other.ps92 == ps92 &&
       other.aN == aN &&
-      other.site == site;
+      other.site == site &&
+      other.modes == modes;
 
   @override
   int get hashCode => Object.hash(
@@ -430,6 +477,7 @@ class SpectrumRequest {
     ps92,
     aN,
     site,
+    modes,
   );
 }
 
@@ -441,7 +489,7 @@ class SeismicOutput {
 }
 
 SeismicOutput runSpectrum(String key, SpectrumRequest r) {
-  final (model, options) = _source(key);
+  final (model, options) = _source(key, modes: r.modes);
   final modal = modalAnalysis(model, options: options);
   SpectrumResult run(int d) => responseSpectrum(
     modal,
@@ -473,8 +521,8 @@ class ModalOutput {
   const ModalOutput(this.modes, this.totalMass);
 }
 
-ModalOutput runModal(String key) {
-  final (model, options) = _source(key);
+ModalOutput runModal(String key, [int modes = 12]) {
+  final (model, options) = _source(key, modes: modes);
   try {
     final r = modalAnalysis(model, options: options);
     return ModalOutput(r.modes, r.totalMass);
@@ -484,9 +532,13 @@ ModalOutput runModal(String key) {
 }
 
 /// Modes are computed when first needed (Modes tab, seismic mass, note).
-final frame3dModalProvider = FutureProvider.family<ModalOutput, String>(
-  (ref, key) => Isolate.run(() => runModal(key)),
-);
+final frame3dModalProvider = FutureProvider.family<ModalOutput, (String, int)>((
+  ref,
+  key,
+) {
+  final (source, modes) = key;
+  return Isolate.run(() => runModal(source, modes));
+});
 
 /// Critical load factor of the first ULS combination.
 class BucklingOutput {
@@ -495,14 +547,18 @@ class BucklingOutput {
   const BucklingOutput(this.alpha, this.shape);
 }
 
-BucklingOutput runBuckling(String key, DesignCode code) {
+BucklingOutput runBuckling(String key, DesignCode code, [int? combo]) {
   final (model, _) = _source(key);
   try {
-    final combos = combinationsFor([
-      for (final c in model.cases) (c.name, c.type),
-    ], code);
-    final uls = combos.indexWhere((c) => c.kind == CombinationKind.uls);
-    if (uls < 0) return const BucklingOutput(null, null);
+    final combos = combinationsOf(model, code);
+    final uls =
+        combo ?? combos.indexWhere((c) => c.kind == CombinationKind.uls);
+    if (uls < 0 || uls >= combos.length) {
+      return const BucklingOutput(null, null);
+    }
+    if (!combinationValid(model, combos[uls])) {
+      return const BucklingOutput(null, null);
+    }
     final an = Frame3DAnalysis(model);
     final cases = an.solveAll();
     final result = combos[uls].factors.entries
@@ -516,7 +572,10 @@ BucklingOutput runBuckling(String key, DesignCode code) {
 }
 
 final frame3dBucklingProvider =
-    FutureProvider.family<BucklingOutput, (String, DesignCode)>((ref, key) {
-      final (source, code) = key;
-      return Isolate.run(() => runBuckling(source, code));
+    FutureProvider.family<BucklingOutput, (String, DesignCode, int?)>((
+      ref,
+      key,
+    ) {
+      final (source, code, combo) = key;
+      return Isolate.run(() => runBuckling(source, code, combo));
     });

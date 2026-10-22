@@ -17,6 +17,7 @@ export 'src/fem/dxf.dart';
 export 'src/fem/model.dart';
 export 'src/fem/plate.dart';
 export 'src/fem/templates.dart';
+export 'src/fem3d/analyses3d.dart';
 export 'src/fem3d/analysis3d.dart';
 export 'src/fem3d/design3d.dart';
 export 'src/fem3d/edit3d.dart';
