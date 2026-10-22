@@ -102,8 +102,190 @@ class _Elem3 {
   /// Rows: local x, y, z in global coordinates.
   final List<List<double>> r;
   final Float64List k; // 12 × 12 local stiffness, row-major
+
+  /// [k] with the released DOFs condensed out (same as [k] when none).
+  final Float64List kc;
+  final List<int> rel;
   final double ea, eiy, eiz, gj;
-  _Elem3(this.e, this.l, this.r, this.k, this.ea, this.eiy, this.eiz, this.gj);
+
+  /// Station positions along the member, shared by every load case.
+  List<double> xs = const [];
+
+  _Elem3(
+    this.e,
+    this.l,
+    this.r,
+    this.k,
+    this.kc,
+    this.rel,
+    this.ea,
+    this.eiy,
+    this.eiz,
+    this.gj,
+  );
+}
+
+/// Linearly varying load on [a, b] (local axes, kN/m).
+class _Seg3 {
+  final double a, b;
+  final List<double> q1, q2;
+  const _Seg3(this.a, this.b, this.q1, this.q2);
+
+  List<double> at(double x) {
+    final t = b > a ? (x - a) / (b - a) : 0.0;
+    return [for (var k = 0; k < 3; k++) q1[k] + (q2[k] - q1[k]) * t];
+  }
+}
+
+/// Concentrated force at [a] (local axes, kN).
+class _Pt3 {
+  final double a;
+  final List<double> p;
+  const _Pt3(this.a, this.p);
+}
+
+typedef _MemberLoads = (List<_Seg3>, List<_Pt3>);
+
+const _gx = [
+  -0.9061798459386640,
+  -0.5384693101056831,
+  0.0,
+  0.5384693101056831,
+  0.9061798459386640,
+];
+const _gw = [
+  0.2369268850561891,
+  0.4786286704993665,
+  0.5688888888888889,
+  0.4786286704993665,
+  0.2369268850561891,
+];
+
+/// ∫ f over [a, b] by 5-point Gauss (exact for degree ≤ 9).
+double _gauss(double a, double b, double Function(double) f) {
+  if (b <= a) return 0;
+  final h = (b - a) / 2, m = (a + b) / 2;
+  var s = 0.0;
+  for (var g = 0; g < 5; g++) {
+    s += _gw[g] * f(m + h * _gx[g]);
+  }
+  return s * h;
+}
+
+/// Deflection at [x] of a fixed-fixed beam of length [l] under a unit
+/// transverse force at [xi], times EI.
+double _greenBending(double x, double xi, double l) {
+  if (x <= xi) {
+    final b = l - xi;
+    return b * b * x * x * (3 * xi * l - x * (3 * xi + b)) / (6 * l * l * l);
+  }
+  final a = xi, b = l - xi, y = l - x;
+  return a * a * y * y * (3 * b * l - y * (3 * b + a)) / (6 * l * l * l);
+}
+
+/// Axial displacement at [x] of a bar fixed at both ends under a unit
+/// axial force at [xi], times EA.
+double _greenAxial(double x, double xi, double l) =>
+    x <= xi ? x * (l - xi) / l : xi * (l - x) / l;
+
+/// Sequential static condensation of the DOFs [rel] of a 12 × 12 matrix
+/// and, optionally, of a load vector (both copied).
+(Float64List, List<double>?) _condense(
+  Float64List k,
+  List<int> rel, [
+  List<double>? f,
+]) {
+  final c = Float64List.fromList(k);
+  final g = f == null ? null : List<double>.of(f);
+  for (final r in rel) {
+    final krr = c[r * 12 + r];
+    if (krr.abs() > 1e-30) {
+      final col = [for (var i = 0; i < 12; i++) c[i * 12 + r]];
+      final row = [for (var j = 0; j < 12; j++) c[r * 12 + j]];
+      for (var i = 0; i < 12; i++) {
+        if (col[i] == 0) continue;
+        for (var j = 0; j < 12; j++) {
+          c[i * 12 + j] -= col[i] * row[j] / krr;
+        }
+      }
+      if (g != null) {
+        final fr = g[r];
+        for (var i = 0; i < 12; i++) {
+          g[i] -= col[i] * fr / krr;
+        }
+      }
+    }
+    for (var i = 0; i < 12; i++) {
+      c[i * 12 + r] = 0;
+      c[r * 12 + i] = 0;
+    }
+    if (g != null) g[r] = 0;
+  }
+  return (c, g);
+}
+
+/// Member-end values of the released DOFs: k_bb u_b = f_b − k_ba u_a
+/// (zero end action), written into [u].
+void _recover(Float64List k, List<int> rel, List<double> u, List<double> f) {
+  final m = rel.length;
+  final a = [
+    for (final i in rel) [for (final j in rel) k[i * 12 + j]],
+  ];
+  final rhs = [
+    for (final i in rel)
+      () {
+        var s = f[i];
+        for (var j = 0; j < 12; j++) {
+          if (!rel.contains(j)) s -= k[i * 12 + j] * u[j];
+        }
+        return s;
+      }(),
+  ];
+  // Tiny regularisation: a member free to spin (torsion released at both
+  // ends) keeps a definite, force-free solution.
+  var scale = 0.0;
+  for (var i = 0; i < m; i++) {
+    scale = math.max(scale, a[i][i].abs());
+  }
+  for (var i = 0; i < m; i++) {
+    a[i][i] += 1e-12 * math.max(scale, 1e-30);
+  }
+  // Gaussian elimination with partial pivoting (m ≤ 6).
+  for (var p = 0; p < m; p++) {
+    var best = p;
+    for (var r = p + 1; r < m; r++) {
+      if (a[r][p].abs() > a[best][p].abs()) best = r;
+    }
+    if (best != p) {
+      final t = a[p];
+      a[p] = a[best];
+      a[best] = t;
+      final tr = rhs[p];
+      rhs[p] = rhs[best];
+      rhs[best] = tr;
+    }
+    final piv = a[p][p];
+    if (piv.abs() < 1e-300) continue;
+    for (var r = p + 1; r < m; r++) {
+      final f = a[r][p] / piv;
+      if (f == 0) continue;
+      for (var c = p; c < m; c++) {
+        a[r][c] -= f * a[p][c];
+      }
+      rhs[r] -= f * rhs[p];
+    }
+  }
+  final x = List<double>.filled(m, 0);
+  for (var p = m - 1; p >= 0; p--) {
+    var s = rhs[p];
+    for (var c = p + 1; c < m; c++) {
+      s -= a[p][c] * x[c];
+    }
+    x[p] = a[p][p].abs() < 1e-300 ? 0 : s / a[p][p];
+  }
+  for (var i = 0; i < m; i++) {
+    u[rel[i]] = x[i];
+  }
 }
 
 /// Local axes of a member: x along it, z in the vertical plane pointing
@@ -179,7 +361,8 @@ Float64List _localStiffness(
 }
 
 /// Linear static analysis of a space frame by the direct stiffness
-/// method (Euler–Bernoulli members, no releases).
+/// method (Euler–Bernoulli members, end releases by static condensation,
+/// elastic supports).
 class Frame3DAnalysis {
   final Model3D model;
   final List<_Elem3> _elems = [];
@@ -258,12 +441,19 @@ class Frame3DAnalysis {
       final ek = s.youngModulus * 1e3, gk = s.shearModulus * 1e3;
       final ea = ek * s.area, eiy = ek * s.iy, eiz = ek * s.iz;
       final gj = gk * s.j;
+      final k = _localStiffness(l, ea, eiy, eiz, gj);
+      final rel = [
+        for (final d in Element3D.releasable)
+          if (e.releases.contains(d)) d,
+      ];
       _elems.add(
         _Elem3(
           e,
           l,
           memberAxes(a, b, e.roll),
-          _localStiffness(l, ea, eiy, eiz, gj),
+          k,
+          rel.isEmpty ? k : _condense(k, rel).$1,
+          rel,
           ea,
           eiy,
           eiz,
@@ -271,7 +461,39 @@ class Frame3DAnalysis {
         ),
       );
     }
+    _prepareStations();
   }
+
+  /// Station positions: eleven equal steps plus every load boundary and
+  /// point load of every case.
+  void _prepareStations() {
+    for (var i = 0; i < _elems.length; i++) {
+      final l = _elems[i].l;
+      final xs = <double>[
+        for (var s = 0; s < stationCount; s++) l * s / (stationCount - 1),
+      ];
+      for (final c in model.cases) {
+        for (final q in c.member) {
+          if (q.element != i || q.uniform) continue;
+          xs.add(q.start.clamp(0.0, l));
+          xs.add((q.end ?? l).clamp(0.0, l));
+        }
+        for (final p in c.point) {
+          if (p.element == i) xs.add(p.a.clamp(0.0, l));
+        }
+      }
+      xs.sort();
+      final out = <double>[];
+      for (final x in xs) {
+        if (out.isEmpty || x - out.last > 1e-9 * l) out.add(x);
+      }
+      _elems[i].xs = out;
+    }
+  }
+
+  /// Nodes whose rotation about a global axis had no stiffness (all
+  /// members released there) and was restrained, with the DOF (3–5).
+  final Set<(int, int)> freeRotations = {};
 
   /// Rigid diaphragm slaves: node → (master, dx, dy) with dx, dy the
   /// slave's offset from the master in plan.
@@ -318,12 +540,59 @@ class Frame3DAnalysis {
     for (var i = 0; i < n; i++) {
       byNew[order[i]] = i;
     }
+    // Rotations that no member or spring resists (every member released
+    // there) are restrained, like the pins of a truss.
+    final rotDiag = List.generate(n, (_) => [0.0, 0.0, 0.0]);
+    var maxRot = 0.0;
+    for (final el in _elems) {
+      if (el.rel.isEmpty) continue;
+      final g = _globalOf(el, el.kc);
+      for (var i = 0; i < 3; i++) {
+        rotDiag[el.e.n1][i] += g[(3 + i) * 12 + 3 + i];
+        rotDiag[el.e.n2][i] += g[(9 + i) * 12 + 9 + i];
+      }
+    }
+    final hasReleases = _elems.any((el) => el.rel.isNotEmpty);
+    if (hasReleases) {
+      for (final el in _elems) {
+        if (el.rel.isNotEmpty) continue;
+        final g = _globalOf(el, el.kc);
+        for (var i = 0; i < 3; i++) {
+          rotDiag[el.e.n1][i] += g[(3 + i) * 12 + 3 + i];
+          rotDiag[el.e.n2][i] += g[(9 + i) * 12 + 9 + i];
+        }
+      }
+      for (final r in rotDiag) {
+        for (final v in r) {
+          maxRot = math.max(maxRot, v);
+        }
+      }
+    }
+    final masters = {for (final s in _slaves.values) s.$1};
+
     _eq = List.generate(n, (_) => List.filled(6, -1));
     var next = 0;
     for (var k = 0; k < n; k++) {
       final node = byNew[k];
       if (!used[node]) continue;
-      final fixed = (model.supports[node] ?? const Support3D()).dofs;
+      final sup = model.supports[node] ?? const Support3D();
+      final fixed = [...sup.dofs];
+      if (model.plane) {
+        fixed[1] = fixed[3] = fixed[5] = true;
+      }
+      if (hasReleases) {
+        for (var i = 0; i < 3; i++) {
+          final d = 3 + i;
+          if (fixed[d] || sup.springs[d] > 0) continue;
+          if (d == 5 && (masters.contains(node) || _slaves.containsKey(node))) {
+            continue;
+          }
+          if (rotDiag[node][i] <= 1e-9 * maxRot) {
+            fixed[d] = true;
+            freeRotations.add((node, d));
+          }
+        }
+      }
       final slave = _slaves.containsKey(node);
       for (var d = 0; d < 6; d++) {
         if (slave && (d == 0 || d == 1 || d == 5)) continue;
@@ -426,11 +695,7 @@ class Frame3DAnalysis {
     final k = BandedMatrix(math.max(_neq, 1), band);
     for (var e = 0; e < _elems.length; e++) {
       final el = _elems[e];
-      final local = extra == null
-          ? el.k
-          : Float64List.fromList([
-              for (var i = 0; i < 144; i++) el.k[i] + extra[e][i],
-            ]);
+      final local = extra == null ? el.kc : _withExtra(el, extra[e]);
       final g = _globalOf(el, local);
       final d = _dofs(el.e);
       // K_ab = Σ_ij c_ia c_jb g_ij over the constraint terms; each pair
@@ -445,6 +710,22 @@ class Frame3DAnalysis {
             for (final (b, cb) in d[j]) {
               if (b >= a) k.add(a, b, ca * cb * gij);
             }
+          }
+        }
+      }
+    }
+    // Elastic supports on free DOFs.
+    for (final entry in model.supports.entries) {
+      final node = entry.key;
+      if (node < 0 || node >= model.nodes.length) continue;
+      final springs = entry.value.springs;
+      for (var d = 0; d < 6; d++) {
+        final ks = springs[d];
+        if (ks <= 0) continue;
+        final t = _map[node][d];
+        for (final (a, ca) in t) {
+          for (final (b, cb) in t) {
+            if (b >= a) k.add(a, b, ca * cb * ks);
           }
         }
       }
@@ -483,53 +764,86 @@ class Frame3DAnalysis {
             el.r[2][i] * l[b * 3 + 2],
   ];
 
-  /// Uniform member loads (local) of a case, per element.
-  List<List<double>> _memberLoads(LoadCase3D c) {
-    final q = List.generate(_elems.length, (_) => [0.0, 0.0, 0.0]);
-    void addGlobal(int i, List<double> g) {
-      final loc = _toLocal(_elems[i], g);
-      for (var k = 0; k < 3; k++) {
-        q[i][k] += loc[k];
-      }
-    }
+  /// Local stiffness plus [extra] (e.g. geometric), condensed when the
+  /// member has releases.
+  Float64List _withExtra(_Elem3 el, Float64List extra) {
+    final sum = Float64List.fromList([
+      for (var i = 0; i < 144; i++) el.k[i] + extra[i],
+    ]);
+    return el.rel.isEmpty ? sum : _condense(sum, el.rel).$1;
+  }
+
+  /// Member loads of a case in local axes: linear segments and point
+  /// forces, per element.
+  List<_MemberLoads> _memberLoads(LoadCase3D c) {
+    final out = [for (var i = 0; i < _elems.length; i++) (<_Seg3>[], <_Pt3>[])];
+    List<double> local(int i, List<double> g, bool isLocal) =>
+        isLocal ? g : _toLocal(_elems[i], g);
 
     if (c.selfWeight) {
       for (var i = 0; i < _elems.length; i++) {
         final s = model.sections[_elems[i].e.section];
-        addGlobal(i, [0, 0, -s.unitWeight * s.area]);
+        final q = local(i, [0, 0, -s.unitWeight * s.area], false);
+        out[i].$1.add(_Seg3(0, _elems[i].l, q, q));
       }
     }
     for (final m in c.member) {
       if (m.element < 0 || m.element >= _elems.length) continue;
-      if (m.local) {
-        q[m.element][0] += m.qx;
-        q[m.element][1] += m.qy;
-        q[m.element][2] += m.qz;
-      } else {
-        addGlobal(m.element, [m.qx, m.qy, m.qz]);
-      }
+      final l = _elems[m.element].l;
+      final a = m.start.clamp(0.0, l), b = (m.end ?? l).clamp(0.0, l);
+      if (b <= a) continue;
+      out[m.element].$1.add(
+        _Seg3(
+          a,
+          b,
+          local(m.element, m.q1, m.local),
+          local(m.element, m.q2, m.local),
+        ),
+      );
     }
-    return q;
+    for (final p in c.point) {
+      if (p.element < 0 || p.element >= _elems.length) continue;
+      final l = _elems[p.element].l;
+      out[p.element].$2.add(
+        _Pt3(p.a.clamp(0.0, l), local(p.element, p.vector, p.local)),
+      );
+    }
+    return out;
   }
 
-  /// Fixed-end forces (loads applied to the nodes, local axes) for a
-  /// uniform local load.
-  static List<double> _equivalent(double l, List<double> q) {
-    final (qx, qy, qz) = (q[0], q[1], q[2]);
-    return [
-      qx * l / 2,
-      qy * l / 2,
-      qz * l / 2,
-      0,
-      -qz * l * l / 12,
-      qy * l * l / 12,
-      qx * l / 2,
-      qy * l / 2,
-      qz * l / 2,
-      0,
-      qz * l * l / 12,
-      -qy * l * l / 12,
-    ];
+  /// Consistent nodal loads (local, uncondensed): the loads weighted by
+  /// the shape functions.
+  static List<double> _equivalent(double l, _MemberLoads loads) {
+    final f = List<double>.filled(12, 0);
+    void at(double x, List<double> q, double w) {
+      final xi = x / l;
+      final n1 = 1 - 3 * xi * xi + 2 * xi * xi * xi;
+      final n2 = l * (xi - 2 * xi * xi + xi * xi * xi);
+      final n3 = 3 * xi * xi - 2 * xi * xi * xi;
+      final n4 = l * (-xi * xi + xi * xi * xi);
+      f[0] += (1 - xi) * q[0] * w;
+      f[6] += xi * q[0] * w;
+      f[1] += n1 * q[1] * w;
+      f[5] += n2 * q[1] * w;
+      f[7] += n3 * q[1] * w;
+      f[11] += n4 * q[1] * w;
+      f[2] += n1 * q[2] * w;
+      f[4] -= n2 * q[2] * w;
+      f[8] += n3 * q[2] * w;
+      f[10] -= n4 * q[2] * w;
+    }
+
+    for (final s in loads.$1) {
+      final h = (s.b - s.a) / 2, m = (s.a + s.b) / 2;
+      for (var g = 0; g < 5; g++) {
+        final x = m + h * _gx[g];
+        at(x, s.at(x), _gw[g] * h);
+      }
+    }
+    for (final p in loads.$2) {
+      at(p.a, p.p, 1);
+    }
+    return f;
   }
 
   Frame3DResult solveCase(int index) {
@@ -538,8 +852,8 @@ class Frame3DAnalysis {
     return _result(x, applied, feq, q);
   }
 
-  (Float64List, List<List<double>>, List<List<double>>, List<List<double>>)
-  _loads(int index) {
+  (Float64List, List<List<double>>, List<List<double>>, List<_MemberLoads>)
+  _loads(int index, {List<Float64List>? extra}) {
     final c = model.cases[index];
     final f = Float64List(math.max(_neq, 1));
     final applied = List.generate(
@@ -562,7 +876,19 @@ class Frame3DAnalysis {
       final el = _elems[i];
       final loc = _equivalent(el.l, q[i]);
       feq.add(loc);
-      final g = _toGlobal(el, loc);
+      // Released ends carry no action: the load is condensed with them.
+      final condensed = el.rel.isEmpty
+          ? loc
+          : _condense(
+              extra == null
+                  ? el.k
+                  : Float64List.fromList([
+                      for (var k = 0; k < 144; k++) el.k[k] + extra[i][k],
+                    ]),
+              el.rel,
+              loc,
+            ).$2!;
+      final g = _toGlobal(el, condensed);
       final d = _dofs(el.e);
       for (var k = 0; k < 12; k++) {
         for (final (eq, c) in d[k]) {
@@ -572,6 +898,12 @@ class Frame3DAnalysis {
     }
     return (f, applied, feq, q);
   }
+
+  static final _zero12 = List<double>.filled(12, 0);
+
+  List<_MemberLoads> get _noLoads => [
+    for (var i = 0; i < _elems.length; i++) (const <_Seg3>[], const <_Pt3>[]),
+  ];
 
   /// Static solution for nodal loads only (no load case).
   Frame3DResult solveNodal(List<NodalLoad3D> loads) {
@@ -595,7 +927,7 @@ class Frame3DAnalysis {
       x,
       applied,
       List.generate(_elems.length, (_) => List.filled(12, 0.0)),
-      List.generate(_elems.length, (_) => [0.0, 0.0, 0.0]),
+      _noLoads,
     );
   }
 
@@ -605,14 +937,34 @@ class Frame3DAnalysis {
     x,
     List.generate(model.nodes.length, (_) => List.filled(6, 0.0)),
     List.generate(_elems.length, (_) => List.filled(12, 0.0)),
-    List.generate(_elems.length, (_) => [0.0, 0.0, 0.0]),
+    _noLoads,
   );
+
+  /// Local end displacements of a member, with the released DOFs taken
+  /// from the member's own equilibrium.
+  List<double> _memberDisplacements(
+    _Elem3 el,
+    List<double> ug,
+    List<double> feq,
+    Float64List? extra,
+  ) {
+    final ul = _toLocal(el, ug);
+    if (el.rel.isNotEmpty) {
+      final k = extra == null
+          ? el.k
+          : Float64List.fromList([
+              for (var i = 0; i < 144; i++) el.k[i] + extra[i],
+            ]);
+      _recover(k, el.rel, ul, feq);
+    }
+    return ul;
+  }
 
   Frame3DResult _result(
     Float64List x,
     List<List<double>> applied,
     List<List<double>> feq,
-    List<List<double>> q, {
+    List<_MemberLoads> q, {
     List<Float64List>? extra,
   }) {
     final disp = [
@@ -628,7 +980,7 @@ class Frame3DAnalysis {
     for (var i = 0; i < _elems.length; i++) {
       final el = _elems[i];
       final ug = [...disp[el.e.n1], ...disp[el.e.n2]];
-      final ul = _toLocal(el, ug);
+      final ul = _memberDisplacements(el, ug, feq[i], extra?[i]);
       final fe = List<double>.filled(12, 0);
       for (var a = 0; a < 12; a++) {
         var s = -feq[i][a];
@@ -636,6 +988,9 @@ class Frame3DAnalysis {
           s += (el.k[a * 12 + b] + (extra?[i][a * 12 + b] ?? 0)) * ul[b];
         }
         fe[a] = s;
+      }
+      for (final r in el.rel) {
+        fe[r] = 0; // exactly, up to round-off
       }
       final fg = _toGlobal(el, fe);
       for (var k = 0; k < 6; k++) {
@@ -662,27 +1017,62 @@ class Frame3DAnalysis {
     _Elem3 el,
     List<double> f,
     List<double> u,
-    List<double> q, {
+    _MemberLoads loads, {
     bool secondOrder = false,
   }) {
     final l = el.l;
-    final (qx, qy, qz) = (q[0], q[1], q[2]);
+    final (segs, pts) = loads;
     final out = <Station3D>[];
-    for (var s = 0; s < stationCount; s++) {
-      final x = l * s / (stationCount - 1);
+    for (final x in el.xs) {
       final xi = x / l;
+      // Load integrals from the start: P(x) = ∫q, M(x) = ∫(x − ξ) q.
+      final p = [0.0, 0.0, 0.0], mq = [0.0, 0.0, 0.0];
+      for (final s in segs) {
+        final b = math.min(x, s.b);
+        if (b <= s.a) continue;
+        for (var k = 0; k < 3; k++) {
+          p[k] += _gauss(s.a, b, (t) => s.at(t)[k]);
+          mq[k] += _gauss(s.a, b, (t) => (x - t) * s.at(t)[k]);
+        }
+      }
+      for (final pt in pts) {
+        if (pt.a < x || (pt.a == 0 && x == 0)) {
+          for (var k = 0; k < 3; k++) {
+            p[k] += pt.p[k];
+            mq[k] += (x - pt.a) * pt.p[k];
+          }
+        }
+      }
+      // Fixed-fixed particular displacements (Green's functions), added
+      // to the Hermite interpolation of the member-end displacements.
+      final part = [0.0, 0.0, 0.0];
+      for (final s in segs) {
+        for (final (a, b) in [
+          (s.a, math.min(x, s.b)),
+          (math.max(x, s.a), s.b),
+        ]) {
+          if (b <= a) continue;
+          part[0] += _gauss(a, b, (t) => _greenAxial(x, t, l) * s.at(t)[0]);
+          part[1] += _gauss(a, b, (t) => _greenBending(x, t, l) * s.at(t)[1]);
+          part[2] += _gauss(a, b, (t) => _greenBending(x, t, l) * s.at(t)[2]);
+        }
+      }
+      for (final pt in pts) {
+        part[0] += _greenAxial(x, pt.a, l) * pt.p[0];
+        part[1] += _greenBending(x, pt.a, l) * pt.p[1];
+        part[2] += _greenBending(x, pt.a, l) * pt.p[2];
+      }
       // Hermite shape functions.
       final n1 = 1 - 3 * xi * xi + 2 * xi * xi * xi;
       final n2 = l * (xi - 2 * xi * xi + xi * xi * xi);
       final n3 = 3 * xi * xi - 2 * xi * xi * xi;
       final n4 = l * (-xi * xi + xi * xi * xi);
-      final bubble = x * x * (l - x) * (l - x) / 24;
-      final ua = u[0] * (1 - xi) + u[6] * xi;
+      final ua = u[0] * (1 - xi) + u[6] * xi + part[0] / el.ea;
       final v =
-          n1 * u[1] + n2 * u[5] + n3 * u[7] + n4 * u[11] + qy * bubble / el.eiz;
+          n1 * u[1] + n2 * u[5] + n3 * u[7] + n4 * u[11] + part[1] / el.eiz;
       final w =
-          n1 * u[2] - n2 * u[4] + n3 * u[8] - n4 * u[10] + qz * bubble / el.eiy;
-      final n = -(f[0] + qx * x);
+          n1 * u[2] - n2 * u[4] + n3 * u[8] - n4 * u[10] + part[2] / el.eiy;
+      final n = -(f[0] + p[0]);
       // Second-order runs: moments integrated from the start node include
       // the axial force acting on the deflection relative to that node
       // (chord rotation and P-δ).
@@ -692,11 +1082,11 @@ class Frame3DAnalysis {
         Station3D(
           x,
           n,
-          f[1] + qy * x,
-          f[2] + qz * x,
+          f[1] + p[1],
+          f[2] + p[2],
           -f[3],
-          f[4] + x * f[2] + qz * x * x / 2 + n * dw,
-          -(f[5] - x * f[1] - qy * x * x / 2) + n * dv,
+          f[4] + x * f[2] + mq[2] + n * dw,
+          -(f[5] - x * f[1] - mq[1]) + n * dv,
           _toGlobal(el, [ua, v, w]),
         ),
       );
@@ -756,7 +1146,8 @@ class Frame3DAnalysis {
   /// until the axial forces converge. Effects within members (P-δ) on
   /// the moment diagrams are not included.
   Frame3DResult pDeltaCase(int index, {int maxIterations = 20}) {
-    final (f, applied, feq, q) = _loads(index);
+    final hasReleases = _elems.any((el) => el.rel.isNotEmpty);
+    var (f, applied, feq, q) = _loads(index);
     var r = solveCase(index);
     var n = _axial(r);
     for (var it = 0; it < maxIterations; it++) {
@@ -764,6 +1155,8 @@ class Frame3DAnalysis {
         for (var e = 0; e < _elems.length; e++) geometricStiffness(e, n[e]),
       ];
       final kt = _build(kg);
+      // Loads on released members are condensed with K + Kg.
+      if (hasReleases) (f, applied, feq, q) = _loads(index, extra: kg);
       final x = _neq == 0 ? Float64List(1) : kt.solve(f);
       r = _result(x, applied, feq, q, extra: kg);
       final n2 = _axial(r);
@@ -803,7 +1196,8 @@ class Frame3DAnalysis {
         final ug = [
           for (final t in d) t.fold(0.0, (s, term) => s + term.$2 * x[term.$1]),
         ];
-        final ul = _toLocal(el, ug);
+        // Released ends follow the member (no load on it).
+        final ul = _memberDisplacements(el, ug, _zero12, null);
         final fl = [
           for (var a = 0; a < 12; a++)
             () {
@@ -814,7 +1208,9 @@ class Frame3DAnalysis {
               return s;
             }(),
         ];
-        final fg = _toGlobal(el, fl);
+        // Consistent with the condensed K: Tᵀ Kg T, T the recovery map.
+        final fc = el.rel.isEmpty ? fl : _condense(el.k, el.rel, fl).$2!;
+        final fg = _toGlobal(el, fc);
         for (var k = 0; k < 12; k++) {
           for (final (eq, c) in d[k]) {
             y[eq] += c * fg[k];

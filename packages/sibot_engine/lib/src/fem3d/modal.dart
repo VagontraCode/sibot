@@ -121,12 +121,24 @@ List<double> lumpedMasses(
       }
     }
     for (final q in c.member) {
-      if (q.local || q.qz >= 0) continue;
+      if (q.local) continue;
       if (q.element < 0 || q.element >= model.elements.length) continue;
       final e = model.elements[q.element];
-      final half = -f * q.qz * lengths[q.element] / gravity / 2;
-      m[e.n1] += half;
-      m[e.n2] += half;
+      final l = lengths[q.element];
+      // Downward part, split between the ends by the lever rule.
+      final (total, moment) = q.resultant(2, l);
+      if (total >= 0) continue;
+      final m2 = -f * moment / l / gravity;
+      m[e.n1] += -f * total / gravity - m2;
+      m[e.n2] += m2;
+    }
+    for (final p in c.point) {
+      if (p.local || p.fz >= 0) continue;
+      if (p.element < 0 || p.element >= model.elements.length) continue;
+      final e = model.elements[p.element];
+      final t = (p.a / lengths[p.element]).clamp(0.0, 1.0);
+      m[e.n1] += -f * p.fz * (1 - t) / gravity;
+      m[e.n2] += -f * p.fz * t / gravity;
     }
   }
   return m;

@@ -181,6 +181,39 @@ Engine: `packages/sibot_engine` (pure Dart), 106 tests against hand calculations
 - [x] Performance: heavy work in isolates, modes and buckling on demand, one factorisation reused, matched tolerances; benchmark and budgets in docs/PERFORMANCE.md
 - [x] Measure on real low-end Android devices against the budgets (Nokia G100, profile build: all within budget, see PERFORMANCE.md)
 
+### Phase 6 — RSA-style workflow: one model, your analyses, design from results
+Goal: the freedom of RSA. Each project has structure models; the user decides what to model,
+which analyses to run and what to design from the results. The single calculators stay for
+quick checks. Each step is finished, tested (engine, widgets, Nokia G100) and committed before
+the next one starts.
+
+**Step 1 — Free modelling**
+- [ ] Start a 3D model from an empty space; the building generator, 2D frames and DXF become starting points
+- [ ] Working grid and storey levels with snapping; node coordinates editable
+- [ ] Per-member end releases (moments about y and z, torsion) in the 3D editor
+- [ ] Supports per node: any combination of the six restraints, and elastic springs
+- [ ] Copy / array / mirror of the selected nodes and members, with their loads
+- [ ] Multi-selection (tap, by level, by kind: columns / beams / braces) and bulk edits (section, releases, delete)
+- [ ] Plane-frame models: a 3D model locked to the XZ plane, so 2D frames get the same tools
+
+**Step 2 — Your own load cases, combinations and analyses**
+- [ ] Combination table: generate EN 1990 / BAEL combinations, then add, delete and edit any factor
+- [ ] Analysis list built by the user, each with its settings and run on demand: static (chosen cases and combinations), modal (number of modes, masses), spectrum (direction, EC8 / PS92), buckling and P-Δ on a chosen combination
+- [ ] Results kept per analysis and invalidated when the model changes
+
+**Step 3 — Design groups and per-member settings**
+- [ ] Select members (tap, by kind, by level) and put them in design groups
+- [ ] Each group: material, code (EC / BAEL), grade, buckling lengths, deflection limit, exposure
+- [ ] "Design all": utilisation table (sortable) and colour map; tap a member for its full checks
+
+**Step 4 — Send results to the design modules**
+- [ ] "Design in…" from a member or a support: beam, column, steel, timber, footing modules open with the forces filled in (envelope or a chosen combination)
+- [ ] The detailed calculation stays linked to the model, with a warning when the model has changed
+
+**Step 5 — Results like RSA**
+- [ ] Tables of reactions, displacements and member forces, filtered by case / combination, CSV export
+- [ ] PDF note with the analyses run and the groups designed
+
 ---
 
 ## 4. Important note

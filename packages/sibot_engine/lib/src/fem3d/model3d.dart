@@ -19,9 +19,12 @@ class Node3D {
   );
 }
 
-/// Restrained degrees of freedom: translations then rotations.
+/// Restrained degrees of freedom (translations then rotations) and
+/// elastic springs on the free ones: kN/m for translations, kN·m/rad for
+/// rotations (global axes).
 class Support3D {
   final bool ux, uy, uz, rx, ry, rz;
+  final List<double> springs;
   const Support3D({
     this.ux = false,
     this.uy = false,
@@ -29,7 +32,22 @@ class Support3D {
     this.rx = false,
     this.ry = false,
     this.rz = false,
+    this.springs = const [0, 0, 0, 0, 0, 0],
   });
+
+  /// A support from six restraint flags and optional springs.
+  factory Support3D.of(List<bool> d, [List<double>? k]) => Support3D(
+    ux: d[0],
+    uy: d[1],
+    uz: d[2],
+    rx: d[3],
+    ry: d[4],
+    rz: d[5],
+    springs: k ?? const [0, 0, 0, 0, 0, 0],
+  );
+
+  /// Nothing restrained and no spring.
+  bool get isFree => !dofs.any((d) => d) && !springs.any((k) => k > 0);
 
   static const fixed = Support3D(
     ux: true,
@@ -43,18 +61,14 @@ class Support3D {
 
   List<bool> get dofs => [ux, uy, uz, rx, ry, rz];
 
-  Map<String, dynamic> toJson() => {'d': dofs};
-  factory Support3D.fromJson(Map<String, dynamic> j) {
-    final d = (j['d'] as List).cast<bool>();
-    return Support3D(
-      ux: d[0],
-      uy: d[1],
-      uz: d[2],
-      rx: d[3],
-      ry: d[4],
-      rz: d[5],
-    );
-  }
+  Map<String, dynamic> toJson() => {
+    'd': dofs,
+    if (springs.any((k) => k != 0)) 'k': springs,
+  };
+  factory Support3D.fromJson(Map<String, dynamic> j) => Support3D.of(
+    (j['d'] as List).cast<bool>(),
+    (j['k'] as List?)?.map((e) => (e as num).toDouble()).toList(),
+  );
 }
 
 /// Prismatic section. Iy is the major-axis inertia (bending in the local
@@ -172,19 +186,53 @@ class Element3D {
   final int n2;
   final int section;
   final double roll;
-  const Element3D(this.n1, this.n2, this.section, {this.roll = 0});
+
+  /// Released end actions, as local degree-of-freedom indices of the
+  /// 12-vector: 3, 4, 5 (Mx, My, Mz at the start) and 9, 10, 11 (at the
+  /// end). Empty = rigid connections.
+  final List<int> releases;
+
+  const Element3D(
+    this.n1,
+    this.n2,
+    this.section, {
+    this.roll = 0,
+    this.releases = const [],
+  });
+
+  /// Local DOF indices that may be released.
+  static const releasable = [3, 4, 5, 9, 10, 11];
+
+  /// Both bending moments released at both ends (a pin-ended member).
+  static const pinnedEnds = [4, 5, 10, 11];
+
+  Element3D copyWith({
+    int? n1,
+    int? n2,
+    int? section,
+    double? roll,
+    List<int>? releases,
+  }) => Element3D(
+    n1 ?? this.n1,
+    n2 ?? this.n2,
+    section ?? this.section,
+    roll: roll ?? this.roll,
+    releases: releases ?? this.releases,
+  );
 
   Map<String, dynamic> toJson() => {
     'n1': n1,
     'n2': n2,
     's': section,
     'roll': roll,
+    if (releases.isNotEmpty) 'rel': releases,
   };
   factory Element3D.fromJson(Map<String, dynamic> j) => Element3D(
     j['n1'] as int,
     j['n2'] as int,
     j['s'] as int,
     roll: (j['roll'] as num?)?.toDouble() ?? 0,
+    releases: (j['rel'] as List?)?.cast<int>() ?? const [],
   );
 }
 
@@ -218,32 +266,127 @@ class NodalLoad3D {
   }
 }
 
-/// Uniform load over a whole member, kN/m, in global axes (gravity is
-/// qz < 0) or in the member's local axes.
+/// Distributed load on a member, kN/m, in global axes (gravity is
+/// qz < 0) or in the member's local axes: (qx, qy, qz) at [start] varying
+/// linearly to [end2] at [end] (m from the start node; null = member
+/// end). Uniform over the whole member by default.
 class MemberLoad3D {
   final int element;
   final double qx, qy, qz;
   final bool local;
+  final double start;
+  final double? end;
+
+  /// Intensities at [end] (null = same as at [start]).
+  final List<double>? end2;
+
   const MemberLoad3D(
     this.element, {
     this.qx = 0,
     this.qy = 0,
     this.qz = 0,
     this.local = false,
+    this.start = 0,
+    this.end,
+    this.end2,
   });
+
+  List<double> get q1 => [qx, qy, qz];
+  List<double> get q2 => end2 ?? q1;
+
+  /// Uniform over the whole member.
+  bool get uniform => start == 0 && end == null && end2 == null;
+
+  /// Total and moment about the start node of a component of the load
+  /// over a member of length [l]: (∫q, ∫q·x).
+  (double, double) resultant(int component, double l) {
+    final a = start.clamp(0.0, l), b = (end ?? l).clamp(0.0, l);
+    if (b <= a) return (0, 0);
+    final w1 = q1[component], w2 = q2[component];
+    final len = b - a;
+    final total = (w1 + w2) / 2 * len;
+    // Centroid of a trapezoid from a.
+    final xc = w1 + w2 == 0 ? len / 2 : len * (w1 + 2 * w2) / (3 * (w1 + w2));
+    return (total, total * (a + xc));
+  }
+
+  MemberLoad3D copyWith({int? element}) => MemberLoad3D(
+    element ?? this.element,
+    qx: qx,
+    qy: qy,
+    qz: qz,
+    local: local,
+    start: start,
+    end: end,
+    end2: end2,
+  );
 
   Map<String, dynamic> toJson() => {
     'e': element,
     'q': [qx, qy, qz],
     'local': local,
+    if (start != 0) 'a': start,
+    'b': ?end,
+    'q2': ?end2,
   };
   factory MemberLoad3D.fromJson(Map<String, dynamic> j) {
-    final q = (j['q'] as List).map((e) => (e as num).toDouble()).toList();
+    List<double>? list(Object? v) =>
+        (v as List?)?.map((e) => (e as num).toDouble()).toList();
+    final q = list(j['q'])!;
     return MemberLoad3D(
       j['e'] as int,
       qx: q[0],
       qy: q[1],
       qz: q[2],
+      local: j['local'] as bool? ?? false,
+      start: (j['a'] as num?)?.toDouble() ?? 0,
+      end: (j['b'] as num?)?.toDouble(),
+      end2: list(j['q2']),
+    );
+  }
+}
+
+/// Concentrated force on a member at [a] (m from the start node), kN, in
+/// global or local axes.
+class PointLoad3D {
+  final int element;
+  final double a;
+  final double fx, fy, fz;
+  final bool local;
+  const PointLoad3D(
+    this.element,
+    this.a, {
+    this.fx = 0,
+    this.fy = 0,
+    this.fz = 0,
+    this.local = false,
+  });
+
+  List<double> get vector => [fx, fy, fz];
+
+  PointLoad3D copyWith({int? element}) => PointLoad3D(
+    element ?? this.element,
+    a,
+    fx: fx,
+    fy: fy,
+    fz: fz,
+    local: local,
+  );
+
+  Map<String, dynamic> toJson() => {
+    'e': element,
+    'a': a,
+    'f': vector,
+    'local': local,
+  };
+  factory PointLoad3D.fromJson(Map<String, dynamic> j) {
+    final f = (j['f'] as List).map((e) => (e as num).toDouble()).toList();
+    return PointLoad3D(
+      j['e'] as int,
+      (j['a'] as num).toDouble(),
+      fx: f[0],
+      fy: f[1],
+      fz: f[2],
       local: j['local'] as bool? ?? false,
     );
   }
@@ -255,6 +398,7 @@ class LoadCase3D {
   final bool selfWeight;
   final List<NodalLoad3D> nodal;
   final List<MemberLoad3D> member;
+  final List<PointLoad3D> point;
 
   const LoadCase3D({
     required this.name,
@@ -262,7 +406,24 @@ class LoadCase3D {
     this.selfWeight = false,
     this.nodal = const [],
     this.member = const [],
+    this.point = const [],
   });
+
+  LoadCase3D copyWith({
+    String? name,
+    LoadType? type,
+    bool? selfWeight,
+    List<NodalLoad3D>? nodal,
+    List<MemberLoad3D>? member,
+    List<PointLoad3D>? point,
+  }) => LoadCase3D(
+    name: name ?? this.name,
+    type: type ?? this.type,
+    selfWeight: selfWeight ?? this.selfWeight,
+    nodal: nodal ?? this.nodal,
+    member: member ?? this.member,
+    point: point ?? this.point,
+  );
 
   Map<String, dynamic> toJson() => {
     'name': name,
@@ -270,6 +431,7 @@ class LoadCase3D {
     'sw': selfWeight,
     'nodal': [for (final l in nodal) l.toJson()],
     'member': [for (final l in member) l.toJson()],
+    if (point.isNotEmpty) 'point': [for (final l in point) l.toJson()],
   };
   factory LoadCase3D.fromJson(Map<String, dynamic> j) => LoadCase3D(
     name: j['name'] as String,
@@ -282,6 +444,10 @@ class LoadCase3D {
     member: [
       for (final l in (j['member'] as List? ?? const []))
         MemberLoad3D.fromJson(Map<String, dynamic>.from(l as Map)),
+    ],
+    point: [
+      for (final l in (j['point'] as List? ?? const []))
+        PointLoad3D.fromJson(Map<String, dynamic>.from(l as Map)),
     ],
   );
 }
@@ -297,6 +463,10 @@ class Model3D {
   /// (ux, uy, rz).
   final List<List<int>> diaphragms;
 
+  /// Plane frame in the global X–Z plane: every node is held out of the
+  /// plane (uy, rx, rz restrained).
+  final bool plane;
+
   const Model3D({
     required this.nodes,
     required this.supports,
@@ -304,7 +474,22 @@ class Model3D {
     required this.elements,
     this.cases = const [],
     this.diaphragms = const [],
+    this.plane = false,
   });
+
+  /// An empty model with a default concrete section and permanent and
+  /// imposed load cases.
+  factory Model3D.empty({bool plane = false}) => Model3D(
+    nodes: const [],
+    supports: const {},
+    sections: [Section3D.rectangle(300, 500)],
+    elements: const [],
+    cases: const [
+      LoadCase3D(name: 'G', selfWeight: true),
+      LoadCase3D(name: 'Q', type: LoadType.imposed),
+    ],
+    plane: plane,
+  );
 
   Map<String, dynamic> toJson() => {
     'version': 1,
@@ -316,6 +501,7 @@ class Model3D {
     'elements': [for (final e in elements) e.toJson()],
     'cases': [for (final c in cases) c.toJson()],
     'diaphragms': diaphragms,
+    if (plane) 'plane': true,
   };
 
   factory Model3D.fromJson(Map<String, dynamic> j) => Model3D(
@@ -345,5 +531,6 @@ class Model3D {
       for (final g in (j['diaphragms'] as List? ?? const []))
         (g as List).cast<int>(),
     ],
+    plane: j['plane'] as bool? ?? false,
   );
 }
