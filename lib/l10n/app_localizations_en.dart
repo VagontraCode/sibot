@@ -4394,4 +4394,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkUnlink => 'Unlink';
+
+  @override
+  String get tablesTitle => 'Result tables';
+
+  @override
+  String get tablesExport => 'Export as CSV';
+
+  @override
+  String get tablesSource => 'Combination or load case';
+
+  @override
+  String get tablesReactions => 'Reactions';
+
+  @override
+  String get tablesDisplacements => 'Displacements';
+
+  @override
+  String get tablesForces => 'Member forces';
+
+  @override
+  String get tablesNode => 'Node';
+
+  @override
+  String get tablesMember => 'Member';
+
+  @override
+  String tablesTruncated(int shown, int total) {
+    return 'First $shown rows of $total; the CSV file holds them all.';
+  }
+
+  @override
+  String get tablesNote =>
+      'Global axes for reactions and displacements (translations in mm, rotations in mrad). Member forces are the extremes along each member in its local axes: N > 0 tension, My > 0 sagging.';
+
+  @override
+  String noteModes(int n) {
+    return '$n modes';
+  }
 }

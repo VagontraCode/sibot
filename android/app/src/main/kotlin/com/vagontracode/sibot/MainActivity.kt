@@ -1,4 +1,4 @@
-package com.example.sibot
+package com.vagontracode.sibot
 
 import io.flutter.embedding.android.FlutterActivity
 

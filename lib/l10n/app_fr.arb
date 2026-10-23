@@ -1337,5 +1337,16 @@
   "linkModelChanged": "Le modèle a changé depuis la reprise de ces données : ouvrez-le et renvoyez la barre.",
   "linkModelGone": "Le modèle n’existe plus.",
   "linkOpenModel": "Ouvrir le modèle",
-  "linkUnlink": "Délier"
+  "linkUnlink": "Délier",
+  "tablesTitle": "Tableaux de résultats",
+  "tablesExport": "Exporter en CSV",
+  "tablesSource": "Combinaison ou cas de charge",
+  "tablesReactions": "Réactions",
+  "tablesDisplacements": "Déplacements",
+  "tablesForces": "Efforts dans les barres",
+  "tablesNode": "Nœud",
+  "tablesMember": "Barre",
+  "tablesTruncated": "{shown} premières lignes sur {total} ; le fichier CSV les contient toutes.",
+  "tablesNote": "Axes globaux pour les réactions et les déplacements (translations en mm, rotations en mrad). Les efforts sont les extrêmes le long de chaque barre dans ses axes locaux : N > 0 traction, My > 0 moment positif.",
+  "noteModes": "{n} modes"
 }

@@ -1959,5 +1959,33 @@
   "linkModelChanged": "The model has changed since these inputs were taken: open it and send the member again.",
   "linkModelGone": "The model no longer exists.",
   "linkOpenModel": "Open the model",
-  "linkUnlink": "Unlink"
+  "linkUnlink": "Unlink",
+  "tablesTitle": "Result tables",
+  "tablesExport": "Export as CSV",
+  "tablesSource": "Combination or load case",
+  "tablesReactions": "Reactions",
+  "tablesDisplacements": "Displacements",
+  "tablesForces": "Member forces",
+  "tablesNode": "Node",
+  "tablesMember": "Member",
+  "tablesTruncated": "First {shown} rows of {total}; the CSV file holds them all.",
+  "@tablesTruncated": {
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "tablesNote": "Global axes for reactions and displacements (translations in mm, rotations in mrad). Member forces are the extremes along each member in its local axes: N > 0 tension, My > 0 sagging.",
+  "noteModes": "{n} modes",
+  "@noteModes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  }
 }

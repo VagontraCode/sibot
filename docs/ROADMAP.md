@@ -212,9 +212,14 @@ the next one starts.
 - [x] "Design in…" from a member (static, seismic or Design tab) or a tapped support: RC section from forces (new module), column, steel (now with Mz), timber and isolated footing open with the ULS envelope (or the seismic situations) filled in, group settings included; supports send G / Q and base moments from the load cases
 - [x] The detailed calculation stays linked to the model (saved with it), with a warning when the model has changed and a way back to the model
 
-**Step 5 — Results like RSA**
-- [ ] Tables of reactions, displacements and member forces, filtered by case / combination, CSV export
-- [ ] PDF note with the analyses run and the groups designed
+**Step 5 — Results like RSA ✅**
+- [x] Tables of reactions, displacements and member forces, filtered by case / combination, CSV export
+- [x] PDF note with the analyses run and the groups designed
+
+### Release engineering ✅
+- [x] Logo (structural "S" frame) and generated icons: Android adaptive + themed, iOS, web, Windows
+- [x] Application id `com.vagontracode.sibot`, release signing (upload key, never committed)
+- [x] GitHub Actions: CI on every push / PR; signed release (APKs, AAB, web, checksums) on version tags
 
 ---
 

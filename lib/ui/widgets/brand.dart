@@ -1,64 +1,135 @@
 import 'package:flutter/material.dart';
 import 'package:sibot/config/theme.dart';
 
-/// Sibot logo: a Warren truss inside a rounded square.
+/// Brand colours of the logo (fixed: the same in light and dark themes).
+const _logoBlueTop = Color(0xFF4C74FF);
+const _logoBlueBottom = Color(0xFF1E3BD6);
+const _logoAmber = Color(0xFFF5A524);
+
+/// Paints the Sibot logo in a [size] square at [origin]: a squared "S"
+/// drawn as a two-bay structural frame with amber joints and a pinned
+/// support, on a blue rounded square.
+///
+/// [background] and [mark] select the layers (adaptive launcher icons
+/// need them apart); [monochrome] draws the mark in [ink] only.
+void paintSibotLogo(
+  Canvas canvas,
+  double size, {
+  Offset origin = Offset.zero,
+  bool background = true,
+  bool mark = true,
+  bool monochrome = false,
+  bool rounded = true,
+  Color ink = Colors.white,
+}) {
+  canvas.save();
+  canvas.translate(origin.dx, origin.dy);
+  canvas.scale(size);
+  if (background) {
+    final rect = const Rect.fromLTWH(0, 0, 1, 1);
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [_logoBlueTop, _logoBlueBottom],
+      ).createShader(rect);
+    if (rounded) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(0.225)),
+        paint,
+      );
+    } else {
+      canvas.drawRect(rect, paint);
+    }
+    // Faint blueprint grid.
+    final grid = Paint()
+      ..color = Colors.white.withValues(alpha: 0.07)
+      ..strokeWidth = 0.006;
+    canvas.save();
+    if (rounded) {
+      canvas.clipRRect(
+        RRect.fromRectAndRadius(rect, const Radius.circular(0.225)),
+      );
+    }
+    for (var k = 1; k < 10; k++) {
+      canvas.drawLine(Offset(k / 10, 0), Offset(k / 10, 1), grid);
+      canvas.drawLine(Offset(0, k / 10), Offset(1, k / 10), grid);
+    }
+    canvas.restore();
+  }
+  if (mark) {
+    final accent = monochrome ? ink : _logoAmber;
+    const a = Offset(0.72, 0.22), b = Offset(0.32, 0.22);
+    const c = Offset(0.32, 0.44), d = Offset(0.72, 0.44);
+    const e = Offset(0.72, 0.66), f = Offset(0.32, 0.66);
+    final member = Paint()
+      ..color = ink
+      ..strokeWidth = 0.088
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(
+      Path()
+        ..moveTo(a.dx, a.dy)
+        ..lineTo(b.dx, b.dy)
+        ..lineTo(c.dx, c.dy)
+        ..lineTo(d.dx, d.dy)
+        ..lineTo(e.dx, e.dy)
+        ..lineTo(f.dx, f.dy),
+      member,
+    );
+    // Pinned support under the free end, with its ground line.
+    final support = Paint()..color = accent;
+    canvas.drawPath(
+      Path()
+        ..moveTo(f.dx, f.dy + 0.02)
+        ..lineTo(f.dx - 0.07, f.dy + 0.13)
+        ..lineTo(f.dx + 0.07, f.dy + 0.13)
+        ..close(),
+      support,
+    );
+    canvas.drawLine(
+      Offset(f.dx - 0.11, f.dy + 0.155),
+      Offset(f.dx + 0.11, f.dy + 0.155),
+      Paint()
+        ..color = ink
+        ..strokeWidth = 0.03
+        ..strokeCap = StrokeCap.round,
+    );
+    // Rigid joints.
+    final joint = Paint()..color = accent;
+    for (final p in [b, c, d, e]) {
+      canvas.drawCircle(p, 0.05, joint);
+    }
+    canvas.drawCircle(a, 0.044, Paint()..color = ink);
+  }
+  canvas.restore();
+}
+
+/// The Sibot logo at [size] logical pixels.
 class BrandMark extends StatelessWidget {
   final double size;
   const BrandMark({super.key, this.size = 36});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: context.colors.primary,
-        borderRadius: BorderRadius.circular(size * 0.28),
-      ),
-      child: CustomPaint(painter: _TrussPainter(context.colors.onPrimary)),
+      child: const CustomPaint(painter: _LogoPainter()),
     );
   }
 }
 
-class _TrussPainter extends CustomPainter {
-  final Color color;
-  _TrussPainter(this.color);
+class _LogoPainter extends CustomPainter {
+  const _LogoPainter();
 
   @override
-  void paint(Canvas canvas, Size size) {
-    final s = size.width;
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = s * 0.075
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round
-      ..style = PaintingStyle.stroke;
-
-    final l = s * 0.2, r = s * 0.8, top = s * 0.34, bot = s * 0.66;
-    final m = (l + r) / 2;
-    final q1 = (l + m) / 2, q3 = (m + r) / 2;
-
-    final path = Path()
-      ..moveTo(l, bot)
-      ..lineTo(r, bot)
-      ..moveTo(q1, top)
-      ..lineTo(q3, top)
-      // diagonals
-      ..moveTo(l, bot)
-      ..lineTo(q1, top)
-      ..lineTo(m, bot)
-      ..lineTo(q3, top)
-      ..lineTo(r, bot);
-    canvas.drawPath(path, paint);
-
-    final dot = Paint()..color = color;
-    for (final p in [Offset(l, bot), Offset(m, bot), Offset(r, bot)]) {
-      canvas.drawCircle(p, s * 0.06, dot);
-    }
-  }
+  void paint(Canvas canvas, Size size) =>
+      paintSibotLogo(canvas, size.shortestSide);
 
   @override
-  bool shouldRepaint(_TrussPainter old) => old.color != color;
+  bool shouldRepaint(_LogoPainter old) => false;
 }
 
 /// Line drawing of a two-bay portal frame under a uniform load with its

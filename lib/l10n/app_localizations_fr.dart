@@ -4418,4 +4418,42 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get linkUnlink => 'Délier';
+
+  @override
+  String get tablesTitle => 'Tableaux de résultats';
+
+  @override
+  String get tablesExport => 'Exporter en CSV';
+
+  @override
+  String get tablesSource => 'Combinaison ou cas de charge';
+
+  @override
+  String get tablesReactions => 'Réactions';
+
+  @override
+  String get tablesDisplacements => 'Déplacements';
+
+  @override
+  String get tablesForces => 'Efforts dans les barres';
+
+  @override
+  String get tablesNode => 'Nœud';
+
+  @override
+  String get tablesMember => 'Barre';
+
+  @override
+  String tablesTruncated(int shown, int total) {
+    return '$shown premières lignes sur $total ; le fichier CSV les contient toutes.';
+  }
+
+  @override
+  String get tablesNote =>
+      'Axes globaux pour les réactions et les déplacements (translations en mm, rotations en mrad). Les efforts sont les extrêmes le long de chaque barre dans ses axes locaux : N > 0 traction, My > 0 moment positif.';
+
+  @override
+  String noteModes(int n) {
+    return '$n modes';
+  }
 }

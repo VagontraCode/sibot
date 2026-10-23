@@ -10,6 +10,7 @@ import 'package:sibot/features/frame/frame_repository.dart';
 import 'package:sibot/features/frame3d/frame3d_analyses_ui.dart';
 import 'package:sibot/features/frame3d/frame3d_data.dart';
 import 'package:sibot/features/frame3d/frame3d_groups_ui.dart';
+import 'package:sibot/features/frame3d/frame3d_tables.dart';
 import 'package:sibot/features/frame3d/frame3d_design.dart';
 import 'package:sibot/features/frame3d/frame3d_editor.dart';
 import 'package:sibot/features/frame3d/frame_notes.dart';
@@ -583,6 +584,10 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         )).future,
       ),
     );
+    // Member design when it has been run on this model.
+    final design = _ran[_designId] == key
+        ? await ref.read(frame3dDesignProvider((key, _code)).future)
+        : null;
     if (!mounted) return;
     final ok = await shareNote(
       context,
@@ -592,6 +597,7 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         out: full,
         view: view,
         seismic: seismic,
+        design: design,
       ),
     );
     if (!ok && mounted) {
@@ -1761,6 +1767,22 @@ class _Frame3DPageState extends ConsumerState<Frame3DPage> {
         const LinearProgressIndicator()
       else
         _staticSummary(context, out.model, r),
+      const SizedBox(height: Gap.md),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => Frame3DTablesPage(
+                modelName: _edit?.record.name ?? '',
+                out: out,
+              ),
+            ),
+          ),
+          icon: const Icon(Icons.table_chart_outlined),
+          label: Text(l.tablesTitle),
+        ),
+      ),
     ];
   }
 

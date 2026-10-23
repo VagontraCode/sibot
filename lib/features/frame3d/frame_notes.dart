@@ -32,6 +32,14 @@ Future<bool> shareNote(BuildContext context, CalcNote note) async {
   }
 }
 
+String _kindName(AppLocalizations l, AnalysisKind k) => switch (k) {
+  AnalysisKind.static => l.f3dTabStatic,
+  AnalysisKind.modal => l.f3dTabModes,
+  AnalysisKind.spectrum => l.f3dTabSeismic,
+  AnalysisKind.buckling => l.f3dTabBuckling,
+  AnalysisKind.pDelta => l.f3dPDelta,
+};
+
 String _type(AppLocalizations l, LoadType t) => switch (t) {
   LoadType.permanent => l.f3dTypePermanent,
   LoadType.imposed => l.f3dTypeImposed,
@@ -47,6 +55,7 @@ CalcNote frame3dNote(
   required Frame3DOutput out,
   NoteImage? view,
   SeismicOutput? seismic,
+  DesignOutput? design,
 }) {
   final l = context.l10n;
   final m = out.model;
@@ -76,6 +85,32 @@ CalcNote frame3dNote(
             'A ${f(s.area * 1e4, 1)} cm² · Iy ${f(s.iy * 1e8, 0)} cm⁴',
           ),
       ]),
+      NoteSection(l.f3dTabAnalyses, [
+        for (final a in record.analyses)
+          NoteRow(a.name.isNotEmpty ? a.name : _kindName(l, a.kind), switch (a
+              .kind) {
+            AnalysisKind.modal => l.noteModes(a.modes),
+            AnalysisKind.spectrum =>
+              '${a.ps92 ? 'PS92' : 'EN 1998-1'} · q ${f(a.q, 1)} · ${switch (a.direction) {
+                0 => 'X',
+                1 => 'Y',
+                _ => 'X + Y',
+              }}',
+            _ => _kindName(l, a.kind),
+          }),
+      ]),
+      if (m.groups.isNotEmpty)
+        NoteSection(l.f3dTabDesign, [
+          for (final g in m.groups)
+            NoteRow(
+              g.name,
+              '${g.members.length} · ${switch (g.material) {
+                DesignMaterial.concrete => '${g.code == DesignCode.bael ? 'BAEL' : 'EC2'} C${f(g.fck, 0)} · fyk ${f(g.fyk, 0)}',
+                DesignMaterial.steel => 'EC3 ${g.grade}',
+                DesignMaterial.timber => 'EC5 ${g.timberClass}',
+              }} · L/${f(g.deflectionLimit, 0)}',
+            ),
+        ]),
       NoteSection(l.f3dLoadCase, [
         for (final c in m.cases)
           NoteRow(
@@ -111,6 +146,41 @@ CalcNote frame3dNote(
               );
             }(),
         ]),
+      if (uls.isNotEmpty)
+        NoteTable(l.tablesReactions, [
+          for (final n in m.supports.keys.toList()..sort())
+            () {
+              var rz = 0.0, rh = 0.0;
+              for (final r in uls) {
+                final v = r.reactions[n];
+                if (v == null) continue;
+                rz = math.max(rz, v[2]);
+                rh = math.max(rh, math.sqrt(v[0] * v[0] + v[1] * v[1]));
+              }
+              return NoteRow(
+                l.linkSupportN(n + 1),
+                'Rz ${f(rz, 0)} kN · H ${f(rh, 0)} kN',
+              );
+            }(),
+        ]),
+      if (design != null && design.members.isNotEmpty)
+        NoteTable(l.f3dTabDesign, [
+          for (final d in design.members)
+            NoteRow(
+              '${l.frameMemberTitle(d.member + 1)} · ${m.groups.where((g) => g.id == d.group).firstOrNull?.name ?? ''}',
+              d.error != null
+                  ? l.f3dDesignFailed
+                  : '${d.summary} · ${f(d.ratio, 2)}',
+            ),
+        ]),
+      if (design != null && design.members.isNotEmpty)
+        NoteBanner(
+          l.f3dDesignCounts(
+            design.members.length - design.failing,
+            design.failing,
+          ),
+          ok: design.failing == 0,
+        ),
       if (out.modes.isNotEmpty)
         NoteTable(l.f3dTabModes, [
           for (var k = 0; k < out.modes.length; k++)

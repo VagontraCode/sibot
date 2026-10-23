@@ -46,3 +46,8 @@ app.*.map.json
 
 # Engine package
 packages/sibot_engine/.dart_tool/
+
+# Release signing: never commit
+/android/key.properties
+*.jks
+*.keystore

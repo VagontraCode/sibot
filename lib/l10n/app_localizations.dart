@@ -8125,6 +8125,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlink'**
   String get linkUnlink;
+
+  /// No description provided for @tablesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Result tables'**
+  String get tablesTitle;
+
+  /// No description provided for @tablesExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as CSV'**
+  String get tablesExport;
+
+  /// No description provided for @tablesSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Combination or load case'**
+  String get tablesSource;
+
+  /// No description provided for @tablesReactions.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get tablesReactions;
+
+  /// No description provided for @tablesDisplacements.
+  ///
+  /// In en, this message translates to:
+  /// **'Displacements'**
+  String get tablesDisplacements;
+
+  /// No description provided for @tablesForces.
+  ///
+  /// In en, this message translates to:
+  /// **'Member forces'**
+  String get tablesForces;
+
+  /// No description provided for @tablesNode.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get tablesNode;
+
+  /// No description provided for @tablesMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get tablesMember;
+
+  /// No description provided for @tablesTruncated.
+  ///
+  /// In en, this message translates to:
+  /// **'First {shown} rows of {total}; the CSV file holds them all.'**
+  String tablesTruncated(int shown, int total);
+
+  /// No description provided for @tablesNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Global axes for reactions and displacements (translations in mm, rotations in mrad). Member forces are the extremes along each member in its local axes: N > 0 tension, My > 0 sagging.'**
+  String get tablesNote;
+
+  /// No description provided for @noteModes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} modes'**
+  String noteModes(int n);
 }
 
 class _AppLocalizationsDelegate

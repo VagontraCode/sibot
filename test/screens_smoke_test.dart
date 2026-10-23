@@ -32,6 +32,7 @@ import 'package:sibot/features/calculations/timber/presentation/timber_connectio
 import 'package:sibot/features/calculations/beams/presentation/continuous_beam_provider.dart';
 import 'package:sibot/features/calculations/beams/presentation/beam_section_provider.dart';
 import 'package:sibot/features/frame3d/model_link.dart';
+import 'package:sibot/features/frame3d/frame3d_tables.dart';
 import 'package:sibot/features/calculations/footings/presentation/footings_provider.dart';
 import 'package:sibot/features/calculations/retaining_walls/presentation/retaining_wall_provider.dart';
 import 'package:sibot/features/calculations/slabs/presentation/slabs_provider.dart';
@@ -640,6 +641,22 @@ void main() {
                 await tester.pump();
               }
 
+              if (s.key == 'frame3d_static') {
+                // Let the analysis status settle, then bring the button up.
+                await frames();
+                final tables = find.byIcon(Icons.table_chart_outlined);
+                await scrollTo(tables);
+                await tester.ensureVisible(tables);
+                await tester.pump();
+                await tester.tap(tables);
+                await frames();
+                expect(find.byType(Frame3DTablesPage), findsOneWidget);
+                expect(tester.takeException(), isNull, reason: s.key);
+                Navigator.of(
+                  tester.element(find.byType(Frame3DTablesPage)),
+                ).pop();
+                await frames();
+              }
               if (s.key == 'frame3d_modes') {
                 await analysesTab();
                 // The default list: static, modal, buckling; run the modes.

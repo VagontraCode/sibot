@@ -1,7 +1,7 @@
 name: sibot
-description: "A new Flutter project."
+description: "Structural analysis and design for phones and tablets: 2D and 3D frames, RC, steel, timber, masonry and foundations (Eurocodes, BAEL)."
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.0+1
 
 environment:
   sdk: ^3.10.4
