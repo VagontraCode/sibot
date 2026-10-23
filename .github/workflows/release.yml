@@ -87,13 +87,32 @@ jobs:
       - name: Release keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.SIBOT_KEYSTORE_BASE64 }}
+          SIBOT_KEYSTORE_PASSWORD: ${{ secrets.SIBOT_KEYSTORE_PASSWORD }}
+          SIBOT_KEY_ALIAS: ${{ secrets.SIBOT_KEY_ALIAS }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "SIBOT_KEYSTORE_BASE64 is not set: refusing to publish an unsigned release." >&2
+            echo "::error::SIBOT_KEYSTORE_BASE64 is not set: refusing to publish an unsigned release."
             exit 1
           fi
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
-          echo "SIBOT_KEYSTORE_PATH=$RUNNER_TEMP/upload-keystore.jks" >> "$GITHUB_ENV"
+          STORE="$RUNNER_TEMP/release.jks"
+          # Pasted secrets often carry spaces or line breaks: drop them.
+          if ! printf '%s' "$KEYSTORE_BASE64" | tr -d '[:space:]' | base64 --decode > "$STORE"; then
+            echo "::error::SIBOT_KEYSTORE_BASE64 is not valid base64. Paste the whole content of the keystore_base64.txt file, nothing else."
+            exit 1
+          fi
+          # A PKCS12 / JKS keystore starts with a DER sequence (0x30).
+          if [ "$(head -c 1 "$STORE" | od -An -tx1 | tr -d ' ')" != "30" ]; then
+            echo "::error::SIBOT_KEYSTORE_BASE64 does not decode to a keystore ($(stat -c %s "$STORE") bytes). Paste the whole base64 of android/upload-keystore.jks, nothing else."
+            exit 1
+          fi
+          # The password and the alias must open it.
+          if ! keytool -list -keystore "$STORE" -storepass "$SIBOT_KEYSTORE_PASSWORD" \
+              -alias "${SIBOT_KEY_ALIAS:-upload}" > /dev/null 2>&1; then
+            echo "::error::The keystore did not open with SIBOT_KEYSTORE_PASSWORD and SIBOT_KEY_ALIAS: check both secrets."
+            exit 1
+          fi
+          echo "Keystore OK ($(stat -c %s "$STORE") bytes)."
+          echo "SIBOT_KEYSTORE_PATH=$STORE" >> "$GITHUB_ENV"
 
       - name: Build Android
         env:
